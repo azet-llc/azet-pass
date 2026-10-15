@@ -172,7 +172,11 @@ struct DoFanoutRequest<'a> {
 async fn send_ws_to_do(env: &Env, selector: &PublishSelector, ws_bytes: &[u8]) {
     use base64::{engine::general_purpose::STANDARD, Engine};
 
-    let selector_tag = selector.tag();
+    // Log label only: the anonymous auth-request token is a credential and must not reach the logs.
+    let selector_tag = match selector {
+        PublishSelector::ByUser { user_id } => user_tag(user_id),
+        PublishSelector::ByAnonymousToken { .. } => "anonymous auth request".to_string(),
+    };
     let namespace = match env.durable_object("NOTIFY_DO") {
         Ok(namespace) => namespace,
         Err(error) => {

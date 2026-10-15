@@ -1,7 +1,7 @@
-# Chrome Web Store / Microsoft Edge Add-ons listing — AZET Pass Password Manager 2026.9.3.4
+# Chrome Web Store / Microsoft Edge Add-ons listing — AZET Pass Password Manager 2026.9.3.5
 
-Packages (from `build-extension.sh`, same run as the Firefox package on AMO): `azet-pass-chrome-2026.9.3.4.zip` (Chrome Web Store),
-`azet-pass-edge-2026.9.3.4.zip` (Edge Add-ons). Copies sit next to this file; zips are not in git.
+Packages (from `build-extension.sh`, same run as `azet-pass-firefox-2026.9.3.5.zip` for AMO): `azet-pass-chrome-2026.9.3.5.zip` (Chrome Web Store),
+`azet-pass-edge-2026.9.3.5.zip` (Edge Add-ons). Copies sit next to this file; zips are not in git.
 The Firefox listing is on AMO (`azet-pass-password-manager`, id 3087714); its text is the source of the English description below.
 
 - Name: AZET Pass Password Manager (KO: AZET Pass 비밀번호 관리자) — from `_locales/*/messages.json` `extName`
@@ -48,7 +48,7 @@ AZET Pass 는 오픈소스 Bitwarden 브라우저 확장(GPL-3.0)을 우리 이�
 AZET Pass is a password manager: it stores your logins, passkeys, cards and identities in an encrypted vault and fills them into the websites you use.
 
 ## Permission justifications
-Read from `manifest.json` of both 2026.9.3.4 packages: 16 permissions, 2 optional permissions, 2 host permissions (the Chrome and Edge lists are identical).
+Read from `manifest.json` of both 2026.9.3.5 packages: 16 permissions, 2 optional permissions, 2 host permissions (the Chrome and Edge lists are identical).
 
 Permissions (16)
 1. `activeTab`: fill the login you pick from the popup, shortcut or context menu into the tab you are on.

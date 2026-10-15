@@ -224,7 +224,12 @@ if (fs.existsSync(p(shp + '.ts'))) {
 
 // Sign-up and sign-in on our server: consent links are our terms and privacy policy; the passkey and SSO buttons go,
 // because the server has neither (a click ended in a 404 and an "unexpected error" toast).
-const swap = (file, pairs) => fs.existsSync(p(file)) && edit(file, (s) => pairs.reduce((t, [a, b]) => t.replace(a, b), s))
+// every pair must match (a stale one throws instead of shipping the upstream text); a missing file is skipped (other tags)
+const swap = (file, pairs) => fs.existsSync(p(file)) && edit(file, (s) => pairs.reduce((t, [a, b]) => {
+  const u = t.replace(a, b)
+  if (u === t) throw new Error(`rebrand: ${a} not found in ${file} (upstream moved?)`)
+  return u
+}, s))
 const LEGAL = [['"https://bitwarden.com/terms/"', '"https://azet.io/terms"'], ['"https://bitwarden.com/privacy/"', '"https://azet.io/privacy#pass"']]
 // ...and the marketing-mail opt-in goes too: we send no newsletter (its unsubscribe link was bitwarden.com/email-preferences)
 swap('libs/auth/src/angular/registration/registration-start/registration-start.component.html', [...LEGAL, ['<bit-form-control *ngIf="!isSelfHost">', '<bit-form-control *ngIf="false">']])
@@ -283,6 +288,25 @@ swap(E + 'billing/popup/settings/premium-v2.component.html', ['premiumSignUpTwoS
 // biometric unlock in the browser needs the desktop app, which is not released
 swap(E + 'auth/popup/settings/account-security.component.html', [['@if (!(sharedUnlockFeatureEnabled$ | async)) {\n            <bit-form-control [disableMargin]="!((pinEnabled$ | async) || this.form.value.pin)">\n              <input bitCheckbox id="biometric"',
   '@if (false) {\n            <bit-form-control [disableMargin]="!((pinEnabled$ | async) || this.form.value.pin)">\n              <input bitCheckbox id="biometric"']])
+// Product name hard-coded outside the string tables (lane 397, board 1826 item 5): popup/popout and Firefox sidebar
+// titles, the right-click menu root, the About dialog title, the phishing page line, iframe titles screen readers
+// announce. The "© Bitwarden Inc." attribution lines stay.
+for (const [file, a, b] of [
+  ['popup/index.ejs', '<title>Bitwarden</title>', '<title>AZET Pass</title>'],
+  ['sidepanel-disabled.html', '<title>Bitwarden</title>', '<title>AZET Pass</title>'],
+  ['autofill/notification/bar.html', '<title>Bitwarden</title>', '<title>AZET Pass</title>'],
+  ['platform/offscreen-document/index.html', '<title>Bitwarden Offscreen Document</title>', '<title>AZET Pass Offscreen Document</title>'],
+  ['autofill/overlay/inline-menu/pages/menu-container/menu-container.html', '<title>Bitwarden inline menu</title>', '<title>AZET Pass inline menu</title>'],
+  ['autofill/overlay/inline-menu/pages/list/list.html', '<title>Bitwarden vault</title>', '<title>AZET Pass vault</title>'],
+  ['autofill/overlay/inline-menu/pages/button/button.html', '<title>Bitwarden inline menu button</title>', '<title>AZET Pass inline menu button</title>'],
+  ['autofill/browser/main-context-menu-handler.ts', 'title: "Bitwarden",', 'title: "AZET Pass",'],
+  ['platform/badge/badge-browser-api.ts', 'const title = `Bitwarden${', 'const title = `AZET Pass${'],
+  ['tools/popup/settings/about-dialog/about-dialog.component.html', '<div bitDialogTitle>Bitwarden</div>', '<div bitDialogTitle>AZET Pass</div>'],
+  ['dirt/phishing-detection/popup/protected-by-component.html', '"Bitwarden phishing blocker"', '"AZET Pass phishing blocker"'],
+]) swap(E + file, [[a, b]])
+// Downloaded file names carry the product name: Settings > About > Troubleshooting report, vault export
+swap('libs/logging/src/flight-recorder-export.ts', [['`Bitwarden-diagnostic-report-${datePart}.csv`', '`AZET-Pass-diagnostic-report-${datePart}.csv`']])
+swap('libs/tools/export-vault-core/src/services/export-helper.ts', [['return "bitwarden" + (prefix', 'return "azet_pass" + (prefix']])
 
 // #10 #28 #38 Premium cannot be bought yet (supervisor 10-08 15:2x: no waitlist, no upgrade or purchase buttons before
 // checkout; keep the free-plan facts). Premium badges and gates say what the feature is and close; licence holders keep

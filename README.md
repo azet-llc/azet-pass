@@ -1,5 +1,7 @@
 # AZET Pass
 
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/15530/badge)](https://www.bestpractices.dev/projects/15530)
+
 Source code of the AZET Pass apps (GPL-3.0) and of its sync server (MIT). How to rebuild each published app: [clients/SOURCE.md](clients/SOURCE.md).
 
 Password manager and authenticator codes for Mac, Windows, Android, iPhone and browsers, with sync on Cloudflare.

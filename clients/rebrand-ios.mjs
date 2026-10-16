@@ -47,3 +47,18 @@ console.log(`AZET Pass: help links rewritten in ${relinked} files`);
 {const f=path.join(root,'BitwardenShared/UI/Vault/Extensions/Alert+Vault.swift');let s=fs.readFileSync(f,'utf8'),k=0;
  s=s.replace(/let preferredAction = (AlertAction\(title: Localizations\.upgradeToPremium[\s\S]*?)alertActions: \[\s*preferredAction,\s*AlertAction\(title: Localizations\.cancel, style: \.cancel\),\s*\],([\s\S]*?)\n\s*alert\.preferredAction = preferredAction\n/g,(m,a,b)=>{k++;return `_ = ${a}alertActions: [AlertAction(title: Localizations.ok, style: .cancel)],${b}\n`;});
  fs.writeFileSync(f,s);console.log(`AZET Pass: ${k} upgrade alerts made notices`);}
+
+// App Store build under AZET's team: no push relay (pass.azet.io sends no APNs), no associated domains for
+// bitwarden.com hosts, no iCloud container; Bitwarden's export-compliance code belongs to their account, so declare
+// like Bitwarden's own Mac App Store build (ITSAppUsesNonExemptEncryption false). Idempotent (plutil -remove fails quietly).
+const plistEdit = (rel, removes, bools = {}) => { const p = path.join(root, rel); for (const k of removes) try { execFileSync('plutil', ['-remove', k, p], {stdio: 'ignore'}) } catch {} for (const [k, v] of Object.entries(bools)) execFileSync('plutil', ['-replace', k, '-bool', String(v), p]) }
+plistEdit('Bitwarden/Application/Support/Bitwarden.entitlements', ['aps-environment', 'com\\.apple\\.developer\\.associated-domains', 'com\\.apple\\.developer\\.ubiquity-container-identifiers'])
+for (const rel of ['Bitwarden/Application/Support/Info.plist', 'BitwardenAutoFillExtension/Application/Support/Info.plist', 'BitwardenActionExtension/Application/Support/Info.plist', 'BitwardenShareExtension/Application/Support/Info.plist'])
+  if (fs.existsSync(path.join(root, rel))) plistEdit(rel, ['ITSEncryptionExportComplianceCode'], {ITSAppUsesNonExemptEncryption: false})
+
+// App Store signing (Apple Distribution, profiles "<bundle id> ios" made with the App Store Connect API): only the
+// app and extension targets get a profile; frameworks must not.
+for (const f of ['Bitwarden-Release', 'BitwardenActionExtension-Release', 'BitwardenAutoFillExtension', 'BitwardenNotificationExtension', 'BitwardenShareExtension', 'BitwardenWatchApp-Release', 'BitwardenWatchWidgetExtension']) {
+  const p = path.join(root, 'Configs', f + '.xcconfig'); const s = fs.readFileSync(p, 'utf8')
+  if (!s.includes('PROVISIONING_PROFILE_SPECIFIER')) fs.writeFileSync(p, s + '\nPROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*] = $(PRODUCT_BUNDLE_IDENTIFIER) ios\nPROVISIONING_PROFILE_SPECIFIER[sdk=watchos*] = $(PRODUCT_BUNDLE_IDENTIFIER) ios\n')
+}

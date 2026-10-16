@@ -234,6 +234,7 @@ const LEGAL = [['"https://bitwarden.com/terms/"', '"https://azet.io/terms"'], ['
 // ...and the marketing-mail opt-in goes too: we send no newsletter (its unsubscribe link was bitwarden.com/email-preferences)
 swap('libs/auth/src/angular/registration/registration-start/registration-start.component.html', [...LEGAL, ['<bit-form-control *ngIf="!isSelfHost">', '<bit-form-control *ngIf="false">']])
 swap('apps/desktop/src/main/menu/menu.help.ts', LEGAL)
+swap('apps/desktop/src/index.html', [['<title>Bitwarden</title>', '<title>AZET Pass</title>']]) // the Mac Window menu and window switcher show it
 swap('libs/auth/src/angular/login/login.component.html', [[/\n\s*<div class="tw-text-center">\{\{ "or" \| i18n \}\}<\/div>[\s\S]*?\{\{ "useSingleSignOn" \| i18n \}\}\s*<\/button>/, '']])
 swap('apps/web/src/index.html', [['<title page-title>Bitwarden Web vault</title>', '<title page-title>AZET Pass Web vault</title>'],
   // browser bar = the page's top area (anon layout background-alt), not Bitwarden blue

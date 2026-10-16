@@ -78,3 +78,17 @@ for (const f of ['Bitwarden-Release']) { // the main app's xcconfig sets no spec
   execFileSync('python3', ['-c', 'import sys\nfrom PIL import Image\nfor f in sys.argv[1:]:\n im=Image.open(f)\n if im.mode in ("RGBA","LA","P"):\n  im=im.convert("RGBA"); bg=Image.new("RGB",im.size,(255,255,255)); bg.paste(im,mask=im.split()[3]); bg.save(f)', ...pngs])
   console.log(`AZET Pass: ${pngs.length} app icons without alpha`)
 }
+
+// Launch screen (logoBitwarden, white on the dark splash) and the watch app's logo/complication PDFs still showed Bitwarden.
+{
+  const both = (fill) => `<svg xmlns="http://www.w3.org/2000/svg" width="282" height="44" viewBox="0 0 220 34"><path fill="${fill}" fill-rule="evenodd" d="${mark}"/><path fill="${fill}" transform="translate(36 0)" d="${wordmark.path}"/></svg>`
+  const launch = path.join(root, 'Bitwarden/Application/Support/Assets.xcassets/logoBitwarden.imageset')
+  for (const [scale, name] of [[1, 'logo.png'], [2, 'logo@2x.png'], [3, 'logo@3x.png']])
+    execFileSync('rsvg-convert', ['-w', String(282 * scale), '-h', String(44 * scale), '-o', path.join(launch, name)], { input: both('white') })
+  const watch = path.join(root, 'BitwardenWatchApp/Assets.xcassets/BitwardenImagetype.imageset')
+  for (const f of fs.readdirSync(watch).filter((f) => f.endsWith('.pdf'))) execFileSync('rsvg-convert', ['-f', 'pdf', '-o', path.join(watch, f)], { input: both('#175DDC') })
+  const markSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path fill="black" fill-rule="evenodd" transform="translate(3 0)" d="${mark}"/></svg>`
+  for (const d of ['BitwardenWatchApp/Assets.xcassets/ComplicationIcon.imageset', 'BitwardenWatchWidgetExtension/Assets.xcassets/AccentedComplicationIcon.imageset'])
+    if (fs.existsSync(path.join(root, d, 'bw-logo.pdf'))) execFileSync('rsvg-convert', ['-f', 'pdf', '-o', path.join(root, d, 'bw-logo.pdf')], { input: markSvg })
+  console.log('AZET Pass: launch logo and watch logos replaced')
+}

@@ -49,3 +49,6 @@ Avoid Cloudflare bindings/network.
 - Do not commit secrets.
   Use `.env` locally and Cloudflare/GitHub Secrets for deploy:
   `JWT_SECRET`, `JWT_REFRESH_SECRET`, `D1_DATABASE_ID`.
+- Google Play: the Play build (AAB) relies on clients never offering a web upgrade. Do not add a `premium-upgrade`
+  feature flag to `/api/config`, set `suppressOnboardingInterstitials` to false, or change how `premium_for` decides
+  Premium without first checking Play's payments policy with the app owner (lane 458, 2026-10-16).

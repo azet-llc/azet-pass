@@ -56,9 +56,25 @@ plistEdit('Bitwarden/Application/Support/Bitwarden.entitlements', ['aps-environm
 for (const rel of ['Bitwarden/Application/Support/Info.plist', 'BitwardenAutoFillExtension/Application/Support/Info.plist', 'BitwardenActionExtension/Application/Support/Info.plist', 'BitwardenShareExtension/Application/Support/Info.plist'])
   if (fs.existsSync(path.join(root, rel))) plistEdit(rel, ['ITSEncryptionExportComplianceCode'], {ITSAppUsesNonExemptEncryption: false})
 
-// App Store signing (Apple Distribution, profiles "<bundle id> ios" made with the App Store Connect API): only the
-// app and extension targets get a profile; frameworks must not.
-for (const f of ['Bitwarden-Release', 'BitwardenActionExtension-Release', 'BitwardenAutoFillExtension', 'BitwardenNotificationExtension', 'BitwardenShareExtension', 'BitwardenWatchApp-Release', 'BitwardenWatchWidgetExtension']) {
+// App Store signing (Apple Distribution, profiles "<bundle id> ios" made with the App Store Connect API): the optional
+// Configs/Local-bwpm.xcconfig every target includes sets the team and the per-target profile names the xcconfigs reference.
+fs.writeFileSync(path.join(root, 'Configs/Local-bwpm.xcconfig'), [
+  'DEVELOPMENT_TEAM = 95P4H2RG24',
+  ...Object.entries({ '': 'io.azet.pass', _ACTION_EXTENSION: 'io.azet.pass.find-login-action-extension', _AUTOFILL_EXTENSION: 'io.azet.pass.autofill',
+    _NOTIFICATION_EXTENSION: 'io.azet.pass.notification', _SHARE_EXTENSION: 'io.azet.pass.share-extension', _WATCH_APP: 'io.azet.pass.watchkitapp',
+    _WATCH_WIDGET_EXTENSION: 'io.azet.pass.watchkitapp.widget-extension' }).filter(([k]) => k).map(([k, id]) => `PROVISIONING_PROFILE_SPECIFIER${k} = ${id} ios`),
+].join('\n') + '\n')
+for (const f of ['Bitwarden-Release']) { // the main app's xcconfig sets no specifier of its own
   const p = path.join(root, 'Configs', f + '.xcconfig'); const s = fs.readFileSync(p, 'utf8')
-  if (!s.includes('PROVISIONING_PROFILE_SPECIFIER')) fs.writeFileSync(p, s + '\nPROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*] = $(PRODUCT_BUNDLE_IDENTIFIER) ios\nPROVISIONING_PROFILE_SPECIFIER[sdk=watchos*] = $(PRODUCT_BUNDLE_IDENTIFIER) ios\n')
+  if (!s.includes('PROVISIONING_PROFILE_SPECIFIER')) fs.writeFileSync(p, s + '\nPROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*] = io.azet.pass ios\n')
+}
+
+// App Store rejects app icons with an alpha channel (ITMS-90396/90717); the brand PNGs have transparent corners, so
+// flatten every app icon onto white (iOS applies its own mask). Idempotent.
+{
+  const pngs = []
+  const walkIcons = (d) => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) walkIcons(p); else if (e.name.endsWith('.png') && p.includes('.appiconset/')) pngs.push(p) } }
+  walkIcons(root)
+  execFileSync('python3', ['-c', 'import sys\nfrom PIL import Image\nfor f in sys.argv[1:]:\n im=Image.open(f)\n if im.mode in ("RGBA","LA","P"):\n  im=im.convert("RGBA"); bg=Image.new("RGB",im.size,(255,255,255)); bg.paste(im,mask=im.split()[3]); bg.save(f)', ...pngs])
+  console.log(`AZET Pass: ${pngs.length} app icons without alpha`)
 }

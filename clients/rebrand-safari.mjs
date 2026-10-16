@@ -43,6 +43,8 @@ plist('safari/Info.plist', {
   NSHumanReadableDescription: 'Fill and save passwords in Safari, synced end-to-end encrypted with your AZET Pass vault.',
 }, ['SFSafariAppExtensionBundleIdentifiersToReplace'])
 plist('desktop/Info.plist', { CFBundleDisplayName: 'AZET Pass for Safari', CFBundleShortVersionString: ver, CFBundleVersion: build, NSHumanReadableCopyright: COPY })
+// App Review 2.4.5 (10-16): the extension only makes outgoing connections — drop Bitwarden's network.server entitlement
+execFileSync('/usr/libexec/PlistBuddy', ['-c', 'Delete :com.apple.security.network.server', path.join(S, 'safari/safari.entitlements')])
 
 // App icon: every Mac slot from the AZET Pass desktop icon (brand/generated/icon.icns)
 const set = path.join(S, 'desktop/Assets.xcassets/AppIcon.appiconset')

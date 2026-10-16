@@ -92,6 +92,13 @@ edit('app/src/main/AndroidManifest.xml', (s) => s.replace('<data android:host="*
 edit(A + 'ui/platform/feature/settings/accountsecurity/AccountSecurityViewModel.kt', (s) => s.replace('shouldShowEnableAuthenticatorSync = isBuildVersionAtLeast(Build.VERSION_CODES.S),', 'shouldShowEnableAuthenticatorSync = false, // AZET: no Authenticator app to sync with'))
 // About: "learn about organizations" (no organizations)
 edit(A + 'ui/platform/feature/settings/about/AboutScreen.kt', (s) => s.replace(/\n        BitwardenExternalLinkRow\(\n            text = stringResource\(id = BitwardenString\.learn_org\),[\s\S]*?\n        \)\n/, '\n'))
+// Play (fdroid) build: no "Upgraded to Premium" card — its Learn more opens a pricing page (Play payments policy, lane458 10-16)
+edit(A + 'data/billing/manager/PremiumStateManagerImpl.kt', (s) => s
+  .replace('\nimport com.x8bit.bitwarden.data.auth.datasource.disk.AuthDiskSource\n', '\nimport com.x8bit.bitwarden.BuildConfig\nimport com.x8bit.bitwarden.data.auth.datasource.disk.AuthDiskSource\n')
+  .replace('                        isPending && !isConsumed && isPremiumFromSelf\n', `                        // AZET: the Play build (fdroid) never shows this card. Its Learn more
+                        // opens azet.io/products/pass, a pricing page (Play payments policy).
+                        isPending && !isConsumed && isPremiumFromSelf &&
+                            BuildConfig.FLAVOR != "fdroid"\n`))
 // #36 help and product links in Kotlin -> pass.azet.io/help (anchors) or azet.io
 const HELP = 'https://pass.azet.io/help/'
 const helpTopic = (slug) => {

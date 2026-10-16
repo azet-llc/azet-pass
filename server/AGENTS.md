@@ -49,6 +49,7 @@ Avoid Cloudflare bindings/network.
 - Do not commit secrets.
   Use `.env` locally and Cloudflare/GitHub Secrets for deploy:
   `JWT_SECRET`, `JWT_REFRESH_SECRET`, `D1_DATABASE_ID`.
-- Google Play: the Play build (AAB) relies on clients never offering a web upgrade. Do not add a `premium-upgrade`
-  feature flag to `/api/config`, set `suppressOnboardingInterstitials` to false, or change how `premium_for` decides
-  Premium without first checking Play's payments policy with the app owner (lane 458, 2026-10-16).
+- Google Play: turning on `pm-31697-premium-upgrade-path` (MobilePremiumUpgrade) in `/api/config` `featureStates`
+  opens a web payment entry in the Play build (Settings › Plan and the premium card) — check with lane 458 first.
+  The same goes for setting `suppressOnboardingInterstitials` to false or changing how `premium_for` decides Premium
+  (2026-10-16).

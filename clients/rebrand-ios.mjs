@@ -92,3 +92,9 @@ for (const f of ['Bitwarden-Release']) { // the main app's xcconfig sets no spec
     if (fs.existsSync(path.join(root, d, 'bw-logo.pdf'))) execFileSync('rsvg-convert', ['-f', 'pdf', '-o', path.join(root, d, 'bw-logo.pdf')], { input: markSvg })
   console.log('AZET Pass: launch logo and watch logos replaced')
 }
+
+// pass.azet.io sends no push (no APNs entitlement above): never show the "Allow automatic syncing" push prompt or ask
+// for notification permission; the vault syncs on open and pull-to-refresh.
+edit('BitwardenShared/UI/Vault/Vault/VaultList/VaultListProcessor.swift', (s) => s.includes('// AZET Pass: no push') ? s + ' ' : s.replace(
+  '    private func handleNotifications() async {\n',
+  '    private func handleNotifications() async {\n        if true { return } // AZET Pass: no push relay, no permission prompt\n'))

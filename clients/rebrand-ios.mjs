@@ -98,3 +98,6 @@ for (const f of ['Bitwarden-Release']) { // the main app's xcconfig sets no spec
 edit('BitwardenShared/UI/Vault/Vault/VaultList/VaultListProcessor.swift', (s) => s.includes('// AZET Pass: no push') ? s + ' ' : s.replace(
   '    private func handleNotifications() async {\n',
   '    private func handleNotifications() async {\n        if true { return } // AZET Pass: no push relay, no permission prompt\n'))
+// The watch app still reads "Bitwarden" and would need its own App Store screenshots (ASC 409
+// SCREENSHOT_REQUIRED.APPLE_WATCH, 10-17): ship the iPhone/iPad app without it.
+edit('project-pm.yml', (s) => s.includes('      - target: BitwardenWatchApp\n') ? s.replace('      - target: BitwardenWatchApp\n', '') : s + ' ')

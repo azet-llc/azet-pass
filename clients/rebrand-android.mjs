@@ -177,4 +177,26 @@ fs.writeFileSync(p(ui, 'logo_bitwarden_icon.xml'), vector(1024, 1024, `    <path
 fs.writeFileSync(p(ui, 'logo_shield_icon.xml'), vector(108, 108, mark('#FFFFFF', 1.5, 34.5, 30)))
 fs.writeFileSync(p(ui, 'ic_shield.xml'), vector(20, 20, mark('#000000', 0.56, 2.7, 1)))
 
-console.log(`rebrand-android: ${renamed} strings renamed, server https://pass.azet.io, app id io.azet.pass`)
+// AZET_LITE=1: AZET Pass Lite for Google Play (owner 10-21: Lite and Pro are separate apps, Lite is free and sells nothing).
+// App id io.azet.pass.lite, name "AZET Pass Lite", and every string about Premium, plans, upgrades, prices or subscriptions
+// is emptied in every language: pass.azet.io gives every account all features, so those screens never open, and Lite
+// carries none of that wording (App Store 3.1.1 / Play payments rule, removed at the source rather than hidden).
+let liteId = 'io.azet.pass'
+if (process.env.AZET_LITE === '1') {
+  liteId = 'io.azet.pass.lite'
+  edit('app/build.gradle.kts', (s) => s.replace('applicationId = "io.azet.pass"', 'applicationId = "io.azet.pass.lite"'))
+  edit('app/src/release/res/values/strings_non_localized.xml', (s) => s.replace('<string name="app_name" translatable="false">AZET Pass</string>', '<string name="app_name" translatable="false">AZET Pass Lite</string>'))
+  const sells = /premium|upgrade|prices?\b|pricing|subscri|checkout|stripe|구매|결제|요금제|구독/i
+  let emptied = 0
+  for (const mod of ['app', 'ui', 'core', 'data', 'network', 'cxf', 'authenticatorbridge']) {
+    if (!fs.existsSync(p(mod))) continue
+    for (const f of walk(p(mod)).filter((f) => /\/res\/values[^/]*\/strings[^/]*\.xml$/.test(f))) {
+      const s = fs.readFileSync(f, 'utf8')
+      const out = s.replace(/(<string name="[^"]+"[^>]*>)([\s\S]*?)(<\/string>)/g, (m, o, t, c) => sells.test(t) ? (emptied++, o + c) : m)
+        .replace(/(<plurals name="[^"]+"[^>]*>)([\s\S]*?)(<\/plurals>)/g, (m, o, t, c) => sells.test(t) ? (emptied++, o + t.replace(/(<item [^>]*>)[\s\S]*?(<\/item>)/g, '$1$2') + c) : m)
+      if (out !== s) fs.writeFileSync(f, out)
+    }
+  }
+  console.log(`rebrand-android: Lite — ${emptied} Premium/plan strings emptied`)
+}
+console.log(`rebrand-android: ${renamed} strings renamed, server https://pass.azet.io, app id ${liteId}`)

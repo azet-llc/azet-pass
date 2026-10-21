@@ -60,3 +60,25 @@ for (const pt of [16, 32, 128, 256, 512]) for (const sc of [1, 2]) {
 }
 fs.writeFileSync(path.join(set, 'Contents.json'), JSON.stringify({ images, info: { version: 1, author: 'xcode' } }, null, 2))
 console.log('rebrand-safari: done', ver, build)
+
+// AZET_LITE=1: the Mac half of AZET Pass Lite (App Store app io.azet.pass.lite = iPhone/iPad app + this Safari extension,
+// lane 567 ①). Container io.azet.pass.lite, extension io.azet.pass.lite.safari-extension, name "AZET Pass Lite", and every
+// extension message about Premium, plans, upgrades, prices or subscriptions emptied (same rule as rebrand-android/ios).
+if (process.env.AZET_LITE === '1') {
+  edit('desktop.xcodeproj/project.pbxproj', (s) => all(all(all(s, 'PRODUCT_BUNDLE_IDENTIFIER = io.azet.pass.safari.extension;', 'PRODUCT_BUNDLE_IDENTIFIER = io.azet.pass.lite.safari-extension;'),
+    'PRODUCT_BUNDLE_IDENTIFIER = io.azet.pass.safari;', 'PRODUCT_BUNDLE_IDENTIFIER = io.azet.pass.lite;'), 'PRODUCT_NAME = "AZET Pass for Safari";', 'PRODUCT_NAME = "AZET Pass Lite";'))
+  edit('desktop/ViewController.swift', (s) => all(all(s, 'let appName = "AZET Pass"', 'let appName = "AZET Pass Lite"'),
+    'let extensionBundleIdentifier = "io.azet.pass.safari.extension"', 'let extensionBundleIdentifier = "io.azet.pass.lite.safari-extension"'))
+  plist('safari/Info.plist', { CFBundleDisplayName: 'AZET Pass Lite' })
+  plist('desktop/Info.plist', { CFBundleDisplayName: 'AZET Pass Lite' })
+  const sells = /premium|upgrade|prices?\b|pricing|subscri|checkout|stripe|구매|결제|요금제|구독/i
+  const loc = path.join(root, 'apps/browser/build/_locales')
+  let emptied = 0
+  for (const l of fs.readdirSync(loc)) {
+    const f = path.join(loc, l, 'messages.json'); if (!fs.existsSync(f)) continue
+    const m = JSON.parse(fs.readFileSync(f, 'utf8'))
+    for (const v of Object.values(m)) if (v && typeof v.message === 'string' && sells.test(v.message)) { v.message = ''; emptied++ }
+    fs.writeFileSync(f, JSON.stringify(m))
+  }
+  console.log(`rebrand-safari: Lite — io.azet.pass.lite, ${emptied} Premium/plan messages emptied`)
+}

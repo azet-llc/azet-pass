@@ -1,0 +1,1 @@
+Free password manager with autofill, 2FA codes and end-to-end encryption.

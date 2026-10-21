@@ -1,0 +1,22 @@
+AZET Pass Lite is a free, open-source password manager: it stores your logins, cards and notes end to end encrypted, fills them in apps and browsers, and shows two-factor codes, with every feature included.
+
+HOW IT DIFFERS
+• From the browser's built-in password list: your vault works in every app and browser on the phone, and on your other devices through pass.azet.io.
+• From managers that keep two-factor codes for paying users: authenticator (TOTP) codes are included for everyone.
+• Open source: built on the Bitwarden code (GPL-3.0); the source is on github.com/neulketing/azet-pass.
+
+WHAT IT DOES
+• Unlimited logins, cards, identities, secure notes and SSH keys
+• Autofill in apps and browsers through Android's autofill service
+• Built-in authenticator: two-factor (TOTP) codes next to each login
+• Password, passphrase and username generator
+• Send: share text or files with an expiry date
+• Passkeys, biometric unlock and an auto-lock timer
+• Folders, search and favourites
+
+SECURITY
+• Zero-knowledge, end-to-end encryption: your master password never leaves the device, and AZET cannot read your vault
+• Account and vault are stored on pass.azet.io (AZET LLC); you can also connect a self-hosted server
+
+AZET Pass Lite is free.
+Privacy policy: https://azet.io/privacy

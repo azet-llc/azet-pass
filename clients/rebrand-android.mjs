@@ -43,7 +43,7 @@ edit('app/build.gradle.kts', (s) => s.replace(`    packaging {
         }
         resources {`).replace(/(\n        versionName = libs\.versions\.appVersionName\.get\(\)\n)/, '$1        ndk { abiFilters += listOf("arm64-v8a") }\n'))
 // our own version line: upstream 2026.9.1 + AZET build 4 (ready-zero) (versionCode grows with each AZET release)
-edit('gradle/libs.versions.toml', (s) => s.replace(/appVersionCode = "\d+"/, 'appVersionCode = "20260904"').replace(/appVersionName = "[^"]+"/, 'appVersionName = "2026.9.1-azet4"'))
+edit('gradle/libs.versions.toml', (s) => s.replace(/appVersionCode = "\d+"/, 'appVersionCode = "20260905"').replace(/appVersionName = "[^"]+"/, 'appVersionName = "2026.9.1-azet5"'))
 // GPL-3.0 source offer on the About screen's copyright line
 edit('app/src/main/kotlin/com/x8bit/bitwarden/ui/platform/feature/settings/about/AboutViewModel.kt', (s) =>
   s.replace('copyrightInfo = "© Bitwarden Inc. 2015-${Year.now(clock).value}".asText(),', 'copyrightInfo = "© Bitwarden Inc. 2015-${Year.now(clock).value}, AZET LLC. GPL-3.0, source: github.com/neulketing/azet-pass".asText(),'))
@@ -198,5 +198,10 @@ if (process.env.AZET_LITE === '1') {
     }
   }
   console.log(`rebrand-android: Lite — ${emptied} Premium/plan strings emptied`)
+  // Lite has no Accessibility Service autofill: Play's Accessibility API declaration does not fit a password manager that
+  // already fills through the Autofill framework and the credential provider. Service and its settings switch go.
+  edit('app/src/main/AndroidManifest.xml', (s) => s.replace(/\s*<!--\s*The AccessibilityService name[\s\S]*?<\/service>/, ''))
+  edit('app/src/main/kotlin/com/x8bit/bitwarden/ui/platform/feature/settings/autofill/AutoFillScreen.kt',
+    (s) => s.replace(/\n\s*AccessibilityAutofillSwitch\(\n[\s\S]*?\n {8}\)\n/, '\n'))
 }
 console.log(`rebrand-android: ${renamed} strings renamed, server https://pass.azet.io, app id ${liteId}`)

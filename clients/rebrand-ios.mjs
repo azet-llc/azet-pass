@@ -116,7 +116,9 @@ if (process.env.AZET_LITE === '1') {
   let emptied = 0
   const walkStrings = (d) => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) walkStrings(p); else if (e.name.endsWith('.strings')) {
     const s = fs.readFileSync(p, 'utf8')
-    const out = s.replace(/^("(?:[^"\\]|\\.)*"\s*=\s*")((?:[^"\\]|\\.)*)(";)$/gm, (m, k, v, end) => sells.test(v) ? (emptied++, k + end) : m)
+    // keep the format placeholders: SwiftGen turns a string with %@/%d into a function, and its callers pass arguments
+    const ph = (v) => (v.match(/%(?:\d+\$)?[-+ #0]*\d*(?:\.\d+)?(?:ll|l|h)?[@dDuUxXoOfeEgGcCsSpaAi]/g) || []).join(' ')
+    const out = s.replace(/^("(?:[^"\\]|\\.)*"\s*=\s*")((?:[^"\\]|\\.)*)(";)$/gm, (m, k, v, end) => sells.test(v) ? (emptied++, k + ph(v) + end) : m)
     if (out !== s) fs.writeFileSync(p, out) } } }
   walkStrings(path.join(root, 'BitwardenResources/Localizations'))
   console.log(`AZET Pass Lite: io.azet.pass.lite, ${emptied} Premium/plan strings emptied`)

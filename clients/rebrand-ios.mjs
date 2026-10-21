@@ -101,3 +101,23 @@ edit('BitwardenShared/UI/Vault/Vault/VaultList/VaultListProcessor.swift', (s) =>
 // The watch app still reads "Bitwarden" and would need its own App Store screenshots (ASC 409
 // SCREENSHOT_REQUIRED.APPLE_WATCH, 10-17): ship the iPhone/iPad app without it.
 edit('project-pm.yml', (s) => s.includes('      - target: BitwardenWatchApp\n') ? s.replace('      - target: BitwardenWatchApp\n', '') : s + ' ')
+
+// AZET_LITE=1: AZET Pass Lite for the App Store (owner 10-21: Lite and Pro are separate apps, Lite is free and sells
+// nothing). Bundle io.azet.pass.lite (+ extensions), name "AZET Pass Lite", one app group group.io.azet.pass.lite, and
+// every string about Premium, plans, upgrades, prices or subscriptions emptied in every language — same rule as
+// rebrand-android.mjs (pass.azet.io gives every account all features, so those screens never open).
+if (process.env.AZET_LITE === '1') {
+  edit('Configs/Common-bwpm.xcconfig', (s) => s.replace('BASE_BUNDLE_ID = io.azet.pass\n', 'BASE_BUNDLE_ID = io.azet.pass.lite\n')
+    .replace('BMPW_BUNDLE_DISPLAY_NAME = AZET Pass\n', 'BMPW_BUNDLE_DISPLAY_NAME = AZET Pass Lite\n')
+    .replace('SHARED_APP_GROUP_IDENTIFIER = group.io.azet.pass\n', 'SHARED_APP_GROUP_IDENTIFIER = group.io.azet.pass.lite\n'))
+  for (const f of ['Configs/Local-bwpm.xcconfig', 'Configs/Bitwarden-Release.xcconfig'])
+    edit(f, (s) => s.replace(/= io\.azet\.pass(\.| ios)/g, '= io.azet.pass.lite$1'))
+  const sells = /premium|upgrade|prices?\b|pricing|subscri|checkout|stripe|구매|결제|요금제|구독/i
+  let emptied = 0
+  const walkStrings = (d) => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) walkStrings(p); else if (e.name.endsWith('.strings')) {
+    const s = fs.readFileSync(p, 'utf8')
+    const out = s.replace(/^("(?:[^"\\]|\\.)*"\s*=\s*")((?:[^"\\]|\\.)*)(";)$/gm, (m, k, v, end) => sells.test(v) ? (emptied++, k + end) : m)
+    if (out !== s) fs.writeFileSync(p, out) } } }
+  walkStrings(path.join(root, 'BitwardenResources/Localizations'))
+  console.log(`AZET Pass Lite: io.azet.pass.lite, ${emptied} Premium/plan strings emptied`)
+}

@@ -166,7 +166,7 @@ if (fs.existsSync(p(eb))) {
   j.publish = { provider: 'generic', url: `${BASE}/desktop` } // update feed on our server (Bitwarden: artifacts.bitwarden.com)
   // Microsoft Store identity: Partner Center > AZET Pass (9NF3686MBT1N) > Product identity
   Object.assign(j.appx, { applicationId: 'azetpass', identityName: 'AZET.ioSoftware.AZETPass',
-    publisher: 'CN=FD00C6AE-19A7-454C-8593-06EEFB12B464', publisherDisplayName: 'AZET.io Software',
+    publisher: 'CN=FD00C6AE-19A7-454C-8593-06EEFB12B464', publisherDisplayName: 'AZET',
     minVersion: '10.0.17763.0', maxVersionTested: '10.0.26100.0' }) // the Store refuses MinVersion <= 10.0.17134.0
   const am = 'apps/desktop/custom-appx-manifest.xml' // the Appx template build-msix.sh fills (same as Bitwarden's appx-cross-build.ps1)
   edit(am, (s) => s.replace('<uap:DisplayName>Bitwarden</uap:DisplayName>', '<uap:DisplayName>AZET Pass</uap:DisplayName>'))

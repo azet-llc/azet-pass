@@ -473,6 +473,26 @@
         }
       }
     },
+    "Attach a file": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "파일 첨부"
+          }
+        }
+      }
+    },
+    "Attach a photo": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사진 첨부"
+          }
+        }
+      }
+    },
     "AutoFill": {
       "localizations": {
         "ko": {
@@ -553,12 +573,12 @@
         }
       }
     },
-    "Call %@ and ask them to read their four words.": {
+    "Call %@ and ask them to read their five words.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ 님께 전화해서 화면의 네 단어를 읽어 달라고 하세요."
+            "value": "%@ 님께 전화해서 화면의 다섯 단어를 읽어 달라고 하세요."
           }
         }
       }
@@ -753,12 +773,12 @@
         }
       }
     },
-    "Compare the four words": {
+    "Compare the five words": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "네 단어 맞춰 보기"
+            "value": "다섯 단어 맞춰 보기"
           }
         }
       }
@@ -1203,12 +1223,12 @@
         }
       }
     },
-    "Everyone let in after the four words": {
+    "Everyone let in after the five words": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "네 단어 확인 후 모두 입장"
+            "value": "다섯 단어 확인 후 모두 입장"
           }
         }
       }
@@ -1429,6 +1449,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "즐겨찾기"
+          }
+        }
+      }
+    },
+    "Files": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "파일"
+          }
+        }
+      }
+    },
+    "Files are encrypted on this iPhone before they are saved. Up to 25 MB each.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "파일은 이 iPhone에서 암호화된 뒤 저장돼요. 파일 하나에 25MB까지."
+          }
+        }
+      }
+    },
+    "Files can be up to 25 MB.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "파일은 25MB까지 넣을 수 있어요."
           }
         }
       }
@@ -2353,12 +2403,12 @@
         }
       }
     },
-    "Next: call them and compare the four words, then tap Let in.": {
+    "Next: call them and compare the five words, then tap Let in.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "다음: 전화해서 네 단어를 맞춰 본 뒤 「들이기」를 누르세요."
+            "value": "다음: 전화해서 다섯 단어를 맞춰 본 뒤 「들이기」를 누르세요."
           }
         }
       }
@@ -2419,6 +2469,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "이 사진에서 로그인을 찾지 못했어요. 더 가까이, 더 밝게 찍어 보세요."
+          }
+        }
+      }
+    },
+    "No passkey for this site.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 사이트에 저장된 패스키가 없어요."
           }
         }
       }
@@ -2943,12 +3003,12 @@
         }
       }
     },
-    "Read these four words to %@. When their screen shows the same words, they let you in.": {
+    "Read these five words to %@. When their screen shows the same words, they let you in.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ 님께 이 네 단어를 읽어 주세요. 같은 단어가 보이면 들여보내 줘요."
+            "value": "%@ 님께 이 다섯 단어를 읽어 주세요. 같은 단어가 보이면 들여보내 줘요."
           }
         }
       }
@@ -3193,6 +3253,16 @@
         }
       }
     },
+    "Save a passkey for %@": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 패스키 저장"
+          }
+        }
+      }
+    },
     "Save or send the file": {
       "localizations": {
         "ko": {
@@ -3373,12 +3443,12 @@
         }
       }
     },
-    "Set up a parent's phone from yours, then compare four words": {
+    "Set up a parent's phone from yours, then compare five words": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "부모님 휴대폰을 내 폰에서 세팅하고, 네 단어로 확인"
+            "value": "부모님 휴대폰을 내 폰에서 세팅하고, 다섯 단어로 확인"
           }
         }
       }
@@ -3509,6 +3579,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "다시 로그인하세요."
+          }
+        }
+      }
+    },
+    "Sign in with a passkey": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패스키로 로그인"
           }
         }
       }

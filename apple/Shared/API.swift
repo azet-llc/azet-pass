@@ -67,7 +67,7 @@ final class API: @unchecked Sendable {
 
     @discardableResult
     func send(_ method: String, _ path: String, _ body: Any? = nil, auth: Bool = true) async throws -> [String: Any] {
-        let d = try await raw(method, path, json: body ?? [String: Any](), auth: auth)
+        let d = try await raw(method, path, json: method == "GET" ? nil : body ?? [String: Any](), auth: auth)   // iOS refuses a GET with a body
         return d.isEmpty ? [:] : ((try? JSONSerialization.jsonObject(with: d)) as? [String: Any] ?? [:])
     }
 

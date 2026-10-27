@@ -152,7 +152,7 @@ enum NotebookParser {
             if let v = value(after: idLabels, in: line) {
                 if cur == nil { cur = NotebookEntry(site: String(localized: "Login")) }
                 if !(cur!.username.isEmpty) { flush(); cur = NotebookEntry(site: String(localized: "Login")) }
-                cur!.username = v
+                cur!.username = email(v)
             } else if let v = value(after: pwLabels, in: line) {
                 if cur == nil { cur = NotebookEntry(site: String(localized: "Login")) }
                 cur!.password = v
@@ -190,7 +190,13 @@ enum NotebookParser {
         let rest = line.replacingOccurrences(of: p.name, with: "").components(separatedBy: CharacterSet(charactersIn: "/|,").union(.whitespaces))
             .map { $0.trimmingCharacters(in: CharacterSet(charactersIn: ":：")) }.filter { !$0.isEmpty }
         guard rest.count >= 2 else { return nil }
-        return NotebookEntry(site: p.name, username: rest[0], password: rest[1], url: p.url)
+        return NotebookEntry(site: p.name, username: email(rest[0]), password: rest[1], url: p.url)
+    }
+
+    /// Handwritten "@" is often read as "a", "©" or "&": "soonjaanaver.com" → "soonja@naver.com" for the usual mail domains.
+    static func email(_ s: String) -> String {
+        guard !s.contains("@"), let m = s.firstMatch(of: #/^([A-Za-z0-9._\-]+?)[a©®&Q]?((naver|gmail|daum|hanmail|kakao|nate|icloud|outlook|hotmail|yahoo)\.(com|net|co\.kr))$/#) else { return s }
+        return "\(m.1)@\(m.2)"
     }
 }
 

@@ -2,7 +2,7 @@ import XCTest
 
 /// The four-people-in-a-day journey on a real server, in Korean, saving a screenshot at every step:
 /// organizer signs in → makes the family → invites 엄마 with her own vault → fills it (preset + notebook scan) →
-/// parent mode → 엄마 opens the link and signs up → four words → organizer lets her in → 엄마 sees her vault.
+/// parent mode → 엄마 opens the link and signs up → five words → organizer lets her in → 엄마 sees her vault.
 /// Input: /private/tmp/claude-501/l649-ui.json {orgEmail, orgPassword, momEmail, momPassword, out}. The notebook
 /// photo must be in the simulator's library (xcrun simctl addmedia).
 final class FamilyJourneyTests: XCTestCase {
@@ -156,8 +156,12 @@ final class FamilyJourneyTests: XCTestCase {
 
         // 4 parent mode
         tap(app.navigationBars.buttons["설정"].firstMatch)
-        tap(app.switches["부모님 모드"])
-        tap(app.buttons["완료"])
+        let parent = app.switches["부모님 모드"]
+        wait(parent)
+        let knob = parent.switches.firstMatch   // tapping the row's label does not flip a SwiftUI Toggle
+        (knob.exists ? knob : parent).tap()
+        // parent mode replaces the whole screen, which usually closes Settings on its own
+        if app.buttons["완료"].waitForExistence(timeout: 3) { app.buttons["완료"].tap() }
         wait(app.buttons["비밀번호 찾기"])
         shot("parent-mode")
         tap(app.buttons["전체 앱 보기"])
@@ -176,7 +180,7 @@ final class FamilyJourneyTests: XCTestCase {
         tap(app.buttons["계정 만들기"])
         dismissSavePassword()
         wait(app.staticTexts["들어왔어요. 마지막 한 단계"], 90)
-        shot("mom-four-words")
+        shot("mom-five-words")
         tap(app.buttons["완료"])
         signOut()
 
@@ -184,9 +188,9 @@ final class FamilyJourneyTests: XCTestCase {
         signIn(org, orgPw)
         tap(app.tabBars.buttons["가족"])
         tap(app.buttons.matching(NSPredicate(format: "label CONTAINS '확인 기다림'")).firstMatch, 40)
-        tap(app.buttons["네 단어 맞춰 보기"])
+        tap(app.buttons["다섯 단어 맞춰 보기"])
         wait(app.buttons["같은 단어예요, 들이기"])
-        shot("organizer-four-words")
+        shot("organizer-five-words")
         tap(app.buttons["같은 단어예요, 들이기"])
         app.navigationBars.buttons.element(boundBy: 0).tap()
         wait(app.staticTexts["가족 세팅"])

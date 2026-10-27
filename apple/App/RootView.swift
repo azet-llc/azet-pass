@@ -53,7 +53,7 @@ struct WelcomeView: View {
                 VStack(alignment: .leading, spacing: 14) {
                     Feature(symbol: "person.3.fill", text: String(localized: "Up to 5 people share one family, each with a private vault"))
                     Feature(symbol: "camera.viewfinder", text: String(localized: "Take a photo of the notebook, the logins fill themselves in"))
-                    Feature(symbol: "hand.raised.fill", text: String(localized: "Set up a parent's phone from yours, then compare four words"))
+                    Feature(symbol: "hand.raised.fill", text: String(localized: "Set up a parent's phone from yours, then compare five words"))
                     Feature(symbol: "lock.shield.fill", text: String(localized: "Locked on your phone first: the server only ever sees scrambled data"))
                 }
                 .padding(24)

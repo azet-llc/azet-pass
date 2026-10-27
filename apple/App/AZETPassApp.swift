@@ -36,6 +36,7 @@ final class Prefs {
     private let d = SharedFiles.defaults
 
     init() {
+        if ProcessInfo.processInfo.arguments.contains("-uitest-reset") { d.removeObject(forKey: "parentMode") }
         parentMode = d.bool(forKey: "parentMode")
         autoLockMinutes = d.object(forKey: "autoLock") as? Int ?? 5
         seenOnboarding = d.bool(forKey: "seenOnboarding")

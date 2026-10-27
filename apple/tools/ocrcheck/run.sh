@@ -9,4 +9,5 @@ PY
 swiftc -O -o "$T/ocr" main.swift "$T/parser.swift" ../../App/Presets.swift
 out=$("$T/ocr" notebook-page.jpg); echo "$out"
 for s in 네이버 KB국민은행 정부24 쿠팡; do echo "$out" | grep -q "^ENTRY $s |" || { echo "FAIL: $s missing"; exit 1; }; done
+echo "$out" | grep -q "^ENTRY 쿠팡 | [^ ]*@naver.com" || { echo "FAIL: 쿠팡 email lost its @"; exit 1; }
 echo "PASS: 4 entries"

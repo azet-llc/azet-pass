@@ -169,7 +169,7 @@ pub async fn sync_collections(db: &db::Db, user_id: &str) -> Result<Vec<Value>, 
 fn collection_json(c: &Value) -> Value {
     json!({
         "object": "collectionDetails", "id": c["id"], "organizationId": c["org_id"], "name": c["name"],
-        "externalId": null, "readOnly": i(c, "read_only") == 1, "hidePasswords": i(c, "hide_passwords") == 1,
+        "externalId": null, "type": 0, "readOnly": i(c, "read_only") == 1, "hidePasswords": i(c, "hide_passwords") == 1,
         "manage": i(c, "manage") == 1, "travelSafe": i(c, "travel_safe") == 1
     })
 }

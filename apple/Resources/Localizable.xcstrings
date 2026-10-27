@@ -1,0 +1,4557 @@
+{
+  "sourceLanguage": "en",
+  "version": "1.0",
+  "strings": {
+    " or after one view": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " 또는 한 번 열면"
+          }
+        }
+      }
+    },
+    "%@ can sign in now": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 님이 이제 로그인할 수 있어요"
+          }
+        }
+      }
+    },
+    "%@ forgot their account password. Set a temporary one; their items stay exactly as they are.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 님이 계정 비밀번호를 잊었어요. 임시 비밀번호를 정해 주세요. 저장된 항목은 그대로 남아요."
+          }
+        }
+      }
+    },
+    "%@ invited you to the %@ family on AZET Pass. Open this link on your phone:": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ 님이 AZET Pass의 %2$@ 가족에 초대했어요. 휴대폰에서 이 링크를 열어 주세요:"
+          }
+        }
+      }
+    },
+    "%@ invited you to the %@ family.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ 님이 %2$@ 가족에 초대했어요."
+          }
+        }
+      }
+    },
+    "%@ · %lld/5": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$lld/5"
+          }
+        }
+      }
+    },
+    "%lld": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld"
+          }
+        }
+      }
+    },
+    "%lld items found": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld개 찾음"
+          }
+        }
+      }
+    },
+    "%lld items imported": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld개 가져왔어요"
+          }
+        }
+      }
+    },
+    "%lld items saved": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld개 저장했어요"
+          }
+        }
+      }
+    },
+    "%lld/%lld": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld/%2$lld"
+          }
+        }
+      }
+    },
+    "1. Open the Settings app\n2. General → AutoFill & Passwords\n3. Turn on AZET Pass": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1. 설정 앱을 엽니다\n2. 일반 → 자동 완성 및 암호\n3. AZET Pass를 켭니다"
+          }
+        }
+      }
+    },
+    "1Password: File → Export → CSV. Chrome: Settings → Passwords → Export passwords. Apple Passwords, Bitwarden and most others export CSV too.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1Password: 파일 → 내보내기 → CSV. Chrome: 설정 → 비밀번호 → 비밀번호 내보내기. Apple 암호, Bitwarden 등 대부분의 앱도 CSV로 내보낼 수 있어요."
+          }
+        }
+      }
+    },
+    "6-digit code": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6자리 코드"
+          }
+        }
+      }
+    },
+    "6-digit code from your authenticator app": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "인증 앱에 나온 6자리 코드"
+          }
+        }
+      }
+    },
+    "A CSV holds every password in plain text. Delete it once you've moved it.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CSV에는 모든 비밀번호가 그대로 적혀 있어요. 옮긴 뒤에는 꼭 지워 주세요."
+          }
+        }
+      }
+    },
+    "A vault called \"%@\" is ready. Add their logins now, so everything is there the moment they join.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「%@」 금고가 준비됐어요. 지금 로그인을 넣어 두면 들어오는 순간 모두 보여요."
+          }
+        }
+      }
+    },
+    "API Credential": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API 자격 증명"
+          }
+        }
+      }
+    },
+    "AZET Pass": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AZET Pass"
+          }
+        }
+      }
+    },
+    "AZET Pass for iPhone — Copyright © 2026 AZET LLC. Licensed under the GNU General Public License v3.0. Source: https://github.com/azet-llc/azet-pass\n\nEncryption: Bitwarden SDK (sdk-internal), GNU GPL v3.0, Copyright © Bitwarden Inc. Built from source without the Bitwarden-licensed parts. AZET Pass is not made or endorsed by Bitwarden.\n\nSync server: warden-worker, MIT licence.\n\nPassword breach checks: Have I Been Pwned (Troy Hunt), range API, CC BY 4.0.\n\nThis program comes with ABSOLUTELY NO WARRANTY. You may redistribute it under the terms of the GPL v3.0: https://www.gnu.org/licenses/gpl-3.0.html": {},
+    "AZET Pass is ready to fill your passwords.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AZET Pass가 비밀번호를 채울 준비가 됐어요."
+          }
+        }
+      }
+    },
+    "Access": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "접근 권한"
+          }
+        }
+      }
+    },
+    "Account holder": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "예금주"
+          }
+        }
+      }
+    },
+    "Account number": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "계좌번호"
+          }
+        }
+      }
+    },
+    "Account password": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "계정 비밀번호"
+          }
+        }
+      }
+    },
+    "Account password (write it by hand)": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "계정 비밀번호 (손으로 적기)"
+          }
+        }
+      }
+    },
+    "Account recovery": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "계정 복구"
+          }
+        }
+      }
+    },
+    "Account type": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "계좌 종류"
+          }
+        }
+      }
+    },
+    "Add a login for this vault": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 금고에 로그인 추가"
+          }
+        }
+      }
+    },
+    "Add logins to see your score": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "로그인을 추가하면 점수가 나와요"
+          }
+        }
+      }
+    },
+    "Add more": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "항목 더 추가"
+          }
+        }
+      }
+    },
+    "Add this key to an authenticator app (not AZET Pass itself), then type the 6-digit code it shows.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 키를 인증 앱(AZET Pass 말고 다른 앱)에 넣고, 나오는 6자리 코드를 입력하세요."
+          }
+        }
+      }
+    },
+    "Add website": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "웹사이트 추가"
+          }
+        }
+      }
+    },
+    "Add your first item": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "첫 항목 추가하기"
+          }
+        }
+      }
+    },
+    "Address": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "주소"
+          }
+        }
+      }
+    },
+    "Admin console": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "관리 화면"
+          }
+        }
+      }
+    },
+    "After 1 day": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1일 뒤"
+          }
+        }
+      }
+    },
+    "After 1 hour": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1시간 뒤"
+          }
+        }
+      }
+    },
+    "After 1 minute": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1분 뒤"
+          }
+        }
+      }
+    },
+    "After 30 days": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30일 뒤"
+          }
+        }
+      }
+    },
+    "After 5 minutes": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5분 뒤"
+          }
+        }
+      }
+    },
+    "After 7 days": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "7일 뒤"
+          }
+        }
+      }
+    },
+    "All Items": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "모든 항목"
+          }
+        }
+      }
+    },
+    "All logins": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "모든 로그인"
+          }
+        }
+      }
+    },
+    "Almost in %@": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 가족에 거의 다 왔어요"
+          }
+        }
+      }
+    },
+    "Another photo": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다른 사진"
+          }
+        }
+      }
+    },
+    "Approved wildlife": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "허가 대상"
+          }
+        }
+      }
+    },
+    "Ask my family for help": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족에게 도움 요청"
+          }
+        }
+      }
+    },
+    "AutoFill": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "자동 완성"
+          }
+        }
+      }
+    },
+    "Bank": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "은행"
+          }
+        }
+      }
+    },
+    "Bank Account": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "은행 계좌"
+          }
+        }
+      }
+    },
+    "Bank phone": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "은행 전화번호"
+          }
+        }
+      }
+    },
+    "Banks": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "은행"
+          }
+        }
+      }
+    },
+    "Big letters and only three buttons: find a password, save a new one, ask family for help.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "큰 글씨와 버튼 세 개뿐이에요: 비밀번호 찾기, 새로 저장, 가족에게 도움 요청."
+          }
+        }
+      }
+    },
+    "Brand": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "카드사"
+          }
+        }
+      }
+    },
+    "CSV (plain text)": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CSV (암호화 안 됨)"
+          }
+        }
+      }
+    },
+    "Call %@ and ask them to read their four words.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 님께 전화해서 화면의 네 단어를 읽어 달라고 하세요."
+          }
+        }
+      }
+    },
+    "Camera not available. Paste the setup key instead.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "카메라를 쓸 수 없어요. 설정 키를 붙여 넣어 주세요."
+          }
+        }
+      }
+    },
+    "Can you help me with AZET Pass?": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AZET Pass 좀 도와줄 수 있니?"
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "취소"
+          }
+        }
+      }
+    },
+    "Card companies": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "카드사"
+          }
+        }
+      }
+    },
+    "Card number": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "카드 번호"
+          }
+        }
+      }
+    },
+    "Cardholder": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "카드 소유자"
+          }
+        }
+      }
+    },
+    "Cardholder name": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "카드 소유자 이름"
+          }
+        }
+      }
+    },
+    "Categories": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "카테고리"
+          }
+        }
+      }
+    },
+    "Check again": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다시 확인"
+          }
+        }
+      }
+    },
+    "Check each one. Fix anything misread, then save.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "하나씩 확인하고 잘못 읽힌 곳을 고친 뒤 저장하세요."
+          }
+        }
+      }
+    },
+    "Check passwords against data breaches": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "유출된 비밀번호인지 확인"
+          }
+        }
+      }
+    },
+    "Check your mail on this iPhone and tap the link. It opens AZET Pass to finish.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 iPhone에서 메일을 열고 링크를 누르세요. AZET Pass가 열리며 가입이 끝나요."
+          }
+        }
+      }
+    },
+    "Checking passwords against data breaches is off in Settings.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정에서 유출 비밀번호 확인이 꺼져 있어요."
+          }
+        }
+      }
+    },
+    "Choose a photo": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사진 고르기"
+          }
+        }
+      }
+    },
+    "Choose the exported file": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내보낸 파일 고르기"
+          }
+        }
+      }
+    },
+    "City": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "도시"
+          }
+        }
+      }
+    },
+    "Class": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "종류"
+          }
+        }
+      }
+    },
+    "Close": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "닫기"
+          }
+        }
+      }
+    },
+    "Company": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "회사"
+          }
+        }
+      }
+    },
+    "Compare the four words": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "네 단어 맞춰 보기"
+          }
+        }
+      }
+    },
+    "Compromised passwords": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "유출된 비밀번호"
+          }
+        }
+      }
+    },
+    "Copy": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "복사"
+          }
+        }
+      }
+    },
+    "Copy %@": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 복사"
+          }
+        }
+      }
+    },
+    "Copy link": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "링크 복사"
+          }
+        }
+      }
+    },
+    "Copy one-time password": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "일회용 비밀번호 복사"
+          }
+        }
+      }
+    },
+    "Couldn't finish": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "끝내지 못했어요"
+          }
+        }
+      }
+    },
+    "Country": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "국가"
+          }
+        }
+      }
+    },
+    "Create a family account": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족 계정 만들기"
+          }
+        }
+      }
+    },
+    "Create account": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "계정 만들기"
+          }
+        }
+      }
+    },
+    "Create invite link": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "초대 링크 만들기"
+          }
+        }
+      }
+    },
+    "Create link": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "링크 만들기"
+          }
+        }
+      }
+    },
+    "Created": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "만든 날"
+          }
+        }
+      }
+    },
+    "Created for": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사용자"
+          }
+        }
+      }
+    },
+    "Credential": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "자격 증명"
+          }
+        }
+      }
+    },
+    "Credit Card": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "신용카드"
+          }
+        }
+      }
+    },
+    "Crypto Wallet": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "암호화폐 지갑"
+          }
+        }
+      }
+    },
+    "Database": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "데이터베이스"
+          }
+        }
+      }
+    },
+    "Date": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "날짜"
+          }
+        }
+      }
+    },
+    "Date created": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "만든 날짜"
+          }
+        }
+      }
+    },
+    "Date modified": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "고친 날짜"
+          }
+        }
+      }
+    },
+    "Date of birth": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "생년월일"
+          }
+        }
+      }
+    },
+    "Delete": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "삭제"
+          }
+        }
+      }
+    },
+    "Delete %@? Its items are deleted for everyone.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 금고를 지울까요? 안의 항목이 모두에게서 지워져요."
+          }
+        }
+      }
+    },
+    "Delete account": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "계정 삭제"
+          }
+        }
+      }
+    },
+    "Delete for good": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "완전히 삭제"
+          }
+        }
+      }
+    },
+    "Delete this item?": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 항목을 지울까요?"
+          }
+        }
+      }
+    },
+    "Delete vault and its items": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "금고와 항목 삭제"
+          }
+        }
+      }
+    },
+    "Deleted items are removed after 30 days": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지운 항목은 30일 뒤 사라져요"
+          }
+        }
+      }
+    },
+    "Delivery & travel": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "배달·교통"
+          }
+        }
+      }
+    },
+    "Doctor": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "담당 의사"
+          }
+        }
+      }
+    },
+    "Document": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "문서"
+          }
+        }
+      }
+    },
+    "Done": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "완료"
+          }
+        }
+      }
+    },
+    "Driver License": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "운전면허증"
+          }
+        }
+      }
+    },
+    "Easy to guess": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "쉽게 맞힐 수 있어요"
+          }
+        }
+      }
+    },
+    "Easy to type (words)": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "입력하기 쉬운 단어 조합"
+          }
+        }
+      }
+    },
+    "Edit": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "편집"
+          }
+        }
+      }
+    },
+    "Edit vault": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "금고 편집"
+          }
+        }
+      }
+    },
+    "Email": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이메일"
+          }
+        }
+      }
+    },
+    "Email Account": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이메일 계정"
+          }
+        }
+      }
+    },
+    "Email address": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이메일 주소"
+          }
+        }
+      }
+    },
+    "Email or account password is not right.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이메일이나 계정 비밀번호가 맞지 않아요."
+          }
+        }
+      }
+    },
+    "Emergency Kit": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비상 키트"
+          }
+        }
+      }
+    },
+    "Encrypted (.json, with a password)": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "암호화 (.json, 비밀번호 필요)"
+          }
+        }
+      }
+    },
+    "Everyone invited (%lld/4)": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족 모두 초대 (%lld/4)"
+          }
+        }
+      }
+    },
+    "Everyone let in after the four words": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "네 단어 확인 후 모두 입장"
+          }
+        }
+      }
+    },
+    "Everyone opened the link": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "모두 링크를 열었어요"
+          }
+        }
+      }
+    },
+    "Everyone with access to that vault will see this item.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "그 금고를 볼 수 있는 가족 모두에게 보여요."
+          }
+        }
+      }
+    },
+    "Expired": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "만료됨"
+          }
+        }
+      }
+    },
+    "Expires": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "만료일"
+          }
+        }
+      }
+    },
+    "Expires soon": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "곧 만료"
+          }
+        }
+      }
+    },
+    "Expiring": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "만료 예정"
+          }
+        }
+      }
+    },
+    "Export": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내보내기"
+          }
+        }
+      }
+    },
+    "FAIR": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "보통"
+          }
+        }
+      }
+    },
+    "FANTASTIC": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아주 좋아요"
+          }
+        }
+      }
+    },
+    "Face ID did not unlock. Type your account password.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Face ID로 열지 못했어요. 계정 비밀번호를 입력하세요."
+          }
+        }
+      }
+    },
+    "Fair": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "보통"
+          }
+        }
+      }
+    },
+    "Family": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족"
+          }
+        }
+      }
+    },
+    "Family help": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족 도움"
+          }
+        }
+      }
+    },
+    "Family invite": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족 초대"
+          }
+        }
+      }
+    },
+    "Family made": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족 만들기"
+          }
+        }
+      }
+    },
+    "Family name (e.g. the Kims)": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족 이름 (예: 김씨네)"
+          }
+        }
+      }
+    },
+    "Family organizer": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족 관리자"
+          }
+        }
+      }
+    },
+    "Family organizers": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족 관리자"
+          }
+        }
+      }
+    },
+    "Family organizers see every shared vault.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족 관리자는 모든 공유 금고를 볼 수 있어요."
+          }
+        }
+      }
+    },
+    "Family setup": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족 세팅"
+          }
+        }
+      }
+    },
+    "Favorite": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "즐겨찾기"
+          }
+        }
+      }
+    },
+    "Favorites": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "즐겨찾기"
+          }
+        }
+      }
+    },
+    "Fill passwords in apps and Safari": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "앱과 Safari에서 비밀번호 채우기"
+          }
+        }
+      }
+    },
+    "Find a password": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비밀번호 찾기"
+          }
+        }
+      }
+    },
+    "Fingerprint": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지문(핑거프린트)"
+          }
+        }
+      }
+    },
+    "First name": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이름"
+          }
+        }
+      }
+    },
+    "Folders": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "폴더"
+          }
+        }
+      }
+    },
+    "Format": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "형식"
+          }
+        }
+      }
+    },
+    "Found in %@ data breaches": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "유출 사고 %@건에서 발견"
+          }
+        }
+      }
+    },
+    "Full name": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이름"
+          }
+        }
+      }
+    },
+    "GOOD": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "좋아요"
+          }
+        }
+      }
+    },
+    "Get alerts for anything that puts your family's accounts at risk. Fix the flagged items to raise the score.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족 계정을 위험하게 만드는 것을 알려 드려요. 표시된 항목을 고치면 점수가 올라가요."
+          }
+        }
+      }
+    },
+    "Given name": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이름"
+          }
+        }
+      }
+    },
+    "Good": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "좋음"
+          }
+        }
+      }
+    },
+    "Got an invite instead? Open the link your family sent you.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "초대를 받으셨나요? 가족이 보낸 링크를 열어 주세요."
+          }
+        }
+      }
+    },
+    "Government": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "정부·공공"
+          }
+        }
+      }
+    },
+    "Group": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "단체"
+          }
+        }
+      }
+    },
+    "Guest": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "게스트"
+          }
+        }
+      }
+    },
+    "Guest (one vault only)": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "게스트 (금고 1개만)"
+          }
+        }
+      }
+    },
+    "Guests see one vault you choose, like the babysitter with the Wi-Fi and alarm code.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "게스트는 고른 금고 하나만 봐요. 와이파이·현관 비밀번호를 아이 돌보미에게 줄 때처럼요."
+          }
+        }
+      }
+    },
+    "Hello, %@": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 님, 안녕하세요"
+          }
+        }
+      }
+    },
+    "Help with a forgotten password": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "잊어버린 비밀번호 도와주기"
+          }
+        }
+      }
+    },
+    "Hide": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "숨기기"
+          }
+        }
+      }
+    },
+    "Hint (optional, never the password)": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "힌트 (선택, 비밀번호 자체는 적지 마세요)"
+          }
+        }
+      }
+    },
+    "Home": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "홈"
+          }
+        }
+      }
+    },
+    "Host": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "호스트"
+          }
+        }
+      }
+    },
+    "I got an invite from my family": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족에게 초대를 받았어요"
+          }
+        }
+      }
+    },
+    "IBAN": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IBAN"
+          }
+        }
+      }
+    },
+    "ID": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아이디"
+          }
+        }
+      }
+    },
+    "ID Number": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "신분증 번호"
+          }
+        }
+      }
+    },
+    "ID number": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "주민등록번호·신분증 번호"
+          }
+        }
+      }
+    },
+    "ID: %@": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아이디: %@"
+          }
+        }
+      }
+    },
+    "Identity": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "신원 정보"
+          }
+        }
+      }
+    },
+    "Immediately": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "바로"
+          }
+        }
+      }
+    },
+    "Import": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가져오기"
+          }
+        }
+      }
+    },
+    "Import %lld items": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld개 가져오기"
+          }
+        }
+      }
+    },
+    "Import from 1Password, Chrome, CSV": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1Password·Chrome·CSV에서 가져오기"
+          }
+        }
+      }
+    },
+    "Include the password": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비밀번호도 보내기"
+          }
+        }
+      }
+    },
+    "Incoming server": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "받는 서버"
+          }
+        }
+      }
+    },
+    "Invite": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "초대"
+          }
+        }
+      }
+    },
+    "Invite ready": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "초대 준비 완료"
+          }
+        }
+      }
+    },
+    "Invite someone": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족 초대하기"
+          }
+        }
+      }
+    },
+    "Invited": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "초대함"
+          }
+        }
+      }
+    },
+    "It stops working %@%@.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@%2$@ 링크가 더는 열리지 않아요."
+          }
+        }
+      }
+    },
+    "Items": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "항목"
+          }
+        }
+      }
+    },
+    "Join the family": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족에 들어가기"
+          }
+        }
+      }
+    },
+    "Join your family": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족에 들어가기"
+          }
+        }
+      }
+    },
+    "Keep this page somewhere safe at home. Anyone with it and your password can open your vault.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 종이는 집 안 안전한 곳에 두세요. 이 종이와 비밀번호가 있으면 누구나 금고를 열 수 있어요."
+          }
+        }
+      }
+    },
+    "Label": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이름표"
+          }
+        }
+      }
+    },
+    "Last name": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "성"
+          }
+        }
+      }
+    },
+    "Later": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "나중에"
+          }
+        }
+      }
+    },
+    "Lay the page flat in good light. Handwriting works. The photo is read on this iPhone and is not saved or sent anywhere.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "밝은 곳에 종이를 펴 놓고 찍으세요. 손글씨도 읽어요. 사진은 이 iPhone 안에서만 읽고, 저장하거나 보내지 않아요."
+          }
+        }
+      }
+    },
+    "Leave this family": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족에서 나가기"
+          }
+        }
+      }
+    },
+    "Length %lld": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "길이 %lld"
+          }
+        }
+      }
+    },
+    "Let in": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "들이기"
+          }
+        }
+      }
+    },
+    "Licences": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "라이선스"
+          }
+        }
+      }
+    },
+    "License key": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "라이선스 키"
+          }
+        }
+      }
+    },
+    "License number": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "면허 번호"
+          }
+        }
+      }
+    },
+    "Licensed to": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사용자"
+          }
+        }
+      }
+    },
+    "Link expires": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "링크 유효 기간"
+          }
+        }
+      }
+    },
+    "Link ready": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "링크 준비 완료"
+          }
+        }
+      }
+    },
+    "Lock": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "잠금"
+          }
+        }
+      }
+    },
+    "Lock now": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지금 잠그기"
+          }
+        }
+      }
+    },
+    "Locked on your phone first: the server only ever sees scrambled data": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "휴대폰에서 먼저 잠가요: 서버는 알아볼 수 없는 데이터만 받아요"
+          }
+        }
+      }
+    },
+    "Login": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "로그인"
+          }
+        }
+      }
+    },
+    "MM": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "월"
+          }
+        }
+      }
+    },
+    "Make a family, invite up to 4 people and fill their vaults for them. Most families finish in an afternoon.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족을 만들고 4명까지 초대한 뒤 그분들 금고를 대신 채워 주세요. 대부분 한나절이면 끝나요."
+          }
+        }
+      }
+    },
+    "Make a new Ed25519 key": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 Ed25519 키 만들기"
+          }
+        }
+      }
+    },
+    "Make a new invite link": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 초대 링크 만들기"
+          }
+        }
+      }
+    },
+    "Make a password": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비밀번호 만들기"
+          }
+        }
+      }
+    },
+    "Make a vault to fill in for them": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "대신 채워 줄 금고 만들기"
+          }
+        }
+      }
+    },
+    "Make the Emergency Kit": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비상 키트 만들기"
+          }
+        }
+      }
+    },
+    "Make the family": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족 만들기"
+          }
+        }
+      }
+    },
+    "Make your family": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족 만들기"
+          }
+        }
+      }
+    },
+    "Medical Record": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "진료 기록"
+          }
+        }
+      }
+    },
+    "Medication": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "복용 약"
+          }
+        }
+      }
+    },
+    "Member": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "구성원"
+          }
+        }
+      }
+    },
+    "Member ID": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "회원 번호"
+          }
+        }
+      }
+    },
+    "Member name": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "회원 이름"
+          }
+        }
+      }
+    },
+    "Members get a private vault and the Shared vault.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "구성원은 개인 금고와 가족 공유 금고를 써요."
+          }
+        }
+      }
+    },
+    "Membership": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "멤버십"
+          }
+        }
+      }
+    },
+    "Modified": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "고친 날"
+          }
+        }
+      }
+    },
+    "Move to Recently Deleted": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "최근 삭제로 옮기기"
+          }
+        }
+      }
+    },
+    "Move to a family vault": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족 금고로 옮기기"
+          }
+        }
+      }
+    },
+    "NEEDS WORK": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "손볼 곳이 있어요"
+          }
+        }
+      }
+    },
+    "Name": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이름"
+          }
+        }
+      }
+    },
+    "Name (e.g. Mom)": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이름 (예: 엄마)"
+          }
+        }
+      }
+    },
+    "Nationality": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "국적"
+          }
+        }
+      }
+    },
+    "Network name": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "네트워크 이름"
+          }
+        }
+      }
+    },
+    "New": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새로"
+          }
+        }
+      }
+    },
+    "New %@": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 %@"
+          }
+        }
+      }
+    },
+    "New item": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 항목"
+          }
+        }
+      }
+    },
+    "New login named \"%@\"": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「%@」 새 로그인"
+          }
+        }
+      }
+    },
+    "New shared vault": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 공유 금고"
+          }
+        }
+      }
+    },
+    "Next: call them and compare the four words, then tap Let in.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음: 전화해서 네 단어를 맞춰 본 뒤 「들이기」를 누르세요."
+          }
+        }
+      }
+    },
+    "Next: open a person's vault and add their logins, or scan their notebook page.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음: 그분 금고를 열고 로그인을 넣거나 메모장 사진을 찍으세요."
+          }
+        }
+      }
+    },
+    "Next: send each person their link (KakaoTalk or text). They tap it and make their password.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음: 한 분씩 링크를 보내세요(카카오톡·문자). 누르고 비밀번호만 정하면 돼요."
+          }
+        }
+      }
+    },
+    "Next: tap Invite someone. You can add a parent's logins for them before they even install the app.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음: 「가족 초대하기」를 누르세요. 부모님이 앱을 깔기 전에 로그인을 미리 넣어 둘 수 있어요."
+          }
+        }
+      }
+    },
+    "No access": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "볼 수 없음"
+          }
+        }
+      }
+    },
+    "No logins found in that file.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "그 파일에서 로그인을 찾지 못했어요."
+          }
+        }
+      }
+    },
+    "No logins found on this page. Try a closer, brighter photo.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 사진에서 로그인을 찾지 못했어요. 더 가까이, 더 밝게 찍어 보세요."
+          }
+        }
+      }
+    },
+    "Not the same": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다른 단어예요"
+          }
+        }
+      }
+    },
+    "Notes": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모"
+          }
+        }
+      }
+    },
+    "Nothing here yet": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아직 아무것도 없어요"
+          }
+        }
+      }
+    },
+    "Number": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "번호"
+          }
+        }
+      }
+    },
+    "Numbers only (PIN)": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "숫자만 (PIN)"
+          }
+        }
+      }
+    },
+    "OK": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "확인"
+          }
+        }
+      }
+    },
+    "One-time password": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "일회용 비밀번호"
+          }
+        }
+      }
+    },
+    "One-time password setup key": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "일회용 비밀번호 설정 키"
+          }
+        }
+      }
+    },
+    "Only one view": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "한 번만 열기"
+          }
+        }
+      }
+    },
+    "Only your private vault is exported. Family vaults belong to the family.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "개인 금고만 내보내요. 가족 금고는 가족 모두의 것이에요."
+          }
+        }
+      }
+    },
+    "Open Settings": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정 열기"
+          }
+        }
+      }
+    },
+    "Open invite": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "초대 열기"
+          }
+        }
+      }
+    },
+    "Open the link your family sent you (KakaoTalk, a text message). It opens AZET Pass and fills in everything for you.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족이 보낸 링크(카카오톡·문자)를 여세요. AZET Pass가 열리면서 필요한 것을 다 채워 줘요."
+          }
+        }
+      }
+    },
+    "Open-source licences": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "오픈소스 라이선스"
+          }
+        }
+      }
+    },
+    "Or paste the link here": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "또는 링크를 여기에 붙여 넣기"
+          }
+        }
+      }
+    },
+    "Organizer": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "관리자"
+          }
+        }
+      }
+    },
+    "Organizers can invite people and help anyone back in if they forget their password.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "관리자는 가족을 초대하고, 비밀번호를 잊은 가족이 다시 들어오도록 도울 수 있어요."
+          }
+        }
+      }
+    },
+    "Outdoor License": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "레저 면허"
+          }
+        }
+      }
+    },
+    "Outgoing server": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "보내는 서버"
+          }
+        }
+      }
+    },
+    "Overall password strength": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "전체 비밀번호 강도"
+          }
+        }
+      }
+    },
+    "PIN": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PIN"
+          }
+        }
+      }
+    },
+    "Parent mode": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "부모님 모드"
+          }
+        }
+      }
+    },
+    "Passkey": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패스키"
+          }
+        }
+      }
+    },
+    "Passkey saved for this site": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 사이트의 패스키가 저장돼 있어요"
+          }
+        }
+      }
+    },
+    "Passkeys available": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패스키를 쓸 수 있는 사이트"
+          }
+        }
+      }
+    },
+    "Passport": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "여권"
+          }
+        }
+      }
+    },
+    "Passport number": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "여권 번호"
+          }
+        }
+      }
+    },
+    "Password": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비밀번호"
+          }
+        }
+      }
+    },
+    "Password for the file": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "파일 비밀번호"
+          }
+        }
+      }
+    },
+    "Password generator": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비밀번호 생성기"
+          }
+        }
+      }
+    },
+    "Password history": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이전 비밀번호"
+          }
+        }
+      }
+    },
+    "Password history (%lld)": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이전 비밀번호 (%lld)"
+          }
+        }
+      }
+    },
+    "Password: %@": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비밀번호: %@"
+          }
+        }
+      }
+    },
+    "Patient": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "환자"
+          }
+        }
+      }
+    },
+    "People": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사람"
+          }
+        }
+      }
+    },
+    "Phone": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "전화번호"
+          }
+        }
+      }
+    },
+    "Phone carriers": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "통신사"
+          }
+        }
+      }
+    },
+    "Photograph one notebook page": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모장 한 쪽을 찍어 주세요"
+          }
+        }
+      }
+    },
+    "Place": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "병원"
+          }
+        }
+      }
+    },
+    "Popular logins and categories": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "자주 쓰는 사이트와 카테고리"
+          }
+        }
+      }
+    },
+    "Port": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "포트"
+          }
+        }
+      }
+    },
+    "Portals & mail": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "포털·메일"
+          }
+        }
+      }
+    },
+    "Postal code": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "우편번호"
+          }
+        }
+      }
+    },
+    "Print it, write your account password on it by hand, and keep it with other important papers. A family organizer can also help you back in.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "인쇄해서 계정 비밀번호를 손으로 적고, 중요한 서류와 함께 보관하세요. 가족 관리자도 다시 들어오도록 도울 수 있어요."
+          }
+        }
+      }
+    },
+    "Print or save": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "인쇄 또는 저장"
+          }
+        }
+      }
+    },
+    "Privacy": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "개인정보 처리방침"
+          }
+        }
+      }
+    },
+    "Private": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "개인"
+          }
+        }
+      }
+    },
+    "Private key": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "개인 키"
+          }
+        }
+      }
+    },
+    "Private vault": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "개인 금고"
+          }
+        }
+      }
+    },
+    "Public key": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공개 키"
+          }
+        }
+      }
+    },
+    "Purchase date": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "구입일"
+          }
+        }
+      }
+    },
+    "Random": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "무작위"
+          }
+        }
+      }
+    },
+    "Read these four words to %@. When their screen shows the same words, they let you in.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 님께 이 네 단어를 읽어 주세요. 같은 단어가 보이면 들여보내 줘요."
+          }
+        }
+      }
+    },
+    "Read these words to the person who invited you. When they see the same words, they let you in and the family's items appear here.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "초대한 가족에게 이 단어를 읽어 주세요. 같은 단어가 보이면 들여보내 주고, 가족 항목이 여기 나타나요."
+          }
+        }
+      }
+    },
+    "Reading the page…": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "읽는 중…"
+          }
+        }
+      }
+    },
+    "Reason": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "진료 내용"
+          }
+        }
+      }
+    },
+    "Recently Deleted": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "최근 삭제"
+          }
+        }
+      }
+    },
+    "Recently modified": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "최근 수정"
+          }
+        }
+      }
+    },
+    "Recovery phrase": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "복구 문구"
+          }
+        }
+      }
+    },
+    "Recovery turns on when they join from this app.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 앱으로 들어오면 복구가 켜져요."
+          }
+        }
+      }
+    },
+    "Remove": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "빼기"
+          }
+        }
+      }
+    },
+    "Remove %@? Their private vault stays theirs; they lose the family vaults.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 님을 가족에서 뺄까요? 개인 금고는 그대로 두고 가족 금고만 볼 수 없게 돼요."
+          }
+        }
+      }
+    },
+    "Remove from family": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족에서 빼기"
+          }
+        }
+      }
+    },
+    "Restore": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "되살리기"
+          }
+        }
+      }
+    },
+    "Restore access": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다시 허용"
+          }
+        }
+      }
+    },
+    "Reused passwords": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다시 쓴 비밀번호"
+          }
+        }
+      }
+    },
+    "Reward Program": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "포인트·적립"
+          }
+        }
+      }
+    },
+    "Role": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "역할"
+          }
+        }
+      }
+    },
+    "SSH Key": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSH 키"
+          }
+        }
+      }
+    },
+    "SWIFT": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SWIFT"
+          }
+        }
+      }
+    },
+    "Safe for travel": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "여행 중에도 보관"
+          }
+        }
+      }
+    },
+    "Same password on %lld sites": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld개 사이트에서 같은 비밀번호"
+          }
+        }
+      }
+    },
+    "Same words, let them in": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "같은 단어예요, 들이기"
+          }
+        }
+      }
+    },
+    "Same words? Let them in. Different words? Someone else may have the link: tap Not the same and send a new invite.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "같은 단어면 들여보내세요. 다르면 다른 사람이 링크를 가졌을 수 있어요. 「다른 단어예요」를 누르고 새로 초대하세요."
+          }
+        }
+      }
+    },
+    "Save": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "저장"
+          }
+        }
+      }
+    },
+    "Save %lld items%@": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld개 저장%2$@"
+          }
+        }
+      }
+    },
+    "Save a new password": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 비밀번호 저장"
+          }
+        }
+      }
+    },
+    "Save or send the file": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "파일 저장 또는 보내기"
+          }
+        }
+      }
+    },
+    "Scan QR code": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QR 코드 스캔"
+          }
+        }
+      }
+    },
+    "Scan a notebook page": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모장 사진 찍기"
+          }
+        }
+      }
+    },
+    "Scan a notebook page into this vault": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모장 사진을 이 금고로"
+          }
+        }
+      }
+    },
+    "Scan a password notebook": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비밀번호 메모장 찍기"
+          }
+        }
+      }
+    },
+    "Scan my notebook": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모장 찍기"
+          }
+        }
+      }
+    },
+    "Scan notebook": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모장 찍기"
+          }
+        }
+      }
+    },
+    "Search items, sites, vaults": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "항목·사이트·금고 검색"
+          }
+        }
+      }
+    },
+    "Secure Note": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "보안 메모"
+          }
+        }
+      }
+    },
+    "Security": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "보안"
+          }
+        }
+      }
+    },
+    "Security code": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "보안 코드(CVC)"
+          }
+        }
+      }
+    },
+    "Send again": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다시 보내기"
+          }
+        }
+      }
+    },
+    "Send me the link": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가입 링크 받기"
+          }
+        }
+      }
+    },
+    "Send the link": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "링크 보내기"
+          }
+        }
+      }
+    },
+    "Send this link to %@. When they open it on their phone, AZET Pass installs, fills in their email and asks them to make a password.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 님께 이 링크를 보내세요. 휴대폰에서 열면 AZET Pass가 설치되고, 이메일이 채워진 채 비밀번호만 정하면 돼요."
+          }
+        }
+      }
+    },
+    "Server": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "서버"
+          }
+        }
+      }
+    },
+    "Set temporary password": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "임시 비밀번호 정하기"
+          }
+        }
+      }
+    },
+    "Set up": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정하기"
+          }
+        }
+      }
+    },
+    "Set up a parent's phone from yours, then compare four words": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "부모님 휴대폰을 내 폰에서 세팅하고, 네 단어로 확인"
+          }
+        }
+      }
+    },
+    "Set up the whole family today": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "오늘 가족 모두 세팅하기"
+          }
+        }
+      }
+    },
+    "Settings": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정"
+          }
+        }
+      }
+    },
+    "Setup key": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정 키"
+          }
+        }
+      }
+    },
+    "Share %@": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 공유"
+          }
+        }
+      }
+    },
+    "Share a copy by link": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "링크로 사본 보내기"
+          }
+        }
+      }
+    },
+    "Shared": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족 공유"
+          }
+        }
+      }
+    },
+    "Shared vaults": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공유 금고"
+          }
+        }
+      }
+    },
+    "Shopping": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "쇼핑"
+          }
+        }
+      }
+    },
+    "Show": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "보기"
+          }
+        }
+      }
+    },
+    "Show in large type": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "크게 보기"
+          }
+        }
+      }
+    },
+    "Show the full app": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "전체 앱 보기"
+          }
+        }
+      }
+    },
+    "Sign in": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "로그인"
+          }
+        }
+      }
+    },
+    "Sign in again.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다시 로그인하세요."
+          }
+        }
+      }
+    },
+    "Sign out": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "로그아웃"
+          }
+        }
+      }
+    },
+    "Sign out of this account on this iPhone?": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 iPhone에서 이 계정을 로그아웃할까요?"
+          }
+        }
+      }
+    },
+    "Sign-in address": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "로그인 주소"
+          }
+        }
+      }
+    },
+    "Signing in on a new device will also ask for a code from your authenticator app.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 기기에서 로그인할 때 인증 앱의 코드도 물어봐요."
+          }
+        }
+      }
+    },
+    "Site": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사이트"
+          }
+        }
+      }
+    },
+    "Social": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SNS"
+          }
+        }
+      }
+    },
+    "Software License": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "소프트웨어 라이선스"
+          }
+        }
+      }
+    },
+    "Something went wrong. Try again.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "문제가 생겼어요. 다시 해 주세요."
+          }
+        }
+      }
+    },
+    "Sort": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "정렬"
+          }
+        }
+      }
+    },
+    "Source code (GPL-3.0)": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "소스 코드 (GPL-3.0)"
+          }
+        }
+      }
+    },
+    "Strong": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "튼튼해요"
+          }
+        }
+      }
+    },
+    "Strong password": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "튼튼한 비밀번호"
+          }
+        }
+      }
+    },
+    "Suggested": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "추천"
+          }
+        }
+      }
+    },
+    "Surname": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "성"
+          }
+        }
+      }
+    },
+    "Suspend": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "잠시 멈추기"
+          }
+        }
+      }
+    },
+    "Suspended": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "멈춤"
+          }
+        }
+      }
+    },
+    "Symbols": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "특수문자"
+          }
+        }
+      }
+    },
+    "Take a photo": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사진 찍기"
+          }
+        }
+      }
+    },
+    "Take a photo of a page. AZET Pass reads the sites, IDs and passwords on this iPhone and lets you check each one.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "한 쪽을 찍으면 AZET Pass가 이 iPhone 안에서 사이트·아이디·비밀번호를 읽고, 하나씩 확인하게 해 줘요."
+          }
+        }
+      }
+    },
+    "Take a photo of the notebook, the logins fill themselves in": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모장을 찍으면 로그인이 저절로 채워져요"
+          }
+        }
+      }
+    },
+    "Tell them this temporary password in person or on the phone. Ask them to change it in Settings after signing in.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 임시 비밀번호를 직접 또는 전화로 알려 주세요. 로그인한 뒤 설정에서 바꾸라고 해 주세요."
+          }
+        }
+      }
+    },
+    "Temporary password": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "임시 비밀번호"
+          }
+        }
+      }
+    },
+    "Text": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "글"
+          }
+        }
+      }
+    },
+    "That account password is not right.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "계정 비밀번호가 맞지 않아요."
+          }
+        }
+      }
+    },
+    "The file is read on this iPhone. Delete it after importing: it holds your passwords in plain text.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "파일은 이 iPhone 안에서만 읽어요. 비밀번호가 그대로 적혀 있으니 가져온 뒤 지워 주세요."
+          }
+        }
+      }
+    },
+    "The notebook of passwords, for the whole family.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "온 가족의 비밀번호 수첩."
+          }
+        }
+      }
+    },
+    "The person sees a copy. Changing the item later does not change what they see.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "받는 사람은 사본을 봐요. 나중에 항목을 고쳐도 보낸 내용은 바뀌지 않아요."
+          }
+        }
+      }
+    },
+    "Their email": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "그분 이메일"
+          }
+        }
+      }
+    },
+    "Their vaults filled in for them": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "그분들 금고 대신 채우기"
+          }
+        }
+      }
+    },
+    "Then the keyboard offers your logins, passkeys and one-time passwords in every app and in Safari. On a computer, install AZET Pass for Chrome, Safari, Edge or Firefox.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "그러면 모든 앱과 Safari의 키보드에 로그인·패스키·일회용 비밀번호가 떠요. 컴퓨터에는 Chrome·Safari·Edge·Firefox용 AZET Pass를 설치하세요."
+          }
+        }
+      }
+    },
+    "They haven't opened their link yet. A new link stops the old one from working.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아직 링크를 열지 않았어요. 새 링크를 만들면 예전 링크는 열리지 않아요."
+          }
+        }
+      }
+    },
+    "They will be signed out on every device.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "모든 기기에서 로그아웃돼요."
+          }
+        }
+      }
+    },
+    "This account uses Argon2id. Change it to PBKDF2 in the web vault, then sign in here.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 계정은 Argon2id를 써요. 웹 금고에서 PBKDF2로 바꾼 뒤 여기서 로그인하세요."
+          }
+        }
+      }
+    },
+    "This invite is for %@. You're signed in as %@. Sign out first to use it.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 초대는 %1$@ 님 것이에요. 지금 %2$@(으)로 로그인돼 있어요. 로그아웃한 뒤 열어 주세요."
+          }
+        }
+      }
+    },
+    "This is the address your family invited.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족이 초대한 주소예요."
+          }
+        }
+      }
+    },
+    "This is the one password you remember. Write it on paper and keep it at home. If you forget it, a family organizer can help you back in.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이제 외울 비밀번호는 이것 하나예요. 종이에 적어 집에 두세요. 잊어도 가족 관리자가 다시 들어오게 도와줄 수 있어요."
+          }
+        }
+      }
+    },
+    "This item is gone. Pull to refresh.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 항목이 없어졌어요. 당겨서 새로 고치세요."
+          }
+        }
+      }
+    },
+    "This site offers two-step login": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 사이트는 2단계 로그인을 지원해요"
+          }
+        }
+      }
+    },
+    "This site supports passkeys": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 사이트는 패스키를 지원해요"
+          }
+        }
+      }
+    },
+    "Title": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "제목"
+          }
+        }
+      }
+    },
+    "Too easy": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "너무 쉬워요"
+          }
+        }
+      }
+    },
+    "Travel Mode": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "여행 모드"
+          }
+        }
+      }
+    },
+    "Travel Mode is on: only travel-safe items are on this iPhone": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "여행 모드 켜짐: 여행용 항목만 이 iPhone에 있어요"
+          }
+        }
+      }
+    },
+    "Turn off": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "끄기"
+          }
+        }
+      }
+    },
+    "Turn off Travel Mode": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "여행 모드 끄기"
+          }
+        }
+      }
+    },
+    "Turn on": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "켜기"
+          }
+        }
+      }
+    },
+    "Turn on Travel Mode": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "여행 모드 켜기"
+          }
+        }
+      }
+    },
+    "Two-step login": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2단계 로그인"
+          }
+        }
+      }
+    },
+    "Two-step login available": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2단계 로그인을 켤 수 있는 사이트"
+          }
+        }
+      }
+    },
+    "Two-step login code. Scan the QR code the site shows, or paste its setup key.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2단계 로그인 코드예요. 사이트의 QR 코드를 찍거나 설정 키를 붙여 넣으세요."
+          }
+        }
+      }
+    },
+    "Two-step login for this account": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 계정의 2단계 로그인"
+          }
+        }
+      }
+    },
+    "Two-step login is on": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2단계 로그인이 켜져 있어요"
+          }
+        }
+      }
+    },
+    "Type": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "종류"
+          }
+        }
+      }
+    },
+    "Type it again": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "한 번 더 입력"
+          }
+        }
+      }
+    },
+    "URL": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URL"
+          }
+        }
+      }
+    },
+    "Unlock": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "열기"
+          }
+        }
+      }
+    },
+    "Unlock AZET Pass": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AZET Pass 열기"
+          }
+        }
+      }
+    },
+    "Unlock AZET Pass first, then open the link again.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "먼저 AZET Pass를 연 다음 링크를 다시 눌러 주세요."
+          }
+        }
+      }
+    },
+    "Unlock with Face ID": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Face ID로 열기"
+          }
+        }
+      }
+    },
+    "Unsecured websites": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "보안 연결이 아닌 사이트"
+          }
+        }
+      }
+    },
+    "Up to 5 people share one family, each with a private vault": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "한 가족 5명까지, 각자 개인 금고도 따로"
+          }
+        }
+      }
+    },
+    "Up to 5 people, each with their own private vault, plus a Shared vault for the Wi-Fi, Netflix and everything the family uses together. As the family organizer you can help anyone who forgets their password.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5명까지, 각자 개인 금고가 있고 와이파이·넷플릭스처럼 함께 쓰는 것은 가족 공유 금고에 둬요. 가족 관리자는 비밀번호를 잊은 가족을 도와줄 수 있어요."
+          }
+        }
+      }
+    },
+    "Use another account": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다른 계정 사용"
+          }
+        }
+      }
+    },
+    "Username": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아이디"
+          }
+        }
+      }
+    },
+    "Uses http, not https": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https가 아닌 http를 써요"
+          }
+        }
+      }
+    },
+    "Valid from": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "시작일"
+          }
+        }
+      }
+    },
+    "Value": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "값"
+          }
+        }
+      }
+    },
+    "Vault": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "금고"
+          }
+        }
+      }
+    },
+    "Vault name": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "금고 이름"
+          }
+        }
+      }
+    },
+    "Vaults": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "금고"
+          }
+        }
+      }
+    },
+    "Version": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "버전"
+          }
+        }
+      }
+    },
+    "Video & music": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "영상·음악"
+          }
+        }
+      }
+    },
+    "View & edit": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "보기·편집"
+          }
+        }
+      }
+    },
+    "View only": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "보기만"
+          }
+        }
+      }
+    },
+    "Waiting for you": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "확인 기다림"
+          }
+        }
+      }
+    },
+    "Wallet address": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지갑 주소"
+          }
+        }
+      }
+    },
+    "Watchtower": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "보안 점검"
+          }
+        }
+      }
+    },
+    "Watchtower score %lld": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "보안 점수 %lld"
+          }
+        }
+      }
+    },
+    "We mail you a link to make sure the address is yours.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "주소가 맞는지 확인하려고 링크를 메일로 보내 드려요."
+          }
+        }
+      }
+    },
+    "Weak": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "약해요"
+          }
+        }
+      }
+    },
+    "Weak passwords": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "약한 비밀번호"
+          }
+        }
+      }
+    },
+    "Website": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "웹사이트"
+          }
+        }
+      }
+    },
+    "Websites": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "웹사이트"
+          }
+        }
+      }
+    },
+    "When someone turns on Travel Mode, only travel-safe vaults stay on their phone.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "여행 모드를 켜면 여행용으로 표시한 금고만 휴대폰에 남아요."
+          }
+        }
+      }
+    },
+    "Where it is kept": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "보관 장소"
+          }
+        }
+      }
+    },
+    "While on, only items and vaults marked safe for travel stay on your devices. Everything else comes back when you turn it off.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "켜 두는 동안 여행용으로 표시한 항목과 금고만 기기에 남아요. 끄면 나머지가 모두 돌아와요."
+          }
+        }
+      }
+    },
+    "Who can see it": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "볼 수 있는 가족"
+          }
+        }
+      }
+    },
+    "Wi-Fi": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "와이파이"
+          }
+        }
+      }
+    },
+    "Wi-Fi password": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "와이파이 비밀번호"
+          }
+        }
+      }
+    },
+    "Words": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "단어"
+          }
+        }
+      }
+    },
+    "Work & study": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "생활·학교"
+          }
+        }
+      }
+    },
+    "YYYY": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연도"
+          }
+        }
+      }
+    },
+    "You and they can both see it. Add their bank, government and shopping logins before they join, then they only have to open the link.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "나와 그분 둘 다 봐요. 들어오기 전에 은행·정부·쇼핑 로그인을 넣어 두면 그분은 링크만 열면 돼요."
+          }
+        }
+      }
+    },
+    "You can now tear out the page or keep the notebook somewhere safe. Logins fill themselves in from now on.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이제 그 쪽은 찢어 버리거나 안전한 곳에 두세요. 앞으로는 로그인이 저절로 채워져요."
+          }
+        }
+      }
+    },
+    "You're in. One last step": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "들어왔어요. 마지막 한 단계"
+          }
+        }
+      }
+    },
+    "Your account password never leaves this phone. Only a one-way proof of it is sent.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "계정 비밀번호는 이 휴대폰 밖으로 나가지 않아요. 되돌릴 수 없는 확인 값만 보내요."
+          }
+        }
+      }
+    },
+    "Your data": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내 데이터"
+          }
+        }
+      }
+    },
+    "Your family organizer can add logins for you, fix a password, or let you back in if you forget your account password.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족 관리자가 로그인을 대신 넣어 주고, 비밀번호를 고쳐 주고, 계정 비밀번호를 잊으면 다시 들어오게 도와줘요."
+          }
+        }
+      }
+    },
+    "Your name": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내 이름"
+          }
+        }
+      }
+    },
+    "a family organizer can help you back in": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족 관리자가 다시 들어오도록 도와줄 수 있어요"
+          }
+        }
+      }
+    },
+    "and %lld more": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "그 밖에 %lld개"
+          }
+        }
+      }
+    },
+    "in %lld days": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld일 뒤"
+          }
+        }
+      }
+    },
+    "the person who invited you": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "초대한 가족"
+          }
+        }
+      }
+    },
+    "tomorrow": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내일"
+          }
+        }
+      }
+    }
+  }
+}

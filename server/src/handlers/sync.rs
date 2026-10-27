@@ -95,6 +95,7 @@ pub async fn get_sync_data(
         .bind(&[user_id.clone().into()])?
         .first(None)
         .await?;
+    profile.travel_mode = travel.is_some();
     let collections: Vec<Value> = crate::handlers::family::sync_collections(&db, &user_id)
         .await?
         .into_iter()

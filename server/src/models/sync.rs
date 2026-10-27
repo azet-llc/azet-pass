@@ -33,6 +33,8 @@ pub struct Profile {
     pub provider_organizations: Vec<Value>,
     #[serde(rename = "_status")]
     pub status: i32,
+    /// AZET: Travel Mode is on (only travel-safe items and vaults are in this sync)
+    pub travel_mode: bool,
 }
 
 impl Profile {
@@ -79,6 +81,7 @@ impl Profile {
             providers: Vec::new(),
             provider_organizations: Vec::new(),
             status: 0,
+            travel_mode: false,
         })
     }
 }

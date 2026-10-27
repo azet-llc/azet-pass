@@ -1,0 +1,117 @@
+# AZET Pass for iPhone — native SwiftUI app (no web view, no Bitwarden UI code). Crypto = Bitwarden sdk-internal
+# (GPL-3.0 build, Vendor/BitwardenSdk -> see BUILD.md). Generate: xcodegen; build: ./build.sh
+name: AZETPass
+options:
+  bundleIdPrefix: io.azet
+  deploymentTarget:
+    iOS: "17.0"
+  developmentLanguage: en
+settings:
+  base:
+    DEVELOPMENT_TEAM: 95P4H2RG24
+    MARKETING_VERSION: "2.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.10"
+    SWIFT_STRICT_CONCURRENCY: minimal
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+    LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+    SWIFT_EMIT_LOC_STRINGS: YES
+packages:
+  BitwardenSdk:
+    path: Vendor/BitwardenSdk
+targets:
+  AZETPass:
+    type: application
+    platform: iOS
+    sources:
+      - App
+      - Shared
+      - Resources
+    dependencies:
+      - package: BitwardenSdk
+      - target: AZETPassAutofill
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: AZET Pass
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSRequiresIPhoneOS: true
+        ITSAppUsesNonExemptEncryption: false
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        NSFaceIDUsageDescription: Unlock AZET Pass with Face ID instead of typing your account password.
+        NSCameraUsageDescription: Take a photo of a notebook page so AZET Pass can read the logins on it. The photo stays on this iPhone.
+        NSPhotoLibraryUsageDescription: Pick a photo of a notebook page so AZET Pass can read the logins on it. The photo stays on this iPhone.
+        CFBundleURLTypes:
+          - CFBundleURLName: io.azet.pass
+            CFBundleURLSchemes: [azetpass]
+        CFBundleLocalizations: [en, ko]
+    entitlements:
+      path: App/AZETPass.entitlements
+      properties:
+        com.apple.security.application-groups: [group.io.azet.pass]
+        keychain-access-groups: [$(AppIdentifierPrefix)io.azet.pass.shared]
+        com.apple.developer.authentication-services.autofill-credential-provider: true
+        com.apple.developer.associated-domains: [applinks:pass.azet.io, webcredentials:pass.azet.io]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.azet.pass
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1,2"
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+  AZETPassAutofill:
+    type: app-extension
+    platform: iOS
+    sources:
+      - Autofill
+      - Shared
+      - Resources/Localizable.xcstrings
+    dependencies:
+      - package: BitwardenSdk
+    info:
+      path: Autofill/Info.plist
+      properties:
+        CFBundleDisplayName: AZET Pass
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.authentication-services-credential-provider-ui
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).CredentialProviderViewController
+          NSExtensionAttributes:
+            ASCredentialProviderExtensionCapabilities:
+              ProvidesPasswords: true
+              ProvidesPasskeys: true
+              ProvidesOneTimeCodes: true
+              ShowsConfigurationUI: true
+    entitlements:
+      path: Autofill/AZETPassAutofill.entitlements
+      properties:
+        com.apple.security.application-groups: [group.io.azet.pass]
+        keychain-access-groups: [$(AppIdentifierPrefix)io.azet.pass.shared]
+        com.apple.developer.authentication-services.autofill-credential-provider: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.azet.pass.autofill
+        TARGETED_DEVICE_FAMILY: "1,2"
+        APPLICATION_EXTENSION_API_ONLY: YES
+  AZETPassUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [UITests]
+    dependencies:
+      - target: AZETPass
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.azet.pass.uitests
+        TEST_TARGET_NAME: AZETPass
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  AZETPass:
+    build:
+      targets:
+        AZETPass: all
+    test:
+      targets: [AZETPassUITests]

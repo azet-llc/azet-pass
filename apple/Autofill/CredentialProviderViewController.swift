@@ -1,0 +1,104 @@
+import AuthenticationServices
+import BitwardenSdk
+import SwiftUI
+
+/// AutoFill: logins and one-time passwords in any app or Safari. Unlocks with Face ID from the key the app keeps in
+/// the shared keychain, reads the encrypted vault the app keeps in the shared container.
+final class CredentialProviderViewController: ASCredentialProviderViewController {
+    private var services: [ASCredentialServiceIdentifier] = []
+    private var oneTimeCode = false
+
+    override func prepareCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier]) {
+        services = serviceIdentifiers; show()
+    }
+
+    override func prepareOneTimeCodeCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier]) {
+        services = serviceIdentifiers; oneTimeCode = true; show()
+    }
+
+    override func prepareInterfaceForExtensionConfiguration() {
+        let v = UIHostingController(rootView: Text("AZET Pass is ready to fill your passwords.").padding())
+        embed(v)
+    }
+
+    private func show() {
+        let root = AutofillList(services: services, oneTimeCode: oneTimeCode,
+                                pick: { [weak self] user, secret, isCode in
+                                    if isCode, #available(iOS 18.0, *) {
+                                        self?.extensionContext.completeOneTimeCodeRequest(using: ASOneTimeCodeCredential(code: secret))
+                                    } else {
+                                        self?.extensionContext.completeRequest(withSelectedCredential: ASPasswordCredential(user: user, password: secret))
+                                    }
+                                },
+                                cancel: { [weak self] in self?.extensionContext.cancelRequest(withError: NSError(domain: ASExtensionErrorDomain, code: ASExtensionError.userCanceled.rawValue)) })
+        embed(UIHostingController(rootView: root))
+    }
+
+    private func embed(_ v: UIViewController) {
+        addChild(v); v.view.frame = view.bounds; v.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        view.addSubview(v.view); v.didMove(toParent: self)
+    }
+}
+
+struct AutofillList: View {
+    let services: [ASCredentialServiceIdentifier]
+    let oneTimeCode: Bool
+    let pick: (String, String, Bool) -> Void
+    let cancel: () -> Void
+    @State private var session = Session()
+    @State private var password = ""
+    @State private var query = ""
+    @State private var error: String?
+
+    private var hosts: [String] {
+        services.compactMap { s in s.type == .URL ? URL(string: s.identifier)?.host : s.identifier }.compactMap(Domain.of)
+    }
+
+    var body: some View {
+        NavigationStack {
+            Group {
+                if session.phase == .unlocked {
+                    let all = session.items.filter { $0.deletedDate == nil }
+                    let match = all.filter { i in !hosts.isEmpty && hosts.contains { i.subtitle.localizedCaseInsensitiveContains($0) || i.name.localizedCaseInsensitiveContains($0.split(separator: ".").first.map(String.init) ?? $0) } }
+                    let rest = query.isEmpty ? all : all.filter { $0.name.localizedCaseInsensitiveContains(query) || $0.subtitle.localizedCaseInsensitiveContains(query) }
+                    List {
+                        if !match.isEmpty, query.isEmpty { Section("Suggested") { ForEach(match) { row($0) } } }
+                        Section("All logins") { ForEach(rest.filter { LoginKind.isLogin($0) }) { row($0) } }
+                    }
+                    .searchable(text: $query)
+                } else {
+                    VStack(spacing: 14) {
+                        Image(systemName: "lock.fill").font(.largeTitle)
+                        SecureField("Account password", text: $password).textContentType(.password).padding().background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 10))
+                        Button("Unlock") { Task { do { try await session.unlock(password: password) } catch { self.error = error.localizedDescription } } }.buttonStyle(.borderedProminent)
+                        if let error { Text(error).foregroundStyle(.red).font(.footnote) }
+                    }.padding(24)
+                }
+            }
+            .navigationTitle("AZET Pass")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel", action: cancel) } }
+            .task { if session.biometricOn { try? await session.unlockWithBiometrics() } }
+        }
+    }
+
+    private func row(_ i: CipherListView) -> some View {
+        Button {
+            Task {
+                guard let id = i.id, let v = try? await session.view(id) else { return }
+                if oneTimeCode, let t = v.login?.totp, let code = session.totp(t)?.code { pick(v.login?.username ?? "", code, true) }
+                else { pick(v.login?.username ?? "", v.login?.password ?? "", false) }
+            }
+        } label: { ItemRowLite(name: i.name, subtitle: i.subtitle) }
+    }
+}
+
+enum LoginKind { static func isLogin(_ i: CipherListView) -> Bool { if case .login = i.type { return true }; return false } }
+
+struct ItemRowLite: View {
+    let name: String
+    let subtitle: String
+    var body: some View {
+        VStack(alignment: .leading) { Text(name).foregroundStyle(.primary); Text(subtitle).font(.caption).foregroundStyle(.secondary) }
+    }
+}

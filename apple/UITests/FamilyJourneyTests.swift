@@ -1,0 +1,162 @@
+import XCTest
+
+/// The four-people-in-a-day journey on a real server, in Korean, saving a screenshot at every step:
+/// organizer signs in → makes the family → invites 엄마 with her own vault → fills it (preset + notebook scan) →
+/// parent mode → 엄마 opens the link and signs up → four words → organizer lets her in → 엄마 sees her vault.
+/// Input: /private/tmp/claude-501/l649-ui.json {orgEmail, orgPassword, momEmail, momPassword, out}. The notebook
+/// photo must be in the simulator's library (xcrun simctl addmedia).
+final class FamilyJourneyTests: XCTestCase {
+    var cfg: [String: String] = [:]
+    var app: XCUIApplication!
+    var step = 0
+
+    override func setUpWithError() throws {
+        continueAfterFailure = false
+        let d = try Data(contentsOf: URL(fileURLWithPath: "/private/tmp/claude-501/l649-ui.json"))
+        cfg = try JSONSerialization.jsonObject(with: d) as? [String: String] ?? [:]
+    }
+
+    func launch(reset: Bool) {
+        app = XCUIApplication()
+        app.launchArguments = ["-AppleLanguages", "(ko)", "-AppleLocale", "ko_KR"] + (reset ? ["-uitest-reset"] : [])
+        app.launch()
+    }
+
+    func shot(_ name: String) {
+        step += 1
+        let png = XCUIScreen.main.screenshot().pngRepresentation
+        let dir = URL(fileURLWithPath: cfg["out"] ?? NSTemporaryDirectory())
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        try? png.write(to: dir.appendingPathComponent(String(format: "%02d-%@.png", step, name)))
+        let a = XCTAttachment(screenshot: XCUIScreen.main.screenshot()); a.name = name; a.lifetime = .keepAlways; add(a)
+    }
+
+    @discardableResult
+    func wait(_ e: XCUIElement, _ t: TimeInterval = 30, file: StaticString = #filePath, line: UInt = #line) -> XCUIElement {
+        XCTAssertTrue(e.waitForExistence(timeout: t), "not found: \(e)", file: file, line: line)
+        return e
+    }
+
+    func tap(_ e: XCUIElement, _ t: TimeInterval = 30) { wait(e, t).tap() }
+
+    func type(_ field: XCUIElement, _ text: String) { tap(field); field.typeText(text) }
+
+    func signIn(_ email: String, _ password: String) {
+        tap(app.buttons["로그인"].firstMatch)
+        type(app.textFields["이메일"], email)
+        type(app.secureTextFields["계정 비밀번호"], password)
+        app.buttons.matching(NSPredicate(format: "label == '로그인'")).element(boundBy: app.buttons.matching(NSPredicate(format: "label == '로그인'")).count - 1).tap()
+        wait(app.tabBars.buttons["홈"], 60)
+    }
+
+    func signOut() {
+        tap(app.navigationBars.buttons["설정"].firstMatch)
+        let out = app.buttons["로그아웃"]
+        for _ in 0..<6 where !out.isHittable { app.swipeUp() }
+        out.tap()
+        wait(app.buttons["가족 계정 만들기"], 20)
+    }
+
+    func testFamilyDay() throws {
+        let org = cfg["orgEmail"]!, orgPw = cfg["orgPassword"]!, mom = cfg["momEmail"]!, momPw = cfg["momPassword"]!
+        launch(reset: true)
+        wait(app.buttons["가족 계정 만들기"])
+        shot("welcome")
+        signIn(org, orgPw)
+        shot("home")
+
+        // 1 family
+        tap(app.tabBars.buttons["가족"])
+        if app.textFields["가족 이름 (예: 김씨네)"].waitForExistence(timeout: 8) {
+            shot("family-create")
+            type(app.textFields["가족 이름 (예: 김씨네)"], "김씨네")
+            tap(app.buttons["가족 만들기"])
+        }
+        wait(app.staticTexts["가족 세팅"], 40)
+        shot("family-checklist-start")
+
+        // 2 invite 엄마 with her own vault
+        tap(app.buttons["가족 초대하기"])
+        type(app.textFields["이름 (예: 엄마)"], "엄마")
+        type(app.textFields["그분 이메일"], mom)
+        shot("invite-form")
+        tap(app.buttons["초대 링크 만들기"])
+        wait(app.staticTexts["초대 준비 완료"], 40)
+        shot("invite-ready")
+        tap(app.buttons["링크 복사"])
+        let link = UIPasteboard.general.string ?? ""
+        XCTAssertTrue(link.contains("/invite#"), "copied link: \(link)")
+        tap(app.buttons["완료"])
+
+        // 3 fill 엄마's vault: a preset, then the notebook page
+        tap(app.buttons["엄마"].firstMatch, 30)
+        tap(app.buttons["이 금고에 로그인 추가"])
+        wait(app.buttons["KB국민은행"])
+        shot("presets-korea")
+        tap(app.buttons["네이버"].firstMatch)
+        type(app.textFields["아이디"], "soonja.kim")
+        type(app.secureTextFields["비밀번호"], "Naver-2026!")
+        shot("preset-naver-edit")
+        tap(app.buttons["저장"])
+        wait(app.buttons["메모장 사진을 이 금고로"], 30)
+        tap(app.buttons["메모장 사진을 이 금고로"])
+        shot("scan-start")
+        tap(app.buttons["사진 고르기"])
+        let picked = app.images.firstMatch
+        wait(picked, 20).tap()
+        wait(app.buttons.matching(NSPredicate(format: "label BEGINSWITH '4개 저장'")).firstMatch, 60)
+        shot("scan-found-4")
+        tap(app.buttons.matching(NSPredicate(format: "label BEGINSWITH '4개 저장'")).firstMatch)
+        wait(app.staticTexts["4개 저장했어요"], 60)
+        shot("scan-saved")
+        tap(app.buttons["완료"])
+        shot("vault-mom-filled")
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        shot("family-checklist-filled")
+
+        // 4 parent mode
+        tap(app.navigationBars.buttons["설정"].firstMatch)
+        tap(app.switches["부모님 모드"])
+        tap(app.buttons["완료"])
+        wait(app.buttons["비밀번호 찾기"])
+        shot("parent-mode")
+        tap(app.buttons["전체 앱 보기"])
+        signOut()
+
+        // 5 엄마 opens the link on "her" phone and signs up straight from it
+        let scheme = link.replacingOccurrences(of: "https://pass.azet.io/invite", with: "azetpass://invite")
+        XCUIDevice.shared.system.open(URL(string: scheme)!)
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        if springboard.buttons["열기"].waitForExistence(timeout: 5) { springboard.buttons["열기"].tap() }
+        else if springboard.buttons["Open"].waitForExistence(timeout: 2) { springboard.buttons["Open"].tap() }
+        wait(app.secureTextFields["계정 비밀번호"], 40)
+        shot("mom-invite-signup")
+        type(app.secureTextFields["계정 비밀번호"], momPw)
+        type(app.secureTextFields["한 번 더 입력"], momPw)
+        tap(app.buttons["계정 만들기"])
+        wait(app.staticTexts["들어왔어요. 마지막 한 단계"], 90)
+        shot("mom-four-words")
+        tap(app.buttons["완료"])
+        signOut()
+
+        // 6 organizer compares the words and lets her in
+        signIn(org, orgPw)
+        tap(app.tabBars.buttons["가족"])
+        tap(app.buttons.matching(NSPredicate(format: "label CONTAINS '확인 기다림'")).firstMatch, 40)
+        tap(app.buttons["네 단어 맞춰 보기"])
+        wait(app.buttons["같은 단어예요, 들이기"])
+        shot("organizer-four-words")
+        tap(app.buttons["같은 단어예요, 들이기"])
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        wait(app.staticTexts["가족 세팅"])
+        shot("family-checklist-done")
+        signOut()
+
+        // 7 엄마 sees everything that was prepared for her
+        signIn(mom, momPw)
+        tap(app.tabBars.buttons["항목"])
+        tap(app.buttons["엄마"].firstMatch)
+        wait(app.staticTexts["KB국민은행"], 30)
+        shot("mom-sees-vault")
+    }
+}

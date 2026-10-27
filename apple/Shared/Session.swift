@@ -228,6 +228,7 @@ final class Session {
         SharedFiles.write(data, "sync.json")
         await apply(json)
         lastSync = Date()
+        Task { await PasskeyBridge(session: self).refreshIdentityStore() }
     }
 
     private func apply(_ json: String) async {
@@ -298,6 +299,39 @@ final class Session {
         let v = try await view(id)
         let moved = try client.vault().ciphers().moveToOrganization(cipher: v, organizationId: orgId)
         try await save(moved, vaultIds: [vid])
+    }
+
+    // MARK: files — encrypted on this phone with the item's key; the server stores only the ciphertext
+
+    func attach(_ id: String, name: String, data: Data) async throws {
+        guard let c = ciphers[id] else { return }
+        guard data.count <= 25_000_000 else { throw APIError(status: 413, message: String(localized: "Files can be up to 25 MB.")) }
+        let enc = try client.vault().attachments().encryptBuffer(
+            cipher: c, attachment: AttachmentView(id: nil, url: nil, size: String(data.count), sizeName: nil, fileName: name, key: nil), buffer: data)
+        let slot = try await api.send("POST", "/api/ciphers/\(id)/attachment/v2",
+                                      ["key": enc.attachment.key ?? "", "fileName": enc.attachment.fileName ?? "", "fileSize": enc.contents.count])
+        guard let url = slot["url"] as? String else { throw APIError(status: 0, message: String(localized: "Something went wrong. Try again.")) }
+        try await api.raw("PUT", url, json: enc.contents)
+        try await sync()
+    }
+
+    /// The decrypted file, written to a temporary file for Quick Look / sharing (removed by the system).
+    func open(_ id: String, _ file: AttachmentView) async throws -> URL {
+        guard let c = ciphers[id], let aid = file.id else { throw APIError(status: 404, message: String(localized: "This item is gone. Pull to refresh.")) }
+        let meta = try await api.get("/api/ciphers/\(id)/attachment/\(aid)")
+        guard let url = meta["url"] as? String else { throw APIError(status: 404, message: String(localized: "This item is gone. Pull to refresh.")) }
+        let plain = try client.vault().attachments().decryptBuffer(cipher: c, attachment: file, buffer: try await api.raw("GET", url))
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let out = dir.appendingPathComponent(file.fileName ?? "file")
+        try plain.write(to: out, options: .completeFileProtection)
+        return out
+    }
+
+    func removeFile(_ id: String, _ file: AttachmentView) async throws {
+        guard let aid = file.id else { return }
+        try await api.raw("DELETE", "/api/ciphers/\(id)/attachment/\(aid)")
+        try await sync()
     }
 
     func trash(_ id: String) async throws { try await api.send("PUT", "/api/ciphers/\(id)/delete"); try await sync() }

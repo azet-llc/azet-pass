@@ -121,6 +121,7 @@ struct FamilyHome: View {
                             Text("\(session.items.filter { $0.collectionIds.contains(v.id ?? "") && $0.deletedDate == nil }.count)").foregroundStyle(.secondary)
                         }
                     }
+                    .accessibilityIdentifier("vault.\(v.name)")
                 }
                 if family.role != 5 { Button { newVault = true } label: { Label("New shared vault", systemImage: "plus") } }
             }
@@ -240,6 +241,7 @@ struct InviteView: View {
                             Label("Send the link", systemImage: "square.and.arrow.up")
                         }
                         Button { copyToClipboard(link.absoluteString) } label: { Label("Copy link", systemImage: "doc.on.doc") }
+                            .accessibilityValue(link.absoluteString)
                     }
                     if ownVault {
                         Section { Text("A vault called \"\(name)\" is ready. Add their logins now, so everything is there the moment they join.").foregroundStyle(.secondary) }

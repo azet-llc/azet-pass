@@ -1,0 +1,55 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index 018d814e..26b713e2 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -1363,6 +1363,7 @@ name = "bitwarden-uniffi"
+ version = "0.1.0"
+ dependencies = [
+  "async-trait",
++ "bitwarden-api-api",
+  "bitwarden-auth",
+  "bitwarden-collections",
+  "bitwarden-core",
+@@ -1388,6 +1389,8 @@ dependencies = [
+  "jni 0.21.1",
+  "libloading",
+  "rustls-platform-verifier 0.6.2",
++ "serde",
++ "serde_json",
+  "thiserror 2.0.19",
+  "tracing",
+  "tracing-android",
+diff --git a/crates/bitwarden-uniffi/Cargo.toml b/crates/bitwarden-uniffi/Cargo.toml
+index 71c72a9d..ea496adb 100644
+--- a/crates/bitwarden-uniffi/Cargo.toml
++++ b/crates/bitwarden-uniffi/Cargo.toml
+@@ -24,6 +24,7 @@ dangerous-crypto-debug = ["bitwarden-core/dangerous-crypto-debug"]
+ 
+ [dependencies]
+ async-trait = { workspace = true }
++bitwarden-api-api = { workspace = true }
+ bitwarden-auth = { workspace = true, features = ["uniffi"] }
+ bitwarden-collections = { workspace = true, features = ["uniffi"] }
+ bitwarden-core = { workspace = true, features = ["uniffi"] }
+@@ -46,6 +47,8 @@ bitwarden-uniffi-error = { workspace = true }
+ bitwarden-user-crypto-management = { workspace = true, features = ["uniffi"] }
+ bitwarden-vault = { workspace = true, features = ["uniffi"] }
+ chrono = { workspace = true, features = ["std"] }
++serde = { workspace = true }
++serde_json = { workspace = true }
+ thiserror = { workspace = true }
+ tracing = { workspace = true }
+ tracing-subscriber = { workspace = true }
+diff --git a/crates/bitwarden-uniffi/src/lib.rs b/crates/bitwarden-uniffi/src/lib.rs
+index 40213b96..73b82c16 100644
+--- a/crates/bitwarden-uniffi/src/lib.rs
++++ b/crates/bitwarden-uniffi/src/lib.rs
+@@ -9,6 +9,8 @@ use bitwarden_core::{ClientSettings, auth::ClientManagedTokens};
+ 
+ #[allow(missing_docs)]
+ pub mod auth;
++pub mod azet_family;
++pub mod azet_json;
+ #[allow(missing_docs)]
+ pub mod crypto;
+ #[allow(missing_docs)]

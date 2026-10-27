@@ -1,7 +1,60 @@
 import BitwardenSdk
+import PhotosUI
+import QuickLook
 import SwiftUI
 
 // MARK: detail
+
+/// Documents and photos kept with an item (a passport scan, an insurance PDF). Encrypted before they leave the phone.
+struct FilesSection: View {
+    @Environment(Session.self) private var session
+    let id: String
+    let item: CipherView
+    let reload: () async -> Void
+    @State private var pickFile = false
+    @State private var photo: PhotosPickerItem?
+    @State private var preview: URL?
+    @State private var busy = false
+    @State private var error: String?
+
+    var body: some View {
+        Section {
+            ForEach(item.attachments ?? [], id: \.id) { f in
+                Button { run { preview = try await session.open(id, f) } } label: {
+                    LabeledContent { Text(f.sizeName ?? "") } label: { Label(f.fileName ?? "", systemImage: "doc.fill") }
+                }
+                .swipeActions { if item.edit { Button(role: .destructive) { run { try await session.removeFile(id, f); await reload() } } label: { Label("Delete", systemImage: "trash") } } }
+            }
+            if item.edit, item.deletedDate == nil {
+                Button { pickFile = true } label: { Label("Attach a file", systemImage: "paperclip") }
+                PhotosPicker(selection: $photo, matching: .images) { Label("Attach a photo", systemImage: "photo") }
+            }
+            if busy { ProgressView() }
+        } header: { Text("Files") } footer: { Text("Files are encrypted on this iPhone before they are saved. Up to 25 MB each.") }
+        .fileImporter(isPresented: $pickFile, allowedContentTypes: [.item]) { r in
+            guard case .success(let url) = r else { return }
+            run {
+                let ok = url.startAccessingSecurityScopedResource(); defer { if ok { url.stopAccessingSecurityScopedResource() } }
+                try await session.attach(id, name: url.lastPathComponent, data: try Data(contentsOf: url)); await reload()
+            }
+        }
+        .onChange(of: photo) {
+            guard let p = photo else { return }
+            photo = nil
+            run {
+                guard let d = try await p.loadTransferable(type: Data.self) else { return }
+                try await session.attach(id, name: "photo-\(Date().formatted(.iso8601.year().month().day())).jpg", data: d); await reload()
+            }
+        }
+        .quickLookPreview($preview)
+        .errorAlert($error)
+    }
+
+    private func run(_ work: @escaping () async throws -> Void) {
+        busy = true
+        Task { do { try await work() } catch { self.error = error.localizedDescription }; busy = false }
+    }
+}
 
 struct ItemDetailView: View {
     @Environment(Session.self) private var session
@@ -33,6 +86,7 @@ struct ItemDetailView: View {
                     if let f = v.fields?.filter({ $0.name != ItemCategory.marker }), !f.isEmpty {
                         Section { ForEach(Array(f.enumerated()), id: \.offset) { _, x in FieldRow(label: x.name ?? "", value: x.value ?? "", secret: x.type == .hidden) } }
                     }
+                    FilesSection(id: id, item: v, reload: load)
                     if let p = v.login?.fido2Credentials, !p.isEmpty {
                         Section("Passkey") { Label("Passkey saved for this site", systemImage: "person.badge.key.fill") }
                     }

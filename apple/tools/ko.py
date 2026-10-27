@@ -455,4 +455,9 @@ KO = {
 "in %lld days": "%lld일 뒤",
 "the person who invited you": "초대한 가족",
 "tomorrow": "내일",
+"Files": "파일",
+"Attach a file": "파일 첨부",
+"Attach a photo": "사진 첨부",
+"Files are encrypted on this iPhone before they are saved. Up to 25 MB each.": "파일은 이 iPhone에서 암호화된 뒤 저장돼요. 파일 하나에 25MB까지.",
+"Files can be up to 25 MB.": "파일은 25MB까지 넣을 수 있어요.",
 }

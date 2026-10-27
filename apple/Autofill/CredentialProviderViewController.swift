@@ -16,6 +16,49 @@ final class CredentialProviderViewController: ASCredentialProviderViewController
         services = serviceIdentifiers; oneTimeCode = true; show()
     }
 
+    // MARK: passkeys (iOS 17+)
+
+    override func prepareInterface(forPasskeyRegistration registrationRequest: ASCredentialRequest) {
+        guard let r = registrationRequest as? ASPasskeyCredentialRequest, let id = r.credentialIdentity as? ASPasskeyCredentialIdentity else { return fail() }
+        embed(UIHostingController(rootView: PasskeyRun(title: String(localized: "Save a passkey for \(id.relyingPartyIdentifier)")) { s in
+            let res = try await PasskeyBridge(session: s).register(rpId: id.relyingPartyIdentifier, userName: id.userName, userHandle: id.userHandle, clientDataHash: r.clientDataHash)
+            await self.extensionContext.completeRegistrationRequest(using: ASPasskeyRegistrationCredential(
+                relyingParty: id.relyingPartyIdentifier, clientDataHash: r.clientDataHash, credentialID: res.credentialId, attestationObject: res.attestationObject))
+        } cancel: { [weak self] in self?.fail() }))
+    }
+
+    override func prepareInterfaceToProvideCredential(for credentialRequest: ASCredentialRequest) {
+        if let r = credentialRequest as? ASPasskeyCredentialRequest, let id = r.credentialIdentity as? ASPasskeyCredentialIdentity {
+            embed(UIHostingController(rootView: PasskeyRun(title: String(localized: "Sign in with a passkey")) { s in
+                let res = try await PasskeyBridge(session: s).assert(rpId: id.relyingPartyIdentifier, credentialId: id.credentialID, clientDataHash: r.clientDataHash)
+                await self.extensionContext.completeAssertionRequest(using: ASPasskeyAssertionCredential(
+                    userHandle: res.userHandle, relyingParty: id.relyingPartyIdentifier, signature: res.signature,
+                    clientDataHash: r.clientDataHash, authenticatorData: res.authenticatorData, credentialID: res.credentialId))
+            } cancel: { [weak self] in self?.fail() }))
+        } else if let p = credentialRequest.credentialIdentity as? ASPasswordCredentialIdentity {
+            embed(UIHostingController(rootView: PasskeyRun(title: p.user) { s in
+                let v = try await s.view(p.recordIdentifier ?? "")
+                await self.extensionContext.completeRequest(withSelectedCredential: ASPasswordCredential(user: v.login?.username ?? "", password: v.login?.password ?? ""))
+            } cancel: { [weak self] in self?.fail() }))
+        } else { fail() }
+    }
+
+    override func prepareCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier], requestParameters: ASPasskeyCredentialRequestParameters) {
+        services = serviceIdentifiers
+        let rp = requestParameters.relyingPartyIdentifier
+        let allow = requestParameters.allowedCredentials.first
+        embed(UIHostingController(rootView: PasskeyRun(title: String(localized: "Sign in with a passkey")) { s in
+            let res = try await PasskeyBridge(session: s).assert(rpId: rp, credentialId: allow, clientDataHash: requestParameters.clientDataHash)
+            await self.extensionContext.completeAssertionRequest(using: ASPasskeyAssertionCredential(
+                userHandle: res.userHandle, relyingParty: rp, signature: res.signature,
+                clientDataHash: requestParameters.clientDataHash, authenticatorData: res.authenticatorData, credentialID: res.credentialId))
+        } cancel: { [weak self] in self?.fail() }))
+    }
+
+    private func fail() {
+        extensionContext.cancelRequest(withError: NSError(domain: ASExtensionErrorDomain, code: ASExtensionError.failed.rawValue))
+    }
+
     override func prepareInterfaceForExtensionConfiguration() {
         let v = UIHostingController(rootView: Text("AZET Pass is ready to fill your passwords.").padding())
         embed(v)
@@ -100,5 +143,41 @@ struct ItemRowLite: View {
     let subtitle: String
     var body: some View {
         VStack(alignment: .leading) { Text(name).foregroundStyle(.primary); Text(subtitle).font(.caption).foregroundStyle(.secondary) }
+    }
+}
+
+/// Unlock (Face ID, else account password), then run one passkey or password step.
+struct PasskeyRun: View {
+    let title: String
+    let run: (Session) async throws -> Void
+    let cancel: () -> Void
+    @State private var session = Session()
+    @State private var password = ""
+    @State private var error: String?
+    @State private var started = false
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 16) {
+                Image(systemName: "person.badge.key.fill").font(.system(size: 44)).foregroundStyle(.tint)
+                Text(title).font(.headline).multilineTextAlignment(.center)
+                if session.phase != .unlocked {
+                    SecureField("Account password", text: $password).textContentType(.password)
+                        .padding().background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 10))
+                    Button("Unlock") { Task { do { try await session.unlock(password: password); await go() } catch { self.error = error.localizedDescription } } }
+                        .buttonStyle(.borderedProminent)
+                } else { ProgressView() }
+                if let error { Text(error).font(.footnote).foregroundStyle(.red) }
+            }
+            .padding(24)
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel", action: cancel) } }
+            .task { if session.biometricOn, (try? await session.unlockWithBiometrics()) != nil { await go() } }
+        }
+    }
+
+    private func go() async {
+        guard !started else { return }
+        started = true
+        do { try await run(session) } catch { self.error = error.localizedDescription; started = false }
     }
 }

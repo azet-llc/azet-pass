@@ -8,8 +8,8 @@ W=$(mktemp -d); trap 'kill $(jobs -p) 2>/dev/null || true' EXIT
 worker-build --release --locked >/dev/null
 printf 'JWT_SECRET=%s\nJWT_REFRESH_SECRET=%s\nALLOWED_EMAILS=*\n' "$(openssl rand -hex 32)" "$(openssl rand -hex 32)" > .dev.vars
 rm -rf .wrangler/state; mkdir -p public/web-vault
-# prebuilt above; the test talks to the backend directly (entry.js), without the gw internal key
-sed -e '/^\[build\]/,/^command/d' -e 's|^main = "src/private.js"|main = "src/entry.js"|' wrangler.toml > wrangler.test.toml
+# prebuilt above; login limiter opened (one IP makes many logins); the test talks to the backend directly (entry.js), without the gw internal key
+sed -e '/^\[build\]/,/^command/d' -e 's|^main = "src/private.js"|main = "src/entry.js"|' -e 's|simple = { limit = 5, period = 60 }|simple = { limit = 1000, period = 60 }|' wrangler.toml > wrangler.test.toml
 for f in sql/schema.sql migrations/0015_api_key.sql migrations/0016_family.sql; do
   D1_DATABASE_ID=00000000-0000-0000-0000-000000000000 npx -y wrangler@4 d1 execute vault1 -c wrangler.test.toml --local --file "$f" >/dev/null 2>&1
 done

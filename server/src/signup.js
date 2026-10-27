@@ -86,6 +86,16 @@ export async function signupGate(request, env, url, ctx) {
   }
 
   if (body?.email !== body?.email?.trim()) return error("The Email field is not a valid e-mail address.");
+  // AZET families: a family invite link (sent by the organizer over KakaoTalk/SMS) stands in for the mail link, so a
+  // parent signs up straight from the invite. Only for the exact address the organizer invited, while it is open.
+  // ponytail: the address is vouched for by the organizer, not proven by mail; add a mail check if squatting shows up.
+  if (isRegister && body?.orgInviteToken && body?.organizationUserId) {
+    const open = await env.vault1
+      .prepare("SELECT 1 FROM org_members WHERE id = ?1 AND invite_token = ?2 AND status = 0 AND email = ?3")
+      .bind(String(body.organizationUserId), String(body.orgInviteToken), email)
+      .first();
+    return open ? null : error("This invite link has expired. Ask for a new one.");
+  }
   const state = await checkSignupToken(secret, email, body?.emailVerificationToken ?? body?.token);
   if (state === "expired") return error(EXPIRED);
   if (state !== "ok") return error("Invalid email verification link. Please restart registration.");

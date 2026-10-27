@@ -47,7 +47,7 @@ const login = async (email, password) => {
   const r = await fetch(`${base}/identity/connect/token`, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({ grant_type: 'password', username: email, password: hash, scope: 'api offline_access', client_id: 'ios', deviceType: '1', deviceIdentifier: c.randomUUID(), deviceName: 'test' }) })
   const j = await r.json()
-  if (!j.access_token) return null
+  if (!j.access_token) { if (process.env.DEBUG) console.error('login', r.status, JSON.stringify(j).slice(0, 200)); return null }
   const stretched = new Uint8Array([...await expand(mk, 'enc'), ...await expand(mk, 'mac')])
   const userKey = await decS(stretched, j.Key || j.key)
   const priv = await decS(userKey, j.PrivateKey || j.privateKey)
@@ -99,6 +99,26 @@ const sb = await sync(b)
 assert.deepEqual(await rsaDec(b.priv, sb.profile.organizations[0].key), orgKey, 'member unwraps family key')
 assert.equal(sb.collections.length, 1)
 console.log('2 invite link → accept → confirm: ok')
+
+// 2b a parent signs up straight from the invite link (no mail link), only for the invited address
+const D = `fam-dad-${RUN}@example.com`
+const dinv = (await ok(a.tok, 'POST', `/api/organizations/${org.id}/users/invite`, { emails: [D], type: 2, displayName: '아빠' })).data[0]
+const regWith = async (email, extra) => {
+  const mk = await pbkdf2(enc.encode(pw(email)), enc.encode(email), ITER)
+  const uk = c.getRandomValues(new Uint8Array(64)), kp = await rsaPair()
+  return fetch(`${base}/identity/accounts/register`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
+    email, name: null, masterPasswordHash: b64(await pbkdf2(mk, enc.encode(pw(email)), 1)), masterPasswordHint: null, kdf: 0, kdfIterations: ITER,
+    key: await encS(new Uint8Array([...await expand(mk, 'enc'), ...await expand(mk, 'mac')]), uk),
+    userAsymmetricKeys: { publicKey: b64(new Uint8Array(await c.subtle.exportKey('spki', kp.publicKey))), encryptedPrivateKey: await encS(uk, new Uint8Array(await c.subtle.exportKey('pkcs8', kp.privateKey))) },
+    ...extra }) })
+}
+assert.equal((await regWith(`other-${RUN}@example.com`, { orgInviteToken: dinv.token, organizationUserId: dinv.id })).status, 400, 'invite token is for one address')
+assert.equal((await regWith(D, { orgInviteToken: 'bad', organizationUserId: dinv.id })).status, 400)
+assert.equal((await regWith(D, { orgInviteToken: dinv.token, organizationUserId: dinv.id })).status, 200, 'parent signs up from the invite')
+const d = await login(D, pw(D))
+await ok(d.tok, 'POST', `/api/organizations/${org.id}/users/${dinv.id}/accept`, { token: dinv.token })
+await ok(a.tok, 'DELETE', `/api/organizations/${org.id}/users/${dinv.id}`)
+console.log('2b sign up from invite link: ok')
 
 // 3 shared item round trip (organizer writes, member reads and edits)
 const SENT = { name: `Netflix-${RUN}`, user: `family-${RUN}@mail.test`, pass: `Wifi-Secret-${RUN}` }

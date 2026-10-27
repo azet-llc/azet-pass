@@ -79,6 +79,14 @@ impl CipherTypeFields {
 }
 
 impl CipherData {
+    /// The `data` column for a cipher sent as JSON (share / AZET family endpoints).
+    pub fn from_share_payload(cipher: &Value) -> Result<String, crate::error::AppError> {
+        let req: CipherRequestData = serde_json::from_value(cipher.clone())
+            .map_err(|e| crate::error::AppError::BadRequest(format!("cipher: {e}")))?;
+        serde_json::to_string(&Self::new(req.name, req.notes, req.type_fields))
+            .map_err(|_| crate::error::AppError::Internal)
+    }
+
     pub fn new(name: String, notes: Option<String>, type_fields: CipherTypeFields) -> Self {
         Self {
             name,
@@ -199,7 +207,7 @@ pub struct Cipher {
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct CipherDBModel {
     pub id: String,
-    pub user_id: String,
+    pub user_id: Option<String>,
     pub organization_id: Option<String>,
     pub r#type: i32,
     pub data: String,
@@ -215,7 +223,7 @@ impl From<CipherDBModel> for Cipher {
     fn from(val: CipherDBModel) -> Self {
         Cipher {
             id: val.id,
-            user_id: Some(val.user_id),
+            user_id: val.user_id,
             organization_id: val.organization_id,
             r#type: val.r#type,
             data: serde_json::from_str(&val.data).unwrap_or_default(),

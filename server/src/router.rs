@@ -7,7 +7,7 @@ use worker::Env;
 
 use crate::handlers::{
     accounts, attachments, auth_requests, azet, ciphers, config, devices, domains,
-    emergency_access, folders, identity, import, meta, sends, sync, twofactor, webauth,
+    emergency_access, family, folders, identity, import, meta, sends, sync, twofactor, webauth,
 };
 
 pub fn api_router(env: Env) -> Router {
@@ -282,5 +282,30 @@ pub fn api_router(env: Env) -> Router {
             put(twofactor::disable_twofactor_put),
         )
         .route("/api/two-factor/get-recover", post(twofactor::get_recover))
+        // AZET families (Bitwarden organization wire shape)
+        .route("/api/organizations", post(family::create))
+        .route("/api/organizations/{org_id}", get(family::get).put(family::rename))
+        .route("/api/organizations/{org_id}/keys", get(family::keys))
+        .route("/api/organizations/{org_id}/public-key", get(family::public_key))
+        .route("/api/organizations/{org_id}/leave", post(family::leave))
+        .route("/api/organizations/{org_id}/users", get(family::members))
+        .route("/api/organizations/{org_id}/users/invite", post(family::invite))
+        .route("/api/organizations/{org_id}/users/{member_id}", put(family::update_member).delete(family::remove))
+        .route("/api/organizations/{org_id}/users/{member_id}/reinvite", post(family::reinvite))
+        .route("/api/organizations/{org_id}/users/{member_id}/accept", post(family::accept))
+        .route("/api/organizations/{org_id}/users/{member_id}/confirm", post(family::confirm))
+        .route("/api/organizations/{org_id}/users/{member_id}/revoke", put(family::revoke))
+        .route("/api/organizations/{org_id}/users/{member_id}/restore", put(family::restore))
+        .route("/api/organizations/{org_id}/users/{member_id}/reset-password-enrollment", put(family::enroll_recovery))
+        .route("/api/organizations/{org_id}/users/{member_id}/reset-password-details", get(family::recovery_details))
+        .route("/api/organizations/{org_id}/users/{member_id}/reset-password", put(family::recover))
+        .route("/api/organizations/{org_id}/collections", get(family::collections).post(family::create_collection))
+        .route("/api/organizations/{org_id}/collections/{cid}", put(family::update_collection).delete(family::delete_collection))
+        .route("/api/users/{user_id}/public-key", get(family::user_public_key))
+        .route("/api/azet/invites/{member_id}/{token}", get(family::invite_preview))
+        .route("/api/azet/travel-mode", post(family::travel_mode))
+        .route("/api/ciphers/{id}/share", put(family::share_cipher).post(family::share_cipher))
+        .route("/api/ciphers/{id}/collections", put(family::cipher_collections).post(family::cipher_collections))
+        .route("/api/ciphers/{id}/travel-safe", put(family::travel_safe))
         .with_state(app_state)
 }

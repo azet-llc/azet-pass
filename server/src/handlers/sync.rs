@@ -89,6 +89,18 @@ pub async fn get_sync_data(
         let premium = crate::handlers::azet::premium_for(&env, &user.id).await;
         Profile::from_user(user, two_factor_enabled, premium)?
     };
+    profile.organizations = crate::handlers::family::profile_organizations(&db, &user_id).await?;
+    let travel: Option<Value> = db
+        .prepare("SELECT 1 FROM users WHERE id = ?1 AND travel_mode = 1")
+        .bind(&[user_id.clone().into()])?
+        .first(None)
+        .await?;
+    let collections: Vec<Value> = crate::handlers::family::sync_collections(&db, &user_id)
+        .await?
+        .into_iter()
+        .filter(|c| travel.is_none() || c["travelSafe"] == json!(true))
+        .collect();
+    let collections_json = serde_json::to_string(&collections).map_err(|_| AppError::Internal)?;
     // Match vaultwarden semantics: `_status` is `Invited` when no master password is set.
     // We don't implement org invitations, but this helps clients interpret the account state.
     profile.status = if has_master_password { 0 } else { 1 };
@@ -126,12 +138,14 @@ pub async fn get_sync_data(
     response.push_str(&profile_json);
     response.push_str(",\"folders\":");
     response.push_str(&folders_json);
-    response.push_str(",\"collections\":[],\"policies\":[],\"ciphers\":");
+    response.push_str(",\"collections\":");
+    response.push_str(&collections_json);
+    response.push_str(",\"policies\":[],\"ciphers\":");
     ciphers::append_cipher_json_array_raw(
         &mut response,
         &db,
         include_attachments,
-        "WHERE c.user_id = ?1",
+        "WHERE c.id IN (SELECT cipher_id FROM cipher_access WHERE user_id = ?1 AND (travel_safe = 1 OR (SELECT travel_mode FROM users WHERE id = ?1) = 0))",
         &[user_id.clone().into()],
         "",
         force_row_query,

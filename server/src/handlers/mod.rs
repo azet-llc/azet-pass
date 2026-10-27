@@ -7,6 +7,7 @@ pub mod config;
 pub mod devices;
 pub mod domains;
 pub mod emergency_access;
+pub mod family;
 pub mod folders;
 pub mod identity;
 pub mod import;

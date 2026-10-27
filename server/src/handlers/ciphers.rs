@@ -38,7 +38,7 @@ async fn fetch_cipher_for_user(
     cipher_id: &str,
     user_id: &str,
 ) -> Result<CipherDBModel, AppError> {
-    db.prepare("SELECT * FROM ciphers WHERE id = ?1 AND user_id = ?2")
+    db.prepare("SELECT * FROM ciphers WHERE id = ?1 AND id IN (SELECT cipher_id FROM cipher_access WHERE user_id = ?2)")
         .bind(&[cipher_id.to_string().into(), user_id.to_string().into()])?
         .first(None)
         .await
@@ -83,6 +83,10 @@ pub async fn create_cipher(
     let cipher_data_req = payload.cipher;
 
     validate_folder_ownership(&db, cipher_data_req.folder_id.as_deref(), &claims.sub).await?;
+    // a family item belongs to the family (user_id NULL) and to at least one shared vault the caller may write to
+    if let Some(org_id) = cipher_data_req.organization_id.as_deref() {
+        crate::handlers::family::check_collections_writable(&db, org_id, &claims.sub, &payload.collection_ids).await?;
+    }
 
     let cipher_data = CipherData::new(
         cipher_data_req.name,
@@ -94,7 +98,7 @@ pub async fn create_cipher(
 
     let mut cipher = Cipher {
         id: Uuid::new_v4().to_string(),
-        user_id: Some(claims.sub.clone()),
+        user_id: if cipher_data_req.organization_id.is_some() { None } else { Some(claims.sub.clone()) },
         organization_id: cipher_data_req.organization_id.clone(),
         r#type: cipher_data_req.r#type,
         data: data_value,
@@ -135,6 +139,10 @@ pub async fn create_cipher(
     ).map_err(|_|AppError::Database)?
     .run()
     .await?;
+
+    if cipher.organization_id.is_some() {
+        crate::handlers::family::set_cipher_collections(&db, &cipher.id, cipher.collection_ids.as_deref().unwrap_or(&[])).await?;
+    }
 
     attachments::hydrate_cipher_attachments(&db, env.as_ref(), &mut cipher).await?;
     db::touch_user_updated_at(&db, &claims.sub, &cipher.updated_at).await?;
@@ -194,8 +202,8 @@ pub async fn update_cipher(
 
     let mut cipher = Cipher {
         id: id.clone(),
-        user_id: Some(claims.sub.clone()),
-        organization_id: payload.organization_id.clone(),
+        user_id: existing_cipher.user_id.clone(),
+        organization_id: existing_cipher.organization_id.clone(),
         r#type: payload.r#type,
         data: data_value,
         favorite: payload.favorite.unwrap_or(false),
@@ -216,7 +224,7 @@ pub async fn update_cipher(
 
     d1_query!(
         &db,
-        "UPDATE ciphers SET organization_id = ?1, type = ?2, data = ?3, favorite = ?4, folder_id = ?5, updated_at = ?6 WHERE id = ?7 AND user_id = ?8",
+        "UPDATE ciphers SET organization_id = ?1, type = ?2, data = ?3, favorite = ?4, folder_id = ?5, updated_at = ?6 WHERE id = ?7 AND id IN (SELECT cipher_id FROM cipher_access WHERE user_id = ?8 AND can_edit = 1)",
         cipher.organization_id,
         cipher.r#type,
         data,
@@ -280,7 +288,7 @@ pub async fn list_ciphers(
     build_cipher_list_response(
         &db,
         env.as_ref(),
-        "WHERE c.user_id = ?1 AND c.deleted_at IS NULL",
+        "WHERE c.id IN (SELECT cipher_id FROM cipher_access WHERE user_id = ?1) AND c.deleted_at IS NULL",
         &[claims.sub.clone().into()],
         "ORDER BY c.updated_at DESC",
     )
@@ -333,7 +341,7 @@ pub async fn update_cipher_partial(
 
     d1_query!(
         &db,
-        "UPDATE ciphers SET folder_id = ?1, favorite = ?2, updated_at = ?3 WHERE id = ?4 AND user_id = ?5",
+        "UPDATE ciphers SET folder_id = ?1, favorite = ?2, updated_at = ?3 WHERE id = ?4 AND id IN (SELECT cipher_id FROM cipher_access WHERE user_id = ?5)",
         payload.folder_id,
         payload.favorite,
         now,
@@ -369,7 +377,7 @@ pub async fn soft_delete_cipher(
 
     d1_query!(
         &db,
-        "UPDATE ciphers SET deleted_at = ?1, updated_at = ?1 WHERE id = ?2 AND user_id = ?3",
+        "UPDATE ciphers SET deleted_at = ?1, updated_at = ?1 WHERE id = ?2 AND id IN (SELECT cipher_id FROM cipher_access WHERE user_id = ?3 AND can_edit = 1)",
         now,
         id,
         claims.sub
@@ -406,7 +414,7 @@ pub async fn soft_delete_ciphers_bulk(
 
     d1_query!(
         &db,
-        "UPDATE ciphers SET deleted_at = ?1, updated_at = ?1 WHERE user_id = ?2 AND id IN (SELECT value FROM json_each(?3, '$.ids'))",
+        "UPDATE ciphers SET deleted_at = ?1, updated_at = ?1 WHERE id IN (SELECT cipher_id FROM cipher_access WHERE user_id = ?2 AND can_edit = 1) AND id IN (SELECT value FROM json_each(?3, '$.ids'))",
         now,
         claims.sub,
         body
@@ -455,7 +463,7 @@ pub async fn hard_delete_cipher(
 
     d1_query!(
         &db,
-        "DELETE FROM ciphers WHERE id = ?1 AND user_id = ?2",
+        "DELETE FROM ciphers WHERE id = ?1 AND id IN (SELECT cipher_id FROM cipher_access WHERE user_id = ?2 AND can_edit = 1)",
         id,
         claims.sub
     )
@@ -502,7 +510,7 @@ pub async fn hard_delete_ciphers_bulk(
 
     d1_query!(
         &db,
-        "DELETE FROM ciphers WHERE user_id = ?1 AND id IN (SELECT value FROM json_each(?2, '$.ids'))",
+        "DELETE FROM ciphers WHERE id IN (SELECT cipher_id FROM cipher_access WHERE user_id = ?1 AND can_edit = 1) AND id IN (SELECT value FROM json_each(?2, '$.ids'))",
         claims.sub,
         body
     )
@@ -539,7 +547,7 @@ pub async fn restore_cipher(
     // Update the cipher to clear deleted_at
     d1_query!(
         &db,
-        "UPDATE ciphers SET deleted_at = NULL, updated_at = ?1 WHERE id = ?2 AND user_id = ?3",
+        "UPDATE ciphers SET deleted_at = NULL, updated_at = ?1 WHERE id = ?2 AND id IN (SELECT cipher_id FROM cipher_access WHERE user_id = ?3 AND can_edit = 1)",
         now,
         id,
         claims.sub
@@ -581,7 +589,7 @@ pub async fn restore_ciphers_bulk(
     // Single bulk UPDATE using json_each() with path
     d1_query!(
         &db,
-        "UPDATE ciphers SET deleted_at = NULL, updated_at = ?1 WHERE user_id = ?2 AND id IN (SELECT value FROM json_each(?3, '$.ids'))",
+        "UPDATE ciphers SET deleted_at = NULL, updated_at = ?1 WHERE id IN (SELECT cipher_id FROM cipher_access WHERE user_id = ?2 AND can_edit = 1) AND id IN (SELECT value FROM json_each(?3, '$.ids'))",
         now,
         claims.sub,
         body
@@ -604,7 +612,7 @@ pub async fn restore_ciphers_bulk(
     build_cipher_list_response(
         &db,
         env.as_ref(),
-        "WHERE c.user_id = ?1 AND c.id IN (SELECT value FROM json_each(?2, '$.ids'))",
+        "WHERE c.id IN (SELECT cipher_id FROM cipher_access WHERE user_id = ?1) AND c.id IN (SELECT value FROM json_each(?2, '$.ids'))",
         &[claims.sub.into(), body.into()],
         "",
     )
@@ -628,7 +636,7 @@ pub async fn archive_cipher(
 
     d1_query!(
         &db,
-        "UPDATE ciphers SET archived_at = ?1, updated_at = ?1 WHERE id = ?2 AND user_id = ?3",
+        "UPDATE ciphers SET archived_at = ?1, updated_at = ?1 WHERE id = ?2 AND id IN (SELECT cipher_id FROM cipher_access WHERE user_id = ?3 AND can_edit = 1)",
         now,
         id,
         claims.sub
@@ -672,7 +680,7 @@ pub async fn unarchive_cipher(
 
     d1_query!(
         &db,
-        "UPDATE ciphers SET archived_at = NULL, updated_at = ?1 WHERE id = ?2 AND user_id = ?3",
+        "UPDATE ciphers SET archived_at = NULL, updated_at = ?1 WHERE id = ?2 AND id IN (SELECT cipher_id FROM cipher_access WHERE user_id = ?3 AND can_edit = 1)",
         now,
         id,
         claims.sub
@@ -712,7 +720,7 @@ pub async fn archive_ciphers_bulk(
 
     d1_query!(
         &db,
-        "UPDATE ciphers SET archived_at = ?1, updated_at = ?1 WHERE user_id = ?2 AND id IN (SELECT value FROM json_each(?3, '$.ids'))",
+        "UPDATE ciphers SET archived_at = ?1, updated_at = ?1 WHERE id IN (SELECT cipher_id FROM cipher_access WHERE user_id = ?2 AND can_edit = 1) AND id IN (SELECT value FROM json_each(?3, '$.ids'))",
         now,
         claims.sub,
         body
@@ -735,7 +743,7 @@ pub async fn archive_ciphers_bulk(
     build_cipher_list_response(
         &db,
         env.as_ref(),
-        "WHERE c.user_id = ?1 AND c.id IN (SELECT value FROM json_each(?2, '$.ids'))",
+        "WHERE c.id IN (SELECT cipher_id FROM cipher_access WHERE user_id = ?1) AND c.id IN (SELECT value FROM json_each(?2, '$.ids'))",
         &[claims.sub.into(), body.into()],
         "",
     )
@@ -755,7 +763,7 @@ pub async fn unarchive_ciphers_bulk(
 
     d1_query!(
         &db,
-        "UPDATE ciphers SET archived_at = NULL, updated_at = ?1 WHERE user_id = ?2 AND id IN (SELECT value FROM json_each(?3, '$.ids'))",
+        "UPDATE ciphers SET archived_at = NULL, updated_at = ?1 WHERE id IN (SELECT cipher_id FROM cipher_access WHERE user_id = ?2 AND can_edit = 1) AND id IN (SELECT value FROM json_each(?3, '$.ids'))",
         now,
         claims.sub,
         body
@@ -778,7 +786,7 @@ pub async fn unarchive_ciphers_bulk(
     build_cipher_list_response(
         &db,
         env.as_ref(),
-        "WHERE c.user_id = ?1 AND c.id IN (SELECT value FROM json_each(?2, '$.ids'))",
+        "WHERE c.id IN (SELECT cipher_id FROM cipher_access WHERE user_id = ?1) AND c.id IN (SELECT value FROM json_each(?2, '$.ids'))",
         &[claims.sub.into(), body.into()],
         "",
     )
@@ -806,7 +814,7 @@ pub async fn create_cipher_simple(
     let mut cipher = Cipher {
         id: Uuid::new_v4().to_string(),
         user_id: Some(claims.sub.clone()),
-        organization_id: payload.organization_id.clone(),
+        organization_id: None, // family items go through /api/ciphers/create with a shared vault
         r#type: payload.r#type,
         data: data_value,
         favorite: payload.favorite.unwrap_or(false),
@@ -841,6 +849,10 @@ pub async fn create_cipher_simple(
     ).map_err(|_| AppError::Database)?
     .run()
     .await?;
+
+    if cipher.organization_id.is_some() {
+        crate::handlers::family::set_cipher_collections(&db, &cipher.id, cipher.collection_ids.as_deref().unwrap_or(&[])).await?;
+    }
 
     attachments::hydrate_cipher_attachments(&db, env.as_ref(), &mut cipher).await?;
     db::touch_user_updated_at(&db, &claims.sub, &cipher.updated_at).await?;
@@ -896,7 +908,7 @@ pub async fn move_cipher_selected(
     // Uses json_extract for folderId and json_each for ids array
     db.prepare(
         "UPDATE ciphers SET folder_id = NULLIF(json_extract(?1, '$.folderId'), ''), updated_at = ?2 
-         WHERE user_id = ?3 AND id IN (SELECT value FROM json_each(?1, '$.ids'))",
+         WHERE id IN (SELECT cipher_id FROM cipher_access WHERE user_id = ?3) AND id IN (SELECT value FROM json_each(?1, '$.ids'))",
     )
     .bind(&[body.into(), now.clone().into(), user_id.clone().into()])?
     .run()
@@ -1029,11 +1041,13 @@ fn cipher_json_expr(attachments_enabled: bool) -> String {
             'folderId', c.folder_id,
             'type', c.type,
             'favorite', CASE WHEN c.favorite THEN json('true') ELSE json('false') END,
-            'edit', json('true'),
+            -- every caller binds the user id as ?1
+            'edit', CASE WHEN EXISTS (SELECT 1 FROM cipher_access ca WHERE ca.cipher_id = c.id AND ca.user_id = ?1 AND ca.can_edit = 1) THEN json('true') ELSE json('false') END,
             'viewPassword', json('true'),
+            'travelSafe', CASE WHEN c.travel_safe THEN json('true') ELSE json('false') END,
             'permissions', json_object('delete', json('true'), 'restore', json('true')),
             'organizationUseTotp', json('true'), -- AZET: TOTP codes on the free plan
-            'collectionIds', json('[]'),
+            'collectionIds', (SELECT json_group_array(cc.collection_id) FROM collection_ciphers cc WHERE cc.cipher_id = c.id),
             'revisionDate', c.updated_at,
             'creationDate', c.created_at,
             'deletedDate', c.deleted_at,

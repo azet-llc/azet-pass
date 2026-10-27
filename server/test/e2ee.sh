@@ -15,8 +15,11 @@ S_NOTE="Note-Sentinel-$RUN"; S_URI="https://sentinel-$RUN.example.org/login"; S_
 worker-build --release --locked >/dev/null
 printf 'JWT_SECRET=%s\nJWT_REFRESH_SECRET=%s\nALLOWED_EMAILS=*\n' "$(openssl rand -hex 32)" "$(openssl rand -hex 32)" > .dev.vars
 rm -rf .wrangler/state; mkdir -p public/web-vault
-sed '/^\[build\]/,/^command/d' wrangler.toml > wrangler.test.toml # prebuilt above; skip the cargo hook
-D1_DATABASE_ID=00000000-0000-0000-0000-000000000000 npx -y wrangler@4 d1 execute vault1 -c wrangler.test.toml --local --file sql/schema.sql >/dev/null 2>&1
+# prebuilt above (skip the cargo hook); the test talks to the backend directly (entry.js), without the gw internal key
+sed -e '/^\[build\]/,/^command/d' -e 's|^main = "src/private.js"|main = "src/entry.js"|' wrangler.toml > wrangler.test.toml
+for f in sql/schema.sql migrations/0015_api_key.sql migrations/0016_family.sql; do
+  D1_DATABASE_ID=00000000-0000-0000-0000-000000000000 npx -y wrangler@4 d1 execute vault1 -c wrangler.test.toml --local --file "$f" >/dev/null 2>&1
+done
 D1_DATABASE_ID=00000000-0000-0000-0000-000000000000 npx -y wrangler@4 dev -c wrangler.test.toml --local --port 48787 >"$W/dev.log" 2>&1 &
 openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj /CN=localhost -addext subjectAltName=IP:127.0.0.1 -keyout "$W/k.pem" -out "$W/c.pem" 2>/dev/null
 export NODE_EXTRA_CA_CERTS="$W/c.pem"

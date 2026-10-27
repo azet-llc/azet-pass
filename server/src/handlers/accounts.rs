@@ -1126,7 +1126,7 @@ pub struct PasswordCheck {
     master_password_hash: String,
 }
 
-async fn checked_user(db: &crate::db::Db, id: &str, hash: &str) -> Result<User, AppError> {
+pub(crate) async fn checked_user(db: &crate::db::Db, id: &str, hash: &str) -> Result<User, AppError> {
     let row: Value = db
         .prepare("SELECT * FROM users WHERE id = ?1")
         .bind(&[id.into()])?

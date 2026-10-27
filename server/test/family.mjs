@@ -147,6 +147,17 @@ assert.equal(dec.decode(await decS(orgKey, (await sync(a)).ciphers.find((x) => x
 assert.equal((await api(b.tok, 'POST', '/api/ciphers/create', { cipher: await cipher(orgKey, 'x', 'y', 'z'), collectionIds: [parents.id] })).status, 401, 'cannot add to read-only vault')
 console.log('4 read-only vault: ok')
 
+// 4b files on family items: a member with edit attaches, the organizer opens it, read-only and outsiders cannot
+const blob = enc.encode(`2.ciphertext-of-a-passport-scan-${RUN}`)
+const slot = await ok(b.tok, 'POST', `/api/ciphers/${item.id}/attachment/v2`, { key: await encS(orgKey, 'k'), fileName: await encS(orgKey, 'passport.jpg'), fileSize: blob.length })
+const put = await fetch(slot.url, { method: 'PUT', headers: { 'content-length': String(blob.length) }, body: blob })
+assert.ok(put.status < 300, `upload → ${put.status} ${await put.text()}`)
+const meta = await ok(a.tok, 'GET', `/api/ciphers/${item.id}/attachment/${slot.attachmentId}`)
+assert.deepEqual(new Uint8Array(await (await fetch(meta.url)).arrayBuffer()), blob, 'organizer downloads the same ciphertext')
+assert.equal((await api(b.tok, 'POST', `/api/ciphers/${bank.id}/attachment/v2`, { key: 'k', fileName: 'f', fileSize: 1 })).status, 404, 'no files on a read-only vault')
+assert.equal((await api(cc.tok, 'GET', `/api/ciphers/${item.id}/attachment/${slot.attachmentId}`)).status, 404, 'outsider cannot open the file')
+console.log('4b family files: ok')
+
 // 5 outsider sees nothing and cannot inject
 const sc = await sync(cc)
 assert.equal(sc.ciphers.length, 0); assert.equal(sc.profile.organizations.length, 0)

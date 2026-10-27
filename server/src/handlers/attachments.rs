@@ -166,7 +166,7 @@ pub async fn create_attachment_v2(
     }
     let db = db::get_db(&env)?;
 
-    let cipher = ensure_cipher_for_user(&db, &cipher_id, &claims.sub).await?;
+    let cipher = ensure_cipher_for_user(&db, &cipher_id, &claims.sub, true).await?;
 
     let AttachmentCreateRequest {
         key,
@@ -269,7 +269,7 @@ pub async fn upload_attachment_v2_data(
     }
     let db = db::get_db(&env)?;
 
-    ensure_cipher_for_user(&db, &cipher_id, &claims.sub).await?;
+    ensure_cipher_for_user(&db, &cipher_id, &claims.sub, true).await?;
 
     let mut pending = fetch_pending_attachment(&db, &attachment_id).await?;
     if pending.cipher_id != cipher_id {
@@ -338,7 +338,7 @@ pub async fn upload_attachment_legacy(
     }
     let db = db::get_db(&env)?;
 
-    let cipher = ensure_cipher_for_user(&db, &cipher_id, &claims.sub).await?;
+    let cipher = ensure_cipher_for_user(&db, &cipher_id, &claims.sub, true).await?;
 
     let (file_bytes, key, file_name) = read_multipart(&mut multipart).await?;
     let key = key.ok_or_else(|| AppError::BadRequest("No attachment key provided".to_string()))?;
@@ -416,7 +416,7 @@ pub async fn get_attachment(
     }
     let db = db::get_db(&env)?;
 
-    let cipher = ensure_cipher_for_user(&db, &cipher_id, &claims.sub).await?;
+    let cipher = ensure_cipher_for_user(&db, &cipher_id, &claims.sub, false).await?;
     let attachment = fetch_attachment(&db, &attachment_id).await?;
 
     if attachment.cipher_id != cipher.id {
@@ -452,7 +452,7 @@ pub async fn delete_attachment(
     }
     let db = db::get_db(&env)?;
 
-    let cipher = ensure_cipher_for_user(&db, &cipher_id, &claims.sub).await?;
+    let cipher = ensure_cipher_for_user(&db, &cipher_id, &claims.sub, true).await?;
     let attachment = fetch_attachment(&db, &attachment_id).await?;
 
     if attachment.cipher_id != cipher.id {
@@ -483,7 +483,7 @@ pub async fn delete_attachment(
     );
 
     // Reload cipher to return fresh updated_at and attachments state
-    let mut cipher_response: Cipher = ensure_cipher_for_user(&db, &cipher_id, &claims.sub)
+    let mut cipher_response: Cipher = ensure_cipher_for_user(&db, &cipher_id, &claims.sub, true)
         .await?
         .into();
     hydrate_cipher_attachments(&db, &env, &mut cipher_response).await?;
@@ -586,7 +586,7 @@ pub(crate) async fn list_attachment_keys_for_cipher_ids_json(
         vec![json_body.to_owned().into(), ids_path.to_owned().into()];
 
     if let Some(uid) = user_id {
-        sql.push_str(" AND c.user_id = ?3");
+        sql.push_str(" AND c.id IN (SELECT cipher_id FROM cipher_access WHERE user_id = ?3 AND can_edit = 1)");
         params.push(uid.into());
     }
 
@@ -642,25 +642,21 @@ pub(crate) async fn list_attachment_keys_for_soft_deleted_before(
     Ok(map_rows_to_keys(rows))
 }
 
+/// Personal and family items alike (cipher_access); `edit` = a write, which a read-only family vault refuses.
 pub(crate) async fn ensure_cipher_for_user(
     db: &crate::db::Db,
     cipher_id: &str,
     user_id: &str,
+    edit: bool,
 ) -> Result<CipherDBModel, AppError> {
     let cipher: Option<CipherDBModel> = db
-        .prepare("SELECT * FROM ciphers WHERE id = ?1 AND user_id = ?2")
-        .bind(&[cipher_id.into(), user_id.into()])?
+        .prepare("SELECT * FROM ciphers WHERE id = ?1 AND id IN (SELECT cipher_id FROM cipher_access WHERE user_id = ?2 AND can_edit >= ?3)")
+        .bind(&[cipher_id.into(), user_id.into(), (edit as i32).into()])?
         .first(None)
         .await
         .map_err(|_| AppError::Database)?;
 
     let cipher = cipher.ok_or_else(|| AppError::NotFound("Cipher not found".to_string()))?;
-
-    if cipher.organization_id.is_some() {
-        return Err(AppError::BadRequest(
-            "Organization attachments are not supported".to_string(),
-        ));
-    }
 
     if cipher.deleted_at.is_some() {
         return Err(AppError::BadRequest("Cipher is deleted".to_string()));

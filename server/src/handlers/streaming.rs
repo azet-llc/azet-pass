@@ -119,7 +119,7 @@ async fn handle_attachment_upload(
         Some(claims.device.as_str())
     };
 
-    attachments::ensure_cipher_for_user(&db, cipher_id, user_id).await?;
+    attachments::ensure_cipher_for_user(&db, cipher_id, user_id, true).await?;
     let pending = attachments::fetch_pending_attachment(&db, attachment_id).await?;
     if pending.cipher_id != cipher_id {
         return Err(bad("Attachment does not belong to cipher"));
@@ -175,7 +175,7 @@ async fn handle_attachment_download(
         return Err(AppError::Unauthorized("Invalid token".into()));
     }
 
-    let _cipher = attachments::ensure_cipher_for_user(&db, cipher_id, &claims.sub).await?;
+    let _cipher = attachments::ensure_cipher_for_user(&db, cipher_id, &claims.sub, false).await?;
     let attachment = attachments::fetch_attachment(&db, attachment_id).await?;
     if attachment.cipher_id != cipher_id {
         return Err(bad("Attachment does not belong to cipher"));

@@ -1,0 +1,16 @@
+{
+  "extName": { "message": "AZET Pass" },
+  "extDescription": { "message": "Fill your family's AZET Pass logins in Safari." },
+  "signedOut": { "message": "Open AZET Pass on this Mac and sign in. Your logins show up here after that." },
+  "locked": { "message": "AZET Pass is locked." },
+  "password": { "message": "Account password" },
+  "unlock": { "message": "Unlock" },
+  "touchID": { "message": "Unlock with Touch ID" },
+  "none": { "message": "No logins saved for this site yet. Add one in the AZET Pass app." },
+  "fill": { "message": "Fill" },
+  "copyPassword": { "message": "Copy password" },
+  "copyCode": { "message": "Copy code" },
+  "copied": { "message": "Copied" },
+  "noForm": { "message": "No sign-in box on this page. Copy the password instead." },
+  "lock": { "message": "Lock" }
+}

@@ -1,0 +1,16 @@
+{
+  "extName": { "message": "AZET Pass" },
+  "extDescription": { "message": "가족이 함께 쓰는 AZET Pass 로그인을 Safari에서 채워 줍니다." },
+  "signedOut": { "message": "이 Mac에서 AZET Pass 앱을 열고 로그인하세요. 그다음부터 로그인이 여기에 보입니다." },
+  "locked": { "message": "AZET Pass가 잠겨 있어요." },
+  "password": { "message": "계정 비밀번호" },
+  "unlock": { "message": "잠금 해제" },
+  "touchID": { "message": "Touch ID로 열기" },
+  "none": { "message": "이 사이트에 저장된 로그인이 아직 없어요. AZET Pass 앱에서 추가하세요." },
+  "fill": { "message": "채우기" },
+  "copyPassword": { "message": "비밀번호 복사" },
+  "copyCode": { "message": "코드 복사" },
+  "copied": { "message": "복사됨" },
+  "noForm": { "message": "이 페이지에 로그인 칸이 없어요. 비밀번호를 복사해 쓰세요." },
+  "lock": { "message": "잠그기" }
+}

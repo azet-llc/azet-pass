@@ -292,3 +292,18 @@ enum Domain {
 }
 
 extension CipherListView: @retroactive Identifiable {}
+
+enum LoginKind {
+    static func isLogin(_ i: CipherListView) -> Bool { if case .login = i.type { return true }; return false }
+    /// Items for these sites (registrable domains): a saved website, the username line or the name carries the domain.
+    static func matching(_ items: [CipherListView], hosts: [String]) -> [CipherListView] {
+        items.filter { i in
+            let saved = domains(i)
+            return !hosts.isEmpty && hosts.contains { saved.contains($0) || i.subtitle.localizedCaseInsensitiveContains($0) || i.name.localizedCaseInsensitiveContains($0.split(separator: ".").first.map(String.init) ?? $0) }
+        }
+    }
+    static func domains(_ i: CipherListView) -> [String] {
+        guard case .login(let l) = i.type else { return [] }
+        return (l.uris ?? []).compactMap { $0.uri.flatMap { URL(string: $0.contains("://") ? $0 : "https://" + $0)?.host }.flatMap(Domain.of) }
+    }
+}

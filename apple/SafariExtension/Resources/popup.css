@@ -1,0 +1,22 @@
+:root { --brand: #0d7d66; --line: #e3e6e8; --sub: #6b7176; --bg: #fff; --fg: #15191c; color-scheme: light dark; }
+@media (prefers-color-scheme: dark) { :root { --line: #33383c; --sub: #9aa1a6; --bg: #1c1f21; --fg: #f1f3f4; } }
+body { width: 320px; margin: 0; font: 13px -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--fg); }
+header { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+header img { width: 22px; height: 22px; }
+#host { color: var(--sub); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+section { padding: 12px; }
+p { margin: 0 0 10px; line-height: 1.4; }
+form { display: flex; gap: 6px; }
+input { flex: 1; padding: 7px 8px; border: 1px solid var(--line); border-radius: 7px; background: transparent; color: inherit; font: inherit; }
+button { padding: 7px 10px; border: 0; border-radius: 7px; background: var(--brand); color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
+button.secondary, #lockBtn { background: transparent; color: var(--brand); border: 1px solid var(--line); }
+#touch { margin-top: 8px; width: 100%; }
+ul { list-style: none; margin: 0; padding: 0; }
+li { padding: 9px 0; border-bottom: 1px solid var(--line); }
+li:last-child { border-bottom: 0; }
+.who b { display: block; }
+.who span { color: var(--sub); }
+.acts { display: flex; gap: 6px; margin-top: 7px; }
+.acts button { padding: 5px 9px; font-size: 12px; }
+.err { color: #c62828; }
+.note { color: var(--sub); }

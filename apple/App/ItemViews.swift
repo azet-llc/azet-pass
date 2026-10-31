@@ -415,7 +415,9 @@ struct ItemEditView: View {
                     Button { Task { await save() } } label: { if busy { ProgressView() } else { Text("Save").bold() } }.disabled(busy)
                 }
             }
+            #if os(iOS)
             .sheet(isPresented: $scanTotp) { QRScannerView { code in draft.totp = code; scanTotp = false } }
+            #endif
             .errorAlert($error)
         }
     }
@@ -459,7 +461,9 @@ struct ItemEditView: View {
                 Section {
                     HStack {
                         TextField("One-time password setup key", text: $draft.totp).textInputAutocapitalization(.never).autocorrectionDisabled()
+                        #if os(iOS)
                         Button { scanTotp = true } label: { Image(systemName: "qrcode.viewfinder") }.accessibilityLabel(Text("Scan QR code"))
+                        #endif
                     }
                 } footer: { Text("Two-step login code. Scan the QR code the site shows, or paste its setup key.") }
             }

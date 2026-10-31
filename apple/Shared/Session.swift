@@ -89,7 +89,7 @@ final class Session {
         Client(tokenProvider: tokens, settings: ClientSettings(
             identityUrl: Config.server.appendingPathComponent("identity").absoluteString,
             apiUrl: Config.server.appendingPathComponent("api").absoluteString,
-            userAgent: "AZET Pass iOS", deviceType: .iOs, deviceIdentifier: device,
+            userAgent: Config.userAgent, deviceType: Config.deviceType, deviceIdentifier: device,
             bitwardenClientVersion: Config.clientVersion, bitwardenPackageType: nil))
     }
 

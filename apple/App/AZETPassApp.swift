@@ -103,6 +103,13 @@ extension View {
 /// Copies to the clipboard and clears it after 90 seconds (1Password default), local-only so it never syncs.
 @MainActor
 func copyToClipboard(_ s: String) {
+    #if os(iOS)
     UIPasteboard.general.setItems([[UIPasteboard.typeAutomatic: s]], options: [.localOnly: true, .expirationDate: Date().addingTimeInterval(90)])
     UINotificationFeedbackGenerator().notificationOccurred(.success)
+    #else
+    let pb = NSPasteboard.general
+    pb.clearContents(); pb.setString(s, forType: .string)
+    let n = pb.changeCount
+    DispatchQueue.main.asyncAfter(deadline: .now() + 90) { if pb.changeCount == n { pb.clearContents() } }
+    #endif
 }

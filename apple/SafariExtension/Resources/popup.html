@@ -1,0 +1,19 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><link rel="stylesheet" href="popup.css"><script src="popup.js" defer></script></head>
+<body>
+  <header><img src="images/icon-48.png" alt=""><b>AZET Pass</b><span id="host"></span><button id="lockBtn" data-i18n="lock" hidden></button></header>
+  <section id="signedOut" hidden><p data-i18n="signedOut"></p></section>
+  <section id="locked" hidden>
+    <p data-i18n="locked"></p>
+    <form id="unlockForm"><input id="pw" type="password" autocomplete="current-password" data-i18n-placeholder="password"><button data-i18n="unlock"></button></form>
+    <button id="touch" class="secondary" data-i18n="touchID" hidden></button>
+    <p id="err" class="err"></p>
+  </section>
+  <section id="unlocked" hidden>
+    <p id="none" data-i18n="none" hidden></p>
+    <ul id="list"></ul>
+    <p id="note" class="note"></p>
+  </section>
+</body>
+</html>

@@ -1,4 +1,4 @@
-# Bitwarden SDK for AZET Pass iOS
+# Bitwarden SDK for AZET Pass (iPhone + Mac)
 
 The app links `bitwarden/sdk-internal` at **9794da5** (the revision bitwarden/ios v2026.9.1-bwpm pins), built from
 source under GPL-3.0 with no `bitwarden_license` crate (the uniffi crate never enables `bitwarden-license`).

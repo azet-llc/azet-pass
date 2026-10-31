@@ -32,7 +32,9 @@ struct ScanNotebookView: View {
                         }.padding(.vertical, 6)
                     }
                     Section {
+                        #if os(iOS)
                         Button { camera = true } label: { Label("Take a photo", systemImage: "camera.fill") }
+                        #endif
                         PhotosPicker(selection: $photo, matching: .images) { Label("Choose a photo", systemImage: "photo.on.rectangle") }
                     }
                 } else if reading {
@@ -71,7 +73,9 @@ struct ScanNotebookView: View {
                 if image != nil, saved == 0 { ToolbarItem(placement: .primaryAction) { Button("Another photo") { image = nil; found = [] } } }
             }
             .onChange(of: photo) { _, p in Task { if let d = try? await p?.loadTransferable(type: Data.self), let i = UIImage(data: d) { await read(i) } } }
+            #if os(iOS)
             .fullScreenCover(isPresented: $camera) { CameraPicker { img in camera = false; if let img { Task { await read(img) } } }.ignoresSafeArea() }
+            #endif
             .errorAlert($error)
         }
     }
@@ -126,6 +130,7 @@ enum NotebookOCR {
     }
 }
 
+#if os(iOS)
 extension UIImage {
     var cgOrientation: CGImagePropertyOrientation {
         switch imageOrientation {
@@ -135,6 +140,7 @@ extension UIImage {
         }
     }
 }
+#endif
 
 /// How people write these pages: a site line, then "아이디/ID: …" and "비번/PW: …" lines, or all on one line
 /// ("네이버 kim1234 / abcd!234"). Labels in Korean, English and Japanese; known site names map to the preset URL.
@@ -200,6 +206,7 @@ enum NotebookParser {
     }
 }
 
+#if os(iOS)
 struct CameraPicker: UIViewControllerRepresentable {
     let done: (UIImage?) -> Void
     func makeUIViewController(context: Context) -> UIImagePickerController {
@@ -252,3 +259,4 @@ struct QRScannerView: UIViewControllerRepresentable {
         }
     }
 }
+#endif

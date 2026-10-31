@@ -53,3 +53,15 @@ index 40213b96..73b82c16 100644
  #[allow(missing_docs)]
  pub mod crypto;
  #[allow(missing_docs)]
+diff --git a/crates/bitwarden-uniffi/swift/Package.swift b/crates/bitwarden-uniffi/swift/Package.swift
+index 1a215687..7abdfe12 100644
+--- a/crates/bitwarden-uniffi/swift/Package.swift
++++ b/crates/bitwarden-uniffi/swift/Package.swift
+@@ -7,6 +7,7 @@ let package = Package(
+     name: "BitwardenSdk",
+     platforms: [
+         .iOS(.v13),
++        .macOS(.v13),
+     ],
+     products: [
+         // Products define the executables and libraries a package produces, and make them visible to other packages.

@@ -1,12 +1,25 @@
+import BitwardenSdk
 import Foundation
 
 /// Where the app and the AutoFill extension talk to. One server for every country; language and currency come from
 /// the device, never from here.
 enum Config {
     static let server = URL(string: "https://pass.azet.io")!
+    #if os(macOS)
+    static let appGroup = "95P4H2RG24.io.azet.pass"   // Mac App Store: team-prefixed group, no portal registration
+    static let safariExtension = "io.azet.pass.safari.extension"
+    #else
     static let appGroup = "group.io.azet.pass"
+    #endif
     static let keychainGroup = "95P4H2RG24.io.azet.pass.shared"
     static let clientVersion = "2026.9.1"
+    #if os(macOS)
+    static let userAgent = "AZET Pass macOS"
+    static let deviceType = DeviceType.macOsDesktop
+    #else
+    static let userAgent = "AZET Pass iOS"
+    static let deviceType = DeviceType.iOs
+    #endif
 }
 
 struct APIError: LocalizedError {

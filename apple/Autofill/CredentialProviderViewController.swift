@@ -102,7 +102,7 @@ struct AutofillList: View {
             Group {
                 if session.phase == .unlocked {
                     let all = session.items.filter { $0.deletedDate == nil }
-                    let match = all.filter { i in !hosts.isEmpty && hosts.contains { i.subtitle.localizedCaseInsensitiveContains($0) || i.name.localizedCaseInsensitiveContains($0.split(separator: ".").first.map(String.init) ?? $0) } }
+                    let match = LoginKind.matching(all, hosts: hosts)
                     let rest = query.isEmpty ? all : all.filter { $0.name.localizedCaseInsensitiveContains(query) || $0.subtitle.localizedCaseInsensitiveContains(query) }
                     List {
                         if !match.isEmpty, query.isEmpty { Section("Suggested") { ForEach(match) { row($0) } } }
@@ -135,8 +135,6 @@ struct AutofillList: View {
         } label: { ItemRowLite(name: i.name, subtitle: i.subtitle) }
     }
 }
-
-enum LoginKind { static func isLogin(_ i: CipherListView) -> Bool { if case .login = i.type { return true }; return false } }
 
 struct ItemRowLite: View {
     let name: String

@@ -97,6 +97,108 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: io.azet.pass.autofill
         TARGETED_DEVICE_FAMILY: "1,2"
         APPLICATION_EXTENSION_API_ONLY: YES
+  # AZET Pass for Safari (Mac App Store record io.azet.pass.safari): the same SwiftUI app on macOS + a Safari web
+  # extension written for it (popup + page fill, no Bitwarden extension code). Mac/MacShims.swift maps the iOS-only names.
+  AZETPassMac:
+    type: application
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: App
+        excludes: [Info.plist, "*.entitlements"]   # the iPhone app's own
+      - Shared
+      - Resources
+      - Mac
+    dependencies:
+      - package: BitwardenSdk
+      - target: AZETPassSafariExt
+    info:
+      path: Mac/Info.plist
+      properties:
+        CFBundleDisplayName: AZET Pass
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
+        LSApplicationCategoryType: public.app-category.productivity
+        ITSAppUsesNonExemptEncryption: false
+        NSPhotoLibraryUsageDescription: Pick a photo of a notebook page so AZET Pass can read the logins on it. The photo stays on this Mac.
+        CFBundleURLTypes:
+          - CFBundleURLName: io.azet.pass
+            CFBundleURLSchemes: [azetpass]
+        CFBundleLocalizations: [en, ko]
+    entitlements:
+      path: Mac/AZETPassMac.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
+        com.apple.security.files.user-selected.read-write: true
+        com.apple.security.application-groups: [95P4H2RG24.io.azet.pass]
+        keychain-access-groups: [$(AppIdentifierPrefix)io.azet.pass.shared]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.azet.pass.safari
+        PRODUCT_NAME: AZET Pass
+        PRODUCT_MODULE_NAME: AZETPass
+        ASSETCATALOG_COMPILER_APPICON_NAME: MacAppIcon
+        ARCHS: arm64   # shortcut: Apple silicon only (the SDK has no x86_64-apple-darwin slice), add it if Intel Macs matter
+        ENABLE_HARDENED_RUNTIME: YES
+      configs:
+        Release:
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: Apple Distribution
+          PROVISIONING_PROFILE_SPECIFIER: io.azet.pass.safari mac
+  AZETPassSafariExt:
+    type: app-extension
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - SafariExtension/SafariWebExtensionHandler.swift
+      - Shared
+      - Resources/Localizable.xcstrings
+      - path: SafariExtension/Resources/manifest.json
+        buildPhase: resources
+      - path: SafariExtension/Resources/popup.html
+        buildPhase: resources
+      - path: SafariExtension/Resources/popup.css
+        buildPhase: resources
+      - path: SafariExtension/Resources/popup.js
+        buildPhase: resources
+      - path: SafariExtension/Resources/_locales
+        type: folder
+        buildPhase: resources
+      - path: SafariExtension/Resources/images
+        type: folder
+        buildPhase: resources
+    dependencies:
+      - package: BitwardenSdk
+    info:
+      path: SafariExtension/Info.plist
+      properties:
+        CFBundleDisplayName: AZET Pass
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.Safari.web-extension
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).SafariWebExtensionHandler
+    entitlements:
+      path: SafariExtension/AZETPassSafariExt.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
+        com.apple.security.application-groups: [95P4H2RG24.io.azet.pass]
+        keychain-access-groups: [$(AppIdentifierPrefix)io.azet.pass.shared]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.azet.pass.safari.extension
+        APPLICATION_EXTENSION_API_ONLY: YES
+        ARCHS: arm64
+        ENABLE_HARDENED_RUNTIME: YES
+      configs:
+        Release:
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: Apple Distribution
+          PROVISIONING_PROFILE_SPECIFIER: io.azet.pass.safari.extension mac
   AZETPassUITests:
     type: bundle.ui-testing
     platform: iOS
@@ -115,3 +217,7 @@ schemes:
         AZETPass: all
     test:
       targets: [AZETPassUITests]
+  AZETPassMac:
+    build:
+      targets:
+        AZETPassMac: all

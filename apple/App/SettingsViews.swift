@@ -1,5 +1,8 @@
 import BitwardenSdk
 import SwiftUI
+#if os(macOS)
+import SafariServices
+#endif
 import UniformTypeIdentifiers
 
 struct SettingsView: View {
@@ -76,9 +79,20 @@ struct AutofillHelpView: View {
     var body: some View {
         List {
             Section {
+                #if os(iOS)
                 Text("1. Open the Settings app\n2. General → AutoFill & Passwords\n3. Turn on AZET Pass").font(.body)
                 Button("Open Settings") { UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!) }
-            } footer: { Text("Then the keyboard offers your logins, passkeys and one-time passwords in every app and in Safari. On a computer, install AZET Pass for Chrome, Safari, Edge or Firefox.") }
+                #else
+                Text("1. Open Safari Settings → Extensions\n2. Turn on AZET Pass\n3. Allow it on the sites you sign in to").font(.body)
+                Button("Open Safari Settings") { SFSafariApplication.showPreferencesForExtension(withIdentifier: Config.safariExtension) }
+                #endif
+            } footer: {
+                #if os(iOS)
+                Text("Then the keyboard offers your logins, passkeys and one-time passwords in every app and in Safari. On a computer, install AZET Pass for Chrome, Safari, Edge or Firefox.")
+                #else
+                Text("Then click the AZET Pass button in the Safari toolbar on a sign-in page: it lists the logins for that site and fills them in.")
+                #endif
+            }
         }
         .navigationTitle("AutoFill")
     }

@@ -9,6 +9,9 @@ enum Keychain {
         #if !targetEnvironment(simulator)
         q[kSecAttrAccessGroup as String] = Config.keychainGroup   // simulator builds are ad-hoc signed: no team prefix
         #endif
+        #if os(macOS)
+        q[kSecUseDataProtectionKeychain as String] = true   // the iOS-style keychain: access groups + Touch ID items
+        #endif
         return q
     }
 

@@ -6,10 +6,13 @@
 //   AZET_PASS_EMAIL=… AZET_PASS_PASSWORD=… [AZET_PASS_URL=https://pass.azet.io] node scripts/team.mjs <command>
 //
 //   create <name> [seats]                      make a team and its first shared vault → {org, vault}
-//   invite <org> <email> [--read-only] [--vault <id>] [--name <display name>]   → {member, token}
+//   invite <org> <email> [--read-only] [--agent] [--days <n>] [--vault <id>] [--name <display name>]   → {member, token}
+//                                              --agent: an AI agent account, its reads go to the access log; --days: access ends after n days
 //   join <org> <member> <token>                the invited account takes the invite (signs up first if it is new)
 //   members <org>                              who is in, their status and key fingerprint
 //   confirm <org> <email> <fingerprint>        hand the team key to an accepted member; the fingerprint must match
+//   access <org> <email> <days|forever|off|on> how long a member's access lasts from now, or suspend / restore it
+//   log <org>                                  the access log, checked: every row's hash, and against this team's last checkpoint
 //
 // The password is read from the environment only, never from the command line.
 import { webcrypto as c } from 'node:crypto'
@@ -90,11 +93,11 @@ if (cmd === 'create') {
   const vault = (await ok(u.tok, 'GET', '/api/sync?excludeDomains=true')).collections.find((x) => x.organizationId === org.id)
   console.log(JSON.stringify({ org: org.id, vault: vault.id, seats: org.seats }))
 } else if (cmd === 'invite') {
-  const vault = flag('--vault'), displayName = flag('--name'), readOnly = has('--read-only'), [org, who] = rest
+  const vault = flag('--vault'), displayName = flag('--name'), days = flag('--days'), readOnly = has('--read-only'), agent = has('--agent'), [org, who] = rest
   if (!org || !who) die('usage: invite <org> <email> [--read-only] [--vault <id>] [--name <display name>]')
   const u = await need()
   const v = vault || (await ok(u.tok, 'GET', '/api/sync?excludeDomains=true')).collections.find((x) => x.organizationId === org)?.id
-  const inv = (await ok(u.tok, 'POST', `/api/organizations/${org}/users/invite`, { emails: [who.toLowerCase()], type: 2, displayName, collections: [{ id: v, readOnly }] })).data[0]
+  const inv = (await ok(u.tok, 'POST', `/api/organizations/${org}/users/invite`, { emails: [who.toLowerCase()], type: 2, displayName, agent, ...(days ? { accessDays: Number(days) } : {}), collections: [{ id: v, readOnly }] })).data[0]
   console.log(JSON.stringify({ org, member: inv.id, token: inv.token, email: who.toLowerCase(), vault: v, readOnly }))
 } else if (cmd === 'join') {
   const [org, member, token] = rest
@@ -120,7 +123,7 @@ if (cmd === 'create') {
   if (!org) die('usage: members <org>')
   const u = await need()
   const rows = await Promise.all((await ok(u.tok, 'GET', `/api/organizations/${org}/users`)).data.map(async (m) => ({
-    email: m.email, name: m.name ?? null, status: ['invited', 'accepted', 'confirmed'][m.status] ?? 'suspended', role: ['owner', 'admin', 'member', , , 'guest'][m.azetRole ?? m.type],
+    email: m.email, name: m.name ?? null, agent: !!m.agent, accessUntil: m.accessUntil ?? null, status: ['invited', 'accepted', 'confirmed'][m.status] ?? 'suspended', role: ['owner', 'admin', 'member', , , 'guest'][m.azetRole ?? m.type],
     fingerprint: m.publicKey ? await fingerprint(m.publicKey) : null })))
   console.log(JSON.stringify(rows, null, 1))
 } else if (cmd === 'confirm') {
@@ -134,4 +137,39 @@ if (cmd === 'create') {
   if ((await fingerprint(m.publicKey)) !== fp) die(`Fingerprint mismatch: the server shows ${await fingerprint(m.publicKey)}. Nothing was shared.`)
   await ok(u.tok, 'POST', `/api/organizations/${org}/users/${m.id}/confirm`, { key: await rsaEnc(m.publicKey, await orgKeyOf(u, org)) })
   console.log(JSON.stringify({ confirmed: who.toLowerCase() }))
-} else die('commands: create | invite | join | members | confirm   (see the top of this file)')
+} else if (cmd === 'access') {
+  const [org, who, what] = rest
+  if (!what) die('usage: access <org> <email> <days|forever|off|on>')
+  const u = await need()
+  const m = (await ok(u.tok, 'GET', `/api/organizations/${org}/users`)).data.find((x) => x.email === who.toLowerCase()) ?? die('No such member.')
+  if (what === 'off' || what === 'on') await ok(u.tok, 'PUT', `/api/organizations/${org}/users/${m.id}/${what === 'off' ? 'revoke' : 'restore'}`)
+  else console.log(JSON.stringify(await ok(u.tok, 'PUT', `/api/organizations/${org}/users/${m.id}/azet/access`, what === 'forever' ? {} : { accessDays: Number(what) })))
+  if (what === 'off' || what === 'on') console.log(JSON.stringify({ access: what }))
+} else if (cmd === 'log') {
+  const [org] = rest
+  if (!org) die('usage: log <org>')
+  const u = await need(), orgKey = await orgKeyOf(u, org)
+  const { events, checkpoint } = await ok(u.tok, 'GET', `/api/organizations/${org}/azet/access-log`)
+  const names = Object.fromEntries((await ok(u.tok, 'GET', `/api/organizations/${org}/users`)).data.map((m) => [m.id, m.name || m.email]))
+  // 1 every row's hash is recomputed here, and each row must point at the one before it
+  let prev = events[0]?.prev ?? ''
+  for (const e of events) {
+    const line = [prev, org, e.memberId, e.kind, e.cipherId ?? '', String(e.count), e.detail ?? '', e.createdAt].join('|')
+    const h = Buffer.from(await c.subtle.digest('SHA-256', enc.encode(line))).toString('hex')
+    if (e.prev !== prev || e.hash !== h) die(`ACCESS LOG CHANGED: row ${e.seq} does not match its hash. Someone edited or removed a row.`)
+    prev = h
+  }
+  // 2 the last row this team's organizer checked must still be there, unchanged (the server cannot read or forge it)
+  if (checkpoint) {
+    const cp = JSON.parse(new TextDecoder().decode(await decS(orgKey, checkpoint)))
+    const at = events.find((e) => e.seq === cp.seq)
+    if (events.length && events[0].seq > cp.seq) { /* checkpoint is older than the 1,000 rows shown: nothing to compare */ }
+    else if (!at || at.hash !== cp.hash) die(`ACCESS LOG CHANGED: the row checked last time (${cp.seq}) is missing or different.`)
+  }
+  const last = events.at(-1)
+  if (last) await ok(u.tok, 'PUT', `/api/organizations/${org}/azet/access-log/checkpoint`, { value: await encS(orgKey, JSON.stringify({ seq: last.seq, hash: last.hash })) })
+  const week = events.filter((e) => Date.now() - Date.parse(e.createdAt) < 7 * 864e5)
+  const sum = (k) => week.filter((e) => e.kind === k).reduce((n, e) => n + e.count, 0)
+  console.log(JSON.stringify({ verified: true, rows: events.length, last7days: { read: sum('read'), write: sum('write'), delete: sum('delete') },
+    events: events.slice(-50).map((e) => ({ seq: e.seq, at: e.createdAt, who: names[e.memberId] ?? e.memberId, kind: e.kind, count: e.count, item: e.cipherId, detail: e.detail })) }, null, 1))
+} else die('commands: create | invite | join | members | confirm | access | log   (see the top of this file)')

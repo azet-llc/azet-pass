@@ -4,6 +4,7 @@
 use axum::extract::{Path, State};
 use axum::Json;
 use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
 use std::sync::Arc;
 use uuid::Uuid;
 use worker::Env;
@@ -18,6 +19,8 @@ const ADMIN: i64 = 1;
 const MEMBER: i64 = 2;
 const GUEST: i64 = 5;
 const MAX_TEAM_SEATS: i64 = 100;
+/// A member whose access has not run out (SQL, on the alias `m`).
+const LIVE: &str = "(m.access_until IS NULL OR m.access_until > strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))";
 const INVITED: i64 = 0;
 const ACCEPTED: i64 = 1;
 const CONFIRMED: i64 = 2;
@@ -133,7 +136,7 @@ fn org_json(org: &Value, m: &Value) -> Value {
 /// `profile.organizations` for /api/sync and /api/accounts/profile.
 pub async fn profile_organizations(db: &db::Db, user_id: &str) -> Result<Vec<Value>, AppError> {
     let rows: Vec<Value> = db
-        .prepare("SELECT m.*, o.name AS o_name, o.seats AS o_seats, o.public_key AS o_public_key FROM org_members m JOIN organizations o ON o.id = m.org_id WHERE m.user_id = ?1 AND m.status != ?2")
+        .prepare(&format!("SELECT m.*, o.name AS o_name, o.seats AS o_seats, o.public_key AS o_public_key FROM org_members m JOIN organizations o ON o.id = m.org_id WHERE m.user_id = ?1 AND m.status != ?2 AND {LIVE}"))
         .bind(&[user_id.into(), (REVOKED as f64).into()])?
         .all()
         .await?
@@ -150,16 +153,16 @@ pub async fn profile_organizations(db: &db::Db, user_id: &str) -> Result<Vec<Val
 /// `collections` for /api/sync: every shared vault the user can open.
 pub async fn sync_collections(db: &db::Db, user_id: &str) -> Result<Vec<Value>, AppError> {
     let rows: Vec<Value> = db
-        .prepare(
+        .prepare(&format!(
             "SELECT c.id, c.org_id, c.name, c.travel_safe, 0 AS read_only, 0 AS hide_passwords, 1 AS manage
                FROM collections c JOIN org_members m ON m.org_id = c.org_id
-              WHERE m.user_id = ?1 AND m.status = 2 AND m.access_all = 1
+              WHERE m.user_id = ?1 AND m.status = 2 AND m.access_all = 1 AND {LIVE}
              UNION
              SELECT c.id, c.org_id, c.name, c.travel_safe, cm.read_only, cm.hide_passwords, cm.manage
                FROM collections c JOIN collection_members cm ON cm.collection_id = c.id
                JOIN org_members m ON m.id = cm.member_id
-              WHERE m.user_id = ?1 AND m.status = 2 AND m.access_all = 0",
-        )
+              WHERE m.user_id = ?1 AND m.status = 2 AND m.access_all = 0 AND {LIVE}",
+        ))
         .bind(&[user_id.into()])?
         .all()
         .await?
@@ -290,7 +293,7 @@ pub async fn members(claims: Claims, State(env): State<Arc<Env>>, Path(org_id): 
             "accessAll": i(&m, "access_all") == 1, "resetPasswordEnrolled": m["reset_password_key"].is_string(),
             "publicKey": if i(&m, "status") == ACCEPTED { m["u_public_key"].clone() } else { Value::Null },
             "inviteToken": if is_org && i(&m, "status") == INVITED { m["invite_token"].clone() } else { Value::Null },
-            "createdAt": m["created_at"],
+            "createdAt": m["created_at"], "agent": i(&m, "agent") == 1, "accessUntil": m["access_until"],
             "collections": cols.iter().map(|c| json!({"id": c["id"], "readOnly": i(c, "read_only") == 1, "hidePasswords": i(c, "hide_passwords") == 1, "manage": i(c, "manage") == 1})).collect::<Vec<_>>()
         }));
     }
@@ -316,13 +319,14 @@ pub async fn invite(claims: Claims, State(env): State<Arc<Env>>, Path(org_id): P
         return Err(bad(&if i(&used, "seats") == 5 { "A family has 5 people. Remove someone or invite as a guest.".to_string() } else { format!("This team has {} seats. Remove someone or invite as a guest.", i(&used, "seats")) }));
     }
     let now = db::now_string();
+    let end = until(&p)?;
     let access_all = (t <= ADMIN || b(&p, "accessAll")) as i64;
     let mut out = Vec::new();
     for email in emails {
         let id = Uuid::new_v4().to_string();
         let tok = token()?;
-        d1_query!(&db, "INSERT INTO org_members (id, org_id, email, display_name, status, type, access_all, invite_token, invited_by, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, 0, ?5, ?6, ?7, ?8, ?9, ?9)",
-            id, org_id, email, s(&p, "displayName"), t, access_all, tok, claims.sub, now)
+        d1_query!(&db, "INSERT INTO org_members (id, org_id, email, display_name, status, type, access_all, invite_token, invited_by, created_at, updated_at, agent, access_until) VALUES (?1, ?2, ?3, ?4, 0, ?5, ?6, ?7, ?8, ?9, ?9, ?10, ?11)",
+            id, org_id, email, s(&p, "displayName"), t, access_all, tok, claims.sub, now, b(&p, "agent") as i64, end)
             .map_err(|_| bad("Already invited"))?.run().await.map_err(|_| bad("Already invited"))?;
         if let Some(cols) = p.get("collections") {
             set_member_collections(&db, &org_id, &id, cols).await?;
@@ -434,6 +438,7 @@ async fn set_status(env: &Env, claims: &Claims, org_id: &str, member_id: &str, s
     d1_query!(&db, "UPDATE org_members SET status = ?1, updated_at = ?2 WHERE id = ?3", next, db::now_string(), member_id)
         .map_err(|_| AppError::Database)?.run().await?;
     touch_org_users(&db, org_id).await?;
+    log_event(&db, org_id, member_id, if next == REVOKED { "revoke" } else { "grant" }, None, 1, None).await?;
     Ok(Json(json!({})))
 }
 
@@ -493,6 +498,92 @@ pub async fn user_public_key(claims: Claims, State(env): State<Arc<Env>>, Path(u
         .await?
         .ok_or_else(|| AppError::NotFound("User not found".into()))?;
     Ok(Json(json!({"object": "userKey", "userId": user_id, "publicKey": row["public_key"]})))
+}
+
+/// `accessDays` in a request → the moment access ends (1 to 365 days from now); absent or null = no end date.
+fn until(p: &Value) -> Result<Option<String>, AppError> {
+    match p.get("accessDays").and_then(|v| v.as_i64()) {
+        None => Ok(None),
+        Some(n) if (1..=365).contains(&n) => Ok(Some((chrono::Utc::now() + chrono::Duration::days(n)).format("%Y-%m-%dT%H:%M:%S%.3fZ").to_string())),
+        Some(_) => Err(bad("accessDays")),
+    }
+}
+
+/// Appends one row to a team's access log. Each row's hash covers the row before it, so a row cannot be removed
+/// or changed without breaking every hash after it; the organizer's device keeps an encrypted checkpoint to compare.
+pub async fn log_event(db: &db::Db, org_id: &str, member_id: &str, kind: &str, cipher_id: Option<&str>, count: i64, detail: Option<&str>) -> Result<(), AppError> {
+    let last: Option<Value> = db.prepare("SELECT hash FROM org_events WHERE org_id = ?1 ORDER BY seq DESC LIMIT 1").bind(&[org_id.into()])?.first(None).await?;
+    let prev = last.and_then(|v| s(&v, "hash")).unwrap_or_default();
+    let now = db::now_string();
+    let line = [prev.as_str(), org_id, member_id, kind, cipher_id.unwrap_or(""), &count.to_string(), detail.unwrap_or(""), &now].join("|");
+    let hash = hex::encode(Sha256::digest(line.as_bytes()));
+    d1_query!(db, "INSERT INTO org_events (org_id, member_id, kind, cipher_id, count, detail, created_at, prev, hash) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
+        org_id, member_id, kind, cipher_id, count, detail, now, prev, hash)
+        .map_err(|_| AppError::Database)?.run().await?;
+    Ok(())
+}
+
+/// What an AI agent account was just handed: every team item on a sync (`cipher_id` None), or the one item it asked for.
+pub async fn log_agent_read(db: &db::Db, user_id: &str, cipher_id: Option<&str>) -> Result<(), AppError> {
+    let rows: Vec<Value> = db
+        .prepare(&format!(
+            "SELECT m.id, m.org_id,
+                    (SELECT COUNT(*) FROM cipher_access ca JOIN ciphers c ON c.id = ca.cipher_id
+                      WHERE ca.user_id = ?1 AND c.organization_id = m.org_id AND c.deleted_at IS NULL AND (?2 IS NULL OR c.id = ?2)) AS n
+               FROM org_members m WHERE m.user_id = ?1 AND m.agent = 1 AND m.status = 2 AND {LIVE}"))
+        .bind(&[user_id.into(), cipher_id.map(wasm_bindgen::JsValue::from).unwrap_or(wasm_bindgen::JsValue::NULL)])?
+        .all()
+        .await?
+        .results()?;
+    for m in rows.iter().filter(|m| i(m, "n") > 0) {
+        log_event(db, m["org_id"].as_str().unwrap_or_default(), m["id"].as_str().unwrap_or_default(), "read", cipher_id, i(m, "n"), None).await?;
+    }
+    Ok(())
+}
+
+/// PUT /api/organizations/{org_id}/users/{member_id}/azet/access {accessDays} — how long this member's access lasts
+/// from now (absent = no end date). Written to the log with the new end date.
+#[worker::send]
+pub async fn set_access(claims: Claims, State(env): State<Arc<Env>>, Path((org_id, member_id)): Path<(String, String)>, Json(p): Json<Value>) -> Result<Json<Value>, AppError> {
+    let db = db::get_db(&env)?;
+    organizer(&db, &org_id, &claims.sub).await?;
+    target(&db, &org_id, &member_id).await?;
+    let end = until(&p)?;
+    d1_query!(&db, "UPDATE org_members SET access_until = ?1, updated_at = ?2 WHERE id = ?3 AND org_id = ?4", end, db::now_string(), member_id, org_id)
+        .map_err(|_| AppError::Database)?.run().await?;
+    touch_org_users(&db, &org_id).await?;
+    log_event(&db, &org_id, &member_id, "grant", None, 1, end.as_deref()).await?;
+    Ok(Json(json!({"accessUntil": end})))
+}
+
+/// GET /api/organizations/{org_id}/azet/access-log — the newest 1,000 rows, oldest first, with the organizer's checkpoint.
+#[worker::send]
+pub async fn access_log(claims: Claims, State(env): State<Arc<Env>>, Path(org_id): Path<String>) -> Result<Json<Value>, AppError> {
+    let db = db::get_db(&env)?;
+    organizer(&db, &org_id, &claims.sub).await?;
+    let rows: Vec<Value> = db
+        .prepare("SELECT * FROM (SELECT seq, member_id, kind, cipher_id, count, detail, created_at, prev, hash FROM org_events WHERE org_id = ?1 ORDER BY seq DESC LIMIT 1000) ORDER BY seq")
+        .bind(&[org_id.clone().into()])?
+        .all()
+        .await?
+        .results()?;
+    let cp: Option<Value> = db.prepare("SELECT log_checkpoint FROM organizations WHERE id = ?1").bind(&[org_id.clone().into()])?.first(None).await?;
+    Ok(Json(json!({
+        "organizationId": org_id, "checkpoint": cp.map(|v| v["log_checkpoint"].clone()).unwrap_or(Value::Null),
+        "events": rows.iter().map(|e| json!({"seq": e["seq"], "memberId": e["member_id"], "kind": e["kind"], "cipherId": e["cipher_id"], "count": e["count"],
+            "detail": e["detail"], "createdAt": e["created_at"], "prev": e["prev"], "hash": e["hash"]})).collect::<Vec<_>>()
+    })))
+}
+
+/// PUT /api/organizations/{org_id}/azet/access-log/checkpoint {value} — what the organizer's device has checked so far,
+/// encrypted with the team key.
+#[worker::send]
+pub async fn log_checkpoint(claims: Claims, State(env): State<Arc<Env>>, Path(org_id): Path<String>, Json(p): Json<Value>) -> Result<Json<Value>, AppError> {
+    let db = db::get_db(&env)?;
+    organizer(&db, &org_id, &claims.sub).await?;
+    let v = s(&p, "value").ok_or_else(|| bad("value"))?;
+    d1_query!(&db, "UPDATE organizations SET log_checkpoint = ?1 WHERE id = ?2", v, org_id).map_err(|_| AppError::Database)?.run().await?;
+    Ok(Json(json!({})))
 }
 
 /// GET /api/organizations/{org_id}/collections

@@ -16,7 +16,7 @@ worker-build --release --locked >/dev/null
 printf 'JWT_SECRET=%s\nJWT_REFRESH_SECRET=%s\nALLOWED_EMAILS=*\nTEAM_OWNERS=%s\n' "$(openssl rand -hex 32)" "$(openssl rand -hex 32)" "someone@example.com, $OWNER" > .dev.vars
 rm -rf .wrangler/state; mkdir -p public/web-vault
 sed -e '/^\[build\]/,/^command/d' -e 's|^main = "src/private.js"|main = "src/entry.js"|' -e 's|simple = { limit = 5, period = 60 }|simple = { limit = 1000, period = 60 }|' wrangler.toml > wrangler.test.toml
-for f in sql/schema.sql migrations/0015_api_key.sql migrations/0016_family.sql; do
+for f in sql/schema.sql migrations/001[5-9]_*.sql; do
   D1_DATABASE_ID=00000000-0000-0000-0000-000000000000 npx -y wrangler@4 d1 execute vault1 -c wrangler.test.toml --local --file "$f" >/dev/null 2>&1
 done
 D1_DATABASE_ID=00000000-0000-0000-0000-000000000000 npx -y wrangler@4 dev -c wrangler.test.toml --local --port 48807 >"$W/dev.log" 2>&1 &
@@ -35,7 +35,7 @@ T=$(team "$OWNER" "$PW_O" create "AZET team" 7); ORG=$(jq -r .org <<<"$T"); VAUL
 [ "$(jq -r .seats <<<"$T")" = 7 ] && echo "1 team of 7 seats, outsider refused: ok"
 
 # 2 the agent account joins from the invite (it did not exist before), read-only
-INV=$(team "$OWNER" "$PW_O" invite "$ORG" "$AGENT" --read-only --name "Deploy agent")
+INV=$(team "$OWNER" "$PW_O" invite "$ORG" "$AGENT" --read-only --agent --days 30 --name "Deploy agent")
 MID=$(jq -r .member <<<"$INV"); TOK=$(jq -r .token <<<"$INV")
 no team "$OUT" "$PW_X" join "$ORG" "$MID" "$TOK"
 FP=$(team "$AGENT" "$PW_A" join "$ORG" "$MID" "$TOK" | jq -r .fingerprint)
@@ -63,6 +63,30 @@ GOT=$(bw get item "$ID" | jq -r '[.name,.login.username,.login.password]|join("|
 no bash -c "bw get item $ID | jq '.login.password=\"changed\"' | bw encode | bw edit item $ID"
 bw sync >/dev/null
 [ "$(bw get item "$ID" | jq -r .login.password)" = "$S_PASS" ] && echo "4b read-only agent cannot change it: ok" || { echo "FAIL: read-only item changed"; exit 1; }
+bw logout >/dev/null; unset BW_SESSION
+
+# 4c what the agent read is in the access log, and the log checks out
+DBF() { find .wrangler/state/v3/d1 -name '*.sqlite' ! -name metadata.sqlite | head -1; }
+L=$(team "$OWNER" "$PW_O" log "$ORG")
+[ "$(jq -r .verified <<<"$L")" = true ] && [ "$(jq -r .last7days.read <<<"$L")" -ge 1 ] && [ "$(jq -r '[.events[]|select(.kind=="read" and .who=="Deploy agent")]|length' <<<"$L")" -ge 1 ] \
+  && echo "4c agent reads are in the access log, verified: ok" || { echo "FAIL: access log $L"; exit 1; }
+# 4d a row removed on the server is noticed
+sqlite3 "$(DBF)" "DELETE FROM org_events WHERE seq = (SELECT MIN(seq) + 1 FROM org_events);"
+no team "$OWNER" "$PW_O" log "$ORG"
+grep -q "ACCESS LOG CHANGED" "$W/no.out" && echo "4d a removed log row is detected: ok"
+# 4e access that has run out gives the agent nothing; extending it gives the items back
+sqlite3 "$(DBF)" "UPDATE org_members SET access_until = '2020-01-01T00:00:00.000Z' WHERE email = '$AGENT';"
+export BITWARDENCLI_APPDATA_DIR="$W/bw-agent2"
+bw config server $URL >/dev/null
+export BW_SESSION=$(BW_PASSWORD=$PW_A bw login "$AGENT" --passwordenv BW_PASSWORD --raw)
+[ "$(bw list items | jq length)" = 0 ] && echo "4e expired access: the agent gets no items: ok" || { echo "FAIL: expired agent still reads"; exit 1; }
+team "$OWNER" "$PW_O" access "$ORG" "$AGENT" 30 >/dev/null
+bw sync >/dev/null
+[ "$(bw list items | jq length)" = 1 ] && echo "4f access extended 30 days: the item is back: ok" || { echo "FAIL: extended agent reads nothing"; exit 1; }
+team "$OWNER" "$PW_O" access "$ORG" "$AGENT" off >/dev/null
+bw sync >/dev/null
+[ "$(bw list items | jq length)" = 0 ] && echo "4g access turned off: nothing again: ok" || { echo "FAIL: suspended agent still reads"; exit 1; }
+team "$OWNER" "$PW_O" access "$ORG" "$AGENT" on >/dev/null
 bw logout >/dev/null; unset BW_SESSION
 
 # 5 the outsider sees nothing

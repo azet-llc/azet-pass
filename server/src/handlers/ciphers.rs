@@ -325,6 +325,7 @@ pub async fn get_cipher(
     let db = db::get_db(&env)?;
     let cipher = fetch_cipher_for_user(&db, &id, &claims.sub).await?;
     let mut cipher: Cipher = cipher.into();
+    super::family::log_agent_read(&db, &claims.sub, Some(&id)).await?;
 
     attachments::hydrate_cipher_attachments(&db, env.as_ref(), &mut cipher).await?;
 

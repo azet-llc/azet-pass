@@ -17,7 +17,7 @@ printf 'JWT_SECRET=%s\nJWT_REFRESH_SECRET=%s\nALLOWED_EMAILS=*\n' "$(openssl ran
 rm -rf .wrangler/state; mkdir -p public/web-vault
 # prebuilt above (skip the cargo hook); the test talks to the backend directly (entry.js), without the gw internal key
 sed -e '/^\[build\]/,/^command/d' -e 's|^main = "src/private.js"|main = "src/entry.js"|' wrangler.toml > wrangler.test.toml
-for f in sql/schema.sql migrations/0015_api_key.sql migrations/0016_family.sql; do
+for f in sql/schema.sql migrations/001[5-9]_*.sql; do
   D1_DATABASE_ID=00000000-0000-0000-0000-000000000000 npx -y wrangler@4 d1 execute vault1 -c wrangler.test.toml --local --file "$f" >/dev/null 2>&1
 done
 D1_DATABASE_ID=00000000-0000-0000-0000-000000000000 npx -y wrangler@4 dev -c wrangler.test.toml --local --port 48787 >"$W/dev.log" 2>&1 &

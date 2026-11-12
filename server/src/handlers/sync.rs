@@ -102,6 +102,7 @@ pub async fn get_sync_data(
         .filter(|c| travel.is_none() || c["travelSafe"] == json!(true))
         .collect();
     let collections_json = serde_json::to_string(&collections).map_err(|_| AppError::Internal)?;
+    crate::handlers::family::log_agent_read(&db, &user_id, None).await?;
     // Match vaultwarden semantics: `_status` is `Invited` when no master password is set.
     // We don't implement org invitations, but this helps clients interpret the account state.
     profile.status = if has_master_password { 0 } else { 1 };

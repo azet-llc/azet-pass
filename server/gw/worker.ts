@@ -25,9 +25,9 @@ a.b{display:block;margin:14px 0;padding:15px;border-radius:14px;background:#0d7d
 a.s{background:#fff;color:#0d7d66;border:1px solid #cfe3dd}.logo{width:76px;height:76px;border-radius:18px;background:linear-gradient(135deg,#14a386,#0b5e4e);margin:0 auto}</style></head>
 <body><main><div class="logo"></div><h1 id="t">Your family invited you</h1><p id="d">Open this page on your phone. Install AZET Pass, then tap Open in the app.</p>
 <a class="b" id="open" href="#">Open in AZET Pass</a><a class="b s" id="get" href="https://apps.apple.com/app/id6823484052">Get AZET Pass for iPhone</a>
-<a class="b s" id="and" href="https://play.google.com/store/apps/details?id=io.azet.pass">Get AZET Pass for Android</a></main>
+<a class="b s" id="and" href="https://play.google.com/store/apps/details?id=io.azet.pass">Get AZET Pass for Android</a><a class="b s" id="web" href="/team">Join in the browser</a></main>
 <script>var $=function(i){return document.getElementById(i)};if((navigator.language||'').indexOf('ko')==0){$('t').textContent='가족이 AZET Pass에 초대했어요';$('d').textContent='휴대폰에서 이 페이지를 여세요. AZET Pass를 설치한 뒤 「앱에서 열기」를 누르면 돼요.';$('open').textContent='앱에서 열기';$('get').textContent='iPhone용 AZET Pass 받기';$('and').textContent='Android용 AZET Pass 받기'}
-$('open').href='azetpass://invite'+location.hash;</script></body></html>`;
+$('open').href='azetpass://invite'+location.hash;$('web').href='/team'+location.hash;if((navigator.language||'').indexOf('ko')==0)$('web').textContent='브라우저에서 참여';</script></body></html>`;
 
 export default {
   async fetch(req: Request, env: Env): Promise<Response> {

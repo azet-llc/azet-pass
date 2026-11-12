@@ -135,7 +135,11 @@ const W = ko ? {
   sheetNote: '유지 기간이 지나면 AI 계정은 공유 로그인과 팀 키를 받지 못해요. 끄면 바로 받지 못하고, 다시 켤 수 있어요. 바꾼 내용은 접근 기록에 남아요.',
   app: 'AZET Pass 팀', signIn: '팀 관리자 로그인', signInWhy: 'AI 계정이 공유 로그인을 언제 읽었는지 확인하고, 접근 기간을 정합니다.', email: '이메일', pw: '마스터 비밀번호', go: '로그인',
   stays: '비밀번호와 팀 키는 이 기기 밖으로 나가지 않습니다.', loadFail: '기록을 불러오지 못했어요', loadFailWhy: '연결을 확인하고 다시 열어 주세요.',
-  noteam: '이 계정이 관리하는 팀이 없습니다.', kdf: '이 계정은 아직 여기서 열 수 없습니다(Argon2 계정).', bad: '이메일이나 비밀번호가 맞지 않습니다.',
+ kdf: '이 계정은 아직 여기서 열 수 없습니다(Argon2 계정).', bad: '이메일이나 비밀번호가 맞지 않습니다.',
+  mkTitle: '공유 금고 만들기', mkWhy: '가족이나 팀, AI 계정과 로그인을 함께 쓰는 금고예요. 금고 열쇠는 이 기기에서 만들어지고 서버에는 암호화된 채로만 가요.', mkName: '이름 (예: 우리 팀)', mkGo: '만들기', mkFail: '만들지 못했어요',
+  joinTitle: '초대받은 금고에 참여', joinWhy: '초대받은 이메일의 AZET Pass 계정으로 로그인하세요.', joinNew: '계정이 아직 없어요. 이 비밀번호로 새로 만들기', joinShort: '새 계정의 마스터 비밀번호는 12자 이상이어야 해요.',
+  joined: '참여했어요', joinedWhy: '초대한 사람에게 아래 지문을 읽어 주세요. 그쪽에서 확인하면 공유 로그인이 AZET Pass 앱과 웹 금고에 나타나요.', joinFail: '이 초대 링크는 이미 쓰였거나 만료됐어요. 이미 참여했다면 아래 지문을 초대한 사람에게 읽어 주세요.',
+  memberTitle: '이 계정은 구성원이에요', memberWhy: '공유 로그인은 AZET Pass 앱과 웹 금고의 공유 금고에 있어요. 이 화면은 금고 관리자용이에요.', openVault: '웹 금고 열기',
   back: '뒤로', opening: '팀 금고를 여는 중…', hubSafe: '팀 키로 암호화해 공유하고 있어요', hubSafeWhy: '공유 로그인은 이 기기에서 암호화된 뒤 서버로 가요. 서버는 내용을 읽을 수 없어요.',
   whoSees: '볼 수 있는 사람', people: '구성원', agents: 'AI 계정', nPeople: (n) => `${n}명`, nAgents: (n) => `${n}개`, logins: '공유 로그인',
   hubNote: '구성원과 AI 계정은 초대한 금고의 로그인만 받아요. AI 계정이 읽거나 바꾼 것은 접근 기록에 남고, 접근을 끄면 바로 받지 못해요.',
@@ -149,6 +153,10 @@ const W = ko ? {
   itemLead: (p, a) => `구성원 ${p}명과 AI 계정 ${a}개가 볼 수 있는 로그인이에요.`, account: '계정', show: '비밀번호 보기', aiReads: 'AI가 다룬 기록', noReads: '아직 AI가 이 로그인을 따로 읽은 적이 없어요.',
   keepSafe: '안전하게 지키는 방법', safe1: '이 기기에서만 풀려요', safe1Why: '비밀번호는 팀 키가 있는 기기에서만 풀려요. 서버에는 암호문만 있어요.', safe2: 'AI가 읽으면 기록돼요', safe2Why: 'AI 계정이 이 로그인을 받아 갈 때마다 접근 기록에 남아요.',
 } : {
+  mkTitle: 'Create a shared vault', mkWhy: 'A vault for sharing logins with your family, your team or AI accounts. Its key is made on this device and reaches the server only in encrypted form.', mkName: 'Name (e.g. Our team)', mkGo: 'Create', mkFail: 'The vault could not be created',
+  joinTitle: 'Join the vault you were invited to', joinWhy: 'Sign in with the AZET Pass account of the invited email address.', joinNew: 'I have no account yet. Create one with this password', joinShort: 'A new master password needs at least 12 characters.',
+  joined: 'You have joined', joinedWhy: 'Read the fingerprint below to the person who invited you. Once they confirm it, the shared logins appear in your AZET Pass apps and web vault.', joinFail: 'This invite link was already used or has expired. If you joined before, read the fingerprint below to the person who invited you.',
+  memberTitle: 'This account is a member', memberWhy: 'Shared logins are in the shared vault of your AZET Pass apps and web vault. This page is for the organizer.', openVault: 'Open the web vault',
   back: 'Back', opening: 'Opening the team vault…', hubSafe: 'Shared with the team key, encrypted', hubSafeWhy: 'A shared login is encrypted on this device before it goes to the server. The server cannot read it.',
   whoSees: 'Who can see', people: 'Members', agents: 'AI accounts', nPeople: (n) => `${n}`, nAgents: (n) => `${n}`, logins: 'Shared logins',
   hubNote: 'Members and AI accounts receive only the logins of the vault they were invited to. What an AI account reads or changes is written to the access log, and turning access off stops it at once.',
@@ -172,7 +180,7 @@ const W = ko ? {
   sheetNote: 'After this period an AI agent account no longer receives shared logins or the team key. Turning access off stops it at once, and you can turn it back on. Each change is written to the access log.',
   app: 'AZET Pass Team', signIn: 'Team organizer sign-in', signInWhy: 'See when AI agent accounts read shared logins, and set how long their access lasts.', email: 'Email', pw: 'Master password', go: 'Sign in',
   stays: 'Your password and the team key never leave this device.', loadFail: 'The log could not be loaded', loadFailWhy: 'Check the connection and open this page again.',
-  noteam: 'This account does not organize a team.', kdf: 'This account cannot be opened here yet (Argon2 account).', bad: 'The email or password is not right.',
+ kdf: 'This account cannot be opened here yet (Argon2 account).', bad: 'The email or password is not right.',
 }
 document.title = W.app
 let S = null // { tok, priv, org, orgKey, members, names }
@@ -181,20 +189,39 @@ const api = async (method, path, body) => {
   if (!r.ok) throw new Error(`${r.status}`)
   const t = await r.text(); return t ? JSON.parse(t) : null
 }
-async function signIn(email, password) {
+const INV = location.hash.slice(1).split('.').length === 3 ? location.hash.slice(1).split('.') : null // /team#<vault>.<member>.<token>, the link an organizer sends
+const masterKeys = async (email, password, iter) => { const mk = await pbkdf2(enc.encode(password), enc.encode(email), iter); return { hash: b64(await pbkdf2(mk, enc.encode(password), 1)), stretched: new Uint8Array([...await expand(mk, 'enc'), ...await expand(mk, 'mac')]) } }
+const rsaPair = async () => { const k = await c.subtle.generateKey({ name: 'RSA-OAEP', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-1' }, true, ['encrypt', 'decrypt']); return { pub: b64(await c.subtle.exportKey('spki', k.publicKey)), priv: new Uint8Array(await c.subtle.exportKey('pkcs8', k.privateKey)) } }
+const encB = async (key, bytes) => { const iv = c.getRandomValues(new Uint8Array(16)); const ct = new Uint8Array(await c.subtle.encrypt({ name: 'AES-CBC', iv }, await c.subtle.importKey('raw', key.slice(0, 32), 'AES-CBC', false, ['encrypt']), bytes)); return `2.${b64(iv)}|${b64(ct)}|${b64(await hmac(key.slice(32), new Uint8Array([...iv, ...ct])))}` }
+// A new account made straight from an invite: the server takes the sign-up for the invited address only.
+async function signUp(email, password) {
+  const iter = 600000, k = await masterKeys(email, password, iter), userKey = c.getRandomValues(new Uint8Array(64)), rsa = await rsaPair()
+  await api('POST', '/identity/accounts/register', { email, name: null, masterPasswordHash: k.hash, masterPasswordHint: null, kdf: 0, kdfIterations: iter, key: await encB(k.stretched, userKey),
+    userAsymmetricKeys: { publicKey: rsa.pub, encryptedPrivateKey: await encB(userKey, rsa.priv) }, orgInviteToken: INV[2], organizationUserId: INV[1] })
+}
+async function signIn(email, password, fresh) {
   email = email.trim().toLowerCase()
+  if (fresh) { if (password.length < 12) throw new Error('short'); await signUp(email, password) }
   const pre = await api('POST', '/identity/accounts/prelogin', { email })
   if ((pre.kdf ?? 0) !== 0) throw new Error('kdf')
-  const mk = await pbkdf2(enc.encode(password), enc.encode(email), pre.kdfIterations)
-  const r = await fetch('/identity/connect/token', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ grant_type: 'password', username: email, password: b64(await pbkdf2(mk, enc.encode(password), 1)), scope: 'api offline_access', client_id: 'web', deviceType: '9', deviceIdentifier: c.randomUUID(), deviceName: 'azet-pass-team' }) })
+  const k = await masterKeys(email, password, pre.kdfIterations)
+  const r = await fetch('/identity/connect/token', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ grant_type: 'password', username: email, password: k.hash, scope: 'api offline_access', client_id: 'web', deviceType: '9', deviceIdentifier: c.randomUUID(), deviceName: 'azet-pass-team' }) })
   const j = await r.json()
   if (!j.access_token) throw new Error('auth')
-  const userKey = await decS(new Uint8Array([...await expand(mk, 'enc'), ...await expand(mk, 'mac')]), j.Key || j.key)
-  S = { tok: j.access_token, priv: await decS(userKey, j.PrivateKey || j.privateKey) }
-  const sync = await api('GET', '/api/sync?excludeDomains=true')
-  const o = sync.profile.organizations.find((x) => x.type <= 1 && x.status === 2)
-  if (!o) throw new Error('noteam')
-  S.org = o.id; S.orgName = o.name; S.orgKey = await rsaDec(S.priv, o.key)
+  const userKey = await decS(k.stretched, j.Key || j.key)
+  S = { tok: j.access_token, email, priv: await decS(userKey, j.PrivateKey || j.privateKey) }
+  const me = await api('GET', '/api/accounts/profile')
+  S.pub = me.accountKeys?.publicKeyEncryptionKeyPair?.publicKey || (await api('GET', `/api/users/${me.id}/public-key`)).publicKey
+  const orgs = (await api('GET', '/api/sync?excludeDomains=true')).profile.organizations, o = orgs.find((x) => x.type <= 1 && x.status === 2)
+  if (o) { S.org = o.id; S.orgName = o.name; S.orgKey = await rsaDec(S.priv, o.key); return }
+  if (INV) { S.mode = 'joined'; try { await api('POST', `/api/organizations/${INV[0]}/users/${INV[1]}/accept`, { token: INV[2] }) } catch { S.joinFail = true }; return }
+  S.mode = orgs.length ? 'member' : 'new'
+}
+// The vault key is made here, wrapped for the organizer's own public key; the server gets ciphertext only (same as scripts/team.mjs create).
+async function createVault(name) {
+  const orgKey = c.getRandomValues(new Uint8Array(64)), rsa = await rsaPair()
+  const o = await api('POST', '/api/organizations', { name, billingEmail: S.email, key: await rsaEnc(S.pub, orgKey), keys: { publicKey: rsa.pub, encryptedPrivateKey: await encB(orgKey, rsa.priv) }, collectionName: await encS(orgKey, 'Shared') })
+  S.org = o.id; S.orgName = name; S.orgKey = orgKey; S.mode = null
 }
 
 // ---- access log ----
@@ -314,7 +341,7 @@ function accessSheet(m) {
 <small>${W.sheetNote}</small>`)
 }
 async function memberSheet(m) {
-  if (m.status === 0) return wrap(esc(m.name || m.email), `<small class="top">${m.agent ? W.inviteAgentWhy : W.inviteWhy}</small><div class="copybox" id="cp">${esc(m.agent ? `node scripts/team.mjs join ${S.org} ${m.id} ${m.inviteToken}` : `${location.origin}/invite#${S.org}.${m.id}.${m.inviteToken}`)}</div><button class="go" data-act="copy" data-from="cp">${W.copy}</button>`)
+  if (m.status === 0) return wrap(esc(m.name || m.email), `<small class="top">${m.agent ? W.inviteAgentWhy : W.inviteWhy}</small><div class="copybox" id="cp">${esc(m.agent ? `node scripts/team.mjs join ${S.org} ${m.id} ${m.inviteToken}` : `${location.origin}/team#${S.org}.${m.id}.${m.inviteToken}`)}</div><button class="go" data-act="copy" data-from="cp">${W.copy}</button>`)
   if (m.status === 1) return wrap(esc(m.name || m.email), `<small class="top">${W.fpWhy}</small><div class="mono">${await fingerprint(m.publicKey)}</div><button class="go" data-act="confirm" data-id="${m.id}">${W.fpSame}</button>`)
   return accessSheet(m)
 }
@@ -329,9 +356,15 @@ const toast = (t) => { const n = $(`<div class="toast" role="status">${t}</div>`
 
 async function render() {
   const app = document.getElementById('app')
-  if (!S) { app.innerHTML = `<div class="bar"><span></span><h1>${W.app}</h1><span></span></div><main><form class="card login" data-form="signin"><h2>${W.signIn}</h2><p>${W.signInWhy}</p>
+  if (!S) { app.innerHTML = `<div class="bar"><span></span><h1>${W.app}</h1><span></span></div><main><form class="card login" data-form="signin"><h2>${INV ? W.joinTitle : W.signIn}</h2><p>${INV ? W.joinWhy : W.signInWhy}</p>
 <input class="field" name="email" type="email" autocomplete="username" placeholder="${W.email}" required><input class="field" name="password" type="password" autocomplete="current-password" placeholder="${W.pw}" required>
-<button class="go">${W.go}</button><p class="err" role="alert"></p><div class="lock">${IC.lock}<span>${W.stays}</span></div></form></main>`; return }
+${INV ? `<label class="check" style="padding:0 2px;height:40px;border:0;font-size:13px">${W.joinNew}<input type="checkbox" name="fresh"></label>` : ''}<button class="go">${W.go}</button><p class="err" role="alert"></p><div class="lock">${IC.lock}<span>${W.stays}</span></div></form></main>`; return }
+  if (S.mode) {
+    const card = S.mode === 'joined' ? `<div class="card login"><h2>${S.joinFail ? W.joinTitle : W.joined}</h2><p>${S.joinFail ? W.joinFail : W.joinedWhy}</p><div class="mono">${await fingerprint(S.pub)}</div></div>`
+      : S.mode === 'member' ? `<div class="card login"><h2>${W.memberTitle}</h2><p>${W.memberWhy}</p><a class="go" style="display:grid;place-items:center;text-decoration:none" href="/">${W.openVault}</a></div>`
+      : `<form class="card login" data-form="create"><h2>${W.mkTitle}</h2><p>${W.mkWhy}</p><input class="field" name="name" maxlength="60" autocomplete="off" placeholder="${W.mkName}" required><button class="go">${W.mkGo}</button><p class="err" role="alert"></p></form>`
+    app.innerHTML = `<div class="bar"><button class="round" data-act="out" aria-label="${W.out}">${IC.back}</button><h1>${W.app}</h1><span></span></div><main>${card}</main>`; return
+  }
   if (!S.items) {
     app.innerHTML = bar(S.orgName, '', 'out') + `<main><div class="card verify"><div class="dot"><div class="spin"></div></div><div><b>${W.opening}</b></div></div></main>`
     try { await loadAll() } catch (e) { app.querySelector('.verify').innerHTML = `<div class="dot bad">!</div><div><b>${W.loadFail}</b><p>${W.loadFailWhy} (${esc(e.message)})</p></div>`; return }
@@ -344,7 +377,8 @@ document.addEventListener('submit', async (ev) => {
   ev.preventDefault(); const f = ev.target, kind = f.dataset.form, btn = f.querySelector('.go'), err = f.querySelector('.err')
   btn.disabled = true; err.textContent = ''
   try {
-    if (kind === 'signin') { await signIn(f.email.value, f.password.value); return render() }
+    if (kind === 'signin') { await signIn(f.email.value, f.password.value, f.fresh?.checked); return render() }
+    if (kind === 'create') { await createVault(f.name.value.trim()); return render() }
     if (kind === 'invite') {
       const r = await api('POST', `/api/organizations/${S.org}/users/invite`, { emails: [f.email.value.trim().toLowerCase()], type: 2, displayName: f.name.value.trim() || undefined, agent: !!f.agent.value, ...(f.d30?.checked ? { accessDays: 30 } : {}), collections: [{ id: f.vault.value, readOnly: f.ro.checked }] })
       V = { name: f.agent.value ? 'agents' : 'people' }; await reload(); return open(await memberSheet(S.members.find((m) => m.id === r.data[0].id)))
@@ -356,7 +390,7 @@ document.addEventListener('submit', async (ev) => {
     }
   } catch (e) {
     if (kind === 'signin') S = null
-    err.textContent = kind === 'invite' ? `${W.inviteFail} (${esc(e.message)})` : kind === 'add' ? `${W.addFail} (${esc(e.message)})` : e.message === 'noteam' ? W.noteam : e.message === 'kdf' ? W.kdf : W.bad
+    err.textContent = kind === 'create' ? `${W.mkFail} (${esc(e.message)})` : e.message === 'short' ? W.joinShort : kind === 'invite' ? `${W.inviteFail} (${esc(e.message)})` : kind === 'add' ? `${W.addFail} (${esc(e.message)})` : e.message === 'kdf' ? W.kdf : W.bad
     btn.disabled = false
   }
 })

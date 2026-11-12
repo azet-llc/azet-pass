@@ -136,6 +136,7 @@ putSvg(svgs + 'bitwarden-logo.icon.ts', logo('tw-fill-marketing-logo', 290, 45, 
 putSvg(svgs + 'bitwarden-logo-beta.icon.ts', logo('tw-fill-marketing-logo', 120, 18, 'AZET Pass Beta'))
 putSvg(svgs + 'password-manager.ts', logo('tw-fill-fg-nav', 200, 49, 'AZET Pass Password Manager', true))
 putSvg(svgs + 'side-nav-logo.ts', logo('tw-fill-fg-nav', 153, 24, 'AZET Pass'))
+putSvg(svgs + 'admin-console.ts', logo('tw-fill-fg-nav', 153, 24, 'AZET Pass')) // Admin Console side nav: same mark, no upstream wordmark
 putSvg(svgs + 'side-nav-logo-beta.ts', logo('tw-fill-fg-nav', 154, 24, 'AZET Pass Beta'))
 putSvg(svgs + 'bitwarden-icon.ts', `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none"><rect class="tw-fill-bw-blue" width="20" height="20" rx="3"/><path fill="#fff" fill-rule="evenodd" transform="translate(5.1 2) scale(0.5)" d="${MARK}"/></svg>`)
 edit('libs/assets/src/svg/svgs/shield.ts', (s) =>

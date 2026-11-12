@@ -289,6 +289,8 @@ pub fn api_router(env: Env) -> Router {
         .route("/api/organizations/{org_id}/public-key", get(family::public_key))
         .route("/api/organizations/{org_id}/leave", post(family::leave))
         .route("/api/organizations/{org_id}/users", get(family::members))
+        // the Admin Console's vault dialogs ask for the short member list; the full one carries every field it reads
+        .route("/api/organizations/{org_id}/users/mini-details", get(family::members))
         .route("/api/organizations/{org_id}/users/invite", post(family::invite))
         .route("/api/organizations/{org_id}/users/{member_id}", put(family::update_member).delete(family::remove))
         .route("/api/organizations/{org_id}/users/{member_id}/reinvite", post(family::reinvite))
@@ -315,6 +317,13 @@ pub fn api_router(env: Env) -> Router {
         .route("/api/users/{user_id}/public-key", get(family::user_public_key))
         .route("/api/azet/invites/{member_id}/{token}", get(family::invite_preview))
         .route("/api/azet/travel-mode", post(family::travel_mode))
+        // Bitwarden's Admin Console calls the "-admin" twins of the item routes; an organizer already has every team
+        // item through cipher_access, so they are the same handlers.
+        .route("/api/ciphers/admin", post(ciphers::create_cipher))
+        .route("/api/ciphers/{id}/admin", get(ciphers::get_cipher).put(ciphers::update_cipher).post(ciphers::update_cipher).delete(ciphers::hard_delete_cipher))
+        .route("/api/ciphers/{id}/delete-admin", put(ciphers::soft_delete_cipher))
+        .route("/api/ciphers/{id}/restore-admin", put(ciphers::restore_cipher))
+        .route("/api/ciphers/{id}/collections-admin", put(family::cipher_collections).post(family::cipher_collections))
         .route("/api/ciphers/{id}/share", put(family::share_cipher).post(family::share_cipher))
         .route("/api/ciphers/{id}/collections", put(family::cipher_collections).post(family::cipher_collections))
         .route("/api/ciphers/{id}/travel-safe", put(family::travel_safe))

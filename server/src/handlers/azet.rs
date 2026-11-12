@@ -161,9 +161,18 @@ pub async fn release_seat(env: &Env, user_id: &str) {
     .await;
 }
 
-/// POST /api/accounts/key-management/user-key-id — 2026.9 clients backfill a key id; nothing on this server reads it.
+/// POST /api/accounts/key-management/user-key-id — 2026.9 clients record the id (never the key) of the account's
+/// user key. It is kept and handed back in the sync (`userDecryption.userKeyId`); answering without keeping it made
+/// the clients ask again after every sync, hundreds of times a minute.
 #[worker::send]
-pub async fn post_user_key_id(_claims: Claims) -> Result<Json<Value>, AppError> {
+pub async fn post_user_key_id(claims: Claims, State(env): State<Arc<Env>>, Json(p): Json<Value>) -> Result<Json<Value>, AppError> {
+    let id = p
+        .as_object()
+        .and_then(|o| o.values().find_map(|v| v.as_str()))
+        .filter(|s| !s.is_empty() && s.len() <= 64 && s.chars().all(|c| c.is_ascii_alphanumeric() || c == '-'))
+        .ok_or_else(|| AppError::BadRequest("userKeyId".into()))?;
+    let db = db::get_db(&env)?;
+    db.prepare("UPDATE users SET user_key_id = ?1 WHERE id = ?2").bind(&[id.into(), claims.sub.into()])?.run().await?;
     Ok(Json(json!({})))
 }
 

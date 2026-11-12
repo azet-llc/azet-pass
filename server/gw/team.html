@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<title>AZET Pass Team</title>
+<style>
+/* Layout numbers follow the reference screens in azet-suite/reference/azet-pass/pickle (432 px wide here = the 1080-wide captures, 1 px = 2.5 px). */
+:root{--screen:#F7F7F7;--card:#FFFFFF;--flat:#F7F7F7;--raised:#F4F5F7;--text:#000000;--text2:#7F7F7F;--text3:#B2B2B2;--blue:#4797EF;--danger:#C0392B;--primary:#000000;--inverse:#FFFFFF;--hair:#EDEDED;--scrim:rgba(0,0,0,.32);--top:12px}
+@media (prefers-color-scheme:dark){:root{--screen:#101114;--card:#1B1D22;--flat:#24262C;--raised:#2A2D34;--text:#FFFFFF;--text2:#9197A3;--text3:#6B7078;--blue:#38B9FF;--danger:#F96E6E;--primary:#FFFFFF;--inverse:#000000;--hair:#2A2D34;--scrim:rgba(0,0,0,.5)}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--screen);color:var(--text);font:400 15px/19px "Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;letter-spacing:-.01em}
+body{min-height:100vh;max-width:480px;margin:0 auto}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:inherit}
+.bar{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;padding:calc(var(--top) + env(safe-area-inset-top)) 16.8px 21.2px;background:linear-gradient(var(--screen) 70%,transparent)}
+.bar h1{position:absolute;left:0;right:0;margin:0;text-align:center;font-size:18px;font-weight:500;line-height:46.4px;pointer-events:none}
+.round,.pill{height:46.4px;border-radius:90px;background:var(--card);box-shadow:0 0 0 .5px rgba(0,0,0,.08),0 2px 8px rgba(0,0,0,.05);display:grid;place-items:center}
+.round{width:46.4px}.pill{height:44px;min-width:58.4px;padding:0 14px;font-size:15px;font-weight:500}
+.round svg{width:22px;height:22px}
+main{padding:0 16.8px 96px;display:flex;flex-direction:column;gap:16.8px}
+.card{background:var(--card);border-radius:20px}
+.verify{padding:16.8px;display:flex;gap:10px;align-items:flex-start;width:100%}
+.dot{flex:none;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;margin-top:1px}
+.dot.ok{background:var(--primary);color:var(--inverse)}.dot.bad{background:var(--danger);color:#fff;font-size:12px;font-weight:600}
+.dot svg{width:12px;height:12px}
+.spin{width:16px;height:16px;border:2px solid var(--text3);border-top-color:transparent;border-radius:50%;animation:sp .8s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.verify b{display:block;font-size:15px;font-weight:500;line-height:19px}
+.verify p{margin:3px 0 0;font-size:13px;line-height:16px;word-break:keep-all;color:var(--text2)}
+.verify a{display:block;margin-top:6px;font-size:13px;line-height:16px;color:var(--blue);text-decoration:none}
+.week{padding:16.8px}
+.week header{display:flex;align-items:center;gap:8px;margin-bottom:16px;height:20px}
+.week header b{font-size:16px;font-weight:500;line-height:20px}.week header span{flex:1;font-size:13px;line-height:16px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tiles{display:flex;gap:12.8px}
+.tile{flex:1;background:var(--flat);border-radius:16px;padding:14px}
+.tile b{display:block;font-size:22px;font-weight:600;line-height:28px}.tile span{display:block;margin-top:2px;font-size:13px;line-height:16px;color:var(--text2)}
+.day{margin:0;padding:0 0 0 4px;font-size:13px;line-height:20.8px;color:var(--text2)}
+.list{overflow:hidden}
+.row{display:flex;align-items:center;gap:14.8px;width:100%;padding:14px 14px 14px 17.6px;min-height:72px;border-top:1.2px solid var(--screen)}
+.row:first-child{border-top:0}
+.ico{flex:none;width:32px;height:32px;border-radius:8px;background:var(--raised);display:grid;place-items:center}
+.ico svg{width:19px;height:19px}
+.ico.warn{background:#FCEDEB;color:var(--danger);font-weight:600}
+.row .t{flex:1;min-width:0}.row .t b{display:block;font-size:16px;font-weight:400;line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .t span{display:block;margin-top:3px;font-size:13px;line-height:16px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row time{font-size:13px;color:var(--text3);white-space:nowrap}
+.note{margin:0;padding:8px 4px;font-size:13px;line-height:17px;color:var(--text2)}
+.empty{padding:24px 0;font-size:15px;color:var(--text2);text-align:center}
+/* bottom sheet */
+.scrim{position:fixed;inset:0;background:var(--scrim);z-index:10;display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:480px;background:var(--card);border-radius:28px 28px 0 0;padding:8px 14px calc(22px + env(safe-area-inset-bottom))}
+.grab{width:24px;height:4px;border-radius:2px;background:#DADADA;margin:0 auto 22px}
+.sheet h2{margin:0 0 15px 7px;font-size:18px;font-weight:500;line-height:24px}
+.group{background:var(--flat);border-radius:16px;overflow:hidden}
+.opt{display:flex;align-items:center;justify-content:space-between;width:100%;padding:0 14px;height:46px;font-size:15px;border-top:1px solid var(--hair)}
+.opt:first-child{border-top:0}.opt span{color:var(--text2)}.opt.danger{color:var(--danger)}
+.sheet small{display:block;margin:16px 0 0;font-size:13px;line-height:17px;color:var(--text2)}
+/* sign-in card */
+.login{margin-top:8px;padding:18px 16px}
+.login h2{margin:0 0 4px;font-size:18px;font-weight:500}.login p{margin:0 0 16px;font-size:13px;line-height:17px;color:var(--text2)}
+.field{display:block;width:100%;height:48px;margin-bottom:8px;padding:0 14px;border:0;border-radius:14px;background:var(--flat);color:var(--text);font:inherit;font-size:16px;outline:0}
+.go{width:100%;height:48px;margin-top:8px;border-radius:90px;background:var(--primary);color:var(--inverse);font-size:16px;font-weight:500;text-align:center}
+.go[disabled]{opacity:.4}
+.err{min-height:17px;margin:8px 2px 0;font-size:13px;color:var(--danger)}
+.lock{display:flex;gap:8px;align-items:center;margin-top:14px;font-size:13px;color:var(--text2)}.lock svg{width:15px;height:15px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// AZET Pass team: the access log of AI agent accounts. Everything secret stays in this page's memory: the team key is
+// unwrapped here with the organizer's private key, the log is checked here, item names are decrypted here.
+const $ = (h) => { const t = document.createElement('template'); t.innerHTML = h.trim(); return t.content.firstChild }
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
+const enc = new TextEncoder(), dec = new TextDecoder(), c = crypto
+const b64 = (u) => btoa(String.fromCharCode(...new Uint8Array(u))), unb64 = (s) => Uint8Array.from(atob(s), (x) => x.charCodeAt(0))
+const hex = (u) => [...new Uint8Array(u)].map((x) => x.toString(16).padStart(2, '0')).join('')
+// Lucide icons (ISC), inline
+const I = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`
+const IC = { back: I('<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>'), check: I('<path d="M20 6 9 17l-5-5"/>'), key: I('<path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/>'),
+  bot: I('<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>'),
+  clock: I('<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>'), off: I('<path d="M18.36 6.64A9 9 0 0 1 20.77 15"/><path d="M6.16 6.16a9 9 0 1 0 12.68 12.68"/><path d="M12 2v4"/><path d="m2 2 20 20"/>'),
+  lock: I('<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>') }
+
+const pbkdf2 = async (pw, salt, iter) => new Uint8Array(await c.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations: iter }, await c.subtle.importKey('raw', pw, 'PBKDF2', false, ['deriveBits']), 256))
+const hmac = async (k, d) => new Uint8Array(await c.subtle.sign('HMAC', await c.subtle.importKey('raw', k, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']), d))
+const expand = (prk, info) => hmac(prk, new Uint8Array([...enc.encode(info), 1]))
+const encS = async (key, data) => { const iv = c.getRandomValues(new Uint8Array(16)); const ct = new Uint8Array(await c.subtle.encrypt({ name: 'AES-CBC', iv }, await c.subtle.importKey('raw', key.slice(0, 32), 'AES-CBC', false, ['encrypt']), enc.encode(data))); return `2.${b64(iv)}|${b64(ct)}|${b64(await hmac(key.slice(32), new Uint8Array([...iv, ...ct])))}` }
+const decS = async (key, s) => { const [iv, ct, mac] = s.slice(2).split('|').map(unb64); if (b64(await hmac(key.slice(32), new Uint8Array([...iv, ...ct]))) !== b64(mac)) throw new Error('mac'); return new Uint8Array(await c.subtle.decrypt({ name: 'AES-CBC', iv }, await c.subtle.importKey('raw', key.slice(0, 32), 'AES-CBC', false, ['decrypt']), ct)) }
+const rsaDec = async (pkcs8, s) => new Uint8Array(await c.subtle.decrypt({ name: 'RSA-OAEP' }, await c.subtle.importKey('pkcs8', pkcs8, { name: 'RSA-OAEP', hash: 'SHA-1' }, false, ['decrypt']), unb64(s.slice(2))))
+
+const LANG = navigator.language || 'en', ko = LANG.startsWith('ko')
+document.documentElement.lang = ko ? 'ko' : 'en'
+const W = ko ? {
+  title: '접근 기록', settings: '설정', out: '로그아웃', checking: '기록 확인 중…', checked: '모든 기록이 확인됐어요 · 방금', changed: '바뀌거나 빠진 기록이 있어요',
+  what: (done) => `AI가 공유 로그인을 읽을 때마다 남는 기록이에요. 빠지거나 바뀐 기록이 없는지 팀 키로 ${done ? '확인했어요' : '확인하고 있어요'}.`,
+  whatBad: '서버에 있는 기록이 지난번에 이 기기에서 확인한 것과 달라요. 접근을 끄고 hello@azet.io로 알려 주세요.', how: '기록을 키로 확인한다는 게 어떤 뜻인가요?',
+  week: '최근 7일', read: '읽음', write: '바꿈', del: '지움', today: '오늘', yesterday: '어제', until: (d) => `${d}까지`,
+  empty: '아직 기록이 없어요. AI가 공유 로그인을 읽을 때마다 여기에 표시돼요.', unknown: '알 수 없는 구성원', gone: '삭제된 항목',
+  readOne: (n, c) => `${n} 읽기 ${c}회`, readAll: (c) => `공유 로그인 ${c}개 읽기`, extend: '접근 기간 연장', on: '접근 켬', off: '접근 끔', wrote: (c) => `항목 ${c}개 바꿈`, deleted: (c) => `항목 ${c}개 지움`,
+  sheet: '접근 설정', keep: '접근 유지 기간', days: (n) => `${n}일`, noEnd: '기한 없음', turnOff: 'AI 접근 끄기', turnOn: 'AI 접근 켜기',
+  sheetNote: '유지 기간이 지나면 AI 계정은 공유 로그인과 팀 키를 받지 못해요. 끄면 바로 받지 못하고, 다시 켤 수 있어요. 바꾼 내용은 접근 기록에 남아요.',
+  app: 'AZET Pass 팀', signIn: '팀 관리자 로그인', signInWhy: 'AI 계정이 공유 로그인을 언제 읽었는지 확인하고, 접근 기간을 정합니다.', email: '이메일', pw: '마스터 비밀번호', go: '로그인',
+  stays: '비밀번호와 팀 키는 이 기기 밖으로 나가지 않습니다.', loadFail: '기록을 불러오지 못했어요', loadFailWhy: '연결을 확인하고 다시 열어 주세요.',
+  noteam: '이 계정이 관리하는 팀이 없습니다.', kdf: '이 계정은 아직 여기서 열 수 없습니다(Argon2 계정).', bad: '이메일이나 비밀번호가 맞지 않습니다.',
+} : {
+  title: 'Access log', settings: 'Settings', out: 'Sign out', checking: 'Checking the log…', checked: 'Every record checked · just now', changed: 'A record was changed or is missing',
+  what: (done) => `A record is kept each time an AI agent reads a shared login. This device ${done ? 'checked' : 'is checking'} with the team key that none was changed or removed.`,
+  whatBad: 'The log on the server differs from what this device checked last time. Turn access off and write to hello@azet.io.', how: 'What does checking the log with a key mean?',
+  week: 'Last 7 days', read: 'Read', write: 'Changed', del: 'Deleted', today: 'Today', yesterday: 'Yesterday', until: (d) => `until ${d}`,
+  empty: 'No records yet. Each time an AI agent reads a shared login, it shows here.', unknown: 'Unknown member', gone: 'Deleted item',
+  readOne: (n, c) => `${n}, read ${c === 1 ? 'once' : c + ' times'}`, readAll: (c) => `Read ${c} shared ${c === 1 ? 'login' : 'logins'}`, extend: 'Access extended', on: 'Access turned on', off: 'Access turned off',
+  wrote: (c) => `Changed ${c} ${c === 1 ? 'item' : 'items'}`, deleted: (c) => `Deleted ${c} ${c === 1 ? 'item' : 'items'}`,
+  sheet: 'Access settings', keep: 'Keep access for', days: (n) => `${n} ${n === 1 ? 'day' : 'days'}`, noEnd: 'No end date', turnOff: 'Turn off AI access', turnOn: 'Turn on AI access',
+  sheetNote: 'After this period an AI agent account no longer receives shared logins or the team key. Turning access off stops it at once, and you can turn it back on. Each change is written to the access log.',
+  app: 'AZET Pass Team', signIn: 'Team organizer sign-in', signInWhy: 'See when AI agent accounts read shared logins, and set how long their access lasts.', email: 'Email', pw: 'Master password', go: 'Sign in',
+  stays: 'Your password and the team key never leave this device.', loadFail: 'The log could not be loaded', loadFailWhy: 'Check the connection and open this page again.',
+  noteam: 'This account does not organize a team.', kdf: 'This account cannot be opened here yet (Argon2 account).', bad: 'The email or password is not right.',
+}
+document.title = W.app
+let S = null // { tok, priv, org, orgKey, members, names }
+const api = async (method, path, body) => {
+  const r = await fetch(path, { method, headers: { 'content-type': 'application/json', ...(S?.tok ? { authorization: `Bearer ${S.tok}` } : {}) }, body: body ? JSON.stringify(body) : undefined })
+  if (!r.ok) throw new Error(`${r.status}`)
+  const t = await r.text(); return t ? JSON.parse(t) : null
+}
+async function signIn(email, password) {
+  email = email.trim().toLowerCase()
+  const pre = await api('POST', '/identity/accounts/prelogin', { email })
+  if ((pre.kdf ?? 0) !== 0) throw new Error('kdf')
+  const mk = await pbkdf2(enc.encode(password), enc.encode(email), pre.kdfIterations)
+  const r = await fetch('/identity/connect/token', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ grant_type: 'password', username: email, password: b64(await pbkdf2(mk, enc.encode(password), 1)), scope: 'api offline_access', client_id: 'web', deviceType: '9', deviceIdentifier: c.randomUUID(), deviceName: 'azet-pass-team' }) })
+  const j = await r.json()
+  if (!j.access_token) throw new Error('auth')
+  const userKey = await decS(new Uint8Array([...await expand(mk, 'enc'), ...await expand(mk, 'mac')]), j.Key || j.key)
+  S = { tok: j.access_token, priv: await decS(userKey, j.PrivateKey || j.privateKey) }
+  const sync = await api('GET', '/api/sync?excludeDomains=true')
+  const o = sync.profile.organizations.find((x) => x.type <= 1 && x.status === 2)
+  if (!o) throw new Error('noteam')
+  S.org = o.id; S.orgName = o.name; S.orgKey = await rsaDec(S.priv, o.key)
+}
+
+// ---- access log ----
+const KO = { day: (d) => { const n = Math.floor((new Date().setHours(0, 0, 0, 0) - new Date(d).setHours(0, 0, 0, 0)) / 864e5); return n === 0 ? W.today : n === 1 ? W.yesterday : new Date(d).toLocaleDateString(LANG, { month: 'long', day: 'numeric' }) },
+  time: (d) => new Date(d).toLocaleTimeString(LANG, { hour: 'numeric', minute: '2-digit' }), until: (d) => W.until(new Date(d).toLocaleDateString(LANG, { year: 'numeric', month: 'numeric', day: 'numeric' })) }
+async function loadLog() {
+  const [{ events, checkpoint }, members, items] = await Promise.all([api('GET', `/api/organizations/${S.org}/azet/access-log`), api('GET', `/api/organizations/${S.org}/users`), api('GET', `/api/ciphers/organization-details?organizationId=${S.org}`)])
+  S.members = members.data
+  const who = Object.fromEntries(members.data.map((m) => [m.id, m.name || m.email]))
+  const item = {}
+  for (const x of items.data) try { item[x.id] = dec.decode(await decS(x.key ? await decS(S.orgKey, x.key) : S.orgKey, x.name)) } catch { }
+  // every row's hash is recomputed here; then the row this device checked last time must still be there, unchanged
+  let state = 'ok', prev = events[0]?.prev ?? ''
+  for (const e of events) {
+    const h = hex(await c.subtle.digest('SHA-256', enc.encode([prev, S.org, e.memberId, e.kind, e.cipherId ?? '', String(e.count), e.detail ?? '', e.createdAt].join('|'))))
+    if (e.prev !== prev || e.hash !== h) { state = 'changed'; break }
+    prev = h
+  }
+  if (state === 'ok' && checkpoint) try {
+    const cp = JSON.parse(dec.decode(await decS(S.orgKey, checkpoint))), at = events.find((e) => e.seq === cp.seq)
+    if (!(events.length && events[0].seq > cp.seq) && (!at || at.hash !== cp.hash)) state = 'changed'
+  } catch { state = 'changed' }
+  const last = events.at(-1)
+  if (state === 'ok' && last) await api('PUT', `/api/organizations/${S.org}/azet/access-log/checkpoint`, { value: await encS(S.orgKey, JSON.stringify({ seq: last.seq, hash: last.hash })) })
+  return { events, who, item, state }
+}
+const rowOf = (e, L) => {
+  const name = esc(L.who[e.memberId] ?? W.unknown)
+  if (e.kind === 'read') return [IC.bot, e.cipherId ? W.readOne(esc(L.item[e.cipherId] ?? W.gone), e.count) : W.readAll(e.count), name]
+  if (e.kind === 'grant') return [IC.clock, e.detail ? W.extend : W.on, e.detail ? `${name} · ${KO.until(e.detail)}` : name]
+  if (e.kind === 'revoke') return [IC.off, W.off, name]
+  return [IC.key, e.kind === 'delete' ? W.deleted(e.count) : W.wrote(e.count), name]
+}
+function logScreen(L) {
+  const week = L ? L.events.filter((e) => Date.now() - Date.parse(e.createdAt) < 7 * 864e5) : []
+  const sum = (k) => week.filter((e) => e.kind === k).reduce((n, e) => n + e.count, 0)
+  const agents = L ? S.members.filter((m) => m.agent).map((m) => m.name || m.email).join(' / ') : ''
+  const days = []
+  if (L) for (const e of [...L.events].reverse()) { const k = KO.day(e.createdAt); (days.at(-1)?.[0] === k ? days.at(-1)[1] : (days.push([k, []]), days.at(-1)[1])).push(e) }
+  const verify = !L ? `<div class="dot"><div class="spin"></div></div><div><b>${W.checking}</b>` : L.state === 'ok' ? `<div class="dot ok">${IC.check}</div><div><b>${W.checked}</b>` : `<div class="dot bad">!</div><div><b>${W.changed}</b>`
+  const what = !L || L.state === 'ok' ? W.what(!!L) : W.whatBad
+  return `<div class="bar"><button class="round" data-act="out" aria-label="${W.out}">${IC.back}</button><h1>${W.title}</h1><button class="pill" data-act="settings">${W.settings}</button></div>
+<main>
+<div class="card verify">${verify}<p>${what}</p><a href="https://azet.io/products/pass#team-log" target="_blank" rel="noopener">${W.how}</a></div></div>
+${L ? `<div class="card week"><header><b>${W.week}</b><span>${esc(agents)}</span></header><div class="tiles"><div class="tile"><b>${sum('read')}</b><span>${W.read}</span></div><div class="tile"><b>${sum('write')}</b><span>${W.write}</span></div><div class="tile"><b>${sum('delete')}</b><span>${W.del}</span></div></div></div>
+${days.length ? days.map(([k, es]) => `<p class="day">${k}</p><div class="card list">${es.map((e) => { const [ic, t, s] = rowOf(e, L); return `<div class="row"><div class="ico">${ic}</div><div class="t"><b>${t}</b><span>${s}</span></div><time>${KO.time(e.createdAt)}</time></div>` }).join('')}</div>`).join('') : `<p class="empty">${W.empty}</p>`}` : ''}
+</main>`
+}
+const DAYS = [1, 7, 30, 90]
+function sheet() {
+  const agents = S.members.filter((m) => m.agent)
+  const cur = agents[0]?.accessUntil ? Math.max(1, Math.round((Date.parse(agents[0].accessUntil) - Date.now()) / 864e5)) : null
+  const on = agents.some((m) => m.status === 2)
+  return $(`<div class="scrim" data-act="close"><div class="sheet" role="dialog" aria-label="${W.sheet}"><div class="grab"></div><h2>${W.sheet}</h2>
+<div class="group"><button class="opt" data-act="days"><b style="font-weight:400">${W.keep}</b><span data-days="${cur ?? ''}">${cur ? W.days(cur) : W.noEnd} ›</span></button><button class="opt danger" data-act="${on ? 'off' : 'on'}">${on ? W.turnOff : W.turnOn}</button></div>
+<small>${W.sheetNote}</small></div></div>`)
+}
+async function render() {
+  const app = document.getElementById('app')
+  if (!S) { app.innerHTML = `<div class="bar"><span></span><h1>${W.app}</h1><span></span></div><main><form class="card login"><h2>${W.signIn}</h2><p>${W.signInWhy}</p>
+<input class="field" name="email" type="email" autocomplete="username" placeholder="${W.email}" required><input class="field" name="password" type="password" autocomplete="current-password" placeholder="${W.pw}" required>
+<button class="go">${W.go}</button><p class="err" role="alert"></p><div class="lock">${IC.lock}<span>${W.stays}</span></div></form></main>`; return }
+  app.innerHTML = logScreen(null)
+  try { S.log = await loadLog(); app.innerHTML = logScreen(S.log) } catch (e) { app.querySelector('.verify').innerHTML = `<div class="dot bad">!</div><div><b>${W.loadFail}</b><p>${W.loadFailWhy} (${esc(e.message)})</p></div>` }
+}
+document.addEventListener('submit', async (ev) => {
+  ev.preventDefault(); const f = ev.target, btn = f.querySelector('.go'), err = f.querySelector('.err')
+  btn.disabled = true; err.textContent = ''
+  try { await signIn(f.email.value, f.password.value); render() } catch (e) { S = null; err.textContent = e.message === 'noteam' ? W.noteam : e.message === 'kdf' ? W.kdf : W.bad; btn.disabled = false }
+})
+document.addEventListener('click', async (ev) => {
+  const el = ev.target.closest('[data-act]'); if (!el) return
+  const act = el.dataset.act
+  if (act === 'close') { if (ev.target === el) el.remove(); return }
+  if (act === 'out') { S = null; return render() }
+  if (act === 'settings') return document.body.append(sheet())
+  const agents = S.members.filter((m) => m.agent)
+  if (act === 'days') { const i = DAYS.indexOf(Number(el.querySelector('span').dataset.days)); const next = DAYS[(i + 1) % DAYS.length]
+    for (const m of agents) await api('PUT', `/api/organizations/${S.org}/users/${m.id}/azet/access`, { accessDays: next }) }
+  if (act === 'off' || act === 'on') for (const m of agents) await api('PUT', `/api/organizations/${S.org}/users/${m.id}/${act === 'off' ? 'revoke' : 'restore'}`)
+  document.querySelector('.scrim')?.remove(); await render(); if (act === 'days') document.body.append(sheet())
+})
+if (new URLSearchParams(location.search).has('frame')) document.documentElement.style.setProperty('--top', '44px') // room for a phone status bar, for comparing with the reference captures
+render()
+</script>
+</body>
+</html>

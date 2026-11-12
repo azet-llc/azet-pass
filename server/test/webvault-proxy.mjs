@@ -17,6 +17,8 @@ https.createServer({ key: fs.readFileSync(key), cert: fs.readFileSync(cert) }, a
       fs.appendFileSync(log, `${r.status} ${req.method} ${req.url.split('?')[0]}\n`)
       const out = Object.fromEntries(r.headers); delete out['content-encoding']; delete out['content-length']; delete out['transfer-encoding']
       res.writeHead(r.status, out); res.end(buf)
+    } else if (/^\/team\/?(\?|$)/.test(req.url)) { // the team page is served by the gateway Worker from gw/team.html
+      res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); res.end(fs.readFileSync(new URL('../gw/team.html', import.meta.url)))
     } else {
       const key = req.url.split('?')[0]
       if (!cache.has(key)) { const r = await fetch(origin + key); cache.set(key, [r.status, r.headers.get('content-type') || 'text/html', Buffer.from(await r.arrayBuffer())]) }

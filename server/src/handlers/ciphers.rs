@@ -295,6 +295,26 @@ pub async fn list_ciphers(
     .await
 }
 
+/// GET /api/ciphers/organization-details?organizationId= — every item of a team (trash included, as Bitwarden's
+/// Admin Console expects), for its organizers only; anyone else gets an empty list.
+#[worker::send]
+pub async fn organization_details(
+    claims: Claims,
+    State(env): State<Arc<Env>>,
+    axum::extract::Query(q): axum::extract::Query<std::collections::HashMap<String, String>>,
+) -> Result<RawJson, AppError> {
+    let db = db::get_db(&env)?;
+    let org = q.get("organizationId").cloned().ok_or_else(|| AppError::BadRequest("organizationId".into()))?;
+    build_cipher_list_response(
+        &db,
+        env.as_ref(),
+        "WHERE c.organization_id = ?2 AND EXISTS (SELECT 1 FROM org_members m WHERE m.org_id = ?2 AND m.user_id = ?1 AND m.status = 2 AND m.type <= 1)",
+        &[claims.sub.clone().into(), org.into()],
+        "ORDER BY c.updated_at DESC",
+    )
+    .await
+}
+
 /// GET /api/ciphers/{id}
 #[worker::send]
 pub async fn get_cipher(

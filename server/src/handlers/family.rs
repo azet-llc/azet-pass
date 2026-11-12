@@ -505,6 +505,94 @@ pub async fn collections(claims: Claims, State(env): State<Arc<Env>>, Path(org_i
     Ok(Json(json!({"object": "list", "data": data, "continuationToken": null})))
 }
 
+/// Bitwarden's collectionAccessDetails: a vault with who can open it. `mine` = the caller's own row in it, if any.
+async fn collection_details_json(db: &db::Db, c: &Value, caller: &Value) -> Result<Value, AppError> {
+    let users: Vec<Value> = db
+        .prepare("SELECT member_id AS id, read_only, hide_passwords, manage FROM collection_members WHERE collection_id = ?1")
+        .bind(&[c["id"].as_str().unwrap_or_default().into()])?
+        .all()
+        .await?
+        .results()?;
+    let mine = users.iter().find(|u| u["id"] == caller["id"]);
+    let all = i(caller, "access_all") == 1;
+    let flag = |k: &str| mine.map(|u| i(u, k) == 1).unwrap_or(false);
+    Ok(json!({
+        "object": "collectionAccessDetails", "id": c["id"], "organizationId": c["org_id"], "name": c["name"], "externalId": null,
+        "type": 0, "travelSafe": i(c, "travel_safe") == 1, "groups": [], "unmanaged": false,
+        "users": users.iter().map(|u| json!({"id": u["id"], "readOnly": i(u, "read_only") == 1, "hidePasswords": i(u, "hide_passwords") == 1, "manage": i(u, "manage") == 1})).collect::<Vec<_>>(),
+        "assigned": all || mine.is_some(), "readOnly": !all && flag("read_only"), "hidePasswords": !all && flag("hide_passwords"), "manage": all || flag("manage"),
+    }))
+}
+
+/// GET /api/organizations/{org_id}/collections/details — organizers see every vault, members the ones they are in.
+#[worker::send]
+pub async fn collections_details(claims: Claims, State(env): State<Arc<Env>>, Path(org_id): Path<String>) -> Result<Json<Value>, AppError> {
+    let db = db::get_db(&env)?;
+    let caller = me(&db, &org_id, &claims.sub).await?;
+    let rows: Vec<Value> = db
+        .prepare("SELECT c.* FROM collections c WHERE c.org_id = ?1 AND (?2 = 1 OR EXISTS (SELECT 1 FROM collection_members cm WHERE cm.collection_id = c.id AND cm.member_id = ?3)) ORDER BY c.created_at")
+        .bind(&[org_id.into(), (i(&caller, "access_all") as f64).into(), caller["id"].as_str().unwrap_or_default().into()])?
+        .all()
+        .await?
+        .results()?;
+    let mut data = Vec::new();
+    for c in &rows {
+        data.push(collection_details_json(&db, c, &caller).await?);
+    }
+    Ok(Json(json!({"object": "list", "data": data, "continuationToken": null})))
+}
+
+/// GET /api/organizations/{org_id}/collections/{cid}/details
+#[worker::send]
+pub async fn collection_details(claims: Claims, State(env): State<Arc<Env>>, Path((org_id, cid)): Path<(String, String)>) -> Result<Json<Value>, AppError> {
+    let db = db::get_db(&env)?;
+    let caller = me(&db, &org_id, &claims.sub).await?;
+    let c: Value = db
+        .prepare("SELECT c.* FROM collections c WHERE c.id = ?1 AND c.org_id = ?2 AND (?3 = 1 OR EXISTS (SELECT 1 FROM collection_members cm WHERE cm.collection_id = c.id AND cm.member_id = ?4))")
+        .bind(&[cid.into(), org_id.into(), (i(&caller, "access_all") as f64).into(), caller["id"].as_str().unwrap_or_default().into()])?
+        .first(None)
+        .await?
+        .ok_or_else(|| AppError::NotFound("Collection not found".into()))?;
+    Ok(Json(collection_details_json(&db, &c, &caller).await?))
+}
+
+/// The lists Bitwarden's Admin Console asks for that AZET Pass has nothing in yet (groups, organization two-step
+/// providers, event logs): empty, so the screens load instead of spinning.
+#[worker::send]
+pub async fn empty_list(claims: Claims, State(env): State<Arc<Env>>, Path(org_id): Path<String>) -> Result<Json<Value>, AppError> {
+    let db = db::get_db(&env)?;
+    me(&db, &org_id, &claims.sub).await?;
+    Ok(Json(json!({"object": "list", "data": [], "continuationToken": null})))
+}
+
+/// GET /api/organizations/{org_id}/subscription and …/billing/vnext/self-host/metadata — seats in use, no invoices:
+/// AZET Pass is paid for with an AZET license key, not through this screen.
+#[worker::send]
+pub async fn subscription(claims: Claims, State(env): State<Arc<Env>>, Path(org_id): Path<String>) -> Result<Json<Value>, AppError> {
+    let db = db::get_db(&env)?;
+    organizer(&db, &org_id, &claims.sub).await?;
+    let o: Value = db
+        .prepare("SELECT o.*, (SELECT COUNT(*) FROM org_members WHERE org_id = o.id AND type != 5) AS used FROM organizations o WHERE o.id = ?1")
+        .bind(&[org_id.into()])?
+        .first(None)
+        .await?
+        .ok_or_else(|| AppError::NotFound("Organization not found".into()))?;
+    Ok(Json(json!({
+        "object": "organizationSubscription", "id": o["id"], "name": o["name"], "billingEmail": o["billing_email"],
+        "seats": o["seats"], "occupiedSeats": o["used"], "organizationOccupiedSeats": o["used"], "isOnSecretsManagerStandalone": false,
+        "maxCollections": null, "maxStorageGb": 1, "storageName": null, "storageGb": 0, "planType": 0, "selfHost": true,
+        "usePolicies": false, "useGroups": false, "useEvents": false, "useTotp": true, "use2fa": true, "useApi": false, "useResetPassword": true,
+        "usersGetPremium": true, "hasPublicAndPrivateKeys": true, "expiration": null, "expirationWithoutGracePeriod": null,
+        "subscription": null, "upcomingInvoice": null, "customerDiscount": null,
+        "plan": {"object": "plan", "type": 0, "productTier": 1, "name": "AZET Pass", "isAnnual": true, "nameLocalizationKey": "planNameTeams", "descriptionLocalizationKey": "planDescTeams",
+                 "canBeUsedByBusiness": true, "hasSelfHost": true, "hasPolicies": false, "hasGroups": false, "hasDirectory": false, "hasEvents": false, "hasTotp": true, "has2fa": true,
+                 "hasApi": false, "hasSso": false, "hasResetPassword": true, "usersGetPremium": true, "upgradeSortOrder": 0, "displaySortOrder": 0, "legacyYear": null, "disabled": false,
+                 "PasswordManager": {"baseSeats": o["seats"], "maxSeats": o["seats"], "hasAdditionalSeatsOption": false, "hasAdditionalStorageOption": false, "hasPremiumAccessOption": false,
+                                     "basePrice": 0, "seatPrice": 0, "premiumAccessOptionPrice": 0, "additionalStoragePricePerGb": 0, "baseStorageGb": 1, "maxCollections": null, "allowSeatAutoscale": false},
+                 "SecretsManager": null}
+    })))
+}
+
 async fn write_collection(db: &db::Db, org_id: &str, cid: &str, p: &Value) -> Result<(), AppError> {
     if let Some(users) = p.get("users").and_then(|u| u.as_array()) {
         d1_query!(db, "DELETE FROM collection_members WHERE collection_id = ?1", cid).map_err(|_| AppError::Database)?.run().await?;

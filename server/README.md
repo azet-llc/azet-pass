@@ -225,6 +225,12 @@ Configure environment variables in `wrangler.toml` under `[vars]`, or set them v
   - Format: Include HTTPS protocol, domain, and port (if using non-443 reverse proxy). Do not include any trailing path.
   - Example: `https://vault.example.com` or `https://vault.example.com:8443`
   - If not set, falls back to extracting from the incoming request.
+* **`TEAM_OWNERS`** (Optional, AZET):
+  - Comma-separated organizer addresses that may create a team: a family with more seats (5 to 100), for people and
+    AI agent accounts. Everyone else gets a family of 5. Teams are not on sale; this is the gate until they are.
+  - `scripts/team.mjs` creates a team, invites, joins and confirms from a terminal (the team key is handed over wrapped
+    to each member's public key, after a fingerprint check); items are then read and written with the official `bw` CLI.
+    `test/team.sh` runs the whole flow with an agent account and searches the wire log and D1 for plaintext.
 * **`PASSWORD_ITERATIONS`** (Optional, Default: `600000`):
   - PBKDF2 iterations for server-side password hashing.
   - Minimum is 600000.

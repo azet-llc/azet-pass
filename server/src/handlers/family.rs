@@ -17,6 +17,7 @@ const OWNER: i64 = 0;
 const ADMIN: i64 = 1;
 const MEMBER: i64 = 2;
 const GUEST: i64 = 5;
+const MAX_TEAM_SEATS: i64 = 100;
 const INVITED: i64 = 0;
 const ACCEPTED: i64 = 1;
 const CONFIRMED: i64 = 2;
@@ -189,11 +190,23 @@ pub async fn create(claims: Claims, State(env): State<Arc<Env>>, Json(p): Json<V
     if owned.is_some() {
         return Err(bad("You already organize a family"));
     }
+    // A team is the same thing with more seats (people and AI agent accounts). Not on sale yet: only the
+    // organizer addresses in TEAM_OWNERS (comma-separated) may ask for seats; everyone else gets a family of 5.
+    let seats = match p.get("seats").and_then(|v| v.as_i64()) {
+        None => 5,
+        Some(n) => {
+            let allowed = env.var("TEAM_OWNERS").map(|v| v.to_string()).unwrap_or_default();
+            if !(5..=MAX_TEAM_SEATS).contains(&n) || !allowed.split(',').any(|e| e.trim().eq_ignore_ascii_case(&claims.email)) {
+                return Err(bad("seats"));
+            }
+            n
+        }
+    };
     let now = db::now_string();
     let org_id = Uuid::new_v4().to_string();
     let member_id = Uuid::new_v4().to_string();
-    d1_query!(&db, "INSERT INTO organizations (id, name, billing_email, public_key, private_key, seats, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, 5, ?6, ?6)",
-        org_id, name, s(&p, "billingEmail").unwrap_or(claims.email.clone()), s(&keys, "publicKey"), s(&keys, "encryptedPrivateKey"), now)
+    d1_query!(&db, "INSERT INTO organizations (id, name, billing_email, public_key, private_key, seats, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?7, ?6, ?6)",
+        org_id, name, s(&p, "billingEmail").unwrap_or(claims.email.clone()), s(&keys, "publicKey"), s(&keys, "encryptedPrivateKey"), now, seats)
         .map_err(|_| AppError::Database)?.run().await?;
     d1_query!(&db, "INSERT INTO org_members (id, org_id, user_id, email, display_name, status, type, access_all, akey, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, 2, 0, 1, ?6, ?7, ?7)",
         member_id, org_id, claims.sub, claims.email.to_lowercase(), claims.name, key, now)
@@ -300,7 +313,7 @@ pub async fn invite(claims: Claims, State(env): State<Arc<Env>>, Path(org_id): P
     }
     let used: Value = db.prepare("SELECT COUNT(*) AS n, (SELECT seats FROM organizations WHERE id = ?1) AS seats FROM org_members WHERE org_id = ?1 AND type != 5").bind(&[org_id.clone().into()])?.first(None).await?.ok_or(AppError::Internal)?;
     if t != GUEST && i(&used, "n") + emails.len() as i64 > i(&used, "seats") {
-        return Err(bad("A family has 5 people. Remove someone or invite as a guest."));
+        return Err(bad(&if i(&used, "seats") == 5 { "A family has 5 people. Remove someone or invite as a guest.".to_string() } else { format!("This team has {} seats. Remove someone or invite as a guest.", i(&used, "seats")) }));
     }
     let now = db::now_string();
     let access_all = (t <= ADMIN || b(&p, "accessAll")) as i64;

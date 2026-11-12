@@ -143,6 +143,7 @@ pub async fn create_cipher(
     if cipher.organization_id.is_some() {
         crate::handlers::family::set_cipher_collections(&db, &cipher.id, cipher.collection_ids.as_deref().unwrap_or(&[])).await?;
     }
+    super::family::log_agent_write(&db, &claims.sub, cipher.organization_id.as_deref(), "write", &cipher.id).await?;
 
     attachments::hydrate_cipher_attachments(&db, env.as_ref(), &mut cipher).await?;
     db::touch_user_updated_at(&db, &claims.sub, &cipher.updated_at).await?;
@@ -173,6 +174,7 @@ pub async fn update_cipher(
     let existing_cipher = fetch_cipher_for_user(&db, &id, &claims.sub).await?;
 
     validate_folder_ownership(&db, payload.folder_id.as_deref(), &claims.sub).await?;
+    super::family::log_agent_write(&db, &claims.sub, existing_cipher.organization_id.as_deref(), "write", &id).await?;
 
     // Reject updates based on stale client data when the last known revision is provided
     if let Some(dt) = payload.last_known_revision_date.as_deref() {
@@ -393,7 +395,8 @@ pub async fn soft_delete_cipher(
     Path(id): Path<String>,
 ) -> Result<Json<()>, AppError> {
     let db = db::get_db(&env)?;
-    fetch_cipher_for_user(&db, &id, &claims.sub).await?;
+    let existing = fetch_cipher_for_user(&db, &id, &claims.sub).await?;
+    super::family::log_agent_write(&db, &claims.sub, existing.organization_id.as_deref(), "delete", &id).await?;
     let now = db::now_string();
 
     d1_query!(
@@ -467,7 +470,8 @@ pub async fn hard_delete_cipher(
     Path(id): Path<String>,
 ) -> Result<Json<()>, AppError> {
     let db = db::get_db(&env)?;
-    fetch_cipher_for_user(&db, &id, &claims.sub).await?;
+    let existing = fetch_cipher_for_user(&db, &id, &claims.sub).await?;
+    super::family::log_agent_write(&db, &claims.sub, existing.organization_id.as_deref(), "delete", &id).await?;
     let now = db::now_string();
 
     if attachments::attachments_enabled(env.as_ref()) {
@@ -874,6 +878,7 @@ pub async fn create_cipher_simple(
     if cipher.organization_id.is_some() {
         crate::handlers::family::set_cipher_collections(&db, &cipher.id, cipher.collection_ids.as_deref().unwrap_or(&[])).await?;
     }
+    super::family::log_agent_write(&db, &claims.sub, cipher.organization_id.as_deref(), "write", &cipher.id).await?;
 
     attachments::hydrate_cipher_attachments(&db, env.as_ref(), &mut cipher).await?;
     db::touch_user_updated_at(&db, &claims.sub, &cipher.updated_at).await?;

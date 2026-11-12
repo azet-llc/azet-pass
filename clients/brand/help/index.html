@@ -13,7 +13,7 @@
 <header class="top"><a class="brand" href="/"><svg viewBox="0 0 26 32" aria-hidden="true"><path fill-rule="evenodd" d="M13 1a8 8 0 1 1 0 16a8 8 0 0 1 0-16Zm0 5a3 3 0 1 0 0 6a3 3 0 0 0 0-6ZM11 16h4v15h-4ZM15 21h5v3.5h-5ZM15 26.5h4v3.5h-4Z"/></svg>AZET Pass</a><nav><a href="ko.html">한국어</a><a class="btn" href="/">Open web vault</a></nav></header>
 <div class="wrap">
 <aside class="toc"><b>Help</b>
-<a href="#start">Getting started</a><a href="#account">Account and master password</a><a href="#import">Import</a><a href="#export">Export</a><a href="#items">Items and search</a><a href="#autofill">Autofill</a><a href="#passkeys">Passkeys</a><a href="#two-step">Two-step login</a><a href="#send">Send</a><a href="#attachments">Attachments</a><a href="#reports">Reports</a><a href="#encryption">Encryption and keys</a><a href="#icons">Website icons</a><a href="#server">Server</a><a href="#browser">Browser requirements</a><a href="#not-included">Not included</a><a href="#contact">Contact</a>
+<a href="#start">Getting started</a><a href="#account">Account and master password</a><a href="#import">Import</a><a href="#export">Export</a><a href="#items">Items and search</a><a href="#autofill">Autofill</a><a href="#passkeys">Passkeys</a><a href="#two-step">Two-step login</a><a href="#send">Send</a><a href="#attachments">Attachments</a><a href="#reports">Reports</a><a href="#encryption">Encryption and keys</a><a href="#icons">Website icons</a><a href="#server">Server</a><a href="#browser">Browser requirements</a><a href="#team-log">Team access log</a><a href="#not-included">Not included</a><a href="#contact">Contact</a>
 </aside>
 <main>
 <h1>AZET Pass Help</h1>
@@ -79,6 +79,11 @@
 <section id="browser"><h2>Browser requirements</h2>
 <p>The web vault needs a current browser with WebAssembly enabled: Chrome, Edge, Firefox, Safari or another up-to-date browser. Some locked-down or very old browsers turn WebAssembly off; enable it or use another browser.</p></section>
 
+<section id="team-log"><h2>Teams and the AI access log</h2>
+<p>A team vault can have accounts for AI agents as members. Each time such an account is handed shared logins, or changes or deletes one, the server writes one record. A record holds who, when, which item and how many, never the contents of an item.</p>
+<p>Every record carries a fingerprint (SHA-256) that covers the record before it, so removing or changing one record on the server breaks every fingerprint after it. When an organizer opens <a href="/team">pass.azet.io/team</a>, the device recomputes the fingerprints from the start and compares them with a note of the last record it checked, which is encrypted with the team key. The server does not hold the team key, so it can neither read nor rewrite that note. If something does not match, the page says a record was changed or is missing.</p>
+<p>Each AI account can be given a period of access (1 to 365 days). When it runs out, or access is turned off, the account receives no shared items and no team key. Limit: a value the account has already received cannot be taken back, so change the passwords it read after turning access off. The page shows the latest 1,000 records.</p>
+</section>
 <section id="not-included"><h2>Not included</h2>
 <p>AZET Pass is for individuals. These Bitwarden features are not part of AZET Pass, so the apps do not show them: organizations, sharing and collections, Families, emergency access, Secrets Manager, single sign-on (SSO), signing in with a passkey, and two-step login by email, Duo, YubiKey or security key. Use the authenticator app for two-step login.</p></section>
 

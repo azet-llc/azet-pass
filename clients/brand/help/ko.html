@@ -12,7 +12,7 @@
 <header class="top"><a class="brand" href="/"><svg viewBox="0 0 26 32" aria-hidden="true"><path fill-rule="evenodd" d="M13 1a8 8 0 1 1 0 16a8 8 0 0 1 0-16Zm0 5a3 3 0 1 0 0 6a3 3 0 0 0 0-6ZM11 16h4v15h-4ZM15 21h5v3.5h-5ZM15 26.5h4v3.5h-4Z"/></svg>AZET Pass</a><nav><a href="index.html?lang=en">English</a><a class="btn" href="/">웹 보관함 열기</a></nav></header>
 <div class="wrap">
 <aside class="toc"><b>도움말</b>
-<a href="#start">시작하기</a><a href="#account">계정과 마스터 비밀번호</a><a href="#import">가져오기</a><a href="#export">내보내기</a><a href="#items">항목과 검색</a><a href="#autofill">자동 완성</a><a href="#passkeys">패스키</a><a href="#two-step">2단계 로그인</a><a href="#send">Send</a><a href="#attachments">첨부 파일</a><a href="#reports">보고서</a><a href="#encryption">암호화와 키</a><a href="#icons">웹사이트 아이콘</a><a href="#server">서버</a><a href="#browser">브라우저 요건</a><a href="#not-included">제공하지 않는 기능</a><a href="#contact">문의</a>
+<a href="#start">시작하기</a><a href="#account">계정과 마스터 비밀번호</a><a href="#import">가져오기</a><a href="#export">내보내기</a><a href="#items">항목과 검색</a><a href="#autofill">자동 완성</a><a href="#passkeys">패스키</a><a href="#two-step">2단계 로그인</a><a href="#send">Send</a><a href="#attachments">첨부 파일</a><a href="#reports">보고서</a><a href="#encryption">암호화와 키</a><a href="#icons">웹사이트 아이콘</a><a href="#server">서버</a><a href="#browser">브라우저 요건</a><a href="#team-log">팀 접근 기록</a><a href="#not-included">제공하지 않는 기능</a><a href="#contact">문의</a>
 </aside>
 <main>
 <h1>AZET Pass 도움말</h1>
@@ -78,6 +78,11 @@
 <section id="browser"><h2>브라우저 요건</h2>
 <p>웹 보관함은 WebAssembly가 켜진 최신 브라우저(Chrome, Edge, Firefox, Safari 등)가 필요합니다. 보안 설정이 강하거나 아주 오래된 브라우저는 WebAssembly를 끄기도 하니, 켜거나 다른 브라우저를 쓰세요.</p></section>
 
+<section id="team-log"><h2>팀과 AI 접근 기록</h2>
+<p>팀 금고에는 AI 에이전트용 계정을 구성원으로 넣을 수 있습니다. 이 계정이 공유 로그인을 받아 가거나 바꾸거나 지울 때마다 서버가 기록을 한 줄 남깁니다. 기록에는 누가, 언제, 어느 항목을 몇 건 다뤘는지만 들어가고 항목 내용은 들어가지 않습니다.</p>
+<p>각 줄에는 바로 앞줄까지를 묶은 지문(SHA-256)이 들어 있어, 서버에서 한 줄을 지우거나 고치면 그 뒤의 지문이 모두 어긋납니다. 관리자가 <a href="/team">pass.azet.io/team</a>을 열면 기기에서 지문을 처음부터 다시 계산하고, 지난번에 확인한 마지막 줄을 팀 키로 암호화해 둔 표와 맞춰 봅니다. 팀 키는 서버에 없으므로 서버는 이 표를 읽거나 고칠 수 없습니다. 어긋나면 화면에 「바뀌거나 빠진 기록이 있어요」가 표시됩니다.</p>
+<p>AI 계정마다 접근 유지 기간(1~365일)을 정할 수 있고, 기간이 지나거나 접근을 끄면 그 계정은 공유 항목과 팀 키를 받지 못합니다. 한계: 이미 받아 간 값은 되돌릴 수 없으므로, 접근을 끈 뒤에는 그 계정이 읽은 비밀번호를 바꾸십시오. 화면에는 최근 1,000줄이 표시됩니다.</p>
+</section>
 <section id="not-included"><h2>제공하지 않는 기능</h2>
 <p>AZET Pass는 개인용입니다. 다음 Bitwarden 기능은 AZET Pass에 없어서 앱에도 보이지 않습니다: 조직·공유·컬렉션, Families, 긴급 접근, Secrets Manager, 싱글 사인온(SSO), 패스키로 로그인, 이메일·Duo·YubiKey·보안 키 2단계 로그인. 2단계 로그인은 인증 앱을 쓰세요.</p></section>
 

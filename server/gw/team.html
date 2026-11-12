@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; form-action 'none'">
 <title>AZET Pass Team</title>
 <style>
 /* Layout numbers follow the reference screens in azet-suite/reference/azet-pass/pickle (432 px wide here = the 1080-wide captures, 1 px = 2.5 px). */
@@ -46,6 +47,30 @@ main{padding:0 16.8px 96px;display:flex;flex-direction:column;gap:16.8px}
 .row time{font-size:13px;color:var(--text3);white-space:nowrap}
 .note{margin:0;padding:8px 4px;font-size:13px;line-height:17px;color:var(--text2)}
 .empty{padding:24px 0;font-size:15px;color:var(--text2);text-align:center}
+.chev{flex:none;display:grid;color:var(--text3)}.chev svg{width:18px;height:18px}
+a.card{color:inherit;text-decoration:none}.verify .chev{align-self:center;margin-left:auto}
+.row.nav{min-height:55px;padding-top:10px;padding-bottom:10px}.row.nav time{font-size:15px;color:var(--text2)}
+.ico.bare{background:none;width:24px;height:24px}.ico.ltr{font-size:15px;font-weight:600;color:var(--text2)}
+.safe{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:20px;background:var(--hair)}
+.safe b{display:block;font-size:15px;font-weight:500;line-height:19px}.safe span{display:block;font-size:13px;line-height:17px;color:var(--text2)}
+.chips{display:flex;gap:8px;overflow-x:auto;margin:0 -16.8px;padding:0 16.8px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;height:34px;padding:0 14px;border-radius:90px;background:var(--hair);font-size:15px}.chip.on{background:var(--primary);color:var(--inverse)}
+.flat{margin:-6px 0}.flat .row{border:0;padding:9px 4px;min-height:58px}.flat .ico{width:40px;height:40px;border-radius:10px;background:var(--card);box-shadow:0 0 0 .5px rgba(0,0,0,.08)}
+.search{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom));width:min(364px,calc(100% - 68px));height:56px;border-radius:90px;background:var(--hair);display:flex;align-items:center;gap:10px;padding:0 22px;box-shadow:0 4px 16px rgba(0,0,0,.08);z-index:4}
+.search input{flex:1;min-width:0;border:0;background:none;font:inherit;font-size:16px;color:var(--text);outline:0}.search svg{width:16px;height:16px;color:var(--text2)}
+.hero{display:flex;gap:20px;align-items:center}.big{flex:none;width:84px;height:84px;border-radius:22px;background:var(--card);box-shadow:0 0 0 .5px rgba(0,0,0,.08);display:grid;place-items:center;font-size:34px;font-weight:600}
+.hero b{display:block;font-size:19px;font-weight:500;line-height:25px}.hero span{font-size:15px;color:var(--text2)}
+.lead{margin:0;font-size:16px;line-height:21px}.sec{margin:6px 0 -6px;font-size:15px;font-weight:500}
+.kv{display:flex;align-items:center;gap:4px;min-height:70px;padding:0 12px 0 22px;border-radius:26px;background:var(--card);font-size:18px;margin-bottom:-6px}
+.kv span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kv button{width:40px;height:40px;display:grid;place-items:center;color:var(--text2)}.kv svg{width:20px;height:20px}
+.check{display:flex;align-items:center;justify-content:space-between;height:46px;padding:0 14px;font-size:15px;border-top:1px solid var(--hair)}.check:first-child{border-top:0}
+.check input{width:20px;height:20px;accent-color:var(--primary)}
+.mono{font:500 20px/28px ui-monospace,Menlo,monospace;letter-spacing:.04em;text-align:center;padding:14px;background:var(--flat);border-radius:16px}
+.copybox{padding:12px 14px;background:var(--flat);border-radius:16px;font-size:13px;line-height:18px;word-break:break-all;color:var(--text2)}
+.sheet .field{background:var(--flat)}.sheet .group{margin-bottom:8px}.sheet small.top{margin:0 0 12px}
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--primary);color:var(--inverse);padding:10px 16px;border-radius:90px;font-size:14px;z-index:20}
+[hidden]{display:none!important}
 /* bottom sheet */
 .scrim{position:fixed;inset:0;background:var(--scrim);z-index:10;display:flex;align-items:flex-end;justify-content:center}
 .sheet{width:100%;max-width:480px;background:var(--card);border-radius:28px 28px 0 0;padding:8px 14px calc(22px + env(safe-area-inset-bottom))}
@@ -68,7 +93,7 @@ main{padding:0 16.8px 96px;display:flex;flex-direction:column;gap:16.8px}
 <body>
 <div id="app"></div>
 <script>
-// AZET Pass team: the access log of AI agent accounts. Everything secret stays in this page's memory: the team key is
+// AZET Pass team: members and AI agent accounts, shared logins, and the access log. Everything secret stays in this page's memory: the team key is
 // unwrapped here with the organizer's private key, the log is checked here, item names are decrypted here.
 const $ = (h) => { const t = document.createElement('template'); t.innerHTML = h.trim(); return t.content.firstChild }
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
@@ -80,13 +105,21 @@ const I = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 const IC = { back: I('<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>'), check: I('<path d="M20 6 9 17l-5-5"/>'), key: I('<path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/>'),
   bot: I('<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>'),
   clock: I('<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>'), off: I('<path d="M18.36 6.64A9 9 0 0 1 20.77 15"/><path d="M6.16 6.16a9 9 0 1 0 12.68 12.68"/><path d="M12 2v4"/><path d="m2 2 20 20"/>'),
-  lock: I('<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>') }
+  lock: I('<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>'),
+  chev: I('<path d="m9 18 6-6-6-6"/>'), plus: I('<path d="M5 12h14"/><path d="M12 5v14"/>'), search: I('<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>'),
+  eye: I('<path d="M2.06 12.35a1 1 0 0 1 0-.7 10.75 10.75 0 0 1 19.88 0 1 1 0 0 1 0 .7 10.75 10.75 0 0 1-19.88 0"/><circle cx="12" cy="12" r="3"/>'),
+  copy: I('<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>'),
+  shield: I('<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>'),
+  time: I('<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>') }
 
 const pbkdf2 = async (pw, salt, iter) => new Uint8Array(await c.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations: iter }, await c.subtle.importKey('raw', pw, 'PBKDF2', false, ['deriveBits']), 256))
 const hmac = async (k, d) => new Uint8Array(await c.subtle.sign('HMAC', await c.subtle.importKey('raw', k, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']), d))
 const expand = (prk, info) => hmac(prk, new Uint8Array([...enc.encode(info), 1]))
 const encS = async (key, data) => { const iv = c.getRandomValues(new Uint8Array(16)); const ct = new Uint8Array(await c.subtle.encrypt({ name: 'AES-CBC', iv }, await c.subtle.importKey('raw', key.slice(0, 32), 'AES-CBC', false, ['encrypt']), enc.encode(data))); return `2.${b64(iv)}|${b64(ct)}|${b64(await hmac(key.slice(32), new Uint8Array([...iv, ...ct])))}` }
 const decS = async (key, s) => { const [iv, ct, mac] = s.slice(2).split('|').map(unb64); if (b64(await hmac(key.slice(32), new Uint8Array([...iv, ...ct]))) !== b64(mac)) throw new Error('mac'); return new Uint8Array(await c.subtle.decrypt({ name: 'AES-CBC', iv }, await c.subtle.importKey('raw', key.slice(0, 32), 'AES-CBC', false, ['decrypt']), ct)) }
+const rsaEnc = async (spki, data) => '4.' + b64(await c.subtle.encrypt({ name: 'RSA-OAEP' }, await c.subtle.importKey('spki', unb64(spki), { name: 'RSA-OAEP', hash: 'SHA-1' }, false, ['encrypt']), data))
+// What two people read to each other before the team key is handed over: SHA-256 of the member's public key, first 20 hex digits (same as scripts/team.mjs).
+const fingerprint = async (spki) => hex(await c.subtle.digest('SHA-256', unb64(spki))).slice(0, 20).match(/.{5}/g).join('-')
 const rsaDec = async (pkcs8, s) => new Uint8Array(await c.subtle.decrypt({ name: 'RSA-OAEP' }, await c.subtle.importKey('pkcs8', pkcs8, { name: 'RSA-OAEP', hash: 'SHA-1' }, false, ['decrypt']), unb64(s.slice(2))))
 
 const LANG = navigator.language || 'en', ko = LANG.startsWith('ko')
@@ -103,7 +136,31 @@ const W = ko ? {
   app: 'AZET Pass 팀', signIn: '팀 관리자 로그인', signInWhy: 'AI 계정이 공유 로그인을 언제 읽었는지 확인하고, 접근 기간을 정합니다.', email: '이메일', pw: '마스터 비밀번호', go: '로그인',
   stays: '비밀번호와 팀 키는 이 기기 밖으로 나가지 않습니다.', loadFail: '기록을 불러오지 못했어요', loadFailWhy: '연결을 확인하고 다시 열어 주세요.',
   noteam: '이 계정이 관리하는 팀이 없습니다.', kdf: '이 계정은 아직 여기서 열 수 없습니다(Argon2 계정).', bad: '이메일이나 비밀번호가 맞지 않습니다.',
+  back: '뒤로', opening: '팀 금고를 여는 중…', hubSafe: '팀 키로 암호화해 공유하고 있어요', hubSafeWhy: '공유 로그인은 이 기기에서 암호화된 뒤 서버로 가요. 서버는 내용을 읽을 수 없어요.',
+  whoSees: '볼 수 있는 사람', people: '구성원', agents: 'AI 계정', nPeople: (n) => `${n}명`, nAgents: (n) => `${n}개`, logins: '공유 로그인',
+  hubNote: '구성원과 AI 계정은 초대한 금고의 로그인만 받아요. AI 계정이 읽거나 바꾼 것은 접근 기록에 남고, 접근을 끄면 바로 받지 못해요.',
+  stInvited: '초대함 · 아직 참여 전', stAccepted: '참여함 · 키 확인 필요', stOff: '접근 꺼짐', organizer: '관리자', readOnly: '읽기 전용', canEdit: '편집 가능',
+  noPeople: '아직 구성원이 없어요. 오른쪽 위 +로 초대하세요.', noAgents: '아직 AI 계정이 없어요. 오른쪽 위 +로 추가하세요.',
+  invite: '구성원 초대', inviteAgent: 'AI 계정 추가', nameOpt: '표시 이름(선택)', keep30: '30일 뒤 접근 끝내기', inviteGo: '초대 만들기', inviteFail: '초대하지 못했어요',
+  inviteWhy: '이 링크를 초대한 사람에게 직접 보내세요. 메일은 자동으로 나가지 않아요.', inviteAgentWhy: 'AI 계정을 돌리는 기기에서 이 명령으로 참여하세요. 참여하면 지문이 나와요.',
+  copy: '복사', copied: '복사했어요', fpWhy: '상대가 읽어 준 지문과 아래 지문이 같은지 확인하세요. 다르면 넘겨주지 마세요.', fpSame: '같아요, 팀 키 넘겨주기',
+  safe: '암호화로 보호 중이에요', safeWhy: '로그인 정보는 팀 키로 암호화해 보관돼요.', all: '전체', search: '검색', noLogins: '아직 공유 로그인이 없어요. 오른쪽 위 +로 추가하세요.',
+  add: '로그인 추가', itemName: '이름 (예: GitHub 배포)', user: '아이디', pass: '비밀번호', site: '웹 주소(선택)', addGo: '암호화해 저장', addFail: '저장하지 못했어요',
+  itemLead: (p, a) => `구성원 ${p}명과 AI 계정 ${a}개가 볼 수 있는 로그인이에요.`, account: '계정', show: '비밀번호 보기', aiReads: 'AI가 다룬 기록', noReads: '아직 AI가 이 로그인을 따로 읽은 적이 없어요.',
+  keepSafe: '안전하게 지키는 방법', safe1: '이 기기에서만 풀려요', safe1Why: '비밀번호는 팀 키가 있는 기기에서만 풀려요. 서버에는 암호문만 있어요.', safe2: 'AI가 읽으면 기록돼요', safe2Why: 'AI 계정이 이 로그인을 받아 갈 때마다 접근 기록에 남아요.',
 } : {
+  back: 'Back', opening: 'Opening the team vault…', hubSafe: 'Shared with the team key, encrypted', hubSafeWhy: 'A shared login is encrypted on this device before it goes to the server. The server cannot read it.',
+  whoSees: 'Who can see', people: 'Members', agents: 'AI accounts', nPeople: (n) => `${n}`, nAgents: (n) => `${n}`, logins: 'Shared logins',
+  hubNote: 'Members and AI accounts receive only the logins of the vault they were invited to. What an AI account reads or changes is written to the access log, and turning access off stops it at once.',
+  stInvited: 'Invited · has not joined', stAccepted: 'Joined · key check needed', stOff: 'Access off', organizer: 'Organizer', readOnly: 'Read only', canEdit: 'Can edit',
+  noPeople: 'No members yet. Invite one with + at the top right.', noAgents: 'No AI accounts yet. Add one with + at the top right.',
+  invite: 'Invite a member', inviteAgent: 'Add an AI account', nameOpt: 'Display name (optional)', keep30: 'End access after 30 days', inviteGo: 'Create invite', inviteFail: 'The invite could not be created',
+  inviteWhy: 'Send this link to the person yourself. No mail is sent for you.', inviteAgentWhy: 'On the machine that runs the AI account, join with this command. It prints a fingerprint.',
+  copy: 'Copy', copied: 'Copied', fpWhy: 'Check that the fingerprint the member read to you is the one below. If it differs, do not hand over the key.', fpSame: 'It matches, hand over the team key',
+  safe: 'Protected by encryption', safeWhy: 'Logins are kept encrypted with the team key.', all: 'All', search: 'Search', noLogins: 'No shared logins yet. Add one with + at the top right.',
+  add: 'Add a login', itemName: 'Name (e.g. GitHub deploy)', user: 'Username', pass: 'Password', site: 'Web address (optional)', addGo: 'Encrypt and save', addFail: 'The login could not be saved',
+  itemLead: (p, a) => `${p} ${p === 1 ? 'member' : 'members'} and ${a} AI ${a === 1 ? 'account' : 'accounts'} can see this login.`, account: 'Account', show: 'Show password', aiReads: 'What AI did with it', noReads: 'No AI account has read this login on its own yet.',
+  keepSafe: 'How it is kept safe', safe1: 'Opened only on this device', safe1Why: 'The password is decrypted only on a device that holds the team key. The server has ciphertext only.', safe2: 'Recorded when AI reads it', safe2Why: 'Each time an AI account receives this login, a record is written to the access log.',
   title: 'Access log', settings: 'Settings', out: 'Sign out', checking: 'Checking the log…', checked: 'Every record checked · just now', changed: 'A record was changed or is missing',
   what: (done) => `A record is kept each time an AI agent reads a shared login. This device ${done ? 'checked' : 'is checking'} with the team key that none was changed or removed.`,
   whatBad: 'The log on the server differs from what this device checked last time. Turn access off and write to hello@azet.io.', how: 'What does checking the log with a key mean?',
@@ -143,12 +200,29 @@ async function signIn(email, password) {
 // ---- access log ----
 const KO = { day: (d) => { const n = Math.floor((new Date().setHours(0, 0, 0, 0) - new Date(d).setHours(0, 0, 0, 0)) / 864e5); return n === 0 ? W.today : n === 1 ? W.yesterday : new Date(d).toLocaleDateString(LANG, { month: 'long', day: 'numeric' }) },
   time: (d) => new Date(d).toLocaleTimeString(LANG, { hour: 'numeric', minute: '2-digit' }), until: (d) => W.until(new Date(d).toLocaleDateString(LANG, { year: 'numeric', month: 'numeric', day: 'numeric' })) }
-async function loadLog() {
-  const [{ events, checkpoint }, members, items] = await Promise.all([api('GET', `/api/organizations/${S.org}/azet/access-log`), api('GET', `/api/organizations/${S.org}/users`), api('GET', `/api/ciphers/organization-details?organizationId=${S.org}`)])
+const text = async (key, v) => { try { return v ? dec.decode(await decS(key, v)) : '' } catch { return '' } }
+// Members, shared vaults, shared logins (names and usernames decrypted here; passwords only when shown or copied), the access log.
+async function loadAll() {
+  const o = S.org
+  const [members, items, cols] = await Promise.all([api('GET', `/api/organizations/${o}/users`), api('GET', `/api/ciphers/organization-details?organizationId=${o}`), api('GET', `/api/organizations/${o}/collections/details`)])
   S.members = members.data
-  const who = Object.fromEntries(members.data.map((m) => [m.id, m.name || m.email]))
-  const item = {}
-  for (const x of items.data) try { item[x.id] = dec.decode(await decS(x.key ? await decS(S.orgKey, x.key) : S.orgKey, x.name)) } catch { }
+  S.vaults = await Promise.all(cols.data.map(async (v) => ({ id: v.id, name: (await text(S.orgKey, v.name)) || v.name })))
+  const list = []
+  for (const x of items.data) {
+    if (x.deletedDate) continue
+    const key = x.key ? await decS(S.orgKey, x.key).catch(() => null) : S.orgKey
+    if (key) list.push({ id: x.id, key, name: await text(key, x.name), user: await text(key, x.login?.username), pw: x.login?.password, uri: await text(key, x.login?.uris?.[0]?.uri), vaults: x.collectionIds ?? [] })
+  }
+  S.items = list.sort((a, b) => a.name.localeCompare(b.name, LANG))
+  S.log = await loadLog()
+}
+const sees = (x) => S.members.filter((m) => m.status === 2 && (m.accessAll || m.collections.some((v) => x.vaults.includes(v.id))))
+const initial = (n) => esc([...(n || '?')][0].toUpperCase())
+const stat = (m) => m.status === 0 ? W.stInvited : m.status === 1 ? W.stAccepted : m.status !== 2 ? W.stOff
+  : [m.azetRole <= 1 ? W.organizer : !m.accessAll && m.collections.every((v) => v.readOnly) ? W.readOnly : W.canEdit, m.accessUntil ? KO.until(m.accessUntil) : ''].filter(Boolean).join(' · ')
+async function loadLog() {
+  const { events, checkpoint } = await api('GET', `/api/organizations/${S.org}/azet/access-log`)
+  const who = Object.fromEntries(S.members.map((m) => [m.id, m.name || m.email])), item = Object.fromEntries(S.items.map((x) => [x.id, x.name]))
   // every row's hash is recomputed here; then the row this device checked last time must still be there, unchanged
   let state = 'ok', prev = events[0]?.prev ?? ''
   for (const e of events) {
@@ -179,46 +253,143 @@ function logScreen(L) {
   if (L) for (const e of [...L.events].reverse()) { const k = KO.day(e.createdAt); (days.at(-1)?.[0] === k ? days.at(-1)[1] : (days.push([k, []]), days.at(-1)[1])).push(e) }
   const verify = !L ? `<div class="dot"><div class="spin"></div></div><div><b>${W.checking}</b>` : L.state === 'ok' ? `<div class="dot ok">${IC.check}</div><div><b>${W.checked}</b>` : `<div class="dot bad">!</div><div><b>${W.changed}</b>`
   const what = !L || L.state === 'ok' ? W.what(!!L) : W.whatBad
-  return `<div class="bar"><button class="round" data-act="out" aria-label="${W.out}">${IC.back}</button><h1>${W.title}</h1><button class="pill" data-act="settings">${W.settings}</button></div>
-<main>
-<div class="card verify">${verify}<p>${what}</p><a href="https://azet.io/products/pass#team-log" target="_blank" rel="noopener">${W.how}</a></div></div>
+  return bar(W.title, `<button class="pill" data-act="settings">${W.settings}</button>`) + `<main>
+<div class="card verify">${verify}<p>${what}</p><a href="/help/${ko ? 'ko.html' : ''}#team-log" target="_blank" rel="noopener">${W.how}</a></div></div>
 ${L ? `<div class="card week"><header><b>${W.week}</b><span>${esc(agents)}</span></header><div class="tiles"><div class="tile"><b>${sum('read')}</b><span>${W.read}</span></div><div class="tile"><b>${sum('write')}</b><span>${W.write}</span></div><div class="tile"><b>${sum('delete')}</b><span>${W.del}</span></div></div></div>
 ${days.length ? days.map(([k, es]) => `<p class="day">${k}</p><div class="card list">${es.map((e) => { const [ic, t, s] = rowOf(e, L); return `<div class="row"><div class="ico">${ic}</div><div class="t"><b>${t}</b><span>${s}</span></div><time>${KO.time(e.createdAt)}</time></div>` }).join('')}</div>`).join('') : `<p class="empty">${W.empty}</p>`}` : ''}
 </main>`
 }
-const DAYS = [1, 7, 30, 90]
-function sheet() {
-  const agents = S.members.filter((m) => m.agent)
-  const cur = agents[0]?.accessUntil ? Math.max(1, Math.round((Date.parse(agents[0].accessUntil) - Date.now()) / 864e5)) : null
-  const on = agents.some((m) => m.status === 2)
-  return $(`<div class="scrim" data-act="close"><div class="sheet" role="dialog" aria-label="${W.sheet}"><div class="grab"></div><h2>${W.sheet}</h2>
-<div class="group"><button class="opt" data-act="days"><b style="font-weight:400">${W.keep}</b><span data-days="${cur ?? ''}">${cur ? W.days(cur) : W.noEnd} ›</span></button><button class="opt danger" data-act="${on ? 'off' : 'on'}">${on ? W.turnOff : W.turnOn}</button></div>
-<small>${W.sheetNote}</small></div></div>`)
+let V = { name: 'hub' }
+const bar = (title, right, back = 'hub') => `<div class="bar"><button class="round" ${back === 'out' ? 'data-act="out"' : `data-go="${back}"`} aria-label="${back === 'out' ? W.out : W.back}">${IC.back}</button><h1>${esc(title)}</h1>${right || '<span></span>'}</div>`
+const plus = (act, label, extra = '') => `<button class="round" data-act="${act}" ${extra} aria-label="${label}">${IC.plus}</button>`
+const nav = (to, label, val, ic) => `<button class="row nav" data-go="${to}">${ic ? `<div class="ico bare">${ic}</div>` : ''}<div class="t"><b>${label}</b></div><time>${val}</time><i class="chev">${IC.chev}</i></button>`
+const logRow = (e) => { const [ic, t, sub] = rowOf(e, S.log); return `<div class="row"><div class="ico">${ic}</div><div class="t"><b>${t}</b><span>${sub}</span></div><time>${KO.time(e.createdAt)}</time></div>` }
+function hub() {
+  return bar(S.orgName, '', 'out') + `<main>
+<a class="card verify" href="/help/${ko ? 'ko.html' : ''}#encryption" target="_blank" rel="noopener"><div class="dot ok">${IC.check}</div><div><b>${W.hubSafe}</b><p>${W.hubSafeWhy}</p></div><i class="chev">${IC.chev}</i></a>
+<p class="day">${W.whoSees}</p>
+<div class="card list">${nav('people', W.people, W.nPeople(S.members.filter((m) => !m.agent).length))}${nav('agents', W.agents, W.nAgents(S.members.filter((m) => m.agent).length))}</div>
+<div class="card list">${nav('logins', W.logins, S.items.length, IC.key)}</div>
+<div class="card list">${nav('log', W.title, S.log.state === 'ok' ? '' : '!', IC.time)}</div>
+<p class="note">${W.hubNote}</p></main>`
 }
+function peopleScreen(agent) {
+  const list = S.members.filter((m) => !!m.agent === agent)
+  return bar(agent ? W.agents : W.people, plus('invite', agent ? W.inviteAgent : W.invite, agent ? 'data-agent="1"' : '')) + `<main>${list.length ? `<div class="flat">${list.map((m) =>
+    `<button class="row" data-act="member" data-id="${m.id}"><div class="ico ltr">${agent ? IC.bot : initial(m.name || m.email)}</div><div class="t"><b>${esc(m.name || m.email)}</b><span>${m.name ? esc(m.email) + ' · ' : ''}${stat(m)}</span></div><i class="chev">${IC.chev}</i></button>`).join('')}</div>`
+    : `<p class="empty">${agent ? W.noAgents : W.noPeople}</p>`}</main>`
+}
+function loginsScreen() {
+  const v = V.arg || '', list = S.items.filter((x) => !v || x.vaults.includes(v))
+  return bar(W.logins, plus('add', W.add)) + `<main>
+<div class="safe"><div class="ico">${IC.lock}</div><div><b>${W.safe}</b><span>${W.safeWhy}</span></div></div>
+<div class="chips"><button class="chip ${v ? '' : 'on'}" data-go="logins">${W.all}</button>${S.vaults.map((x) => `<button class="chip ${v === x.id ? 'on' : ''}" data-go="logins" data-arg="${x.id}">${esc(x.name)}</button>`).join('')}</div>
+${list.length ? `<div class="flat">${list.map((x) => `<button class="row" data-go="item" data-arg="${x.id}" data-q="${esc((x.name + ' ' + x.user).toLowerCase())}"><div class="ico ltr">${initial(x.name)}</div><div class="t"><b>${esc(x.name)}</b><span>${esc(x.user)}</span></div><i class="chev">${IC.chev}</i></button>`).join('')}</div>` : `<p class="empty">${W.noLogins}</p>`}
+</main><label class="search">${IC.search}<input type="search" placeholder="${W.search}" aria-label="${W.search}"></label>`
+}
+function itemScreen(x) {
+  const see = sees(x), did = S.log.events.filter((e) => e.cipherId === x.id).slice(-5).reverse()
+  const kv = (id, v) => `<div class="kv"><span id="${id}">${esc(v)}</span><button data-act="copy" data-from="${id}" aria-label="${W.copy}">${IC.copy}</button></div>`
+  return bar(x.name, '', 'logins') + `<main>
+<div class="hero"><div class="big">${initial(x.name)}</div><div><b>${esc(x.name)}</b><span>${esc(S.vaults.filter((v) => x.vaults.includes(v.id)).map((v) => v.name).join(', '))}</span></div></div>
+<p class="lead">${W.itemLead(see.filter((m) => !m.agent).length, see.filter((m) => m.agent).length)}</p>
+<p class="sec">${W.account}</p>
+${x.user ? kv('kv-user', x.user) : ''}${x.pw ? `<div class="kv"><span id="pw">••••••••••</span><button data-act="show" aria-label="${W.show}">${IC.eye}</button><button data-act="copypw" aria-label="${W.copy}">${IC.copy}</button></div>` : ''}${x.uri ? kv('kv-uri', x.uri) : ''}
+<p class="sec">${W.whoSees}</p>
+<div class="flat">${see.map((m) => `<div class="row"><div class="ico ltr">${m.agent ? IC.bot : initial(m.name || m.email)}</div><div class="t"><b>${esc(m.name || m.email)}</b><span>${stat(m)}</span></div></div>`).join('')}</div>
+<p class="sec">${W.aiReads}</p>
+${did.length ? `<div class="card list">${did.map(logRow).join('')}</div>` : `<p class="note">${W.noReads}</p>`}
+<p class="sec">${W.keepSafe}</p>
+<div class="card verify"><div class="dot">${IC.lock}</div><div><b>${W.safe1}</b><p>${W.safe1Why}</p></div></div>
+<div class="card verify"><div class="dot">${IC.time}</div><div><b>${W.safe2}</b><p>${W.safe2Why}</p></div></div></main>`
+}
+// ---- sheets ----
+const DAYS = [1, 7, 30, 90]
+const wrap = (title, body, form) => $(`<div class="scrim" data-act="close"><${form ? `form data-form="${form}"` : 'div'} class="sheet" role="dialog" aria-label="${title}"><div class="grab"></div><h2>${title}</h2>${body}</${form ? 'form' : 'div'}></div>`)
+// access period and on/off: for one member, or (no member) for every AI account at once
+function accessSheet(m) {
+  const who = m ? [m] : S.members.filter((x) => x.agent), id = m ? `data-id="${m.id}"` : ''
+  const cur = who[0]?.accessUntil ? Math.max(1, Math.round((Date.parse(who[0].accessUntil) - Date.now()) / 864e5)) : null, on = who.some((x) => x.status === 2)
+  return wrap(m ? esc(m.name || m.email) : W.sheet, `<div class="group"><button class="opt" data-act="days" ${id}><b style="font-weight:400">${W.keep}</b><span data-days="${cur ?? ''}">${cur ? W.days(cur) : W.noEnd} ›</span></button><button class="opt danger" data-act="${on ? 'off' : 'on'}" ${id}>${on ? W.turnOff : W.turnOn}</button></div>
+<small>${W.sheetNote}</small>`)
+}
+async function memberSheet(m) {
+  if (m.status === 0) return wrap(esc(m.name || m.email), `<small class="top">${m.agent ? W.inviteAgentWhy : W.inviteWhy}</small><div class="copybox" id="cp">${esc(m.agent ? `node scripts/team.mjs join ${S.org} ${m.id} ${m.inviteToken}` : `${location.origin}/invite#${S.org}.${m.id}.${m.inviteToken}`)}</div><button class="go" data-act="copy" data-from="cp">${W.copy}</button>`)
+  if (m.status === 1) return wrap(esc(m.name || m.email), `<small class="top">${W.fpWhy}</small><div class="mono">${await fingerprint(m.publicKey)}</div><button class="go" data-act="confirm" data-id="${m.id}">${W.fpSame}</button>`)
+  return accessSheet(m)
+}
+const vaultPick = () => S.vaults.length > 1 ? `<select class="field" name="vault">${S.vaults.map((v) => `<option value="${v.id}">${esc(v.name)}</option>`).join('')}</select>` : `<input type="hidden" name="vault" value="${S.vaults[0]?.id ?? ''}">`
+const inviteSheet = (agent) => wrap(agent ? W.inviteAgent : W.invite, `<input class="field" name="email" type="email" autocomplete="off" placeholder="${W.email}" required><input class="field" name="name" autocomplete="off" maxlength="60" placeholder="${W.nameOpt}">${vaultPick()}
+<div class="group"><label class="check">${W.readOnly}<input type="checkbox" name="ro" ${agent ? 'checked' : ''}></label>${agent ? `<label class="check">${W.keep30}<input type="checkbox" name="d30" checked></label>` : ''}</div>
+<input type="hidden" name="agent" value="${agent ? 1 : ''}"><button class="go">${W.inviteGo}</button><p class="err" role="alert"></p>`, 'invite')
+const addSheet = () => wrap(W.add, `<input class="field" name="name" autocomplete="off" maxlength="120" placeholder="${W.itemName}" required><input class="field" name="user" autocomplete="off" placeholder="${W.user}"><input class="field" name="pw" type="password" autocomplete="new-password" placeholder="${W.pass}"><input class="field" name="uri" inputmode="url" autocomplete="off" placeholder="${W.site}">${vaultPick()}
+<button class="go">${W.addGo}</button><p class="err" role="alert"></p>`, 'add')
+const open = (n) => { document.querySelector('.scrim')?.remove(); document.body.append(n) }
+const toast = (t) => { const n = $(`<div class="toast" role="status">${t}</div>`); document.body.append(n); setTimeout(() => n.remove(), 1600) }
+
 async function render() {
   const app = document.getElementById('app')
-  if (!S) { app.innerHTML = `<div class="bar"><span></span><h1>${W.app}</h1><span></span></div><main><form class="card login"><h2>${W.signIn}</h2><p>${W.signInWhy}</p>
+  if (!S) { app.innerHTML = `<div class="bar"><span></span><h1>${W.app}</h1><span></span></div><main><form class="card login" data-form="signin"><h2>${W.signIn}</h2><p>${W.signInWhy}</p>
 <input class="field" name="email" type="email" autocomplete="username" placeholder="${W.email}" required><input class="field" name="password" type="password" autocomplete="current-password" placeholder="${W.pw}" required>
 <button class="go">${W.go}</button><p class="err" role="alert"></p><div class="lock">${IC.lock}<span>${W.stays}</span></div></form></main>`; return }
-  app.innerHTML = logScreen(null)
-  try { S.log = await loadLog(); app.innerHTML = logScreen(S.log) } catch (e) { app.querySelector('.verify').innerHTML = `<div class="dot bad">!</div><div><b>${W.loadFail}</b><p>${W.loadFailWhy} (${esc(e.message)})</p></div>` }
+  if (!S.items) {
+    app.innerHTML = bar(S.orgName, '', 'out') + `<main><div class="card verify"><div class="dot"><div class="spin"></div></div><div><b>${W.opening}</b></div></div></main>`
+    try { await loadAll() } catch (e) { app.querySelector('.verify').innerHTML = `<div class="dot bad">!</div><div><b>${W.loadFail}</b><p>${W.loadFailWhy} (${esc(e.message)})</p></div>`; return }
+  }
+  const x = V.name === 'item' && S.items.find((i) => i.id === V.arg)
+  app.innerHTML = V.name === 'log' ? logScreen(S.log) : V.name === 'people' ? peopleScreen(false) : V.name === 'agents' ? peopleScreen(true) : V.name === 'logins' ? loginsScreen() : x ? itemScreen(x) : hub()
 }
+const reload = async () => { await loadAll(); await render() }
 document.addEventListener('submit', async (ev) => {
-  ev.preventDefault(); const f = ev.target, btn = f.querySelector('.go'), err = f.querySelector('.err')
+  ev.preventDefault(); const f = ev.target, kind = f.dataset.form, btn = f.querySelector('.go'), err = f.querySelector('.err')
   btn.disabled = true; err.textContent = ''
-  try { await signIn(f.email.value, f.password.value); render() } catch (e) { S = null; err.textContent = e.message === 'noteam' ? W.noteam : e.message === 'kdf' ? W.kdf : W.bad; btn.disabled = false }
+  try {
+    if (kind === 'signin') { await signIn(f.email.value, f.password.value); return render() }
+    if (kind === 'invite') {
+      const r = await api('POST', `/api/organizations/${S.org}/users/invite`, { emails: [f.email.value.trim().toLowerCase()], type: 2, displayName: f.name.value.trim() || undefined, agent: !!f.agent.value, ...(f.d30?.checked ? { accessDays: 30 } : {}), collections: [{ id: f.vault.value, readOnly: f.ro.checked }] })
+      V = { name: f.agent.value ? 'agents' : 'people' }; await reload(); return open(await memberSheet(S.members.find((m) => m.id === r.data[0].id)))
+    }
+    if (kind === 'add') { // encrypted here with the team key; the server stores ciphertext
+      const e = (v) => v ? encS(S.orgKey, v) : null, uri = f.uri.value.trim()
+      await api('POST', '/api/ciphers/create', { cipher: { type: 1, organizationId: S.org, name: await e(f.name.value.trim()), notes: null, favorite: false, reprompt: 0, login: { username: await e(f.user.value), password: await e(f.pw.value), totp: null, uris: uri ? [{ uri: await e(uri), match: null }] : [] } }, collectionIds: [f.vault.value] })
+      document.querySelector('.scrim')?.remove(); return reload()
+    }
+  } catch (e) {
+    if (kind === 'signin') S = null
+    err.textContent = kind === 'invite' ? `${W.inviteFail} (${esc(e.message)})` : kind === 'add' ? `${W.addFail} (${esc(e.message)})` : e.message === 'noteam' ? W.noteam : e.message === 'kdf' ? W.kdf : W.bad
+    btn.disabled = false
+  }
+})
+document.addEventListener('input', (ev) => { // search filters the rows already on screen
+  if (!ev.target.closest('.search')) return
+  const q = ev.target.value.trim().toLowerCase()
+  for (const r of document.querySelectorAll('[data-q]')) r.hidden = !r.dataset.q.includes(q)
 })
 document.addEventListener('click', async (ev) => {
+  const g = ev.target.closest('[data-go]')
+  if (g) { V = { name: g.dataset.go, arg: g.dataset.arg }; scrollTo(0, 0); return render() }
   const el = ev.target.closest('[data-act]'); if (!el) return
-  const act = el.dataset.act
+  const act = el.dataset.act, id = el.dataset.id, users = `/api/organizations/${S?.org}/users`
   if (act === 'close') { if (ev.target === el) el.remove(); return }
-  if (act === 'out') { S = null; return render() }
-  if (act === 'settings') return document.body.append(sheet())
-  const agents = S.members.filter((m) => m.agent)
-  if (act === 'days') { const i = DAYS.indexOf(Number(el.querySelector('span').dataset.days)); const next = DAYS[(i + 1) % DAYS.length]
-    for (const m of agents) await api('PUT', `/api/organizations/${S.org}/users/${m.id}/azet/access`, { accessDays: next }) }
-  if (act === 'off' || act === 'on') for (const m of agents) await api('PUT', `/api/organizations/${S.org}/users/${m.id}/${act === 'off' ? 'revoke' : 'restore'}`)
-  document.querySelector('.scrim')?.remove(); await render(); if (act === 'days') document.body.append(sheet())
+  if (act === 'out') { S = null; V = { name: 'hub' }; return render() }
+  if (act === 'settings') return open(accessSheet())
+  if (act === 'member') { await reload(); return open(await memberSheet(S.members.find((m) => m.id === id))) } // reload: the member may have joined since the list was drawn
+  if (act === 'invite') return open(inviteSheet(!!el.dataset.agent))
+  if (act === 'add') return open(addSheet())
+  if (act === 'copy') { await navigator.clipboard.writeText(document.getElementById(el.dataset.from).textContent); return toast(W.copied) }
+  if (act === 'show' || act === 'copypw') {
+    const x = S.items.find((i) => i.id === V.arg), pw = await text(x.key, x.pw), at = document.getElementById('pw')
+    if (act === 'copypw') { await navigator.clipboard.writeText(pw); return toast(W.copied) }
+    at.textContent = at.dataset.on ? '••••••••••' : pw; at.dataset.on = at.dataset.on ? '' : '1'; return
+  }
+  const who = id ? S.members.filter((m) => m.id === id) : S.members.filter((m) => m.agent)
+  el.disabled = true
+  if (act === 'days') { const next = DAYS[(DAYS.indexOf(Number(el.querySelector('span').dataset.days)) + 1) % DAYS.length]
+    for (const m of who) await api('PUT', `${users}/${m.id}/azet/access`, { accessDays: next }) }
+  if (act === 'off' || act === 'on') for (const m of who) await api('PUT', `${users}/${m.id}/${act === 'off' ? 'revoke' : 'restore'}`)
+  if (act === 'confirm') await api('POST', `${users}/${id}/confirm`, { key: await rsaEnc(who[0].publicKey, S.orgKey) })
+  document.querySelector('.scrim')?.remove(); await reload()
+  if (act === 'days') open(accessSheet(id ? S.members.find((m) => m.id === id) : undefined))
 })
 if (new URLSearchParams(location.search).has('frame')) document.documentElement.style.setProperty('--top', '44px') // room for a phone status bar, for comparing with the reference captures
 render()

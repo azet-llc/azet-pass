@@ -87,6 +87,12 @@ team "$OWNER" "$PW_O" access "$ORG" "$AGENT" off >/dev/null
 bw sync >/dev/null
 [ "$(bw list items | jq length)" = 0 ] && echo "4g access turned off: nothing again: ok" || { echo "FAIL: suspended agent still reads"; exit 1; }
 team "$OWNER" "$PW_O" access "$ORG" "$AGENT" on >/dev/null
+# 4h the refused change in 4b left no "write" record; once the agent may edit, its change is recorded
+[ "$(sqlite3 "$(DBF)" "SELECT COUNT(*) FROM org_events WHERE kind = 'write'")" = 0 ] || { echo "FAIL: refused write was logged"; exit 1; }
+sqlite3 "$(DBF)" "UPDATE collection_members SET read_only = 0 WHERE member_id = (SELECT id FROM org_members WHERE email = '$AGENT');"
+bw sync >/dev/null
+bw get item "$ID" | jq '.notes="rotated"' | bw encode | bw edit item "$ID" >/dev/null
+[ "$(sqlite3 "$(DBF)" "SELECT COUNT(*) FROM org_events WHERE kind = 'write' AND cipher_id = '$ID'")" = 1 ] && echo "4h an editing agent's change is in the log: ok" || { echo "FAIL: agent write not logged"; exit 1; }
 bw logout >/dev/null; unset BW_SESSION
 
 # 5 the outsider sees nothing

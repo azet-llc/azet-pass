@@ -541,6 +541,22 @@ pub async fn log_agent_read(db: &db::Db, user_id: &str, cipher_id: Option<&str>)
     Ok(())
 }
 
+/// An AI agent account is about to add, change or remove a team item it may edit (`kind` = write | delete).
+pub async fn log_agent_write(db: &db::Db, user_id: &str, org_id: Option<&str>, kind: &str, cipher_id: &str) -> Result<(), AppError> {
+    let Some(org_id) = org_id else { return Ok(()) };
+    let m: Option<Value> = db
+        .prepare(&format!(
+            "SELECT m.id FROM org_members m WHERE m.user_id = ?1 AND m.org_id = ?2 AND m.agent = 1 AND m.status = 2 AND {LIVE}
+                AND EXISTS (SELECT 1 FROM cipher_access ca WHERE ca.cipher_id = ?3 AND ca.user_id = ?1 AND ca.can_edit = 1)"))
+        .bind(&[user_id.into(), org_id.into(), cipher_id.into()])?
+        .first(None)
+        .await?;
+    if let Some(m) = m {
+        log_event(db, org_id, m["id"].as_str().unwrap_or_default(), kind, Some(cipher_id), 1, None).await?;
+    }
+    Ok(())
+}
+
 /// PUT /api/organizations/{org_id}/users/{member_id}/azet/access {accessDays} — how long this member's access lasts
 /// from now (absent = no end date). Written to the log with the new end date.
 #[worker::send]

@@ -987,7 +987,7 @@ pub async fn purge_vault(
     let verification = user.verify_master_password(&provided_hash).await?;
 
     if !verification.is_valid() {
-        return Err(AppError::Unauthorized("Invalid password".to_string()));
+        return Err(AppError::BadRequest("Invalid password".to_string()));
     }
 
     if attachments::attachments_enabled(env.as_ref()) {

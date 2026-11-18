@@ -66,7 +66,7 @@ chk "no import file left behind" '[ -z "$(ls "$P" | grep import-)" ]'
 echo "== 13 AI agents get only what I share (the readers follow the AI account's folder)"
 mkdir -p "$P/ai"; ln -s "$W/bw" "$P/ai/data"; cp "$P/session" "$P/ai/session"; mv "$P/session" "$P/session.owner"
 S=$(CLI status); chk "status names the setting ($S)" '[ "$S" = "AZET Pass: unlocked (AI agents get only what the person shared)" ]'
-O=$(printf x | CLI set --name NEW_BY_AGENT --value-file - 2>&1); chk "set is refused" 'echo "$O" | grep -q "only read what the person shared"'
+O=$(printf x | CLI set --name NEW_BY_AGENT --value-file - 2>&1); chk "set never lands in the AI account's personal vault (here it is in no shared vault)" 'echo "$O" | grep -q "exactly one shared vault"'
 O=$(CLI get --name NOT_GIVEN_KEY 2>&1 | cat); chk "a key that was not given says so, not unlock" 'echo "$O" | grep -q "Not shared with AI agents" && ! echo "$O" | grep -q "pass unlock"'
 chk "a given key is read" '[ "$(CLI get --name API_KEY | cat)" = "$K1B" ]'
 chk "links stay one list per computer" '[ -n "$(CLI link list | grep STRIPE)" ] && [ ! -e "$P/ai/links.json" ]'

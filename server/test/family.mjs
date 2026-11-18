@@ -144,7 +144,7 @@ let sb3 = await sync(b)
 assert.equal(sb3.ciphers.find((x) => x.id === bank.id).edit, false, 'read-only vault')
 await api(b.tok, 'PUT', `/api/ciphers/${bank.id}`, { ...(await cipher(orgKey, 'hacked', 'id', 'pin')), organizationId: org.id })
 assert.equal(dec.decode(await decS(orgKey, (await sync(a)).ciphers.find((x) => x.id === bank.id).name)), 'bank', 'read-only edit ignored')
-assert.equal((await api(b.tok, 'POST', '/api/ciphers/create', { cipher: await cipher(orgKey, 'x', 'y', 'z'), collectionIds: [parents.id] })).status, 401, 'cannot add to read-only vault')
+assert.equal((await api(b.tok, 'POST', '/api/ciphers/create', { cipher: await cipher(orgKey, 'x', 'y', 'z'), collectionIds: [parents.id] })).status, 400, 'cannot add to read-only vault')
 console.log('4 read-only vault: ok')
 
 // 4b files on family items: a member with edit attaches, the organizer opens it, read-only and outsiders cannot
@@ -164,7 +164,7 @@ assert.equal((await bulk(b.tok, aOwn.id)).status, 404, 'a member cannot share so
 assert.ok(!(await sync(b)).ciphers.some((x) => x.id === aOwn.id), 'and it did not move')
 assert.equal((await bulk(a.tok, aOwn.id)).body.data[0].id, aOwn.id, 'its owner can')
 const back = (tok, id) => api(tok, 'PUT', `/api/ciphers/${id}/unshare`, { cipher: { type: 2, name: 'x', secureNote: { type: 0 } } })
-assert.equal((await back(b.tok, aOwn.id)).status, 401, 'only an organizer takes an item back')
+assert.equal((await back(b.tok, aOwn.id)).status, 400, 'only an organizer takes an item back')
 assert.equal((await back(a.tok, item.id)).status, 400, 'an item with files is refused, not orphaned')
 assert.ok((await back(a.tok, aOwn.id)).status < 300); assert.ok(!(await sync(b)).ciphers.some((x) => x.id === aOwn.id), 'taken back: the member no longer gets it')
 console.log('4c many-at-once share and take-back: ok')
@@ -178,7 +178,7 @@ assert.equal((await api(cc.tok, 'GET', `/api/ciphers/${item.id}`)).status, 404)
 assert.equal((await api(cc.tok, 'POST', '/api/ciphers/create', { cipher: await cipher(orgKey, 'x', 'y', 'z'), collectionIds: [shared] })).status, 404)
 assert.equal((await api(cc.tok, 'POST', `/api/organizations/${org.id}/users/invite`, { emails: [C], type: 2 })).status, 404)
 assert.equal((await api(cc.tok, 'GET', `/api/users/${aProfile.id}/public-key`)).status, 404)
-assert.equal((await api(b.tok, 'POST', `/api/organizations/${org.id}/users/invite`, { emails: [C], type: 2 })).status, 401, 'member cannot invite')
+assert.equal((await api(b.tok, 'POST', `/api/organizations/${org.id}/users/invite`, { emails: [C], type: 2 })).status, 400, 'member cannot invite')
 console.log('5 outsider: ok')
 
 // 6 seats: 5 people, guests extra
@@ -209,7 +209,7 @@ await ok(a.tok, 'PUT', `/api/organizations/${org.id}/users/${mid}/reset-password
 assert.equal(await login(B, pw(B)), null, 'old password stops working')
 const b2 = await login(B, temp)
 assert.deepEqual(b2.userKey, b.userKey, 'same vault after recovery')
-assert.equal((await api(b2.tok, 'GET', `/api/organizations/${org.id}/users/${(await ok(a.tok, 'GET', `/api/organizations/${org.id}/users`)).data.find((m) => m.email === A).id}/reset-password-details`)).status, 401, 'member cannot recover the owner')
+assert.equal((await api(b2.tok, 'GET', `/api/organizations/${org.id}/users/${(await ok(a.tok, 'GET', `/api/organizations/${org.id}/users`)).data.find((m) => m.email === A).id}/reset-password-details`)).status, 400, 'member cannot recover the owner')
 console.log('8 organizer recovery: ok')
 
 // 9 travel mode

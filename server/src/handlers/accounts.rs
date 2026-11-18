@@ -571,7 +571,7 @@ pub async fn delete_account(
     let verification = user.verify_master_password(&provided_hash).await?;
 
     if !verification.is_valid() {
-        return Err(AppError::Unauthorized("Invalid password".to_string()));
+        return Err(AppError::BadRequest("Invalid password".to_string()));
     }
 
     push::unregister_push_devices_by_user(&env, user_id).await;
@@ -632,7 +632,7 @@ pub async fn post_password(
         .await?;
 
     if !verification.is_valid() {
-        return Err(AppError::Unauthorized("Invalid password".to_string()));
+        return Err(AppError::BadRequest("Invalid password".to_string()));
     }
 
     // Generate new salt and hash the new password
@@ -698,7 +698,7 @@ pub async fn post_rotatekey(
         .await?;
 
     if !verification.is_valid() {
-        return Err(AppError::Unauthorized("Invalid password".to_string()));
+        return Err(AppError::BadRequest("Invalid password".to_string()));
     }
 
     let unlock_data = &payload.account_unlock_data.master_password_unlock_data;
@@ -976,7 +976,7 @@ pub async fn post_kdf(
         .await?;
 
     if !verification.is_valid() {
-        return Err(AppError::Unauthorized("Invalid password".to_string()));
+        return Err(AppError::BadRequest("Invalid password".to_string()));
     }
 
     let auth_data = &payload.authentication_data;
@@ -1072,7 +1072,7 @@ pub async fn post_sstamp(
 
     let verification = user.verify_master_password(&provided_hash).await?;
     if !verification.is_valid() {
-        return Err(AppError::Unauthorized("Invalid password".to_string()));
+        return Err(AppError::BadRequest("Invalid password".to_string()));
     }
 
     push::unregister_push_devices_by_user(&env, user_id).await;

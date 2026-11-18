@@ -83,8 +83,9 @@ pub async fn touch_user_updated_at(db: &Db, user_id: &str, now: &str) -> Result<
         db,
         // Also everyone who shares a vault with this account: their apps ask "has anything changed?" by this date, and
         // an item shared, edited or taken away by someone else must reach them on their next ordinary sync.
+        // Confirmed members only, both ways: a suspended account neither hears of nor causes anyone's sync.
         // shortcut: a personal change makes vault-mates sync once more than needed; narrow to the item's vault if teams grow large.
-        "UPDATE users SET updated_at = ?1 WHERE id = ?2 OR id IN (SELECT user_id FROM org_members WHERE user_id IS NOT NULL AND org_id IN (SELECT org_id FROM org_members WHERE user_id = ?2))",
+        "UPDATE users SET updated_at = ?1 WHERE id = ?2 OR id IN (SELECT user_id FROM org_members WHERE user_id IS NOT NULL AND status = 2 AND org_id IN (SELECT org_id FROM org_members WHERE user_id = ?2 AND status = 2))",
         now,
         user_id
     )

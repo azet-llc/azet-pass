@@ -391,7 +391,7 @@ async fn validate_password_or_otp(user: &User, data: &PasswordOrOtpData) -> Resu
     // OTP validation would be handled here if we had protected actions support
     // For now, master password is required
 
-    Err(AppError::Unauthorized("Invalid password".to_string()))
+    Err(AppError::BadRequest("Invalid password".to_string()))
 }
 
 async fn generate_recovery_code_for_user(

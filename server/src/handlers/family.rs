@@ -59,7 +59,8 @@ async fn member_row(db: &db::Db, org_id: &str, user_id: &str) -> Result<Option<V
 /// The caller's confirmed membership, or 404 so outsiders cannot probe family ids.
 async fn me(db: &db::Db, org_id: &str, user_id: &str) -> Result<Value, AppError> {
     match member_row(db, org_id, user_id).await? {
-        Some(m) if i(&m, "status") == CONFIRMED => Ok(m),
+        // access that has run out is no membership (the item lists already leave such members out)
+        Some(m) if i(&m, "status") == CONFIRMED && s(&m, "access_until").is_none_or(|until| until > db::now_string()) => Ok(m),
         _ => Err(AppError::NotFound("Organization not found".into())),
     }
 }
@@ -67,7 +68,7 @@ async fn me(db: &db::Db, org_id: &str, user_id: &str) -> Result<Value, AppError>
 async fn organizer(db: &db::Db, org_id: &str, user_id: &str) -> Result<Value, AppError> {
     let m = me(db, org_id, user_id).await?;
     if i(&m, "type") > ADMIN {
-        return Err(AppError::Unauthorized("Only a family organizer can do this".into()));
+        return Err(AppError::BadRequest("Only a family organizer can do this".into()));
     }
     Ok(m)
 }
@@ -408,7 +409,7 @@ pub async fn update_member(claims: Claims, State(env): State<Arc<Env>>, Path((or
     let m = target(&db, &org_id, &member_id).await?;
     let t = p.get("type").and_then(|x| x.as_i64()).unwrap_or(i(&m, "type"));
     if (i(&m, "type") == OWNER || t == OWNER) && i(&caller, "type") != OWNER {
-        return Err(AppError::Unauthorized("Only the family owner can change an owner".into()));
+        return Err(AppError::BadRequest("Only the family owner can change an owner".into()));
     }
     if i(&m, "type") == OWNER && t != OWNER {
         let owners: Value = db.prepare("SELECT COUNT(*) AS n FROM org_members WHERE org_id = ?1 AND type = 0 AND status = 2").bind(&[org_id.clone().into()])?.first(None).await?.ok_or(AppError::Internal)?;
@@ -431,7 +432,7 @@ async fn set_status(env: &Env, claims: &Claims, org_id: &str, member_id: &str, s
     let caller = organizer(&db, org_id, &claims.sub).await?;
     let m = target(&db, org_id, member_id).await?;
     if s(&m, "user_id").as_deref() == Some(claims.sub.as_str()) || (i(&m, "type") == OWNER && i(&caller, "type") != OWNER) {
-        return Err(AppError::Unauthorized("Not allowed".into()));
+        return Err(AppError::BadRequest("Not allowed".into()));
     }
     // restore puts a member back to "accepted" when they never had the key, otherwise straight to confirmed
     let next = if status == REVOKED { REVOKED } else if m["akey"].is_string() { CONFIRMED } else { ACCEPTED };
@@ -461,7 +462,7 @@ pub async fn remove(claims: Claims, State(env): State<Arc<Env>>, Path((org_id, m
     let caller = organizer(&db, &org_id, &claims.sub).await?;
     let m = target(&db, &org_id, &member_id).await?;
     if i(&m, "type") == OWNER && i(&caller, "type") != OWNER {
-        return Err(AppError::Unauthorized("Not allowed".into()));
+        return Err(AppError::BadRequest("Not allowed".into()));
     }
     if s(&m, "user_id").as_deref() == Some(claims.sub.as_str()) {
         return Err(bad("Use leave to remove yourself"));
@@ -719,7 +720,7 @@ pub async fn create_collection(claims: Claims, State(env): State<Arc<Env>>, Path
     let db = db::get_db(&env)?;
     let caller = me(&db, &org_id, &claims.sub).await?;
     if i(&caller, "type") == GUEST {
-        return Err(AppError::Unauthorized("Guests cannot create vaults".into()));
+        return Err(AppError::BadRequest("Guests cannot create vaults".into()));
     }
     let cid = Uuid::new_v4().to_string();
     let now = db::now_string();
@@ -748,7 +749,7 @@ async fn may_manage(db: &db::Db, org_id: &str, cid: &str, user_id: &str) -> Resu
         return Ok(());
     }
     let ok: Option<Value> = db.prepare("SELECT 1 FROM collection_members WHERE collection_id = ?1 AND member_id = ?2 AND manage = 1").bind(&[cid.into(), m["id"].as_str().unwrap_or_default().into()])?.first(None).await?;
-    ok.map(|_| ()).ok_or_else(|| AppError::Unauthorized("You cannot manage this vault".into()))
+    ok.map(|_| ()).ok_or_else(|| AppError::BadRequest("You cannot manage this vault".into()))
 }
 
 /// PUT /api/organizations/{org_id}/collections/{cid}
@@ -790,7 +791,7 @@ pub async fn check_collections_writable(db: &db::Db, org_id: &str, user_id: &str
                 .bind(&[cid.as_str().into(), org_id.into(), m["id"].as_str().unwrap_or_default().into()])?.first(None).await?
         };
         if ok.is_none() {
-            return Err(AppError::Unauthorized("You cannot add items to this vault".into()));
+            return Err(AppError::BadRequest("You cannot add items to this vault".into()));
         }
     }
     Ok(())
@@ -815,11 +816,12 @@ async fn share_one(db: &db::Db, user: &str, id: &str, cipher: &Value, ids: &[Str
     }
     let data = crate::models::cipher::CipherData::from_share_payload(cipher)?;
     let now = db::now_string();
-    d1_query!(db, "UPDATE ciphers SET user_id = NULL, organization_id = ?1, data = ?2, folder_id = NULL, updated_at = ?3 WHERE id = ?4",
-        org_id, data, now, id)
+    d1_query!(db, "UPDATE ciphers SET user_id = NULL, organization_id = ?1, data = ?2, folder_id = NULL, updated_at = ?3 WHERE id = ?4 AND user_id = ?5 AND organization_id IS NULL",
+        org_id, data, now, id, user)
         .map_err(|_| AppError::Database)?.run().await?;
     set_cipher_collections(db, id, ids).await?;
     touch_org_users(db, &org_id).await?;
+    log_agent_write(db, user, Some(&org_id), "write", id).await?; // an AI account putting something into the vault is on the record
     // The clients read the answer as the whole item (type, name, fields…): a bare id made them report "failed to
     // share" for a share that had worked.
     let shared: crate::models::cipher::Cipher = super::ciphers::fetch_cipher_for_user(db, id, user).await?.into();
@@ -869,11 +871,12 @@ pub async fn unshare_cipher(claims: Claims, State(env): State<Arc<Env>>, Path(id
     }
     let cipher = p.get("cipher").cloned().ok_or_else(|| bad("cipher"))?;
     let data = crate::models::cipher::CipherData::from_share_payload(&cipher)?;
-    touch_org_users(&db, &org_id).await?; // while they are still the item's members: their apps drop it on the next sync
-    d1_query!(&db, "UPDATE ciphers SET user_id = ?1, organization_id = NULL, data = ?2, updated_at = ?3 WHERE id = ?4",
-        claims.sub, data, db::now_string(), id)
+    // folder and favourite on a shared item are shared fields: the personal item starts without them
+    d1_query!(&db, "UPDATE ciphers SET user_id = ?1, organization_id = NULL, data = ?2, folder_id = NULL, favorite = 0, updated_at = ?3 WHERE id = ?4 AND organization_id = ?5",
+        claims.sub, data, db::now_string(), id, org_id)
         .map_err(|_| AppError::Database)?.run().await?;
     set_cipher_collections(&db, &id, &[]).await?;
+    touch_org_users(&db, &org_id).await?; // after the change: a member who syncs now already misses the item
     Ok(Json(json!({"id": id})))
 }
 
@@ -896,7 +899,7 @@ pub async fn cipher_collections(claims: Claims, State(env): State<Arc<Env>>, Pat
 #[worker::send]
 pub async fn enroll_recovery(claims: Claims, State(env): State<Arc<Env>>, Path((org_id, user_id)): Path<(String, String)>, Json(p): Json<Value>) -> Result<Json<Value>, AppError> {
     if user_id != claims.sub {
-        return Err(AppError::Unauthorized("Not allowed".into()));
+        return Err(AppError::BadRequest("Not allowed".into()));
     }
     let db = db::get_db(&env)?;
     let m = member_row(&db, &org_id, &claims.sub).await?.ok_or_else(|| AppError::NotFound("Organization not found".into()))?;
@@ -916,7 +919,7 @@ async fn recoverable(db: &db::Db, org_id: &str, member_id: &str, caller_id: &str
         return Err(bad("This member has not turned on family recovery"));
     }
     if i(&m, "type") < i(&caller, "type") || s(&m, "user_id").as_deref() == Some(caller_id) {
-        return Err(AppError::Unauthorized("Not allowed".into()));
+        return Err(AppError::BadRequest("Not allowed".into()));
     }
     Ok(m)
 }

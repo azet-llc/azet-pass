@@ -12,6 +12,7 @@
 //   members <org>                              who is in, their status and key fingerprint
 //   confirm <org> <email> <fingerprint>        hand the team key to an accepted member; the fingerprint must match
 //   access <org> <email> <days|forever|off|on> how long a member's access lasts from now, or suspend / restore it
+//   access <org> <email> <read-only|can-edit>  whether the member may save into the shared vault
 //   take-back <org> <item id>                  a shared item becomes the organizer's own again; no other member receives it
 //   log <org>                                  the access log, checked: every row's hash, and against this team's last checkpoint
 //
@@ -151,10 +152,11 @@ if (cmd === 'create') {
   console.log(JSON.stringify({ confirmed: who.toLowerCase() }))
 } else if (cmd === 'access') {
   const [org, who, what] = rest
-  if (!what) die('usage: access <org> <email> <days|forever|off|on>')
+  if (!what) die('usage: access <org> <email> <days|forever|off|on|read-only|can-edit>')
   const u = await need()
   const m = (await ok(u.tok, 'GET', `/api/organizations/${org}/users`)).data.find((x) => x.email === who.toLowerCase()) ?? die('No such member.')
   if (what === 'off' || what === 'on') await ok(u.tok, 'PUT', `/api/organizations/${org}/users/${m.id}/${what === 'off' ? 'revoke' : 'restore'}`)
+  else if (what === 'read-only' || what === 'can-edit') console.log(JSON.stringify(await ok(u.tok, 'PUT', `/api/organizations/${org}/users/${m.id}`, { accessAll: !!m.accessAll, collections: m.collections.map((v) => ({ id: v.id, readOnly: what === 'read-only' })) }) && { access: what }))
   else console.log(JSON.stringify(await ok(u.tok, 'PUT', `/api/organizations/${org}/users/${m.id}/azet/access`, what === 'forever' ? {} : { accessDays: Number(what) })))
   if (what === 'off' || what === 'on') console.log(JSON.stringify({ access: what }))
 } else if (cmd === 'log') {

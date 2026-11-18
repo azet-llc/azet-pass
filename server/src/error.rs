@@ -94,6 +94,8 @@ impl IntoResponse for AppError {
                     ),
                     AppError::NotFound(msg) => (StatusCode::NOT_FOUND, msg),
                     AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg),
+                    // 401 is for a missing or dead sign-in only: the apps answer it (and 403) by signing the person out. A refusal
+                    // of permission, or a wrong password in a dialog, is a BadRequest.
                     AppError::Unauthorized(msg) => (StatusCode::UNAUTHORIZED, msg),
                     AppError::TooManyRequests(msg) => (StatusCode::TOO_MANY_REQUESTS, msg),
                     AppError::Crypto(msg) => (

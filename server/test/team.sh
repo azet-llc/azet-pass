@@ -122,6 +122,15 @@ sqlite3 "$(DBF)" "UPDATE collection_members SET read_only = 0 WHERE member_id = 
 bw sync >/dev/null
 bw get item "$ID" | jq '.notes="rotated"' | bw encode | bw edit item "$ID" >/dev/null
 [ "$(sqlite3 "$(DBF)" "SELECT COUNT(*) FROM org_events WHERE kind = 'write' AND cipher_id = '$ID'")" = 1 ] && echo "4h an editing agent's change is in the log: ok" || { echo "FAIL: agent write not logged"; exit 1; }
+# 4i an editing agent may put an item of its own into the vault, on the record; once its time has run out it may not
+own_item() { bw get template item | jq -c --arg n "$1" '.name=$n | .login={username:"a",password:"agent-own",totp:null,uris:[]}' | bw encode | bw create item | jq -r .id; }
+MINE=$(own_item "$S_NAME-agent-own"); MINE2=$(own_item "$S_NAME-agent-late")
+echo "[\"$VAULT\"]" | bw encode | bw move "$MINE" "$ORG" >/dev/null || { echo "FAIL: an editing agent could not share its item"; exit 1; }
+[ "$(sqlite3 "$(DBF)" "SELECT COUNT(*) FROM org_events WHERE kind = 'write' AND cipher_id = '$MINE'")" = 1 ] || { echo "FAIL: agent share not logged"; exit 1; }
+sqlite3 "$(DBF)" "UPDATE org_members SET access_until = '2020-01-01T00:00:00.000Z' WHERE email = '$AGENT';"
+no bash -c "echo '[\"$VAULT\"]' | bw encode | bw move $MINE2 $ORG"
+[ "$(sqlite3 "$(DBF)" "SELECT organization_id IS NULL FROM ciphers WHERE id = '$MINE2'")" = 1 ] && echo "4i an editing agent's share is logged; after its time ran out it cannot share: ok" || { echo "FAIL: an expired agent moved an item into the vault"; exit 1; }
+sqlite3 "$(DBF)" "UPDATE org_members SET access_until = NULL WHERE email = '$AGENT';"
 bw logout >/dev/null; unset BW_SESSION
 
 # 5 the outsider sees nothing

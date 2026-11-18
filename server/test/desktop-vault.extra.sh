@@ -48,6 +48,9 @@ chk "identity ssn" '[ "$(REF "{{azet-pass:identity.ssn:e2e me}}")" = 900101-1234
 chk "identity phone" '[ "$(REF "{{azet-pass:identity.phone:e2e me}}")" = 010-1234-5678 ]'
 chk "login password (old path)" '[ "$(REF "{{azet-pass:password:$S_NAME}}")" = "$S_PASS" ]'
 L=$(CLI list); chk "list shows card and identity kinds" 'echo "$L" | grep -q "^card *e2e card" && echo "$L" | grep -q "^identity *e2e me"'
+echo "== 7b get (the pipe form scripts use, as with a key vault CLI)"
+chk "get in a command substitution" '[ "$(CLI get --name API_KEY)" = "$K1B" ]'
+chk "get of an unknown name fails and prints nothing" '! O=$(CLI get --name NOT_THERE 2>/dev/null) && [ -z "$O" ]'
 echo "== 8 rm"; CLI rm --name API_KEY_2 >/dev/null; L=$(CLI list --kind key); chk "removed" '! echo "$L" | grep -q API_KEY_2'
 echo "== 9 locked"; mv "$P/session" "$P/session.sealed"
 O=$(CLI list 2>&1); chk "CLI says locked" 'echo "$O" | grep -q "AZET Pass is locked"'

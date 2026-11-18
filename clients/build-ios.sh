@@ -6,11 +6,15 @@ set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd); . "$here/pins.env"
 W=${1:?work dir}; U=${2:?simulator udid}; mkdir -p "$W"; cd "$W"
 [ -d ios ] || git clone --depth 1 --branch "$IOS_TAG" "$IOS_REPO" ios
-# the SDK revision is the one the iOS tag pins (project-common.yml comment "3.0.0-<n>-<sha>")
-sdk=$(grep -oE '3\.0\.0-[0-9]+-[0-9a-f]{7}' ios/project-common.yml | head -1 | cut -d- -f3)
+# the SDK revision is the one the iOS tag pins (project-common.yml comment "<version>-<n>-<sha>")
+sdk=$(grep -oE '[0-9]+\.[0-9]+\.[0-9]+-[0-9]+-[0-9a-f]{7}' ios/project-common.yml | head -1 | cut -d- -f3)
+[ -n "$sdk" ] || { echo "no SDK revision found in ios/project-common.yml"; exit 1; }
 [ -d sdk-internal ] || { git clone --filter=blob:none https://github.com/bitwarden/sdk-internal.git sdk-internal && git -C sdk-internal checkout "$sdk"; }
 tc=$(sed -n 's/^channel *= *"\(.*\)"/\1/p' sdk-internal/rust-toolchain.toml)
 rustup target add --toolchain "$tc" aarch64-apple-ios-sim aarch64-apple-ios x86_64-apple-ios
+# the Rust build must find the iPhone SDK itself: a macOS SDK path left in the shell, or the command line tools as the
+# active developer folder, makes the linker pull macOS libraries into the simulator build
+unset SDKROOT; export DEVELOPER_DIR=${DEVELOPER_DIR:-$(ls -d /Applications/Xcode*.app/Contents/Developer | sort -V | tail -1)}
 (cd sdk-internal && PATH="$HOME/.rustup/toolchains/$tc-aarch64-apple-darwin/bin:$PATH" bash crates/bitwarden-uniffi/swift/build.sh)
 node "$here/rebrand-ios.mjs" ios
 (cd ios && LOCAL_SDK=true xcodegen --spec project-bwk.yml && LOCAL_SDK=true xcodegen --spec project-pm.yml)

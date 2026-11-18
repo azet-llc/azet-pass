@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Keys from AZET Pass on a computer without AZET Desktop (a server, a job runner): the same vault and the same item
+# shape as `azet-desktop pass` (a secure note named after the key, with a hidden field "value"), through the vault
+# command-line tool `bw` and `jq`. Where AZET Desktop is installed, use `azet-desktop pass` instead.
+#   azet-pass-key signin <email>     once per computer; the master password comes on stdin, the session stays in a 0600 file
+#   azet-pass-key get <NAME>         the value, for a pipe or $(…)
+#   azet-pass-key set <NAME>         saves or replaces; the value comes on stdin
+#   azet-pass-key list               names only
+#   azet-pass-key del <NAME>         to the trash (kept 30 days)
+#   azet-pass-key status | signout
+# Folder: $AZET_PASS_KEY_HOME (default ~/.azet-pass-key). Server: $AZET_PASS_SERVER (default https://pass.azet.io).
+set -euo pipefail
+D=${AZET_PASS_KEY_HOME:-$HOME/.azet-pass-key}; export BITWARDENCLI_APPDATA_DIR="$D/data"
+die() { echo "azet-pass-key: $1" >&2; exit 1; }
+open() { [ -f "$D/session" ] || die "not signed in (azet-pass-key signin <email>)"; BW_SESSION=$(cat "$D/session"); export BW_SESSION
+  # other devices' changes: at most every five minutes, and a failed sync still leaves the saved copy readable
+  if [ -z "$(find "$D/synced" -mmin -5 2>/dev/null)" ]; then bw sync >/dev/null 2>&1 && touch "$D/synced" || true; fi; }
+item() { bw list items --search "$1" | jq -c --arg n "$1" '[.[] | select(.type == 2 and .name == $n and any(.fields[]?; .name == "value"))][0] // empty'; }
+case "${1:-}" in
+  signin) [ -n "${2:-}" ] || die "usage: azet-pass-key signin <email>"; umask 077; mkdir -p "$D/data"
+    bw config server "${AZET_PASS_SERVER:-https://pass.azet.io}" >/dev/null
+    IFS= read -r AZET_PASS_KEY_PW; export AZET_PASS_KEY_PW
+    bw logout >/dev/null 2>&1 || true
+    bw login "$2" --passwordenv AZET_PASS_KEY_PW --raw > "$D/session.new" && mv "$D/session.new" "$D/session" || { rm -f "$D/session.new"; die "sign-in failed"; }
+    echo "signed in" ;;
+  status) [ -f "$D/session" ] && echo "signed in" || echo "signed out" ;;
+  signout) bw logout >/dev/null 2>&1 || true; rm -f "$D/session" "$D/synced"; echo "signed out" ;;
+  get) open; it=$(item "${2:?name}"); [ -n "$it" ] || die "no key named $2"
+    printf %s "$(jq -r '.fields[] | select(.name == "value") | .value' <<<"$it")" ;;
+  list) open; bw list items | jq -r '.[] | select(.type == 2 and any(.fields[]?; .name == "value")) | .name' | sort ;;
+  set) open; name=${2:?name}; value=$(cat); [ -n "$value" ] || die "the value is empty"; it=$(item "$name")
+    if [ -n "$it" ]; then
+      jq -c --arg v "$value" '.fields = [{name: "value", value: $v, type: 1}]' <<<"$it" | bw encode | bw edit item "$(jq -r .id <<<"$it")" >/dev/null; echo "$name: changed"
+    else
+      jq -nc --arg n "$name" --arg v "$value" '{type: 2, name: $n, notes: null, favorite: false, secureNote: {type: 0}, fields: [{name: "value", value: $v, type: 1}], reprompt: 0}' | bw encode | bw create item >/dev/null; echo "$name: added"
+    fi ;;
+  del) open; it=$(item "${2:?name}"); [ -n "$it" ] || die "no key named $2"; bw delete item "$(jq -r .id <<<"$it")" >/dev/null; echo "$2: moved to the trash" ;;
+  *) sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
+esac

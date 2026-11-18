@@ -31,7 +31,7 @@ $('open').href='azetpass://invite'+location.hash;$('web').href='/team'+location.
 
 // 데스크톱 판별 공개 릴리스 꼬리표. 새 판을 낼 때 이 값만 바꿔 배포한다(clients/ship-desktop-mac.sh --publish 뒤).
 // 비어 있으면 그 운영체제의 피드는 404 — 앱은 「업데이트 없음」으로 조용히 넘어간다.
-const DESKTOP_RELEASE: { mac: string; win: string } = { mac: "", win: "" };
+const DESKTOP_RELEASE: { mac: string; win: string } = { mac: "v2026.10.4-mac1", win: "" };
 
 // 우리가 직접 내주는 화면(/team·/invite): 어디에도 끼워 넣을 수 없고, 화면 안의 스크립트·같은 주소로의 요청만 허용한다.
 // (구역 규칙은 이 두 경로를 건드리지 않는다 — 11-18 까지는 구역 규칙이 이 값을 금고용 느슨한 값으로 덮었다.)

@@ -32,6 +32,20 @@ json.dump(j, open(p, 'w'), indent=2)
 p = d + '/scripts/after-sign.js'; s = open(p).read()
 assert 'teamId: "LTZ2PFU5D6"' in s, 'upstream moved the notarization team id'
 open(p, 'w').write(s.replace('teamId: "LTZ2PFU5D6"', f'teamId: "{team}"'))
+# The system AutoFill extension is left out: it works only with an entitlement Apple grants through a provisioning
+# profile, which this Developer ID build does not carry. Filling in browsers is the browser extension's job.
+p = d + '/scripts/after-pack.js'; s = open(p).read()
+assert '      copyMacOsAutofillExtension(context);\n' in s, 'upstream moved the AutoFill extension step'
+s = s.replace('      copyMacOsAutofillExtension(context);\n', '')
+# The helper browsers talk to is signed without the sandbox and App Group upstream gives it (those need the profile
+# too): unsandboxed, it and the app meet in the same per-user folder, as they did before upstream sandboxed it.
+anchor = '  "com.bitwarden.desktop": "entitlements.desktop_proxy.plist",\n'
+assert anchor in s, 'upstream moved the proxy entitlements table'
+s = s.replace(anchor, anchor + '  "io.azet.pass": "entitlements.mac.inherit.plist",\n')
+# That step signs with CSC_NAME as given; our keychain holds two certificates with that name, so it names the kind.
+own = '      id = process.env.CSC_NAME;\n'
+assert own in s, 'upstream moved the signing identity choice'
+open(p, 'w').write(s.replace(own, '      id = "Developer ID Application: " + process.env.CSC_NAME;\n'))
 PY
 
 echo "== 2/5 build, sign, notarize"
@@ -58,14 +72,26 @@ codesign -dv "$APP" 2>&1 | grep -q "TeamIdentifier=$TEAM" || fail "not signed by
 "$APP/Contents/MacOS/AZET Pass" --user-data-dir="$T/profile" >"$T/run.log" 2>&1 & PID=$!
 sleep 12; kill -0 $PID 2>/dev/null || fail "the app exited on launch: $(tail -3 "$T/run.log")"
 kill $PID; rm -rf "$T"
-xcrun stapler staple "$DMG" >/dev/null 2>&1 || xcrun notarytool submit "$DMG" --apple-id "$APPLE_ID_USERNAME" --password "$APPLE_ID_PASSWORD" --team-id $TEAM --wait >/dev/null && xcrun stapler staple "$DMG" >/dev/null
+# the installer image is signed and notarized as its own file (the app inside already is), so it opens without a warning
+codesign --force --timestamp -s "Developer ID Application: $CSC_NAME" "$DMG"
+xcrun notarytool submit "$DMG" --apple-id "$APPLE_ID_USERNAME" --password "$APPLE_ID_PASSWORD" --team-id $TEAM --wait >/dev/null
+xcrun stapler staple "$DMG" >/dev/null
 spctl -a -vv -t open --context context:primary-signature "$DMG" 2>&1 | grep -q "Notarized Developer ID" || fail "the dmg is not notarized"
 
 echo "== 4/5 collect"
 rm -rf "$OUT"; mkdir -p "$OUT"
 cp "$ZIP" "$OUT/azet-pass-mac-arm64-$V.zip"; cp "$DMG" "$OUT/azet-pass-mac-arm64-$V.dmg"
-# the feed names the files as they are published; sizes and hashes are the builder's own
-sed -E "s#(url|path): .*\.zip#\1: azet-pass-mac-arm64-$V.zip#; s#url: .*\.dmg#url: azet-pass-mac-arm64-$V.dmg#" "$d/dist/latest-mac.yml" > "$OUT/latest-mac.yml"
+# The feed carries the zip only (what an installed copy updates from), under the name it is published with; its size
+# and hash are the builder's own. The dmg was re-signed after the builder hashed it, so its lines are dropped.
+python3 - "$d/dist/latest-mac.yml" "$OUT/latest-mac.yml" "azet-pass-mac-arm64-$V.zip" <<'PY'
+import re, sys
+src, out, name = sys.argv[1:]
+s = open(src).read()
+zip_entry = re.search(r"  - url: [^\n]*-mac\.zip\n    sha512: ([^\n]+)\n    size: (\d+)\n", s)
+date = re.search(r"releaseDate: [^\n]+", s).group(0)
+version = re.search(r"version: [^\n]+", s).group(0)
+open(out, 'w').write(f"{version}\nfiles:\n  - url: {name}\n    sha512: {zip_entry.group(1)}\n    size: {zip_entry.group(2)}\npath: {name}\nsha512: {zip_entry.group(1)}\n{date}\n")
+PY
 (cd "$src" && git diff > "$OUT/azet-pass-desktop-$V.patch") # GPL: our changes to the upstream tag, with the tag named in the release notes
 ls -l "$OUT" | awk 'NR>1{print $5, $9}'; cat "$OUT/latest-mac.yml"
 

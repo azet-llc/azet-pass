@@ -38,13 +38,15 @@ The server never holds anything that opens a vault. Every item field (name, user
 | Online password guessing | — | — | `LOGIN_RATE_LIMITER` 5 per minute per email or IP; constant-ish delay for unknown accounts (`LOGIN_MISSING_USER_DELAY_MS`) |
 | Account enumeration | whether an address has an account (prelogin returns default KDF for unknown addresses, but register says "already exists") | — | accepted, as in Bitwarden |
 | A malicious or compromised server operator | can change the web vault JavaScript it serves and capture the master password typed into it | — | **the weak point.** The installed clients (browser extension, desktop, Android, iOS) ship their code inside the signed package and do not load code from the server, so a server compromise does not reach them. The web vault served by this Worker is a convenience; the apps are the trusted path. Today `public/web-vault` is empty in production, so no code is served from the server at all |
-| A malicious server sending crafted ciphertext or keys | could try key-substitution (e.g. hand a client a public key it controls during sharing) | — | sharing and organizations are not implemented on this server, so there is no key exchange to subvert |
+| A malicious server sending crafted ciphertext or keys | could try key-substitution: when an organizer hands the shared-vault key to a new member, the server could present a public key it controls instead of the member's | — | the organizer does not trust the key the server shows. The member reads the fingerprint of their own public key (20 hex characters, shown on their device) to the organizer over a channel the server does not carry, and the organizer hands the vault key over only when it matches (`server/gw/team.html`, `server/scripts/team.mjs`; covered by `server/test/team.sh`). A member who skips the check gets no protection against this server-side attack |
 | Licence service compromise (suite-api) | could grant or remove Premium | vault data (it never receives any) | the Pass server sends suite-api only the key, the account id and `pass` |
-| Lost master password | — | — | nobody can recover the vault, including AZET. The hint is not emailed (the Worker sends no mail). Stated in the hint answer |
+| Lost master password | — | — | nobody can recover the vault, including AZET. The hint is not emailed. Stated in the hint answer |
 
 ## Out of scope / not built
 
-Organizations and sharing, emergency access, SSO, Key Connector, admin panel, email delivery (verification, hint, new-device notices). These are listed as 다름 in PARITY with their reason.
+Emergency access, SSO, Key Connector, an admin panel, and mail for the password hint or new-device notices. The only mail this service sends is the sign-up confirmation link (`server/src/signup.js`).
+
+Built since the first version of this document: shared vaults for a family or a team, including accounts for AI agents whose access can be limited in time and whose reads and changes are recorded (`server/migrations/0014`–`0017`). What the server learns from sharing: who is a member of which shared vault, when an item was handed over, changed or deleted, and how many — never an item's contents.
 
 ## How to re-check
 

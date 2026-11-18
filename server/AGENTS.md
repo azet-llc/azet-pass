@@ -1,11 +1,9 @@
 # Repository Guidelines
 
 ## Overview
-Warden is a minimal, Bitwarden-compatible backend that runs on Cloudflare Workers (inspired by Vaultwarden).
-This repository does **not** reuse Vaultwarden code: `vaultwarden/` is for reference only.
-The bundled web UI is shipped as prebuilt artifacts under `public/web-vault/`.
-It typically should not be edited.
-Unsupported/"won't implement" features are listed in `README.md`.
+The AZET Pass sync server: a Cloudflare Worker (Rust) that speaks the protocol the AZET Pass apps use, plus the public gateway in `gw/`.
+The bundled web vault is shipped as prebuilt artifacts under `public/web-vault/` (built by `../clients/build-web.sh`); do not edit it by hand.
+What is deliberately not built is listed in `README.md`.
 
 ## Project Structure & Module Organization
 - `src/`: Rust backend (Axum router + request handlers).

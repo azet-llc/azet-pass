@@ -23,7 +23,7 @@ https.createServer({ key: fs.readFileSync(key), cert: fs.readFileSync(cert) }, a
       const key = req.url.split('?')[0]
       if (!cache.has(key)) { const r = await fetch(origin + key); cache.set(key, [r.status, r.headers.get('content-type') || 'text/html', Buffer.from(await r.arrayBuffer())]) }
       const [s, t, b] = cache.get(key)
-      res.writeHead(s, { 'content-type': t }); res.end(b)
+      res.writeHead(s, { 'content-type': t, ...(process.env.CSP ? { 'content-security-policy': process.env.CSP } : {}) }); res.end(b) // CSP=… tries a policy before it goes on the zone
     }
   } catch (e) { res.writeHead(502); res.end(String(e)) }
 }).listen(Number(port), '127.0.0.1')

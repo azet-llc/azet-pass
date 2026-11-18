@@ -12,6 +12,7 @@ async def main():
         page = await (await browser.new_context(ignore_https_errors=True, locale="en-US")).new_page()
         errors = []
         page.on("pageerror", lambda e: errors.append(str(e)[:160]))
+        page.on("console", lambda m: m.type == "error" and errors.append(re.sub(r"access_token=[^ '\"]+", "access_token=(hidden)", m.text)[:200]))
         text = lambda: page.evaluate("document.body.innerText.replace(/\\s+/g, ' ').slice(0, 300)")
         await page.goto(base + "/#/login"); await page.wait_for_selector("input[type=email]", timeout=60000)
         print("login page:", await text())
@@ -27,7 +28,7 @@ async def main():
             seen = False
         body = await page.evaluate("document.body.innerText")
         print("after login:", re.sub(r"\s+", " ", body).replace(master, "(hidden)")[:300])
-        print("old name on screen:", len(re.findall("bitwarden", body, re.I)), "· page errors:", errors[:3])
+        print("old name on screen:", len(re.findall("bitwarden", body, re.I)), "· page errors:", errors[:6])
         print("WEB RESULT: item seen=" + ("ok" if seen else "FAIL"))
         await browser.close()
 

@@ -338,6 +338,10 @@ pub fn publish_cipher_update(
             context_id.as_deref(),
         );
         let selector = PublishSelector::user(&user_id);
+        // A shared item: the vault's other members are told too (their apps ask the server for what changed).
+        for member in vault_mates(&env, &cipher_id, &user_id).await {
+            send_ws_to_do(&env, &PublishSelector::user(&member), &ws_bytes).await;
+        }
         futures_util::join!(
             send_ws_to_do(&env, &selector, &ws_bytes),
             push::push_cipher_update(
@@ -349,6 +353,39 @@ pub fn publish_cipher_update(
                 context_id.as_deref(),
             ),
         );
+    });
+}
+
+/// Confirmed members, other than `except`, of the shared vault an item is in (none for a personal item).
+async fn vault_mates(env: &Env, cipher_id: &str, except: &str) -> Vec<String> {
+    let Ok(db) = crate::db::get_db(env) else { return vec![] };
+    let rows = db
+        .prepare("SELECT DISTINCT m.user_id AS id FROM org_members m JOIN ciphers c ON c.organization_id = m.org_id WHERE c.id = ?1 AND m.status = 2 AND m.user_id IS NOT NULL AND m.user_id != ?2")
+        .bind(&[cipher_id.into(), except.into()]);
+    match rows {
+        Ok(q) => q.all().await.ok().and_then(|r| r.results::<serde_json::Value>().ok()).unwrap_or_default()
+            .iter().filter_map(|r| r.get("id").and_then(|v| v.as_str()).map(String::from)).collect(),
+        Err(_) => vec![],
+    }
+}
+
+/// A shared vault changed as a whole (an item shared or taken back, a member or a collection changed): each
+/// confirmed member's apps sync at once.
+pub fn publish_org_vault(env: Env, org_id: String) {
+    crate::background::spawn_background(async move {
+        let Ok(db) = crate::db::get_db(&env) else { return };
+        let Ok(q) = db.prepare("SELECT user_id AS id FROM org_members WHERE org_id = ?1 AND status = 2 AND user_id IS NOT NULL").bind(&[org_id.as_str().into()]) else { return };
+        let members: Vec<String> = q.all().await.ok().and_then(|r| r.results::<serde_json::Value>().ok()).unwrap_or_default()
+            .iter().filter_map(|r| r.get("id").and_then(|v| v.as_str()).map(String::from)).collect();
+        let now = crate::db::now_string();
+        for member in members {
+            let ws_bytes = create_update(
+                vec![("UserId".into(), member.as_str().into()), ("Date".into(), serialize_date(parse_timestamp(&now)))],
+                UpdateType::SyncVault as i32,
+                None,
+            );
+            send_ws_to_do(&env, &PublishSelector::user(&member), &ws_bytes).await;
+        }
     });
 }
 

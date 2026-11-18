@@ -81,12 +81,13 @@ async fn target(db: &db::Db, org_id: &str, member_id: &str) -> Result<Value, App
         .ok_or_else(|| AppError::NotFound("Member not found".into()))
 }
 
-async fn touch_org_users(db: &db::Db, org_id: &str) -> Result<(), AppError> {
+async fn touch_org_users(env: &Env, db: &db::Db, org_id: &str) -> Result<(), AppError> {
     // clients resync when their account revision moves
     d1_query!(db, "UPDATE users SET updated_at = ?1 WHERE id IN (SELECT user_id FROM org_members WHERE org_id = ?2 AND user_id IS NOT NULL)", db::now_string(), org_id)
         .map_err(|_| AppError::Database)?
         .run()
         .await?;
+    crate::notifications::publish_org_vault(env.clone(), org_id.to_string());
     Ok(())
 }
 
@@ -243,7 +244,7 @@ pub async fn rename(claims: Claims, State(env): State<Arc<Env>>, Path(org_id): P
     let name = s(&p, "name").ok_or_else(|| bad("name"))?;
     d1_query!(&db, "UPDATE organizations SET name = ?1, updated_at = ?2 WHERE id = ?3", name, db::now_string(), org_id)
         .map_err(|_| AppError::Database)?.run().await?;
-    touch_org_users(&db, &org_id).await?;
+    touch_org_users(&env, &db, &org_id).await?;
     Ok(Json(json!({})))
 }
 
@@ -380,7 +381,7 @@ pub async fn accept(claims: Claims, State(env): State<Arc<Env>>, Path((org_id, m
     d1_query!(&db, "UPDATE org_members SET user_id = ?1, status = 1, invite_token = NULL, reset_password_key = ?2, updated_at = ?3 WHERE id = ?4",
         claims.sub, s(&p, "resetPasswordKey"), db::now_string(), member_id)
         .map_err(|_| AppError::Database)?.run().await?;
-    touch_org_users(&db, &org_id).await?;
+    touch_org_users(&env, &db, &org_id).await?;
     Ok(Json(json!({})))
 }
 
@@ -397,7 +398,7 @@ pub async fn confirm(claims: Claims, State(env): State<Arc<Env>>, Path((org_id, 
     let key = s(&p, "key").ok_or_else(|| bad("key"))?;
     d1_query!(&db, "UPDATE org_members SET akey = ?1, status = 2, updated_at = ?2 WHERE id = ?3", key, db::now_string(), member_id)
         .map_err(|_| AppError::Database)?.run().await?;
-    touch_org_users(&db, &org_id).await?;
+    touch_org_users(&env, &db, &org_id).await?;
     Ok(Json(json!({})))
 }
 
@@ -423,7 +424,7 @@ pub async fn update_member(claims: Claims, State(env): State<Arc<Env>>, Path((or
     if let Some(cols) = p.get("collections") {
         set_member_collections(&db, &org_id, &member_id, cols).await?;
     }
-    touch_org_users(&db, &org_id).await?;
+    touch_org_users(&env, &db, &org_id).await?;
     Ok(Json(json!({})))
 }
 
@@ -438,7 +439,7 @@ async fn set_status(env: &Env, claims: &Claims, org_id: &str, member_id: &str, s
     let next = if status == REVOKED { REVOKED } else if m["akey"].is_string() { CONFIRMED } else { ACCEPTED };
     d1_query!(&db, "UPDATE org_members SET status = ?1, updated_at = ?2 WHERE id = ?3", next, db::now_string(), member_id)
         .map_err(|_| AppError::Database)?.run().await?;
-    touch_org_users(&db, org_id).await?;
+    touch_org_users(&env, &db, org_id).await?;
     log_event(&db, org_id, member_id, if next == REVOKED { "revoke" } else { "grant" }, None, 1, None).await?;
     Ok(Json(json!({})))
 }
@@ -467,7 +468,7 @@ pub async fn remove(claims: Claims, State(env): State<Arc<Env>>, Path((org_id, m
     if s(&m, "user_id").as_deref() == Some(claims.sub.as_str()) {
         return Err(bad("Use leave to remove yourself"));
     }
-    touch_org_users(&db, &org_id).await?;
+    touch_org_users(&env, &db, &org_id).await?;
     d1_query!(&db, "DELETE FROM org_members WHERE id = ?1", member_id).map_err(|_| AppError::Database)?.run().await?;
     Ok(Json(json!({})))
 }
@@ -568,7 +569,7 @@ pub async fn set_access(claims: Claims, State(env): State<Arc<Env>>, Path((org_i
     let end = until(&p)?;
     d1_query!(&db, "UPDATE org_members SET access_until = ?1, updated_at = ?2 WHERE id = ?3 AND org_id = ?4", end, db::now_string(), member_id, org_id)
         .map_err(|_| AppError::Database)?.run().await?;
-    touch_org_users(&db, &org_id).await?;
+    touch_org_users(&env, &db, &org_id).await?;
     log_event(&db, &org_id, &member_id, "grant", None, 1, end.as_deref()).await?;
     Ok(Json(json!({"accessUntil": end})))
 }
@@ -701,7 +702,7 @@ pub async fn subscription(claims: Claims, State(env): State<Arc<Env>>, Path(org_
     })))
 }
 
-async fn write_collection(db: &db::Db, org_id: &str, cid: &str, p: &Value) -> Result<(), AppError> {
+async fn write_collection(env: &Env, db: &db::Db, org_id: &str, cid: &str, p: &Value) -> Result<(), AppError> {
     if let Some(users) = p.get("users").and_then(|u| u.as_array()) {
         d1_query!(db, "DELETE FROM collection_members WHERE collection_id = ?1", cid).map_err(|_| AppError::Database)?.run().await?;
         for u in users {
@@ -711,7 +712,7 @@ async fn write_collection(db: &db::Db, org_id: &str, cid: &str, p: &Value) -> Re
                 .map_err(|_| AppError::Database)?.run().await?;
         }
     }
-    touch_org_users(db, org_id).await
+    touch_org_users(env, db, org_id).await
 }
 
 /// POST /api/organizations/{org_id}/collections {name, users:[{id, readOnly}], travelSafe}
@@ -735,9 +736,9 @@ pub async fn create_collection(claims: Claims, State(env): State<Arc<Env>>, Path
         users.retain(|u| u["id"] != caller["id"]);
         users.push(json!({"id": caller["id"], "readOnly": false, "manage": true}));
         p2["users"] = Value::Array(users);
-        write_collection(&db, &org_id, &cid, &p2).await?;
+        write_collection(&env, &db, &org_id, &cid, &p2).await?;
     } else {
-        write_collection(&db, &org_id, &cid, &p).await?;
+        write_collection(&env, &db, &org_id, &cid, &p).await?;
     }
     let c: Value = db.prepare("SELECT *, 0 AS read_only, 0 AS hide_passwords, 1 AS manage FROM collections WHERE id = ?1").bind(&[cid.into()])?.first(None).await?.ok_or(AppError::Internal)?;
     Ok(Json(collection_json(&c)))
@@ -760,7 +761,7 @@ pub async fn update_collection(claims: Claims, State(env): State<Arc<Env>>, Path
     d1_query!(&db, "UPDATE collections SET name = COALESCE(?1, name), travel_safe = COALESCE(?2, travel_safe), updated_at = ?3 WHERE id = ?4 AND org_id = ?5",
         s(&p, "name"), p.get("travelSafe").and_then(|x| x.as_bool()).map(|x| x as i64), db::now_string(), cid, org_id)
         .map_err(|_| AppError::Database)?.run().await?;
-    write_collection(&db, &org_id, &cid, &p).await?;
+    write_collection(&env, &db, &org_id, &cid, &p).await?;
     Ok(Json(json!({"id": cid})))
 }
 
@@ -773,7 +774,7 @@ pub async fn delete_collection(claims: Claims, State(env): State<Arc<Env>>, Path
     d1_query!(&db, "DELETE FROM ciphers WHERE organization_id = ?1 AND id IN (SELECT cipher_id FROM collection_ciphers WHERE collection_id = ?2) AND id NOT IN (SELECT cipher_id FROM collection_ciphers WHERE collection_id != ?2)", org_id, cid)
         .map_err(|_| AppError::Database)?.run().await?;
     d1_query!(&db, "DELETE FROM collections WHERE id = ?1 AND org_id = ?2", cid, org_id).map_err(|_| AppError::Database)?.run().await?;
-    touch_org_users(&db, &org_id).await?;
+    touch_org_users(&env, &db, &org_id).await?;
     Ok(Json(json!({})))
 }
 
@@ -807,7 +808,7 @@ pub async fn set_cipher_collections(db: &db::Db, cipher_id: &str, ids: &[String]
 
 /// PUT /api/ciphers/{id}/share {cipher, collectionIds} — a personal item moves into a shared vault. The client has
 /// Moves one personal item of `user` into an organization's vaults; the answer is the whole item.
-async fn share_one(db: &db::Db, user: &str, id: &str, cipher: &Value, ids: &[String]) -> Result<Value, AppError> {
+async fn share_one(env: &Env, db: &db::Db, user: &str, id: &str, cipher: &Value, ids: &[String]) -> Result<Value, AppError> {
     let org_id = s(cipher, "organizationId").ok_or_else(|| bad("organizationId"))?;
     check_collections_writable(db, &org_id, user, ids).await?;
     let owned: Option<Value> = db.prepare("SELECT 1 FROM ciphers WHERE id = ?1 AND user_id = ?2 AND organization_id IS NULL").bind(&[id.into(), user.into()])?.first(None).await?;
@@ -820,7 +821,7 @@ async fn share_one(db: &db::Db, user: &str, id: &str, cipher: &Value, ids: &[Str
         org_id, data, now, id, user)
         .map_err(|_| AppError::Database)?.run().await?;
     set_cipher_collections(db, id, ids).await?;
-    touch_org_users(db, &org_id).await?;
+    touch_org_users(env, db, &org_id).await?;
     log_agent_write(db, user, Some(&org_id), "write", id).await?; // an AI account putting something into the vault is on the record
     // The clients read the answer as the whole item (type, name, fields…): a bare id made them report "failed to
     // share" for a share that had worked.
@@ -839,7 +840,7 @@ fn collection_ids(p: &Value) -> Vec<String> {
 pub async fn share_cipher(claims: Claims, State(env): State<Arc<Env>>, Path(id): Path<String>, Json(p): Json<Value>) -> Result<Json<Value>, AppError> {
     let db = db::get_db(&env)?;
     let cipher = p.get("cipher").cloned().ok_or_else(|| bad("cipher"))?;
-    Ok(Json(share_one(&db, &claims.sub, &id, &cipher, &collection_ids(&p)).await?))
+    Ok(Json(share_one(&env, &db, &claims.sub, &id, &cipher, &collection_ids(&p)).await?))
 }
 
 /// PUT|POST /api/ciphers/share {ciphers: [{id, …}], collectionIds} — what the web vault's "Assign to collections" sends.
@@ -850,7 +851,7 @@ pub async fn share_ciphers(claims: Claims, State(env): State<Arc<Env>>, Json(p):
     let mut data = Vec::new();
     for cipher in p.get("ciphers").and_then(|c| c.as_array()).cloned().unwrap_or_default() {
         let id = s(&cipher, "id").ok_or_else(|| bad("id"))?;
-        data.push(share_one(&db, &claims.sub, &id, &cipher, &ids).await?);
+        data.push(share_one(&env, &db, &claims.sub, &id, &cipher, &ids).await?);
     }
     Ok(Json(json!({"object": "list", "data": data, "continuationToken": null})))
 }
@@ -876,7 +877,7 @@ pub async fn unshare_cipher(claims: Claims, State(env): State<Arc<Env>>, Path(id
         claims.sub, data, db::now_string(), id, org_id)
         .map_err(|_| AppError::Database)?.run().await?;
     set_cipher_collections(&db, &id, &[]).await?;
-    touch_org_users(&db, &org_id).await?; // after the change: a member who syncs now already misses the item
+    touch_org_users(&env, &db, &org_id).await?; // after the change: a member who syncs now already misses the item
     Ok(Json(json!({"id": id})))
 }
 
@@ -891,7 +892,7 @@ pub async fn cipher_collections(claims: Claims, State(env): State<Arc<Env>>, Pat
     check_collections_writable(&db, &org_id, &claims.sub, &ids).await?;
     set_cipher_collections(&db, &id, &ids).await?;
     d1_query!(&db, "UPDATE ciphers SET updated_at = ?1 WHERE id = ?2", db::now_string(), id).map_err(|_| AppError::Database)?.run().await?;
-    touch_org_users(&db, &org_id).await?;
+    touch_org_users(&env, &db, &org_id).await?;
     Ok(Json(json!({})))
 }
 

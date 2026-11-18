@@ -29,15 +29,20 @@ a.s{background:#fff;color:#0d7d66;border:1px solid #cfe3dd}.logo{width:76px;heig
 <script>var $=function(i){return document.getElementById(i)};if((navigator.language||'').indexOf('ko')==0){$('t').textContent='가족이 AZET Pass에 초대했어요';$('d').textContent='휴대폰에서 이 페이지를 여세요. AZET Pass를 설치한 뒤 「앱에서 열기」를 누르면 돼요.';$('open').textContent='앱에서 열기';$('get').textContent='iPhone용 AZET Pass 받기';$('and').textContent='Android용 AZET Pass 받기'}
 $('open').href='azetpass://invite'+location.hash;$('web').href='/team'+location.hash;if((navigator.language||'').indexOf('ko')==0)$('web').textContent='브라우저에서 참여';</script></body></html>`;
 
+// 우리가 직접 내주는 화면(/team·/invite): 어디에도 끼워 넣을 수 없고, 화면 안의 스크립트·같은 주소로의 요청만 허용한다.
+// (구역 규칙은 이 두 경로를 건드리지 않는다 — 11-18 까지는 구역 규칙이 이 값을 금고용 느슨한 값으로 덮었다.)
+const OWN_PAGE = { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "referrer-policy": "no-referrer",
+  "x-frame-options": "DENY", "x-content-type-options": "nosniff",
+  "content-security-policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'" };
+
 export default {
   async fetch(req: Request, env: Env): Promise<Response> {
     const path = new URL(req.url).pathname;
     // Android App Links: lets AZET Pass for Android open the sign-up mail link (/redirect-connector.html#finish-signup…)
     if (path === "/.well-known/assetlinks.json") return Response.json(ASSET_LINKS);
     if (path === "/.well-known/apple-app-site-association") return Response.json(AASA);
-    if (path === "/invite" || path === "/invite/") return new Response(INVITE, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "referrer-policy": "no-referrer" } });
-    if (path === "/team" || path === "/team/") return new Response(TEAM, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "referrer-policy": "no-referrer",
-      "x-frame-options": "DENY", "x-content-type-options": "nosniff", "content-security-policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'" } });
+    if (path === "/invite" || path === "/invite/") return new Response(INVITE, { headers: OWN_PAGE });
+    if (path === "/team" || path === "/team/") return new Response(TEAM, { headers: OWN_PAGE });
     if (!env.INTERNAL_KEY) return new Response("unavailable", { status: 503 });
     const h = new Headers(req.headers);
     h.delete("Cookie");

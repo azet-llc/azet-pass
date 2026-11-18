@@ -50,9 +50,10 @@ Built since the first version of this document: shared vaults for a family or a 
 
 ## Connecting an AI: one item at a time
 
-The owner's account holds everything, encrypted with keys only the owner's devices have. An AI never signs in to that account. It has its own account, joined to a shared vault, and receives only the items the owner moved there, one by one.
+The owner's account holds everything, encrypted with keys only the owner's devices have. An AI is meant to work from its own account, joined to a shared vault, where it receives only the items the owner moved there, one by one.
 
 - **Where the line is.** It is the server boundary and the encryption, not a rule file on the AI's machine: an item that was not shared is not sent to the AI account at all, and the AI account has no key that opens it. An AI process that misbehaves can read what was shared with it and nothing else.
+- **What the line depends on.** It holds only for an AI that does not have the owner's master password or an unlocked owner session. A machine where the owner's password sits in a key store the AI can read, or where the desktop app is signed in to the owner's account and unlocked for AI use, gives that AI the whole vault; the shared vault then limits nothing. One-at-a-time is real once the owner's password is known to the owner alone and each AI machine is signed in with the AI account.
 - **"Randomised".** There is no home-made scrambling layer. Names, values and notes are AES-256 ciphertext with a random IV on the server; what an AI works with for anything not shared is a name or reference, never a value.
 - **Giving one.** In the vault: item menu → Assign to collections. Or add it on pass.azet.io/team. The item is re-encrypted on the owner's device with the shared vault's key.
 - **Taking one back.** pass.azet.io/team → the login → Stop sharing (`PUT /api/ciphers/{id}/unshare`): re-encrypted on the owner's device back to the owner's own key; members stop receiving it on their next sync. Turning an AI account's access off, or removing it from the vault, stops everything at once.

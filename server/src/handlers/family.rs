@@ -862,6 +862,11 @@ pub async fn unshare_cipher(claims: Claims, State(env): State<Arc<Env>>, Path(id
         .ok_or_else(|| AppError::NotFound("Cipher not found".into()))?;
     let org_id = s(&row, "organization_id").ok_or_else(|| bad("Not a shared item"))?;
     organizer(&db, &org_id, &claims.sub).await?;
+    // attachment keys are wrapped with the item's key and are not part of this payload: refuse rather than orphan them
+    let files: Option<Value> = db.prepare("SELECT 1 FROM attachments WHERE cipher_id = ?1 LIMIT 1").bind(&[id.clone().into()])?.first(None).await?;
+    if files.is_some() {
+        return Err(bad("This item has attachments"));
+    }
     let cipher = p.get("cipher").cloned().ok_or_else(|| bad("cipher"))?;
     let data = crate::models::cipher::CipherData::from_share_payload(&cipher)?;
     touch_org_users(&db, &org_id).await?; // while they are still the item's members: their apps drop it on the next sync

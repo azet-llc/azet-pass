@@ -255,7 +255,7 @@ swap(W + 'auth/settings/account/account.component.html', [[/\n\s*<ng-container>\
 // #8 emergency access, #13 organizations: not on our server
 swap(W + 'layouts/user-layout.component.html', [[/@if \(showEmergencyAccess\(\)\) \{/g, '@if (false) {'], ['@if (!singleOrgPolicyApplies()) {', '@if (false) {'],
   // the way from the vault to sharing with people and AI accounts (pass.azet.io/team is our own page, outside the app's router)
-  ['  </app-side-nav>', '    <a href="/team" class="tw-block !tw-no-underline"><bit-nav-item icon="bwi-users" text="AI · Team"></bit-nav-item></a>\n  </app-side-nav>']])
+  ['  </app-side-nav>', '    <a href="/team" target="_blank" rel="noopener" class="tw-block !tw-no-underline"><bit-nav-item icon="bwi-users" text="AI · Team"></bit-nav-item></a>\n  </app-side-nav>']])
 swap(W + 'vault/individual-vault/vault-filter/components/vault-filter.component.ts', [['const addAction = !singleOrgPolicy', 'const addAction = false // AZET: no organizations\n']])
 swap(W + 'layouts/org-switcher/org-switcher.component.html', [['@if (!hideNewButton && !vfo1Enabled()) {', '@if (false) {']])
 // #14 product switcher: Secrets Manager and Admin Console are Bitwarden business products

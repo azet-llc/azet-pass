@@ -80,6 +80,9 @@ LATE=$(ow get template item | jq -c --arg n "$S_NAME-late" --arg o "$ORG" --arg 
 bw sync >/dev/null; [ "$(bw get password "$S_NAME-late" 2>/dev/null)" = late-three ] || { echo "FAIL: a newly shared item did not reach the signed-in agent"; exit 1; }
 ow delete item "$LATE" >/dev/null
 bw sync >/dev/null; [ "$(bw list items --search "$S_NAME-late" | jq length)" = 0 ] && echo "4b2 a signed-in agent gets a new share and loses a removed one on an ordinary sync: ok" || { echo "FAIL: a removed item stayed with the signed-in agent"; exit 1; }
+# 4b0 a wrong password is answered the way the apps read it (they showed "unexpected error" for a bare 401)
+WRONG=$(curl -sk -o "$W/wrong" -w '%{http_code}' "$URL/identity/connect/token" -H 'content-type: application/x-www-form-urlencoded' --data-urlencode grant_type=password --data-urlencode "username=$OWNER" --data-urlencode password=AAAA --data-urlencode 'scope=api offline_access' --data-urlencode client_id=cli --data-urlencode deviceType=8 --data-urlencode deviceIdentifier=00000000-0000-4000-8000-000000000009 --data-urlencode deviceName=t)
+[ "$WRONG" = 400 ] && grep -q invalid_grant "$W/wrong" && echo "4b0 wrong password: 400 invalid_grant: ok" || { echo "FAIL: wrong password answer: $WRONG $(head -c 200 "$W/wrong")"; exit 1; }
 # 4b3 one by one, the other way: the owner takes the moved item back; the signed-in agent loses it on an ordinary
 # sync, and the owner's own app still opens it (re-encrypted from the team key to the owner's key)
 team "$OWNER" "$PW_O" take-back "$ORG" "$P1" >/dev/null

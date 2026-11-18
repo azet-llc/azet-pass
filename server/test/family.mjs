@@ -157,6 +157,18 @@ assert.deepEqual(new Uint8Array(await (await fetch(meta.url)).arrayBuffer()), bl
 assert.equal((await api(b.tok, 'POST', `/api/ciphers/${bank.id}/attachment/v2`, { key: 'k', fileName: 'f', fileSize: 1 })).status, 404, 'no files on a read-only vault')
 assert.equal((await api(cc.tok, 'GET', `/api/ciphers/${item.id}/attachment/${slot.attachmentId}`)).status, 404, 'outsider cannot open the file')
 console.log('4b family files: ok')
+// 4c the many-at-once share (the web vault's "Assign to collections") and taking one back
+const aOwn = await ok(a.tok, 'POST', '/api/ciphers', { type: 2, name: await encS(a.userKey, 'mine only'), notes: null, secureNote: { type: 0 } })
+const bulk = (tok, id) => api(tok, 'PUT', '/api/ciphers/share', { ciphers: [{ id, type: 2, organizationId: org.id, name: 'x', secureNote: { type: 0 } }], collectionIds: [shared] })
+assert.equal((await bulk(b.tok, aOwn.id)).status, 404, 'a member cannot share someone else\'s personal item')
+assert.ok(!(await sync(b)).ciphers.some((x) => x.id === aOwn.id), 'and it did not move')
+assert.equal((await bulk(a.tok, aOwn.id)).body.data[0].id, aOwn.id, 'its owner can')
+const back = (tok, id) => api(tok, 'PUT', `/api/ciphers/${id}/unshare`, { cipher: { type: 2, name: 'x', secureNote: { type: 0 } } })
+assert.equal((await back(b.tok, aOwn.id)).status, 401, 'only an organizer takes an item back')
+assert.equal((await back(a.tok, item.id)).status, 400, 'an item with files is refused, not orphaned')
+assert.ok((await back(a.tok, aOwn.id)).status < 300); assert.ok(!(await sync(b)).ciphers.some((x) => x.id === aOwn.id), 'taken back: the member no longer gets it')
+console.log('4c many-at-once share and take-back: ok')
+
 
 // 5 outsider sees nothing and cannot inject
 const sc = await sync(cc)

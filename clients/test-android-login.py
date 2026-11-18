@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Installs an AZET Pass Android APK on an emulator, signs in with the test account (key vault) and prints what each
 screen says. The password reaches the device through adb's stdin, never a command line or the output.
-Usage: test-android-login.py <adb serial> <apk> [package]"""
+Usage: test-android-login.py <adb serial> <apk> [package] [item names to look for…]"""
 import re, subprocess, sys, time
 serial, apk = sys.argv[1], sys.argv[2]
 pkg = sys.argv[3] if len(sys.argv) > 3 else "io.azet.pass"
@@ -53,6 +53,6 @@ for _ in range(3):  # autofill / biometrics offers
     if not tap(xml, "Skip", "Not now", "Maybe later", "Ask me later", "Set up later", "Confirm", "No thanks"): break
     xml = step("after offer", 5)
 all_text = " ".join(texts(screen()))
-print("items seen:", [n for n in ("demo-login", "fill-test.azet.example") if n in all_text])
+print("items seen:", [n for n in ("demo-login", "fill-test.azet.example", *sys.argv[4:]) if n in all_text], "· not seen:", [n for n in sys.argv[4:] if n not in all_text])
 print("old name on screen:", len(re.findall("bitwarden", all_text, re.I)))
 print("running:", bool(sh(f"pidof {pkg}").strip()))

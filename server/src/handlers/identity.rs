@@ -42,6 +42,15 @@ use crate::{
 const PASSWORD_SCOPE: &str = "api offline_access";
 const REMEMBER_TOKEN_ISSUER: &str = "warden-worker-device-remember";
 
+/// What the apps read as "wrong email or password" (the same answer the upstream server gives). A bare 401 made
+/// every app say "An unexpected error has occurred" instead.
+fn wrong_login() -> AppError {
+    AppError::api_json(axum::http::StatusCode::BAD_REQUEST, serde_json::json!({
+        "error": "invalid_grant", "error_description": "invalid_username_or_password",
+        "ErrorModel": { "Message": "Username or password is incorrect. Try again.", "Object": "error" },
+    }))
+}
+
 fn login_missing_user_delay_ms(env: &Env) -> u64 {
     const JITTER_MS: i32 = 30;
     const DEFAULT_LOGIN_MISSING_USER_DELAY_MS: i32 = 550;
@@ -310,7 +319,7 @@ async fn authenticate_password_grant(
         Some(user) => user,
         None => {
             Delay::from(StdDuration::from_millis(login_missing_user_delay_ms(env))).await;
-            return Err(AppError::Unauthorized("Invalid credentials".to_string()));
+            return Err(wrong_login());
         }
     };
 
@@ -347,7 +356,7 @@ async fn authenticate_password_grant(
 
     let verification = user.verify_master_password(&password_hash).await?;
     if !verification.is_valid() {
-        return Err(AppError::Unauthorized("Invalid credentials".to_string()));
+        return Err(wrong_login());
     }
 
     Ok(PasswordGrantAuthContext {

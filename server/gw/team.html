@@ -152,7 +152,7 @@ const W = ko ? {
   add: '로그인 추가', itemName: '이름 (예: GitHub 배포)', user: '아이디', pass: '비밀번호', site: '웹 주소(선택)', addGo: '암호화해 저장', addFail: '저장하지 못했어요',
   itemLead: (p, a) => `구성원 ${p}명과 AI 계정 ${a}개가 볼 수 있는 로그인이에요.`, account: '계정', show: '비밀번호 보기', aiReads: 'AI가 다룬 기록', noReads: '아직 AI가 이 로그인을 따로 읽은 적이 없어요.',
   takeBack: '공유 그만하기', takeBackWhy: '이 로그인을 내 금고로 되돌려요. 멤버와 AI 계정은 다음 동기화부터 받지 못해요. 이미 본 값은 되돌릴 수 없으니 필요하면 비밀번호를 바꾸세요.', tookBack: '내 금고로 되돌렸어요', takeBackFail: '되돌리지 못했어요. 첨부 파일이 있으면 앱에서 해 주세요.',
-  keepSafe: '안전하게 지키는 방법', safe1: '이 기기에서만 풀려요', safe1Why: '비밀번호는 팀 키가 있는 기기에서만 풀려요. 서버에는 암호문만 있어요.', safe2: 'AI가 읽으면 기록돼요', safe2Why: 'AI 계정이 이 로그인을 받아 갈 때마다 접근 기록에 남아요.',
+  kick: '이 금고에서 빼기', kickSure: '한 번 더 누르면 빼요', keepSafe: '안전하게 지키는 방법', safe1: '이 기기에서만 풀려요', safe1Why: '비밀번호는 팀 키가 있는 기기에서만 풀려요. 서버에는 암호문만 있어요.', safe2: 'AI가 읽으면 기록돼요', safe2Why: 'AI 계정이 이 로그인을 받아 갈 때마다 접근 기록에 남아요.',
 } : {
   mkTitle: 'Create a shared vault', mkWhy: 'A vault for sharing logins with your family, your team or AI accounts. Its key is made on this device and reaches the server only in encrypted form.', mkName: 'Name (e.g. Our team)', mkGo: 'Create', mkFail: 'The vault could not be created',
   joinTitle: 'Join the vault you were invited to', joinWhy: 'Sign in with the AZET Pass account of the invited email address.', joinNew: 'I have no account yet. Create one with this password', joinShort: 'A new master password needs at least 12 characters.',
@@ -170,7 +170,7 @@ const W = ko ? {
   add: 'Add a login', itemName: 'Name (e.g. GitHub deploy)', user: 'Username', pass: 'Password', site: 'Web address (optional)', addGo: 'Encrypt and save', addFail: 'The login could not be saved',
   itemLead: (p, a) => `${p} ${p === 1 ? 'member' : 'members'} and ${a} AI ${a === 1 ? 'account' : 'accounts'} can see this login.`, account: 'Account', show: 'Show password', aiReads: 'What AI did with it', noReads: 'No AI account has read this login on its own yet.',
   takeBack: 'Stop sharing', takeBackWhy: 'Moves this login back to your own vault. Members and AI accounts stop receiving it from their next sync. What they have already seen cannot be taken back, so change the password if that matters.', tookBack: 'Moved back to your vault', takeBackFail: 'Could not move it back. If it has attachments, do this in the app.',
-  keepSafe: 'How it is kept safe', safe1: 'Opened only on this device', safe1Why: 'The password is decrypted only on a device that holds the team key. The server has ciphertext only.', safe2: 'Recorded when AI reads it', safe2Why: 'Each time an AI account receives this login, a record is written to the access log.',
+  kick: 'Remove from this vault', kickSure: 'Tap again to remove', keepSafe: 'How it is kept safe', safe1: 'Opened only on this device', safe1Why: 'The password is decrypted only on a device that holds the team key. The server has ciphertext only.', safe2: 'Recorded when AI reads it', safe2Why: 'Each time an AI account receives this login, a record is written to the access log.',
   title: 'Access log', settings: 'Settings', out: 'Sign out', checking: 'Checking the log…', checked: 'Every record checked · just now', changed: 'A record was changed or is missing',
   what: (done) => `A record is kept each time an AI agent reads a shared login. This device ${done ? 'checked' : 'is checking'} with the team key that none was changed or removed.`,
   whatBad: 'The log on the server differs from what this device checked last time. Turn access off and write to hello@azet.io.', how: 'What does checking the log with a key mean?',
@@ -357,11 +357,12 @@ function accessSheet(m) {
   const who = m ? [m] : S.members.filter((x) => x.agent), id = m ? `data-id="${m.id}"` : ''
   const cur = who[0]?.accessUntil ? Math.max(1, Math.round((Date.parse(who[0].accessUntil) - Date.now()) / 864e5)) : null, on = who.some((x) => x.status === 2)
   return wrap(m ? esc(m.name || m.email) : W.sheet, `<div class="group"><button class="opt" data-act="days" ${id}><b style="font-weight:400">${W.keep}</b><span data-days="${cur ?? ''}">${cur ? W.days(cur) : W.noEnd} ›</span></button><button class="opt danger" data-act="${on ? 'off' : 'on'}" ${id}>${on ? W.turnOff : W.turnOn}</button></div>
+${m && !(m.azetRole <= 1) ? `<div class="group"><button class="opt danger" data-act="kick" data-id="${m.id}">${W.kick}</button></div>` : ''}
 <small>${W.sheetNote}</small>`)
 }
 async function memberSheet(m) {
-  if (m.status === 0) return wrap(esc(m.name || m.email), `<small class="top">${m.agent ? W.inviteAgentWhy : W.inviteWhy}</small><div class="copybox" id="cp">${esc(`${location.origin}/team#${S.org}.${m.id}.${m.inviteToken}`)}</div><button class="go" data-act="copy" data-from="cp">${W.copy}</button>`)
-  if (m.status === 1) return wrap(esc(m.name || m.email), `<small class="top">${W.fpWhy}</small><div class="mono">${await fingerprint(m.publicKey)}</div><button class="go" data-act="confirm" data-id="${m.id}">${W.fpSame}</button>`)
+  if (m.status === 0) return wrap(esc(m.name || m.email), `<small class="top">${m.agent ? W.inviteAgentWhy : W.inviteWhy}</small><div class="copybox" id="cp">${esc(`${location.origin}/team#${S.org}.${m.id}.${m.inviteToken}`)}</div><button class="go" data-act="copy" data-from="cp">${W.copy}</button>${m && !(m.azetRole <= 1) ? `<div class="group"><button class="opt danger" data-act="kick" data-id="${m.id}">${W.kick}</button></div>` : ''}`)
+  if (m.status === 1) return wrap(esc(m.name || m.email), `<small class="top">${W.fpWhy}</small><div class="mono">${await fingerprint(m.publicKey)}</div><button class="go" data-act="confirm" data-id="${m.id}">${W.fpSame}</button>${m && !(m.azetRole <= 1) ? `<div class="group"><button class="opt danger" data-act="kick" data-id="${m.id}">${W.kick}</button></div>` : ''}`)
   return accessSheet(m)
 }
 const vaultPick = () => S.vaults.length > 1 ? `<select class="field" name="vault">${S.vaults.map((v) => `<option value="${v.id}">${esc(v.name)}</option>`).join('')}</select>` : `<input type="hidden" name="vault" value="${S.vaults[0]?.id ?? ''}">`
@@ -437,7 +438,9 @@ document.addEventListener('click', async (ev) => {
     at.textContent = at.dataset.on ? '••••••••••' : pw; at.dataset.on = at.dataset.on ? '' : '1'; return
   }
   const who = id ? S.members.filter((m) => m.id === id) : S.members.filter((m) => m.agent)
+  if (act === 'kick' && !el.dataset.sure) { el.dataset.sure = 1; el.textContent = W.kickSure; return } // second tap removes
   el.disabled = true
+  if (act === 'kick') await api('DELETE', `${users}/${id}`)
   if (act === 'days') { const next = DAYS[(DAYS.indexOf(Number(el.querySelector('span').dataset.days)) + 1) % DAYS.length]
     for (const m of who) await api('PUT', `${users}/${m.id}/azet/access`, { accessDays: next }) }
   if (act === 'off' || act === 'on') for (const m of who) await api('PUT', `${users}/${m.id}/${act === 'off' ? 'revoke' : 'restore'}`)

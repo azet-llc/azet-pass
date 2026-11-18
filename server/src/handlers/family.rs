@@ -824,7 +824,12 @@ pub async fn share_cipher(claims: Claims, State(env): State<Arc<Env>>, Path(id):
         .map_err(|_| AppError::Database)?.run().await?;
     set_cipher_collections(&db, &id, &ids).await?;
     touch_org_users(&db, &org_id).await?;
-    Ok(Json(json!({"id": id, "organizationId": org_id, "collectionIds": ids, "revisionDate": now})))
+    // The clients read the answer as the whole item (type, name, fields…): a bare id made them report "failed to
+    // share" for a share that had worked.
+    let shared: crate::models::cipher::Cipher = super::ciphers::fetch_cipher_for_user(&db, &id, &claims.sub).await?.into();
+    let mut answer = serde_json::to_value(shared).map_err(|_| AppError::Internal)?;
+    answer["collectionIds"] = json!(ids);
+    Ok(Json(answer))
 }
 
 /// PUT|POST /api/ciphers/{id}/collections {collectionIds}

@@ -51,8 +51,13 @@ export BW_SESSION=$(bw login "$OWNER" "$PW_O" --raw)
 ITEM=$(bw get template item | jq -c --arg n "$S_NAME" --arg u "$S_USER" --arg p "$S_PASS" --arg o "$ORG" --arg v "$VAULT" \
   '.name=$n | .notes=null | .organizationId=$o | .collectionIds=[$v] | .login={username:$u,password:$p,totp:null,uris:[]}')
 ID=$(echo "$ITEM" | bw encode | bw create item | jq -r .id)
+# 3b one by one: a personal item is in nobody else's vault until the owner moves it into the shared vault, and the
+# client must be told the move worked (the answer is the whole item)
+P1=$(bw get template item | jq -c --arg n "$S_NAME-private" '.name=$n | .login={username:"p",password:"private-one",totp:null,uris:[]}' | bw encode | bw create item | jq -r .id)
+P2=$(bw get template item | jq -c --arg n "$S_NAME-kept" '.name=$n | .login={username:"k",password:"kept-two",totp:null,uris:[]}' | bw encode | bw create item | jq -r .id)
+echo "[\"$VAULT\"]" | bw encode | bw move "$P1" "$ORG" >/dev/null || { echo "FAIL: the client was told the share failed"; exit 1; }
 bw logout >/dev/null; unset BW_SESSION
-echo "3 owner stored a team item with bw: ok"
+echo "3 owner stored a team item with bw, 3b moved one personal item into the shared vault: ok"
 
 # 4 the agent reads it with the official CLI, and cannot change it
 export BITWARDENCLI_APPDATA_DIR="$W/bw-agent"
@@ -60,6 +65,8 @@ bw config server $URL >/dev/null
 export BW_SESSION=$(BW_PASSWORD=$PW_A bw login "$AGENT" --passwordenv BW_PASSWORD --raw)
 GOT=$(bw get item "$ID" | jq -r '[.name,.login.username,.login.password]|join("|")')
 [ "$GOT" = "$S_NAME|$S_USER|$S_PASS" ] && echo "4 agent decrypts the team item with bw: ok" || { echo "FAIL: agent read $GOT"; exit 1; }
+[ "$(bw get password "$S_NAME-private")" = private-one ] && ! bw get item "$P2" >/dev/null 2>&1 && [ "$(bw list items | jq length)" = 2 ] \
+  && echo "4a the agent holds the shared item and the moved one, and not the owner's other item: ok" || { echo "FAIL: one-by-one sharing"; exit 1; }
 no bash -c "bw get item $ID | jq '.login.password=\"changed\"' | bw encode | bw edit item $ID"
 bw sync >/dev/null
 [ "$(bw get item "$ID" | jq -r .login.password)" = "$S_PASS" ] && echo "4b read-only agent cannot change it: ok" || { echo "FAIL: read-only item changed"; exit 1; }
@@ -82,7 +89,7 @@ export BW_SESSION=$(BW_PASSWORD=$PW_A bw login "$AGENT" --passwordenv BW_PASSWOR
 [ "$(bw list items | jq length)" = 0 ] && echo "4e expired access: the agent gets no items: ok" || { echo "FAIL: expired agent still reads"; exit 1; }
 team "$OWNER" "$PW_O" access "$ORG" "$AGENT" 30 >/dev/null
 bw sync >/dev/null
-[ "$(bw list items | jq length)" = 1 ] && echo "4f access extended 30 days: the item is back: ok" || { echo "FAIL: extended agent reads nothing"; exit 1; }
+[ "$(bw list items | jq length)" = 2 ] && echo "4f access extended 30 days: the items are back: ok" || { echo "FAIL: extended agent reads nothing"; exit 1; }
 team "$OWNER" "$PW_O" access "$ORG" "$AGENT" off >/dev/null
 bw sync >/dev/null
 [ "$(bw list items | jq length)" = 0 ] && echo "4g access turned off: nothing again: ok" || { echo "FAIL: suspended agent still reads"; exit 1; }

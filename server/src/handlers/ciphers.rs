@@ -33,7 +33,7 @@ impl IntoResponse for RawJson {
 }
 
 /// Helper to fetch a cipher by id for a user or return NotFound.
-async fn fetch_cipher_for_user(
+pub(crate) async fn fetch_cipher_for_user(
     db: &crate::db::Db,
     cipher_id: &str,
     user_id: &str,

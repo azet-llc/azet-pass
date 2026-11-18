@@ -73,8 +73,8 @@ const OVR = {
 }
 // new keys for the Premium benefits our server really gives (web vault Premium page)
 const AZ_KEYS = {
-  en: { azetPremiumReports: { message: 'Password health reports: exposed, reused and weak passwords' }, azetPremiumFileSend: { message: 'File Send' }, azetPremiumArchive: { message: 'Archive items out of your vault list' }, azetPremiumOnlyDesc: { message: 'This is an AZET Pass Premium feature. Your free plan has unlimited passwords and devices, verification codes, text Send and the data breach report.' } },
-  ko: { azetPremiumReports: { message: '비밀번호 점검 보고서: 유출·재사용·약한 비밀번호' }, azetPremiumFileSend: { message: '파일 Send' }, azetPremiumArchive: { message: '항목 보관(목록에서 치워 두기)' }, azetPremiumOnlyDesc: { message: 'AZET Pass Premium 기능입니다. 무료 요금제에서도 비밀번호·기기 수 제한 없이 쓰고, 인증 코드·텍스트 Send·데이터 유출 보고서를 이용할 수 있습니다.' } },
+  en: { azetAiTeam: { message: 'Sharing and AI accounts' }, azetPremiumReports: { message: 'Password health reports: exposed, reused and weak passwords' }, azetPremiumFileSend: { message: 'File Send' }, azetPremiumArchive: { message: 'Archive items out of your vault list' }, azetPremiumOnlyDesc: { message: 'This is an AZET Pass Premium feature. Your free plan has unlimited passwords and devices, verification codes, text Send and the data breach report.' } },
+  ko: { azetAiTeam: { message: '공유 · AI 계정' }, azetPremiumReports: { message: '비밀번호 점검 보고서: 유출·재사용·약한 비밀번호' }, azetPremiumFileSend: { message: '파일 Send' }, azetPremiumArchive: { message: '항목 보관(목록에서 치워 두기)' }, azetPremiumOnlyDesc: { message: 'AZET Pass Premium 기능입니다. 무료 요금제에서도 비밀번호·기기 수 제한 없이 쓰고, 인증 코드·텍스트 Send·데이터 유출 보고서를 이용할 수 있습니다.' } },
 }
 for (const dir of tables.map((d) => p(d)).filter(fs.existsSync)) {
   for (const lang of fs.readdirSync(dir)) {
@@ -255,7 +255,7 @@ swap(W + 'auth/settings/account/account.component.html', [[/\n\s*<ng-container>\
 // #8 emergency access, #13 organizations: not on our server
 swap(W + 'layouts/user-layout.component.html', [[/@if \(showEmergencyAccess\(\)\) \{/g, '@if (false) {'], ['@if (!singleOrgPolicyApplies()) {', '@if (false) {'],
   // the way from the vault to sharing with people and AI accounts (pass.azet.io/team is our own page, outside the app's router)
-  ['  </app-side-nav>', '    <a href="/team" target="_blank" rel="noopener" class="tw-block !tw-no-underline"><bit-nav-item icon="bwi-users" text="AI · Team"></bit-nav-item></a>\n  </app-side-nav>']])
+  ['  </app-side-nav>', '    <a href="/team" target="_blank" rel="noopener" class="tw-block !tw-no-underline"><bit-nav-item icon="bwi-users" [text]="\'azetAiTeam\' | i18n"></bit-nav-item></a>\n  </app-side-nav>']])
 swap(W + 'vault/individual-vault/vault-filter/components/vault-filter.component.ts', [['const addAction = !singleOrgPolicy', 'const addAction = false // AZET: no organizations\n']])
 swap(W + 'layouts/org-switcher/org-switcher.component.html', [['@if (!hideNewButton && !vfo1Enabled()) {', '@if (false) {']])
 // #14 product switcher: Secrets Manager and Admin Console are Bitwarden business products

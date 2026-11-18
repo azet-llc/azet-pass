@@ -9,7 +9,7 @@
 # nothing leaves this computer. Do not run it while another Mac build is using the same keychain.
 set -e
 here=${0:A:h}; . "$here/pins.env"
-V=${DESKTOP_TAG#desktop-v}; W=${AZET_PASS_WORK:-$here/../../azet-pass-work}; src="$W/clients-desktop"; d="$src/apps/desktop"
+V=${DESKTOP_VERSION:-${DESKTOP_TAG#desktop-v}}; W=${AZET_PASS_WORK:-$here/../../azet-pass-work}; src="$W/clients-desktop"; d="$src/apps/desktop"
 OUT="$W/dist-mac-$V"; TEAM=95P4H2RG24
 fail() { echo "SHIP STOPPED: $1"; exit 1; }
 export PATH=/opt/homebrew/opt/rustup/bin:$HOME/.cargo/bin:/opt/homebrew/opt/llvm/bin:$PATH
@@ -19,6 +19,7 @@ echo "== 1/5 source $DESKTOP_TAG, rebranded"
 [ -d "$src" ] || git clone -q --depth 1 --branch "$DESKTOP_TAG" "$CLIENTS_REPO" "$src"
 git -C "$src" checkout -q -- . && git -C "$src" clean -qfd -e node_modules
 node "$here/rebrand.mjs" "$src"
+node "$here/rebrand-desktop.mjs" "$src" "$V"
 # Ours is a Developer ID app without a provisioning profile: entitlements that need one (app groups, the AutoFill
 # provider, an application identifier) would make macOS refuse to start it. What is left lets the JavaScript engine run.
 python3 - "$d" "$TEAM" <<'PY'

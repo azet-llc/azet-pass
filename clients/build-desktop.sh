@@ -8,6 +8,7 @@ export PATH=/opt/homebrew/opt/rustup/bin:$HOME/.cargo/bin:/opt/homebrew/opt/llvm
 [ -d "$src" ] || git clone -q --depth 1 --branch "$DESKTOP_TAG" "$CLIENTS_REPO" "$src"
 git -C "$src" checkout -q -- . && git -C "$src" clean -qfd -e node_modules
 node "$here/rebrand.mjs" "$src"
+node "$here/rebrand-desktop.mjs" "$src" "${DESKTOP_VERSION:-}"
 (cd "$src" && npm install --no-audit --no-fund --ignore-scripts)
 d="$src/apps/desktop"
 (cd "$d/desktop_native" && node build.js && node build.js --target=x86_64-pc-windows-msvc)

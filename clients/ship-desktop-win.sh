@@ -2,11 +2,11 @@
 # AZET Pass for Windows (x64 NSIS installer), cross-built on this Mac from the tree ship-desktop-mac.sh left
 # (same tag, already rebranded and `npm run build` done), signed with AZET LLC's Artifact Signing certificate.
 # usage: ship-desktop-win.sh [--publish]   -> <work>/dist-win-<version>/ (installer, latest.yml, source patch)
-# After --publish: set DESKTOP_RELEASE.win in server/gw/worker.ts to the tag and deploy the gateway.
+# After --publish nothing else: pass.azet.io/desktop serves the newest v*-win* release, and installed apps update to it.
 set -euo pipefail
 here=${0:A:h}; . "$here/pins.env"
 W=${AZET_PASS_WORK:-$here/../../azet-pass-work}; src="$W/clients-desktop"; d="$src/apps/desktop"
-V=${DESKTOP_TAG#desktop-v}; OUT="$W/dist-win-$V"; NAME="azet-pass-windows-x64-setup-$V.exe"
+V=${DESKTOP_VERSION:-${DESKTOP_TAG#desktop-v}}; OUT="$W/dist-win-$V"; NAME="azet-pass-windows-x64-setup-$V.exe"
 export PATH=/opt/homebrew/opt/rustup/bin:$HOME/.cargo/bin:/opt/homebrew/opt/llvm/bin:$PATH
 stop() { echo "SHIP STOPPED: $1"; exit 1; }
 [ "$(git -C "$src" describe --tags)" = "$DESKTOP_TAG" ] || stop "work tree is not at $DESKTOP_TAG (run ship-desktop-mac.sh first)"

@@ -151,6 +151,7 @@ const W = ko ? {
   safe: '암호화로 보호 중이에요', safeWhy: '로그인 정보는 팀 키로 암호화해 보관돼요.', all: '전체', search: '검색', noLogins: '아직 공유 로그인이 없어요. 오른쪽 위 +로 추가하세요.',
   add: '로그인 추가', itemName: '이름 (예: GitHub 배포)', user: '아이디', pass: '비밀번호', site: '웹 주소(선택)', addGo: '암호화해 저장', addFail: '저장하지 못했어요',
   itemLead: (p, a) => `구성원 ${p}명과 AI 계정 ${a}개가 볼 수 있는 로그인이에요.`, account: '계정', show: '비밀번호 보기', aiReads: 'AI가 다룬 기록', noReads: '아직 AI가 이 로그인을 따로 읽은 적이 없어요.',
+  takeBack: '공유 그만하기', takeBackWhy: '이 로그인을 내 금고로 되돌려요. 멤버와 AI 계정은 다음 동기화부터 받지 못해요. 이미 본 값은 되돌릴 수 없으니 필요하면 비밀번호를 바꾸세요.', tookBack: '내 금고로 되돌렸어요', takeBackFail: '되돌리지 못했어요. 첨부 파일이 있으면 앱에서 해 주세요.',
   keepSafe: '안전하게 지키는 방법', safe1: '이 기기에서만 풀려요', safe1Why: '비밀번호는 팀 키가 있는 기기에서만 풀려요. 서버에는 암호문만 있어요.', safe2: 'AI가 읽으면 기록돼요', safe2Why: 'AI 계정이 이 로그인을 받아 갈 때마다 접근 기록에 남아요.',
 } : {
   mkTitle: 'Create a shared vault', mkWhy: 'A vault for sharing logins with your family, your team or AI accounts. Its key is made on this device and reaches the server only in encrypted form.', mkName: 'Name (e.g. Our team)', mkGo: 'Create', mkFail: 'The vault could not be created',
@@ -168,6 +169,7 @@ const W = ko ? {
   safe: 'Protected by encryption', safeWhy: 'Logins are kept encrypted with the team key.', all: 'All', search: 'Search', noLogins: 'No shared logins yet. Add one with + at the top right.',
   add: 'Add a login', itemName: 'Name (e.g. GitHub deploy)', user: 'Username', pass: 'Password', site: 'Web address (optional)', addGo: 'Encrypt and save', addFail: 'The login could not be saved',
   itemLead: (p, a) => `${p} ${p === 1 ? 'member' : 'members'} and ${a} AI ${a === 1 ? 'account' : 'accounts'} can see this login.`, account: 'Account', show: 'Show password', aiReads: 'What AI did with it', noReads: 'No AI account has read this login on its own yet.',
+  takeBack: 'Stop sharing', takeBackWhy: 'Moves this login back to your own vault. Members and AI accounts stop receiving it from their next sync. What they have already seen cannot be taken back, so change the password if that matters.', tookBack: 'Moved back to your vault', takeBackFail: 'Could not move it back. If it has attachments, do this in the app.',
   keepSafe: 'How it is kept safe', safe1: 'Opened only on this device', safe1Why: 'The password is decrypted only on a device that holds the team key. The server has ciphertext only.', safe2: 'Recorded when AI reads it', safe2Why: 'Each time an AI account receives this login, a record is written to the access log.',
   title: 'Access log', settings: 'Settings', out: 'Sign out', checking: 'Checking the log…', checked: 'Every record checked · just now', changed: 'A record was changed or is missing',
   what: (done) => `A record is kept each time an AI agent reads a shared login. This device ${done ? 'checked' : 'is checking'} with the team key that none was changed or removed.`,
@@ -209,7 +211,7 @@ async function signIn(email, password, fresh) {
   const j = await r.json()
   if (!j.access_token) throw new Error('auth')
   const userKey = await decS(k.stretched, j.Key || j.key)
-  S = { tok: j.access_token, email, priv: await decS(userKey, j.PrivateKey || j.privateKey) }
+  S = { tok: j.access_token, email, userKey, priv: await decS(userKey, j.PrivateKey || j.privateKey) }
   const me = await api('GET', '/api/accounts/profile')
   S.pub = me.accountKeys?.publicKeyEncryptionKeyPair?.publicKey || (await api('GET', `/api/users/${me.id}/public-key`)).publicKey
   const orgs = (await api('GET', '/api/sync?excludeDomains=true')).profile.organizations, o = orgs.find((x) => x.type <= 1 && x.status === 2)
@@ -222,6 +224,18 @@ async function createVault(name) {
   const orgKey = c.getRandomValues(new Uint8Array(64)), rsa = await rsaPair()
   const o = await api('POST', '/api/organizations', { name, billingEmail: S.email, key: await rsaEnc(S.pub, orgKey), keys: { publicKey: rsa.pub, encryptedPrivateKey: await encB(orgKey, rsa.priv) }, collectionName: await encS(orgKey, 'Shared') })
   S.org = o.id; S.orgName = name; S.orgKey = orgKey; S.mode = null
+}
+
+// A shared item made the organizer's own again: every encrypted value is opened with the team key and sealed with the
+// organizer's key (an item with its own key: only that key). Same as rekey in scripts/team.mjs.
+const ENC = /^2\.[A-Za-z0-9+/=]+\|[A-Za-z0-9+/=]+\|[A-Za-z0-9+/=]+$/
+async function takeBack(id) {
+  const x = await api('GET', `/api/ciphers/${id}`)
+  if (x.attachments?.length) throw new Error('attachments')
+  const walk = async (v) => typeof v === 'string' ? (ENC.test(v) ? encS(S.userKey, await decS(S.orgKey, v)) : v)
+    : Array.isArray(v) ? Promise.all(v.map(walk)) : v && typeof v === 'object' ? Object.fromEntries(await Promise.all(Object.entries(v).map(async ([k, w]) => [k, await walk(w)]))) : v
+  const out = x.key ? { ...x, key: await walk(x.key) } : await walk(x)
+  await api('PUT', `/api/ciphers/${id}/unshare`, { cipher: { ...out, organizationId: null, collectionIds: [], folderId: null } })
 }
 
 // ---- access log ----
@@ -328,7 +342,8 @@ ${x.user ? kv('kv-user', x.user) : ''}${x.pw ? `<div class="kv"><span id="pw">�
 ${did.length ? `<div class="card list">${did.map(logRow).join('')}</div>` : `<p class="note">${W.noReads}</p>`}
 <p class="sec">${W.keepSafe}</p>
 <div class="card verify"><div class="dot">${IC.lock}</div><div><b>${W.safe1}</b><p>${W.safe1Why}</p></div></div>
-<div class="card verify"><div class="dot">${IC.time}</div><div><b>${W.safe2}</b><p>${W.safe2Why}</p></div></div></main>`
+<div class="card verify"><div class="dot">${IC.time}</div><div><b>${W.safe2}</b><p>${W.safe2Why}</p></div></div>
+<div class="group"><button class="opt danger" data-act="takeback" data-id="${x.id}">${W.takeBack}</button></div><small>${W.takeBackWhy}</small></main>`
 }
 // ---- sheets ----
 const DAYS = [1, 7, 30, 90]
@@ -410,6 +425,7 @@ document.addEventListener('click', async (ev) => {
   if (act === 'member') { await reload(); return open(await memberSheet(S.members.find((m) => m.id === id))) } // reload: the member may have joined since the list was drawn
   if (act === 'invite') return open(inviteSheet(!!el.dataset.agent))
   if (act === 'add') return open(addSheet())
+  if (act === 'takeback') { el.disabled = true; try { await takeBack(id) } catch (e) { el.disabled = false; return toast(W.takeBackFail) }; V = { name: 'logins' }; await reload(); return toast(W.tookBack) }
   if (act === 'copy') { await navigator.clipboard.writeText(document.getElementById(el.dataset.from).textContent); return toast(W.copied) }
   if (act === 'show' || act === 'copypw') {
     const x = S.items.find((i) => i.id === V.arg), pw = await text(x.key, x.pw), at = document.getElementById('pw')

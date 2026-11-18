@@ -853,6 +853,25 @@ pub async fn share_ciphers(claims: Claims, State(env): State<Arc<Env>>, Json(p):
     Ok(Json(json!({"object": "list", "data": data, "continuationToken": null})))
 }
 
+/// PUT /api/ciphers/{id}/unshare {cipher} — an organizer takes one shared item back into their own vault. The client
+/// re-encrypts it from the team key to the organizer's own key; from then on no other member receives it.
+#[worker::send]
+pub async fn unshare_cipher(claims: Claims, State(env): State<Arc<Env>>, Path(id): Path<String>, Json(p): Json<Value>) -> Result<Json<Value>, AppError> {
+    let db = db::get_db(&env)?;
+    let row: Value = db.prepare("SELECT organization_id FROM ciphers WHERE id = ?1").bind(&[id.clone().into()])?.first(None).await?
+        .ok_or_else(|| AppError::NotFound("Cipher not found".into()))?;
+    let org_id = s(&row, "organization_id").ok_or_else(|| bad("Not a shared item"))?;
+    organizer(&db, &org_id, &claims.sub).await?;
+    let cipher = p.get("cipher").cloned().ok_or_else(|| bad("cipher"))?;
+    let data = crate::models::cipher::CipherData::from_share_payload(&cipher)?;
+    touch_org_users(&db, &org_id).await?; // while they are still the item's members: their apps drop it on the next sync
+    d1_query!(&db, "UPDATE ciphers SET user_id = ?1, organization_id = NULL, data = ?2, updated_at = ?3 WHERE id = ?4",
+        claims.sub, data, db::now_string(), id)
+        .map_err(|_| AppError::Database)?.run().await?;
+    set_cipher_collections(&db, &id, &[]).await?;
+    Ok(Json(json!({"id": id})))
+}
+
 /// PUT|POST /api/ciphers/{id}/collections {collectionIds}
 #[worker::send]
 pub async fn cipher_collections(claims: Claims, State(env): State<Arc<Env>>, Path(id): Path<String>, Json(p): Json<Value>) -> Result<Json<Value>, AppError> {

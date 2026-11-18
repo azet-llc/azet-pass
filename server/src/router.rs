@@ -326,6 +326,7 @@ pub fn api_router(env: Env) -> Router {
         .route("/api/ciphers/{id}/collections-admin", put(family::cipher_collections).post(family::cipher_collections))
         .route("/api/ciphers/share", put(family::share_ciphers).post(family::share_ciphers))
         .route("/api/ciphers/{id}/share", put(family::share_cipher).post(family::share_cipher))
+        .route("/api/ciphers/{id}/unshare", put(family::unshare_cipher))
         .route("/api/ciphers/{id}/collections", put(family::cipher_collections).post(family::cipher_collections))
         .route("/api/ciphers/{id}/travel-safe", put(family::travel_safe))
         .with_state(app_state)

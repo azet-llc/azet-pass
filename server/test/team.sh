@@ -80,6 +80,14 @@ LATE=$(ow get template item | jq -c --arg n "$S_NAME-late" --arg o "$ORG" --arg 
 bw sync >/dev/null; [ "$(bw get password "$S_NAME-late" 2>/dev/null)" = late-three ] || { echo "FAIL: a newly shared item did not reach the signed-in agent"; exit 1; }
 ow delete item "$LATE" >/dev/null
 bw sync >/dev/null; [ "$(bw list items --search "$S_NAME-late" | jq length)" = 0 ] && echo "4b2 a signed-in agent gets a new share and loses a removed one on an ordinary sync: ok" || { echo "FAIL: a removed item stayed with the signed-in agent"; exit 1; }
+# 4b3 one by one, the other way: the owner takes the moved item back; the signed-in agent loses it on an ordinary
+# sync, and the owner's own app still opens it (re-encrypted from the team key to the owner's key)
+team "$OWNER" "$PW_O" take-back "$ORG" "$P1" >/dev/null
+no team "$AGENT" "$PW_A" take-back "$ORG" "$ID"
+bw sync >/dev/null; [ "$(bw list items --search "$S_NAME-private" | jq length)" = 0 ] || { echo "FAIL: a taken-back item stayed with the agent"; exit 1; }
+ow sync >/dev/null; [ "$(ow get password "$S_NAME-private")" = private-one ] && [ "$(ow get item "$P1" | jq -r .organizationId)" = null ] \
+  && echo "4b3 the owner takes one item back: the agent loses it, the owner still opens it: ok" || { echo "FAIL: the owner cannot open the taken-back item"; exit 1; }
+echo "[\"$VAULT\"]" | ow encode | ow move "$P1" "$ORG" >/dev/null # shared again for the steps below
 ow delete item "$LATE" --permanent >/dev/null 2>&1 || true; ow logout >/dev/null
 bw logout >/dev/null; unset BW_SESSION
 

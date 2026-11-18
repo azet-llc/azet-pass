@@ -12,6 +12,7 @@
 //   members <org>                              who is in, their status and key fingerprint
 //   confirm <org> <email> <fingerprint>        hand the team key to an accepted member; the fingerprint must match
 //   access <org> <email> <days|forever|off|on> how long a member's access lasts from now, or suspend / restore it
+//   take-back <org> <item id>                  a shared item becomes the organizer's own again; no other member receives it
 //   log <org>                                  the access log, checked: every row's hash, and against this team's last checkpoint
 //
 // The password is read from the environment only, never from the command line.
@@ -73,6 +74,17 @@ const need = async () => (await login()) ?? die('Sign-in failed: check AZET_PASS
 const orgKeyOf = async (u, org) => {
   const o = (await ok(u.tok, 'GET', '/api/sync?excludeDomains=true')).profile.organizations.find((x) => x.id === org) ?? die('You are not a confirmed member of that team.')
   return rsaDec(u.priv, o.key)
+}
+
+// A shared item made the owner's own again: every encrypted value is opened with the team key and sealed with the
+// owner's key (an item with its own key: only that key). Same as rekey in gw/team.html.
+const ENC = /^2\.[A-Za-z0-9+/=]+\|[A-Za-z0-9+/=]+\|[A-Za-z0-9+/=]+$/
+const rekey = async (x, from, to) => {
+  if (x.attachments?.length) die('This item has attachments; take it back in the app instead.')
+  const walk = async (v) => typeof v === 'string' ? (ENC.test(v) ? encS(to, await decS(from, v)) : v)
+    : Array.isArray(v) ? Promise.all(v.map(walk)) : v && typeof v === 'object' ? Object.fromEntries(await Promise.all(Object.entries(v).map(async ([k, w]) => [k, await walk(w)]))) : v
+  const out = x.key ? { ...x, key: await walk(x.key) } : await walk(x)
+  return { ...out, organizationId: null, collectionIds: [], folderId: null }
 }
 
 const [cmd, ...rest] = process.argv.slice(2)
@@ -172,4 +184,9 @@ if (cmd === 'create') {
   const sum = (k) => week.filter((e) => e.kind === k).reduce((n, e) => n + e.count, 0)
   console.log(JSON.stringify({ verified: true, rows: events.length, last7days: { read: sum('read'), write: sum('write'), delete: sum('delete') },
     events: events.slice(-50).map((e) => ({ seq: e.seq, at: e.createdAt, who: names[e.memberId] ?? e.memberId, kind: e.kind, count: e.count, item: e.cipherId, detail: e.detail })) }, null, 1))
-} else die('commands: create | invite | join | members | confirm | access | log   (see the top of this file)')
+} else if (cmd === 'take-back') {
+  const [org, item] = rest
+  if (!item) die('usage: take-back <org> <item id>')
+  const u = await need(), orgKey = await orgKeyOf(u, org)
+  console.log(JSON.stringify(await ok(u.tok, 'PUT', `/api/ciphers/${item}/unshare`, { cipher: await rekey(await ok(u.tok, 'GET', `/api/ciphers/${item}`), orgKey, u.userKey) })))
+} else die('commands: create | invite | join | members | confirm | access | take-back | log   (see the top of this file)')

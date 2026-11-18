@@ -42,8 +42,8 @@ edit('app/build.gradle.kts', (s) => s.replace(`    packaging {
             useLegacyPackaging = true
         }
         resources {`).replace(/(\n        versionName = libs\.versions\.appVersionName\.get\(\)\n)/, '$1        ndk { abiFilters += listOf("arm64-v8a") }\n'))
-// our own version line: upstream 2026.9.1 + AZET build 4 (ready-zero) (versionCode grows with each AZET release)
-edit('gradle/libs.versions.toml', (s) => s.replace(/appVersionCode = "\d+"/, 'appVersionCode = "20260905"').replace(/appVersionName = "[^"]+"/, 'appVersionName = "2026.9.1-azet5"'))
+// our own version line: upstream 2026.11.0 + AZET build 1 (versionCode grows with each AZET release)
+edit('gradle/libs.versions.toml', (s) => s.replace(/appVersionCode = "\d+"/, 'appVersionCode = "20261101"').replace(/appVersionName = "[^"]+"/, 'appVersionName = "2026.11.0-azet1"'))
 // GPL-3.0 source offer on the About screen's copyright line
 edit('app/src/main/kotlin/com/x8bit/bitwarden/ui/platform/feature/settings/about/AboutViewModel.kt', (s) =>
   s.replace('copyrightInfo = "© Bitwarden Inc. 2015-${Year.now(clock).value}".asText(),', 'copyrightInfo = "© Bitwarden Inc. 2015-${Year.now(clock).value}, AZET LLC. GPL-3.0, source: github.com/neulketing/azet-pass".asText(),'))

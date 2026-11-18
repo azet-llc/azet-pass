@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # AZET Pass for Android, built on this Mac (GitHub Actions is off for lane repos).
 # 1) Bitwarden SDK from source, GPL crates only (`bitwarden-uniffi` pulls nothing from bitwarden_license/),
-#    at the commit the Android tag's API matches: abc84458 with 8b9fa3e2 ("PAM partial filtered data") reverted.
+#    at the commit the Android tag asks for (pins.env ANDROID_SDK_COMMIT).
 #    The prebuilt com.bitwarden:sdk-android sits in GitHub Packages (needs a read:packages token) and its licence is not stated.
 # 2) pinned bitwarden/android tag + rebrand-android.mjs, F-Droid flavour (no Google services), release build.
 # 3) zipalign + apksigner with the AZET Pass key (vault: AZET_PASS_ANDROID_KEYSTORE_B64 / _PASSWORD).
@@ -13,8 +13,8 @@ export JAVA_HOME=/opt/homebrew/opt/openjdk@21 ANDROID_HOME=$HOME/Library/Android
 export ANDROID_NDK_HOME=$(ls -d "$ANDROID_HOME"/ndk/* | sort -V | tail -1)
 sdk="$W/sdk"
 [ -d "$sdk" ] || git clone -q --filter=blob:none https://github.com/bitwarden/sdk-internal.git "$sdk"
-git -C "$sdk" checkout -q -f abc84458 && git -C "$sdk" -c user.name=x -c user.email=x@x revert --no-commit 8b9fa3e2
-(cd "$sdk" && cargo ndk -t arm64-v8a -o crates/bitwarden-uniffi/kotlin/sdk/src/main/jniLibs build -p bitwarden-uniffi --release)
+git -C "$sdk" fetch -q origin && git -C "$sdk" checkout -q -f "$ANDROID_SDK_COMMIT"
+(cd "$sdk" && rustup target add aarch64-linux-android >/dev/null 2>&1 && cargo ndk -t arm64-v8a -o crates/bitwarden-uniffi/kotlin/sdk/src/main/jniLibs build -p bitwarden-uniffi --release)
 (cd "$sdk/crates/bitwarden-uniffi/kotlin" && bash build-schemas.sh && ./gradlew sdk:publishToMavenLocal -Pversion=LOCAL -q)
 m=~/.m2/repository/com/bitwarden; rm -rf "$m/sdk-android"; cp -R "$m/sdk-android.dev" "$m/sdk-android"
 (cd "$m/sdk-android/LOCAL" && for f in sdk-android.dev-LOCAL*; do mv "$f" "${f/sdk-android.dev/sdk-android}"; done

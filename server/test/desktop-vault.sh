@@ -7,4 +7,4 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 awk 'NR==39{print; print "source \"$EXTRA\""; next}1' test/e2ee.sh > test/.desktop-vault.tmp.sh
 trap 'rm -f test/.desktop-vault.tmp.sh' EXIT
-EXTRA="$PWD/test/desktop-vault.extra.sh" bash test/.desktop-vault.tmp.sh | tee /dev/stderr | grep -q "EXTRA RESULT: fails=0"
+EXTRA="$PWD/test/desktop-vault.extra.sh" bash test/.desktop-vault.tmp.sh | tee /dev/stderr | grep "EXTRA RESULT: fails=0" >/dev/null

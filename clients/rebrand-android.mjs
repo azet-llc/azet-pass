@@ -42,8 +42,8 @@ edit('app/build.gradle.kts', (s) => s.replace(`    packaging {
             useLegacyPackaging = true
         }
         resources {`).replace(/(\n        versionName = libs\.versions\.appVersionName\.get\(\)\n)/, '$1        ndk { abiFilters += listOf("arm64-v8a") }\n'))
-// our own version line: upstream 2026.11.0 + AZET build 1 (versionCode grows with each AZET release)
-edit('gradle/libs.versions.toml', (s) => s.replace(/appVersionCode = "\d+"/, 'appVersionCode = "20261101"').replace(/appVersionName = "[^"]+"/, 'appVersionName = "2026.11.0-azet1"'))
+// our own version line: upstream 2026.11.0 + AZET build 2 (versionCode grows with each AZET release)
+edit('gradle/libs.versions.toml', (s) => s.replace(/appVersionCode = "\d+"/, 'appVersionCode = "20261102"').replace(/appVersionName = "[^"]+"/, 'appVersionName = "2026.11.0-azet2"'))
 // GPL-3.0 source offer on the About screen's copyright line
 edit('app/src/main/kotlin/com/x8bit/bitwarden/ui/platform/feature/settings/about/AboutViewModel.kt', (s) =>
   s.replace('copyrightInfo = "© Bitwarden Inc. 2015-${Year.now(clock).value}".asText(),', 'copyrightInfo = "© Bitwarden Inc. 2015-${Year.now(clock).value}, AZET LLC. GPL-3.0, source: github.com/neulketing/azet-pass".asText(),'))
@@ -178,14 +178,14 @@ fs.writeFileSync(p(ui, 'logo_shield_icon.xml'), vector(108, 108, mark('#FFFFFF',
 fs.writeFileSync(p(ui, 'ic_shield.xml'), vector(20, 20, mark('#000000', 0.56, 2.7, 1)))
 
 // AZET_LITE=1: AZET Pass Lite for Google Play (owner 10-21: Lite and Pro are separate apps, Lite is free and sells nothing).
-// App id io.azet.pass.lite, name "AZET Pass Lite", and every string about Premium, plans, upgrades, prices or subscriptions
+// App id io.azet.pass.lite (kept: Play cannot rename a package), name "AZET Pass" (owner 11-18: ship as AZET Pass, Pro is bought on azet.io), and every string about Premium, plans, upgrades, prices or subscriptions
 // is emptied in every language: pass.azet.io gives every account all features, so those screens never open, and Lite
 // carries none of that wording (App Store 3.1.1 / Play payments rule, removed at the source rather than hidden).
 let liteId = 'io.azet.pass'
 if (process.env.AZET_LITE === '1') {
   liteId = 'io.azet.pass.lite'
   edit('app/build.gradle.kts', (s) => s.replace('applicationId = "io.azet.pass"', 'applicationId = "io.azet.pass.lite"'))
-  edit('app/src/release/res/values/strings_non_localized.xml', (s) => s.replace('<string name="app_name" translatable="false">AZET Pass</string>', '<string name="app_name" translatable="false">AZET Pass Lite</string>'))
+  // name stays "AZET Pass" (owner 11-18): the Lite build only drops what sells and the Accessibility Service
   const sells = /premium|upgrade|prices?\b|pricing|subscri|checkout|stripe|per (month|year)|cancel anytime|구매|결제|요금제|구독/i
   let emptied = 0
   // a string that sells in English sells in every language: its name is emptied everywhere, whatever the translation says

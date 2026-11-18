@@ -29,9 +29,9 @@ a.s{background:#fff;color:#0d7d66;border:1px solid #cfe3dd}.logo{width:76px;heig
 <script>var $=function(i){return document.getElementById(i)};if((navigator.language||'').indexOf('ko')==0){$('t').textContent='가족이 AZET Pass에 초대했어요';$('d').textContent='휴대폰에서 이 페이지를 여세요. AZET Pass를 설치한 뒤 「앱에서 열기」를 누르면 돼요.';$('open').textContent='앱에서 열기';$('get').textContent='iPhone용 AZET Pass 받기';$('and').textContent='Android용 AZET Pass 받기'}
 $('open').href='azetpass://invite'+location.hash;$('web').href='/team'+location.hash;if((navigator.language||'').indexOf('ko')==0)$('web').textContent='브라우저에서 참여';</script></body></html>`;
 
-// 데스크톱 판별 공개 릴리스 꼬리표. 새 판을 낼 때 이 값만 바꿔 배포한다(clients/ship-desktop-mac.sh --publish 뒤).
+// 데스크톱 판별 공개 릴리스 꼬리표. 새 판을 낼 때 이 값만 바꿔 배포한다(clients/ship-desktop-mac.sh·ship-desktop-win.sh --publish 뒤).
 // 비어 있으면 그 운영체제의 피드는 404 — 앱은 「업데이트 없음」으로 조용히 넘어간다.
-const DESKTOP_RELEASE: { mac: string; win: string } = { mac: "v2026.10.4-mac1", win: "" };
+const DESKTOP_RELEASE: { mac: string; win: string } = { mac: "v2026.10.4-mac1", win: "v2026.10.4-win1" };
 
 // 우리가 직접 내주는 화면(/team·/invite): 어디에도 끼워 넣을 수 없고, 화면 안의 스크립트·같은 주소로의 요청만 허용한다.
 // (구역 규칙은 이 두 경로를 건드리지 않는다 — 11-18 까지는 구역 규칙이 이 값을 금고용 느슨한 값으로 덮었다.)

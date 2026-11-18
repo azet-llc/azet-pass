@@ -186,14 +186,22 @@ if (process.env.AZET_LITE === '1') {
   liteId = 'io.azet.pass.lite'
   edit('app/build.gradle.kts', (s) => s.replace('applicationId = "io.azet.pass"', 'applicationId = "io.azet.pass.lite"'))
   edit('app/src/release/res/values/strings_non_localized.xml', (s) => s.replace('<string name="app_name" translatable="false">AZET Pass</string>', '<string name="app_name" translatable="false">AZET Pass Lite</string>'))
-  const sells = /premium|upgrade|prices?\b|pricing|subscri|checkout|stripe|구매|결제|요금제|구독/i
+  const sells = /premium|upgrade|prices?\b|pricing|subscri|checkout|stripe|per (month|year)|cancel anytime|구매|결제|요금제|구독/i
   let emptied = 0
+  // a string that sells in English sells in every language: its name is emptied everywhere, whatever the translation says
+  const names = new Set()
+  for (const mod of ['app', 'ui', 'core', 'data', 'network', 'cxf', 'authenticatorbridge']) {
+    if (!fs.existsSync(p(mod))) continue
+    for (const f of walk(p(mod)).filter((f) => /\/res\/values\/strings[^/]*\.xml$/.test(f)))
+      for (const m of fs.readFileSync(f, 'utf8').matchAll(/<(?:string|plurals) name="([^"]+)"[^>]*>([\s\S]*?)<\/(?:string|plurals)>/g)) if (sells.test(m[2]) || sells.test(m[1])) names.add(m[1])
+  }
+  const hit = (o, t) => sells.test(t) || names.has(o.match(/name="([^"]+)"/)[1])
   for (const mod of ['app', 'ui', 'core', 'data', 'network', 'cxf', 'authenticatorbridge']) {
     if (!fs.existsSync(p(mod))) continue
     for (const f of walk(p(mod)).filter((f) => /\/res\/values[^/]*\/strings[^/]*\.xml$/.test(f))) {
       const s = fs.readFileSync(f, 'utf8')
-      const out = s.replace(/(<string name="[^"]+"[^>]*>)([\s\S]*?)(<\/string>)/g, (m, o, t, c) => sells.test(t) ? (emptied++, o + c) : m)
-        .replace(/(<plurals name="[^"]+"[^>]*>)([\s\S]*?)(<\/plurals>)/g, (m, o, t, c) => sells.test(t) ? (emptied++, o + t.replace(/(<item [^>]*>)[\s\S]*?(<\/item>)/g, '$1$2') + c) : m)
+      const out = s.replace(/(<string name="[^"]+"[^>]*>)([\s\S]*?)(<\/string>)/g, (m, o, t, c) => t && hit(o, t) ? (emptied++, o + c) : m)
+        .replace(/(<plurals name="[^"]+"[^>]*>)([\s\S]*?)(<\/plurals>)/g, (m, o, t, c) => hit(o, t) ? (emptied++, o + t.replace(/(<item [^>]*>)[\s\S]*?(<\/item>)/g, '$1$2') + c) : m)
       if (out !== s) fs.writeFileSync(f, out)
     }
   }

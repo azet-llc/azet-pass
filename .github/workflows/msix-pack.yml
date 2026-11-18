@@ -1,0 +1,25 @@
+# Packs the Microsoft Store package from the layout build-msix.sh made on the Mac (uploaded as a prerelease asset),
+# with makeappx, which also checks the manifest. Run by hand: gh workflow run msix-pack.yml -f tag=msix-input-<version>
+name: msix-pack
+on:
+  workflow_dispatch:
+    inputs:
+      tag: { description: prerelease tag holding the layout zip, required: true }
+env:
+  GH_TOKEN: ${{ github.token }}
+jobs:
+  pack:
+    runs-on: windows-latest
+    steps:
+      - name: Pack
+        run: |
+          gh release download "${{ inputs.tag }}" --repo $env:GITHUB_REPOSITORY -p "*layout*.zip" -D dl
+          $z = (Get-ChildItem dl\*.zip)[0]; Expand-Archive $z.FullName -DestinationPath layout
+          $name = $z.BaseName -replace 'msix-layout', 'windows-x64'
+          $mk = (Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\makeappx.exe" | Sort-Object FullName | Select-Object -Last 1).FullName
+          New-Item -ItemType Directory -Force out | Out-Null
+          & $mk pack /d layout /p "out\$name.msix" /o; if ($LASTEXITCODE) { exit 1 }
+          Get-Item "out\$name.msix" | ForEach-Object { "$($_.Name) $($_.Length)" }
+          Select-String -Path layout\AppxManifest.xml -Pattern '<Identity' | ForEach-Object { $_.Line.Trim() }
+      - uses: actions/upload-artifact@v4
+        with: { name: msix, path: out/, retention-days: 7 }

@@ -28,6 +28,6 @@ echo "localSdk=true" > "$a/user.properties"
 (cd "$a" && ./gradlew :app:assembleFdroidRelease --no-daemon -q)
 bt=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1); ks=$(mktemp)
 tkt get AZET_PASS_ANDROID_KEYSTORE_B64 | base64 -d > "$ks"; export KS_PW=$(tkt get AZET_PASS_ANDROID_KEYSTORE_PASSWORD)
-"$bt/zipalign" -f 4 "$a/app/build/outputs/apk/fdroid/release/io.azet.pass-fdroid.apk" "$W/dist/aligned.apk"
+"$bt/zipalign" -f 4 "$a"/app/build/outputs/apk/fdroid/release/io.azet.pass*-fdroid.apk "$W/dist/aligned.apk"
 "$bt/apksigner" sign --ks "$ks" --ks-pass env:KS_PW --ks-key-alias azet-pass --out "$W/dist/azet-pass-android.apk" "$W/dist/aligned.apk"
 rm -f "$ks" "$W/dist/aligned.apk"; "$bt/apksigner" verify --print-certs "$W/dist/azet-pass-android.apk" | head -2

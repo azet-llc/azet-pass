@@ -146,7 +146,7 @@ const W = ko ? {
   stInvited: '초대함 · 아직 참여 전', stAccepted: '참여함 · 키 확인 필요', stOff: '접근 꺼짐', organizer: '관리자', readOnly: '읽기 전용', canEdit: '편집 가능',
   noPeople: '아직 구성원이 없어요. 오른쪽 위 +로 초대하세요.', noAgents: '아직 AI 계정이 없어요. 오른쪽 위 +로 추가하세요.',
   invite: '구성원 초대', inviteAgent: 'AI 계정 추가', nameOpt: '표시 이름(선택)', keep30: '30일 뒤 접근 끝내기', inviteGo: '초대 만들기', inviteFail: '초대하지 못했어요',
-  inviteWhy: '이 링크를 초대한 사람에게 직접 보내세요. 메일은 자동으로 나가지 않아요.', inviteAgentWhy: 'AI 계정을 돌리는 기기에서 이 명령으로 참여하세요. 참여하면 지문이 나와요.',
+  inviteWhy: '이 링크를 초대한 사람에게 직접 보내세요. 메일은 자동으로 나가지 않아요.', inviteAgentWhy: '이 링크를 브라우저에서 열고 AI 계정의 이메일과 비밀번호로 로그인하세요. 계정이 없으면 그 자리에서 만들 수 있어요. 참여하면 지문이 나오고, 여기서 그 지문을 확인하면 연결돼요.',
   copy: '복사', copied: '복사했어요', fpWhy: '상대가 읽어 준 지문과 아래 지문이 같은지 확인하세요. 다르면 넘겨주지 마세요.', fpSame: '같아요, 팀 키 넘겨주기',
   safe: '암호화로 보호 중이에요', safeWhy: '로그인 정보는 팀 키로 암호화해 보관돼요.', all: '전체', search: '검색', noLogins: '아직 공유 로그인이 없어요. 오른쪽 위 +로 추가하세요.',
   add: '로그인 추가', itemName: '이름 (예: GitHub 배포)', user: '아이디', pass: '비밀번호', site: '웹 주소(선택)', addGo: '암호화해 저장', addFail: '저장하지 못했어요',
@@ -163,7 +163,7 @@ const W = ko ? {
   stInvited: 'Invited · has not joined', stAccepted: 'Joined · key check needed', stOff: 'Access off', organizer: 'Organizer', readOnly: 'Read only', canEdit: 'Can edit',
   noPeople: 'No members yet. Invite one with + at the top right.', noAgents: 'No AI accounts yet. Add one with + at the top right.',
   invite: 'Invite a member', inviteAgent: 'Add an AI account', nameOpt: 'Display name (optional)', keep30: 'End access after 30 days', inviteGo: 'Create invite', inviteFail: 'The invite could not be created',
-  inviteWhy: 'Send this link to the person yourself. No mail is sent for you.', inviteAgentWhy: 'On the machine that runs the AI account, join with this command. It prints a fingerprint.',
+  inviteWhy: 'Send this link to the person yourself. No mail is sent for you.', inviteAgentWhy: 'Open this link in a browser and sign in with the AI account’s email and password (it can be created there if it does not exist yet). Joining shows a fingerprint; check it here to finish.',
   copy: 'Copy', copied: 'Copied', fpWhy: 'Check that the fingerprint the member read to you is the one below. If it differs, do not hand over the key.', fpSame: 'It matches, hand over the team key',
   safe: 'Protected by encryption', safeWhy: 'Logins are kept encrypted with the team key.', all: 'All', search: 'Search', noLogins: 'No shared logins yet. Add one with + at the top right.',
   add: 'Add a login', itemName: 'Name (e.g. GitHub deploy)', user: 'Username', pass: 'Password', site: 'Web address (optional)', addGo: 'Encrypt and save', addFail: 'The login could not be saved',
@@ -341,7 +341,7 @@ function accessSheet(m) {
 <small>${W.sheetNote}</small>`)
 }
 async function memberSheet(m) {
-  if (m.status === 0) return wrap(esc(m.name || m.email), `<small class="top">${m.agent ? W.inviteAgentWhy : W.inviteWhy}</small><div class="copybox" id="cp">${esc(m.agent ? `node scripts/team.mjs join ${S.org} ${m.id} ${m.inviteToken}` : `${location.origin}/team#${S.org}.${m.id}.${m.inviteToken}`)}</div><button class="go" data-act="copy" data-from="cp">${W.copy}</button>`)
+  if (m.status === 0) return wrap(esc(m.name || m.email), `<small class="top">${m.agent ? W.inviteAgentWhy : W.inviteWhy}</small><div class="copybox" id="cp">${esc(`${location.origin}/team#${S.org}.${m.id}.${m.inviteToken}`)}</div><button class="go" data-act="copy" data-from="cp">${W.copy}</button>`)
   if (m.status === 1) return wrap(esc(m.name || m.email), `<small class="top">${W.fpWhy}</small><div class="mono">${await fingerprint(m.publicKey)}</div><button class="go" data-act="confirm" data-id="${m.id}">${W.fpSame}</button>`)
   return accessSheet(m)
 }
@@ -401,7 +401,7 @@ document.addEventListener('input', (ev) => { // search filters the rows already 
 })
 document.addEventListener('click', async (ev) => {
   const g = ev.target.closest('[data-go]')
-  if (g) { V = { name: g.dataset.go, arg: g.dataset.arg }; scrollTo(0, 0); return render() }
+  if (g) { document.querySelector('.scrim')?.remove(); V = { name: g.dataset.go, arg: g.dataset.arg }; scrollTo(0, 0); return render() } // a sheet left open does not follow to the next screen
   const el = ev.target.closest('[data-act]'); if (!el) return
   const act = el.dataset.act, id = el.dataset.id, users = `/api/organizations/${S?.org}/users`
   if (act === 'close') { if (ev.target === el) el.remove(); return }

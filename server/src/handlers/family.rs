@@ -805,31 +805,52 @@ pub async fn set_cipher_collections(db: &db::Db, cipher_id: &str, ids: &[String]
 }
 
 /// PUT /api/ciphers/{id}/share {cipher, collectionIds} — a personal item moves into a shared vault. The client has
-/// already re-encrypted every field with the family key.
+/// Moves one personal item of `user` into an organization's vaults; the answer is the whole item.
+async fn share_one(db: &db::Db, user: &str, id: &str, cipher: &Value, ids: &[String]) -> Result<Value, AppError> {
+    let org_id = s(cipher, "organizationId").ok_or_else(|| bad("organizationId"))?;
+    check_collections_writable(db, &org_id, user, ids).await?;
+    let owned: Option<Value> = db.prepare("SELECT 1 FROM ciphers WHERE id = ?1 AND user_id = ?2 AND organization_id IS NULL").bind(&[id.into(), user.into()])?.first(None).await?;
+    if owned.is_none() {
+        return Err(AppError::NotFound("Cipher not found".into()));
+    }
+    let data = crate::models::cipher::CipherData::from_share_payload(cipher)?;
+    let now = db::now_string();
+    d1_query!(db, "UPDATE ciphers SET user_id = NULL, organization_id = ?1, data = ?2, folder_id = NULL, updated_at = ?3 WHERE id = ?4",
+        org_id, data, now, id)
+        .map_err(|_| AppError::Database)?.run().await?;
+    set_cipher_collections(db, id, ids).await?;
+    touch_org_users(db, &org_id).await?;
+    // The clients read the answer as the whole item (type, name, fields…): a bare id made them report "failed to
+    // share" for a share that had worked.
+    let shared: crate::models::cipher::Cipher = super::ciphers::fetch_cipher_for_user(db, id, user).await?.into();
+    let mut answer = serde_json::to_value(shared).map_err(|_| AppError::Internal)?;
+    answer["collectionIds"] = json!(ids);
+    Ok(answer)
+}
+
+fn collection_ids(p: &Value) -> Vec<String> {
+    p.get("collectionIds").and_then(|c| c.as_array()).cloned().unwrap_or_default().iter().filter_map(|x| x.as_str().map(String::from)).collect()
+}
+
+/// PUT|POST /api/ciphers/{id}/share {cipher, collectionIds} — a personal item becomes a shared one.
 #[worker::send]
 pub async fn share_cipher(claims: Claims, State(env): State<Arc<Env>>, Path(id): Path<String>, Json(p): Json<Value>) -> Result<Json<Value>, AppError> {
     let db = db::get_db(&env)?;
     let cipher = p.get("cipher").cloned().ok_or_else(|| bad("cipher"))?;
-    let org_id = s(&cipher, "organizationId").ok_or_else(|| bad("organizationId"))?;
-    let ids: Vec<String> = p.get("collectionIds").and_then(|c| c.as_array()).cloned().unwrap_or_default().iter().filter_map(|x| x.as_str().map(String::from)).collect();
-    check_collections_writable(&db, &org_id, &claims.sub, &ids).await?;
-    let owned: Option<Value> = db.prepare("SELECT 1 FROM ciphers WHERE id = ?1 AND user_id = ?2 AND organization_id IS NULL").bind(&[id.clone().into(), claims.sub.clone().into()])?.first(None).await?;
-    if owned.is_none() {
-        return Err(AppError::NotFound("Cipher not found".into()));
+    Ok(Json(share_one(&db, &claims.sub, &id, &cipher, &collection_ids(&p)).await?))
+}
+
+/// PUT|POST /api/ciphers/share {ciphers: [{id, …}], collectionIds} — what the web vault's "Assign to collections" sends.
+#[worker::send]
+pub async fn share_ciphers(claims: Claims, State(env): State<Arc<Env>>, Json(p): Json<Value>) -> Result<Json<Value>, AppError> {
+    let db = db::get_db(&env)?;
+    let ids = collection_ids(&p);
+    let mut data = Vec::new();
+    for cipher in p.get("ciphers").and_then(|c| c.as_array()).cloned().unwrap_or_default() {
+        let id = s(&cipher, "id").ok_or_else(|| bad("id"))?;
+        data.push(share_one(&db, &claims.sub, &id, &cipher, &ids).await?);
     }
-    let data = crate::models::cipher::CipherData::from_share_payload(&cipher)?;
-    let now = db::now_string();
-    d1_query!(&db, "UPDATE ciphers SET user_id = NULL, organization_id = ?1, data = ?2, folder_id = NULL, updated_at = ?3 WHERE id = ?4",
-        org_id, data, now, id)
-        .map_err(|_| AppError::Database)?.run().await?;
-    set_cipher_collections(&db, &id, &ids).await?;
-    touch_org_users(&db, &org_id).await?;
-    // The clients read the answer as the whole item (type, name, fields…): a bare id made them report "failed to
-    // share" for a share that had worked.
-    let shared: crate::models::cipher::Cipher = super::ciphers::fetch_cipher_for_user(&db, &id, &claims.sub).await?.into();
-    let mut answer = serde_json::to_value(shared).map_err(|_| AppError::Internal)?;
-    answer["collectionIds"] = json!(ids);
-    Ok(Json(answer))
+    Ok(Json(json!({"object": "list", "data": data, "continuationToken": null})))
 }
 
 /// PUT|POST /api/ciphers/{id}/collections {collectionIds}

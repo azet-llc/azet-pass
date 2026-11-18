@@ -70,6 +70,17 @@ GOT=$(bw get item "$ID" | jq -r '[.name,.login.username,.login.password]|join("|
 no bash -c "bw get item $ID | jq '.login.password=\"changed\"' | bw encode | bw edit item $ID"
 bw sync >/dev/null
 [ "$(bw get item "$ID" | jq -r .login.password)" = "$S_PASS" ] && echo "4b read-only agent cannot change it: ok" || { echo "FAIL: read-only item changed"; exit 1; }
+# 4b2 while the agent stays signed in: what the owner shares next, and what the owner takes away, reach it on an
+# ordinary sync (the kind every app runs by itself), not only on a fresh sign-in
+AGENT_SESSION=$BW_SESSION
+ow() { BITWARDENCLI_APPDATA_DIR="$W/bw-owner2" BW_SESSION="$OWNER_SESSION" bw "$@"; }
+BITWARDENCLI_APPDATA_DIR="$W/bw-owner2" bw config server $URL >/dev/null
+OWNER_SESSION=$(BITWARDENCLI_APPDATA_DIR="$W/bw-owner2" bw login "$OWNER" "$PW_O" --raw)
+LATE=$(ow get template item | jq -c --arg n "$S_NAME-late" --arg o "$ORG" --arg v "$VAULT" '.name=$n | .organizationId=$o | .collectionIds=[$v] | .login={username:"l",password:"late-three",totp:null,uris:[]}' | ow encode | ow create item | jq -r .id)
+bw sync >/dev/null; [ "$(bw get password "$S_NAME-late" 2>/dev/null)" = late-three ] || { echo "FAIL: a newly shared item did not reach the signed-in agent"; exit 1; }
+ow delete item "$LATE" >/dev/null
+bw sync >/dev/null; [ "$(bw list items --search "$S_NAME-late" | jq length)" = 0 ] && echo "4b2 a signed-in agent gets a new share and loses a removed one on an ordinary sync: ok" || { echo "FAIL: a removed item stayed with the signed-in agent"; exit 1; }
+ow delete item "$LATE" --permanent >/dev/null 2>&1 || true; ow logout >/dev/null
 bw logout >/dev/null; unset BW_SESSION
 
 # 4c what the agent read is in the access log, and the log checks out

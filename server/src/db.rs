@@ -81,7 +81,10 @@ pub fn now_string() -> String {
 pub async fn touch_user_updated_at(db: &Db, user_id: &str, now: &str) -> Result<(), AppError> {
     d1_query!(
         db,
-        "UPDATE users SET updated_at = ?1 WHERE id = ?2",
+        // Also everyone who shares a vault with this account: their apps ask "has anything changed?" by this date, and
+        // an item shared, edited or taken away by someone else must reach them on their next ordinary sync.
+        // shortcut: a personal change makes vault-mates sync once more than needed; narrow to the item's vault if teams grow large.
+        "UPDATE users SET updated_at = ?1 WHERE id = ?2 OR id IN (SELECT user_id FROM org_members WHERE user_id IS NOT NULL AND org_id IN (SELECT org_id FROM org_members WHERE user_id = ?2))",
         now,
         user_id
     )

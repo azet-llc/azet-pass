@@ -104,4 +104,5 @@ gh release create "$TAG" -R azet-llc/azet-pass --title "AZET Pass $V for Mac (no
 
 Source (GPL-3.0): the Bitwarden desktop client at tag \`$DESKTOP_TAG\` with the changes in \`azet-pass-desktop-$V.patch\`, produced by \`clients/rebrand.mjs\` in this repository." \
   "$OUT/azet-pass-mac-arm64-$V.dmg" "$OUT/azet-pass-mac-arm64-$V.zip" "$OUT/latest-mac.yml" "$OUT/azet-pass-desktop-$V.patch"
-echo "published $TAG — the feed at pass.azet.io/desktop follows the latest *-mac* release"
+gh release upload desktop-feed "$OUT/latest-mac.yml" --clobber -R azet-llc/azet-pass # the feed installed apps read (pass.azet.io/desktop)
+echo "published $TAG and the feed"

@@ -35,7 +35,14 @@ $('open').href='azetpass://invite'+location.hash;$('web').href='/team'+location.
 
 // 데스크톱 판별 공개 릴리스 꼬리표. 새 판을 낼 때 이 값만 바꿔 배포한다(clients/ship-desktop-mac.sh·ship-desktop-win.sh --publish 뒤).
 // 비어 있으면 그 운영체제의 피드는 404 — 앱은 「업데이트 없음」으로 조용히 넘어간다.
-const DESKTOP_RELEASE: { mac: string; win: string } = { mac: "v2026.10.4-mac1", win: "v2026.10.4-win1" };
+// The update: each ship script, after publishing, puts its feed file on the fixed release `desktop-feed`, and the
+// feed names the installer, whose version gives its release (v<version>-mac1 / -win1). Publishing is all it takes.
+const FEED_RELEASE = "desktop-feed";
+const DESKTOP_FALLBACK: { mac: string; win: string } = { mac: "v2026.10.4-mac1", win: "v2026.10.4-win1" };
+function desktopTag(file: string): string {
+  const kind = /mac/.test(file) ? "mac" : "win", v = /(\d+\.\d+\.\d+)\.(zip|dmg|exe|blockmap)/.exec(file);
+  return v ? `v${v[1]}-${kind}1` : DESKTOP_FALLBACK[kind];
+}
 
 // 우리가 직접 내주는 화면(/team·/invite): 어디에도 끼워 넣을 수 없고, 화면 안의 스크립트·같은 주소로의 요청만 허용한다.
 // (구역 규칙은 이 두 경로를 건드리지 않는다 — 11-18 까지는 구역 규칙이 이 값을 금고용 느슨한 값으로 덮었다.)
@@ -51,9 +58,9 @@ export default {
     if (path === "/.well-known/apple-app-site-association") return Response.json(AASA);
     // 데스크톱 앱의 업데이트 주소: 피드 파일은 우리가 그대로 내주고, 설치 파일은 공개 릴리스로 보낸다.
     if (path.startsWith("/desktop/")) {
-      const file = path.slice(9), tag = /mac/.test(file) ? DESKTOP_RELEASE.mac : DESKTOP_RELEASE.win;
-      if (!tag || !/^[A-Za-z0-9._-]+$/.test(file)) return new Response("not found", { status: 404 });
-      const from = `https://github.com/azet-llc/azet-pass/releases/download/${tag}/${file}`;
+      const file = path.slice(9);
+      if (!/^[A-Za-z0-9._-]+$/.test(file)) return new Response("not found", { status: 404 });
+      const from = `https://github.com/azet-llc/azet-pass/releases/download/${file.endsWith(".yml") ? FEED_RELEASE : desktopTag(file)}/${file}`;
       if (!file.endsWith(".yml")) return Response.redirect(from, 302);
       const feed = await fetch(from, { cf: { cacheTtl: 300 } } as RequestInit);
       return new Response(feed.ok ? feed.body : "not found", { status: feed.ok ? 200 : 404, headers: { "content-type": "text/yaml; charset=utf-8", "cache-control": "public, max-age=300" } });

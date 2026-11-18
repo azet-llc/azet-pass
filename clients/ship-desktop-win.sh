@@ -68,4 +68,5 @@ if [ "${1:-}" = "--publish" ]; then
   gh release create "v$V-win1" -R azet-llc/azet-pass --title "AZET Pass $V for Windows (signed)" --notes "AZET Pass for Windows $V, x64, Windows 10 or 11. Signed by AZET LLC. This version and later update themselves; if you have 2026.9.1, install this one over it once.
 
 Source (GPL-3.0): the Bitwarden desktop client at tag \`$DESKTOP_TAG\` with the changes in \`azet-pass-desktop-$V.patch\`, produced by \`clients/rebrand.mjs\` and \`clients/ship-desktop-win.sh\` in this repository." "$OUT/$NAME" "$OUT/latest.yml" "$OUT/azet-pass-desktop-$V.patch"
+  gh release upload desktop-feed "$OUT/latest.yml" --clobber -R azet-llc/azet-pass # the feed installed apps read
 fi

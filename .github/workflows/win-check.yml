@@ -27,7 +27,8 @@ jobs:
           $s = Get-AuthenticodeSignature $exe.FullName; "app: $($s.Status) $($s.SignerCertificate.Subject)"
           if ($s.Status -ne 'Valid') { exit 1 }
           "version $($exe.VersionInfo.ProductVersion)"
-          if ("${{ inputs.tag }}" -notmatch [regex]::Escape($exe.VersionInfo.ProductVersion)) { exit 1 }
+          # the exe carries four numbers (2026.10.4.0), the tag three
+          if ("${{ inputs.tag }}" -notmatch [regex]::Escape(($exe.VersionInfo.ProductVersion -replace '\.0$', ''))) { exit 1 }
           Get-Content "$dir\resources\app-update.yml"
           if (-not (Select-String -Path "$dir\resources\app-update.yml" -Pattern 'pass.azet.io/desktop' -Quiet)) { exit 1 }
           "DIR=$dir" >> $env:GITHUB_ENV

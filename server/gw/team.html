@@ -201,13 +201,15 @@ async function signUp(email, password) {
   await api('POST', '/identity/accounts/register', { email, name: null, masterPasswordHash: k.hash, masterPasswordHint: null, kdf: 0, kdfIterations: iter, key: await encB(k.stretched, userKey),
     userAsymmetricKeys: { publicKey: rsa.pub, encryptedPrivateKey: await encB(userKey, rsa.priv) }, orgInviteToken: INV[2], organizationUserId: INV[1] })
 }
+// one device per browser, not one per sign-in (the account's device list grew by one each time)
+const deviceId = () => { try { return localStorage.azetPassTeamDevice ||= c.randomUUID() } catch { return c.randomUUID() } }
 async function signIn(email, password, fresh) {
   email = email.trim().toLowerCase()
   if (fresh) { if (password.length < 12) throw new Error('short'); await signUp(email, password) }
   const pre = await api('POST', '/identity/accounts/prelogin', { email })
   if ((pre.kdf ?? 0) !== 0) throw new Error('kdf')
   const k = await masterKeys(email, password, pre.kdfIterations)
-  const r = await fetch('/identity/connect/token', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ grant_type: 'password', username: email, password: k.hash, scope: 'api offline_access', client_id: 'web', deviceType: '9', deviceIdentifier: c.randomUUID(), deviceName: 'azet-pass-team' }) })
+  const r = await fetch('/identity/connect/token', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ grant_type: 'password', username: email, password: k.hash, scope: 'api offline_access', client_id: 'web', deviceType: '9', deviceIdentifier: deviceId(), deviceName: 'azet-pass-team' }) })
   const j = await r.json()
   if (!j.access_token) throw new Error('auth')
   const userKey = await decS(k.stretched, j.Key || j.key)
@@ -232,9 +234,11 @@ const ENC = /^2\.[A-Za-z0-9+/=]+\|[A-Za-z0-9+/=]+\|[A-Za-z0-9+/=]+$/
 async function takeBack(id) {
   const x = await api('GET', `/api/ciphers/${id}`)
   if (x.attachments?.length) throw new Error('attachments')
-  const walk = async (v) => typeof v === 'string' ? (ENC.test(v) ? encS(S.userKey, await decS(S.orgKey, v)) : v)
+  const walk = async (v) => typeof v === 'string' ? (ENC.test(v) ? encB(S.userKey, await decS(S.orgKey, v)) : v) // encB: bytes in, bytes sealed
     : Array.isArray(v) ? Promise.all(v.map(walk)) : v && typeof v === 'object' ? Object.fromEntries(await Promise.all(Object.entries(v).map(async ([k, w]) => [k, await walk(w)]))) : v
   const out = x.key ? { ...x, key: await walk(x.key) } : await walk(x)
+  const probe = x.key ? 'key' : 'name' // before anything is sent: what was sealed must open to the same bytes with the owner's key
+  if (b64(await decS(S.userKey, out[probe])) !== b64(await decS(S.orgKey, x[probe]))) throw new Error('rekey')
   await api('PUT', `/api/ciphers/${id}/unshare`, { cipher: { ...out, organizationId: null, collectionIds: [], folderId: null } })
 }
 

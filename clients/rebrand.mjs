@@ -349,9 +349,9 @@ swap('apps/desktop/src/main/menu/menu.help.ts', [['      this.separator,\n      
   ['      this.separator,\n      this.getMobileApp,\n      this.getBrowserExtension,\n', ''],
   ['"https://github.com/bitwarden/clients/issues"', `"${SRC}/issues"`]])
 
-// #40 "Check for updates": there is no desktop update feed (pass.azet.io/desktop/latest*.yml is 404 until the apps are signed)
+// #40 "Check for updates": the Mac app has an update feed (pass.azet.io/desktop/latest-mac.yml, clients/ship-desktop-mac.sh),
+// so its menu keeps the item. Windows has none yet (the Store updates the Store build), so its Help menu still hides it.
 swap('apps/desktop/src/main/menu/menu.about.ts', [['return [this.separator, this.checkForUpdates, this.aboutBitwarden];', 'return [this.separator, this.aboutBitwarden];']])
-swap('apps/desktop/src/main/menu/menu.bitwarden.ts', [['const items = [this.aboutBitwarden, this.checkForUpdates];', 'const items = [this.aboutBitwarden];']])
 
 // #12 #15 #21 #22 #24 #29: every Bitwarden page, store listing and help link in shipped code -> ours. Callbacks
 // (webauthn/duo/connector), images and test fixtures stay; assets.bitwarden.com (phishing list) and github are not touched.

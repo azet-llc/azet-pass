@@ -48,11 +48,23 @@ Emergency access, SSO, Key Connector, an admin panel, and mail for the password 
 
 Built since the first version of this document: shared vaults for a family or a team, including accounts for AI agents whose access can be limited in time and whose reads and changes are recorded (`server/migrations/0014`–`0017`). What the server learns from sharing: who is a member of which shared vault, when an item was handed over, changed or deleted, and how many — never an item's contents.
 
+## Connecting an AI: one item at a time
+
+The owner's account holds everything, encrypted with keys only the owner's devices have. An AI never signs in to that account. It has its own account, joined to a shared vault, and receives only the items the owner moved there, one by one.
+
+- **Where the line is.** It is the server boundary and the encryption, not a rule file on the AI's machine: an item that was not shared is not sent to the AI account at all, and the AI account has no key that opens it. An AI process that misbehaves can read what was shared with it and nothing else.
+- **"Randomised".** There is no home-made scrambling layer. Names, values and notes are AES-256 ciphertext with a random IV on the server; what an AI works with for anything not shared is a name or reference, never a value.
+- **Giving one.** In the vault: item menu → Assign to collections. Or add it on pass.azet.io/team. The item is re-encrypted on the owner's device with the shared vault's key.
+- **Taking one back.** pass.azet.io/team → the login → Stop sharing (`PUT /api/ciphers/{id}/unshare`): re-encrypted on the owner's device back to the owner's own key; members stop receiving it on their next sync. Turning an AI account's access off, or removing it from the vault, stops everything at once.
+- **What cannot be undone.** A value an AI account has already received may have been kept by it, and a removed member has seen the shared vault's key. Taking back stops future delivery; a secret that mattered is changed at its source. The shared vault's key is not rotated when a member is removed (not built).
+- **Record.** Each time an AI account receives shared items, and each change of its access, is a row in the hash-chained access log the organizer's device verifies with the vault key.
+
 ## How to re-check
 
 ```sh
 bash server/test/e2ee.sh        # local Worker + official bw CLI + recording proxy + local D1 search
 bash server/test/e2ee-live.sh   # production: bw CLI against pass.azet.io, remote D1 export search, test account deleted
+bash server/test/team.sh         # AI account: gets only what was shared (3b, 4a), new share / removal / take-back reach a signed-in agent (4b2, 4b3), expiry and off (4e–4g), log (4c, 4d)
 bash server/test/premium.sh     # Premium follows the AZET licence (stub licence service)
 (cd server && cargo test --lib) # premium rule: active/trial, expiry, 7-day offline grace
 ```

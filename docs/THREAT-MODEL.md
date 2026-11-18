@@ -60,12 +60,22 @@ The owner's account holds everything, encrypted with keys only the owner's devic
 - **What cannot be undone.** A value an AI account has already received may have been kept by it, and a removed member has seen the shared vault's key. Taking back stops future delivery; a secret that mattered is changed at its source. The shared vault's key is not rotated when a member is removed (not built).
 - **Record.** Each time an AI account receives shared items, and each change of its access, is a row in the hash-chained access log the organizer's device verifies with the vault key.
 
+### On a computer that runs AI agents (AZET Desktop: "Give AI agents only what I share")
+
+AZET Desktop holds two sign-ins. The person's own: its key is sealed by the computer's keychain and, with this setting on, is never written where another program can read it. The AI account's: its session is the readable one, and it is what agents, `azet-desktop pass …` and the browser's login typing use.
+
+- **Asking for one.** An agent runs `azet-desktop pass share --name X`. The app shows the person that exact name (Touch ID) and, on approval, uses the sealed key for one command that moves the item into the shared vault. Refusal moves nothing. A key that was not given answers "Not shared", never "unlock".
+- **Taking one back.** `azet-desktop pass unshare --name X`: a copy in the person's own vault, checked equal, then the shared one is removed.
+- **What an agent cannot do there.** Save, import or remove (those belong to the person's vault), or loosen the setting: leaving it needs the person's approval, and deleting the AI account's folder leaves readers with nothing to read (they do not fall back to the person's vault).
+- **Limits.** (1) While the app runs the one command for a share or a take-back, the person's key is in that process's environment for a few seconds; treat it as readable by other programs of the same user during that window (not measured conclusively). (2) If the sealed piece is deleted, the person is signed out; signing in again starts in the default setting, without the AI account, until they connect it again. (3) Everything in "What the line depends on" above: a master password an AI can read makes all of this moot.
+
 ## How to re-check
 
 ```sh
 bash server/test/e2ee.sh        # local Worker + official bw CLI + recording proxy + local D1 search
 bash server/test/e2ee-live.sh   # production: bw CLI against pass.azet.io, remote D1 export search, test account deleted
 bash server/test/team.sh         # AI account: gets only what was shared (3b, 4a), new share / removal / take-back reach a signed-in agent (4b2, 4b3), expiry and off (4e–4g), log (4c, 4d)
+bash server/test/desktop-shared.sh # AZET Desktop: sign-in, AI account connected, one key shared / refused / taken back, owner key never readable
 bash server/test/premium.sh     # Premium follows the AZET licence (stub licence service)
 (cd server && cargo test --lib) # premium rule: active/trial, expiry, 7-day offline grace
 ```

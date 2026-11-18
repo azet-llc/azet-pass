@@ -11,7 +11,11 @@ interface Env {
 
 // io.azet.pass signing certificate (vault AZET_PASS_ANDROID_KEYSTORE_B64, alias azet-pass)
 const ASSET_LINKS = [{ relation: ["delegate_permission/common.handle_all_urls"], target: { namespace: "android_app", package_name: "io.azet.pass",
-  sha256_cert_fingerprints: ["7C:14:57:6D:08:E3:C3:5B:D3:96:94:1E:50:51:24:E5:C1:4B:78:93:DF:1C:8F:D1:E6:DF:9D:9D:F2:8E:9F:2B"] } }];
+  sha256_cert_fingerprints: ["7C:14:57:6D:08:E3:C3:5B:D3:96:94:1E:50:51:24:E5:C1:4B:78:93:DF:1C:8F:D1:E6:DF:9D:9D:F2:8E:9F:2B"] } },
+  // AZET Pass Lite on Google Play: Play signs it with its own key (first), our upload key signs local builds (second)
+  { relation: ["delegate_permission/common.handle_all_urls"], target: { namespace: "android_app", package_name: "io.azet.pass.lite",
+  sha256_cert_fingerprints: ["96:2D:7A:DE:F6:C9:D5:1D:C3:EE:7F:14:F7:7B:51:99:52:B3:D3:70:F8:01:9B:6F:A4:43:F6:10:C9:D6:29:45",
+    "7C:14:57:6D:08:E3:C3:5B:D3:96:94:1E:50:51:24:E5:C1:4B:78:93:DF:1C:8F:D1:E6:DF:9D:9D:F2:8E:9F:2B"] } }];
 
 // iOS universal links: family invites (/invite#…) and the sign-up mail link open AZET Pass for iPhone when installed.
 const AASA = { applinks: { details: [{ appIDs: ["95P4H2RG24.io.azet.pass"], components: [{ "/": "/invite*" }, { "/": "/redirect-connector.html*" }] }] },

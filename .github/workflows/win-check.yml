@@ -1,0 +1,53 @@
+# Installs a published AZET Pass for Windows release on a real Windows machine and checks it: signature, silent
+# install, version, update feed file, first launch stays up, uninstall. Run by hand: gh workflow run win-check.yml -f tag=v2026.10.4-win1
+name: win-check
+on:
+  workflow_dispatch:
+    inputs:
+      tag: { description: release tag, required: true }
+env:
+  GH_TOKEN: ${{ github.token }}
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - name: Signed installer
+        run: |
+          gh release download "${{ inputs.tag }}" --repo $env:GITHUB_REPOSITORY -p "*setup*.exe" -D dl
+          $f = (Get-ChildItem dl\*.exe)[0].FullName
+          $s = Get-AuthenticodeSignature $f; "installer: $($s.Status) $($s.SignerCertificate.Subject)"
+          if ($s.Status -ne 'Valid' -or $s.SignerCertificate.Subject -notmatch 'CN=AZET LLC') { exit 1 }
+          "SETUP=$f" >> $env:GITHUB_ENV
+      - name: Silent install, version, update feed
+        run: |
+          $p = Start-Process $env:SETUP -ArgumentList '/S' -Wait -PassThru; "installer exit $($p.ExitCode)"
+          $exe = Get-ChildItem "$env:LOCALAPPDATA\Programs", "$env:ProgramFiles" -Recurse -Filter "AZET Pass.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $exe) { "not installed"; exit 1 }
+          $dir = $exe.DirectoryName; "installed in $dir"
+          $s = Get-AuthenticodeSignature $exe.FullName; "app: $($s.Status) $($s.SignerCertificate.Subject)"
+          if ($s.Status -ne 'Valid') { exit 1 }
+          "version $($exe.VersionInfo.ProductVersion)"
+          if ("${{ inputs.tag }}" -notmatch [regex]::Escape($exe.VersionInfo.ProductVersion)) { exit 1 }
+          Get-Content "$dir\resources\app-update.yml"
+          if (-not (Select-String -Path "$dir\resources\app-update.yml" -Pattern 'pass.azet.io/desktop' -Quiet)) { exit 1 }
+          "DIR=$dir" >> $env:GITHUB_ENV
+      - name: First launch stays up
+        run: |
+          $p = Start-Process "$env:DIR\AZET Pass.exe" -PassThru
+          Start-Sleep 30
+          $q = Get-Process "AZET Pass" -ErrorAction SilentlyContinue
+          if (-not $q) { "app exited"; exit 1 }
+          $q | ForEach-Object { "running pid $($_.Id) title '$($_.MainWindowTitle)' ws $([int]($_.WorkingSet64/1MB))MB" }
+          Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+          $b = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds; $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
+          [System.Drawing.Graphics]::FromImage($bmp).CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size)
+          New-Item -ItemType Directory -Force shots | Out-Null; $bmp.Save("$PWD\shots\first-launch.png")
+          $q | Stop-Process -Force
+      - name: Uninstall
+        run: |
+          $u = Get-ChildItem $env:DIR -Filter "Uninstall*.exe" | Select-Object -First 1
+          Start-Process $u.FullName -ArgumentList '/S' -Wait; Start-Sleep 8
+          if (Test-Path "$env:DIR\AZET Pass.exe") { "still installed"; exit 1 } else { "removed" }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: shots, path: shots/, retention-days: 3 }

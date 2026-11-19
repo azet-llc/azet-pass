@@ -10,6 +10,7 @@ AZET Pass apps are Bitwarden's GPL-3.0 clients with AZET's changes. Everything n
 | Mac and Windows desktop | bitwarden/clients `desktop-v2026.10.4` | `rebrand.mjs` | `ship-desktop-mac.sh`, `ship-desktop-win.sh` |
 | iPhone and iPad `io.azet.pass` | bitwarden/ios `v2026.10.1-bwpm` (crypto core: the sdk-internal revision that tag pins) | `rebrand-ios.mjs` | `build-ios.sh` |
 | Safari for Mac (`io.azet.pass.safari`) | bitwarden/clients `browser-v2026.10.2`, `apps/browser/src/safari` | `rebrand.mjs`, then `rebrand-safari.mjs` | `npm run build:safari`, then Xcode archive |
+| Reader for Mac (so the Mac app runs the vault without Terminal) | Bitwarden CLI `cli-v2026.10.1`, the OSS `bw-oss-macos-arm64` binary, used unchanged | none (licence + source note added to the zip) | `pack-reader.sh` |
 
 Each GitHub release of this repository also carries a source archive of the exact patched tree used for that release's binaries.
 

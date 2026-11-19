@@ -130,7 +130,7 @@ pub async fn import_data(
             import_cipher.name,
             import_cipher.notes,
             import_cipher.type_fields,
-        );
+        )?;
 
         let data_value = serde_json::to_value(&cipher_data).map_err(|_| AppError::Internal)?;
 

@@ -92,7 +92,7 @@ pub async fn create_cipher(
         cipher_data_req.name,
         cipher_data_req.notes,
         cipher_data_req.type_fields,
-    );
+    )?;
 
     let data_value = serde_json::to_value(&cipher_data).map_err(|_| AppError::Internal)?;
 
@@ -198,7 +198,7 @@ pub async fn update_cipher(
         }
     }
 
-    let cipher_data = CipherData::new(payload.name, payload.notes, payload.type_fields);
+    let cipher_data = CipherData::new(payload.name, payload.notes, payload.type_fields)?;
 
     let data_value = serde_json::to_value(&cipher_data).map_err(|_| AppError::Internal)?;
 
@@ -832,7 +832,7 @@ pub async fn create_cipher_simple(
 
     validate_folder_ownership(&db, payload.folder_id.as_deref(), &claims.sub).await?;
 
-    let cipher_data = CipherData::new(payload.name, payload.notes, payload.type_fields);
+    let cipher_data = CipherData::new(payload.name, payload.notes, payload.type_fields)?;
 
     let data_value = serde_json::to_value(&cipher_data).map_err(|_| AppError::Internal)?;
 

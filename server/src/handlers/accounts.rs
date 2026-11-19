@@ -266,7 +266,9 @@ pub async fn register(
         email: payload.email.to_lowercase(),
         email_verified: false,
         master_password_hash: hashed_password,
-        master_password_hint: payload.master_password_hint,
+        // Why no hint is kept: it is never shown to anyone (see password_hint), so a readable clue to the master
+        // password in the database would only help someone who took the database.
+        master_password_hint: None,
         password_salt: Some(password_salt),
         password_iterations,
         key: user_symmetric_key,
@@ -657,7 +659,7 @@ pub async fn post_password(
         new_salt,
         password_iterations,
         payload.key,
-        payload.master_password_hint,
+        None::<String>, // no hint is kept
         new_security_stamp,
         now,
         user_id
@@ -855,7 +857,7 @@ pub async fn post_rotatekey(
         // id is guaranteed to exist (validated above)
         let cipher_id = cipher.id.as_ref().unwrap();
 
-        let cipher_data = CipherData::new(cipher.name, cipher.notes, cipher.type_fields);
+        let cipher_data = CipherData::new(cipher.name, cipher.notes, cipher.type_fields)?;
 
         let data = serde_json::to_string(&cipher_data).map_err(|_| AppError::Internal)?;
 
@@ -1313,7 +1315,7 @@ pub async fn change_email(
     let stamp = Uuid::new_v4().to_string();
     let now = db::now_string();
     d1_query!(&db,"UPDATE users SET email = ?1, master_password_hash = ?2, password_salt = ?3, password_iterations = ?4, key = ?5, master_password_hint = ?6, kdf_type = ?7, kdf_iterations = ?8, kdf_memory = ?9, kdf_parallelism = ?10, security_stamp = ?11, updated_at = ?12 WHERE id = ?13",
-        email,hash,salt,password_iterations,payload.key,payload.master_password_hint,kdf,iterations,memory,parallelism,stamp,now,&claims.sub)
+        email,hash,salt,password_iterations,payload.key,None::<String>,kdf,iterations,memory,parallelism,stamp,now,&claims.sub)
         .map_err(|_| AppError::Database)?.run().await.map_err(|_| AppError::Database)?;
     Device::delete_all_by_user(&db, &claims.sub).await?;
     notifications::publish_user_logout((*env).clone(), claims.sub, now, None);

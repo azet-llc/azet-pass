@@ -71,6 +71,10 @@ pub async fn create_folder(
 ) -> Result<Json<FolderResponse>, AppError> {
     let db = db::get_db(&env)?;
     let now = db::now_string();
+    // The server keeps only what a device encrypted; a readable folder name is refused.
+    if !crate::models::cipher::is_ciphertext(&payload.name) {
+        return Err(AppError::BadRequest("The folder name is not encrypted".to_string()));
+    }
 
     let folder = Folder {
         id: Uuid::new_v4().to_string(),
@@ -166,6 +170,11 @@ pub async fn update_folder(
     .first(None)
     .await?
     .ok_or(AppError::NotFound("Folder not found".to_string()))?;
+
+    // The server keeps only what a device encrypted; a readable folder name is refused.
+    if !crate::models::cipher::is_ciphertext(&payload.name) {
+        return Err(AppError::BadRequest("The folder name is not encrypted".to_string()));
+    }
 
     let folder = Folder {
         id: id.clone(),

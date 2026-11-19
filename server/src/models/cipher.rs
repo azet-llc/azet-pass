@@ -83,16 +83,114 @@ impl CipherData {
     pub fn from_share_payload(cipher: &Value) -> Result<String, crate::error::AppError> {
         let req: CipherRequestData = serde_json::from_value(cipher.clone())
             .map_err(|e| crate::error::AppError::BadRequest(format!("cipher: {e}")))?;
-        serde_json::to_string(&Self::new(req.name, req.notes, req.type_fields))
+        serde_json::to_string(&Self::new(req.name, req.notes, req.type_fields)?)
             .map_err(|_| crate::error::AppError::Internal)
     }
 
-    pub fn new(name: String, notes: Option<String>, type_fields: CipherTypeFields) -> Self {
-        Self {
+    /// Why a Result: the server stores only what a device already encrypted. A client bug, a script or a tool that
+    /// sends a readable name, password, note or field is refused here, so plain text never reaches the database.
+    pub fn new(
+        name: String,
+        notes: Option<String>,
+        type_fields: CipherTypeFields,
+    ) -> Result<Self, crate::error::AppError> {
+        let data = Self {
             name,
             notes,
             type_fields: type_fields.normalize_for_storage(),
+        };
+        let value = serde_json::to_value(&data).map_err(|_| crate::error::AppError::Internal)?;
+        match readable_text(&value, "") {
+            Some(field) => Err(crate::error::AppError::BadRequest(format!(
+                "{field} is not encrypted; AZET Pass stores only data encrypted on the device"
+            ))),
+            None => Ok(data),
         }
+    }
+}
+
+/// An EncString as every Bitwarden client writes it: `<type>.<base64>` with up to two more `|<base64>` parts.
+pub fn is_ciphertext(text: &str) -> bool {
+    let Some((kind, body)) = text.split_once('.') else {
+        return false;
+    };
+    let base64 = |part: &str| {
+        !part.is_empty()
+            && part
+                .bytes()
+                .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'+' | b'/' | b'='))
+    };
+    !kind.is_empty()
+        && kind.bytes().all(|b| b.is_ascii_digit())
+        && body.split('|').count() <= 3
+        && body.split('|').all(base64)
+}
+
+/// The first text in a cipher that a person could read, by its path; None when every text is ciphertext.
+/// Dates (`…Date`) are the only readable text a client sends inside a cipher, and an empty text holds nothing.
+fn readable_text(value: &Value, path: &str) -> Option<String> {
+    match value {
+        Value::String(text) => {
+            (!text.is_empty() && !path.ends_with("Date") && !is_ciphertext(text))
+                .then(|| path.to_string())
+        }
+        Value::Array(items) => items.iter().find_map(|item| readable_text(item, path)),
+        Value::Object(map) => map.iter().find_map(|(key, item)| {
+            let inner = if path.is_empty() {
+                key.clone()
+            } else {
+                format!("{path}.{key}")
+            };
+            readable_text(item, &inner)
+        }),
+        _ => None,
+    }
+}
+
+#[cfg(test)]
+mod ciphertext_tests {
+    use super::*;
+    use serde_json::json;
+
+    const ENC: &str = "2.QmFzZTY0SVY=|Y2lwaGVydGV4dA==|bWFj";
+
+    fn fields(login: Value) -> CipherTypeFields {
+        CipherTypeFields {
+            login: Some(login),
+            ..Default::default()
+        }
+    }
+
+    #[test]
+    fn knows_ciphertext() {
+        assert!(is_ciphertext(ENC));
+        assert!(is_ciphertext("4.abcDEF123+/="));
+        assert!(!is_ciphertext("hunter2"));
+        assert!(!is_ciphertext("2.not base64|x"));
+        assert!(!is_ciphertext("2."));
+        assert!(!is_ciphertext("v2.abc"));
+        assert!(!is_ciphertext("2.a|b|c|d"));
+    }
+
+    #[test]
+    fn stores_an_encrypted_cipher() {
+        let login = json!({"username": ENC, "password": ENC, "totp": null,
+            "passwordRevisionDate": "2026-11-19T00:00:00.000Z", "uris": [{"uri": ENC, "match": null}]});
+        assert!(CipherData::new(ENC.into(), Some(ENC.into()), fields(login)).is_ok());
+    }
+
+    #[test]
+    fn refuses_readable_text_anywhere() {
+        let ok = json!({"username": ENC, "password": ENC});
+        assert!(CipherData::new("My bank".into(), None, fields(ok.clone())).is_err());
+        assert!(CipherData::new(ENC.into(), Some("a note".into()), fields(ok)).is_err());
+        let plain_password = json!({"username": ENC, "password": "hunter2"});
+        assert!(CipherData::new(ENC.into(), None, fields(plain_password)).is_err());
+        let plain_uri = json!({"username": ENC, "uris": [{"uri": "https://bank.example"}]});
+        assert!(CipherData::new(ENC.into(), None, fields(plain_uri)).is_err());
+        let mut custom = fields(json!({"username": ENC}));
+        custom.fields = Some(json!([{"name": ENC, "value": "secret", "type": 0}]));
+        assert!(CipherData::new(ENC.into(), None, custom).is_err());
     }
 }
 

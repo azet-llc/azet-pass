@@ -26,6 +26,7 @@ The server also enforces it (2026-11-19): a stored item or folder name whose tex
 - The doubly hashed master password hash.
 - Encrypted keys and encrypted items, their count, size, type (login, card, identity, note, SSH key), folder membership, favourite flag, revision and deletion times. Item type and counts are metadata the server can read.
 - Devices: identifier (random, made by the client), name (e.g. "Chrome", "macOS"), type, refresh token, push token if push is on.
+- Push to phones: the server sends to Google (FCM, Android) and Apple (APNs, iPhone) itself, with no relay. Google and Apple see the phone's push token, when a message was sent, and its content: the kind of change (a number), the item's or folder's id, the account id and a date. Never a name, a field or a key: the app then asks this server for what changed. `server/test/push.sh` checks the content of each message.
 - `auth_requests.request_ip` for "log in with device" requests (shown to the approving device, as in Bitwarden).
 - The AZET licence key the account entered (`users.azet_license`), its last status and expiry. The key unlocks Premium only; it opens no vault data.
 - Request IP and user agent in Cloudflare's own request logs (not stored in D1).

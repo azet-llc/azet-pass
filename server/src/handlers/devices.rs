@@ -11,7 +11,6 @@ use worker::Env;
 
 use crate::{
     auth::Claims, db, error::AppError, models::auth_request::AuthRequest, models::device::Device,
-    push,
 };
 
 fn required_header(headers: &HeaderMap, name: &str) -> Result<String, AppError> {
@@ -143,13 +142,7 @@ async fn upsert_device_token(
 
     let db = db::get_db(&env)?;
     let mut device = current_device(&db, &claims, &device_id).await?;
-    // Also check that push_uuid is present before skipping registration.
-    // Unlike vaultwarden, which pre-allocates push_uuid at Device::new() time,
-    // we only generate it during relay registration. If a previous registration
-    // call saved the token but failed at the relay step, push_uuid will be
-    // missing; in that case we must NOT early-return so the retry can complete
-    // the relay registration.
-    if device.push_token.as_deref() == Some(push_token.as_str()) && device.push_uuid.is_some() {
+    if device.push_token.as_deref() == Some(push_token.as_str()) {
         log::debug!(
             "Device {} for user {} is already registered and token is identical",
             device_id,
@@ -159,13 +152,6 @@ async fn upsert_device_token(
     }
 
     device.set_push_token(&db, Some(&push_token)).await?;
-
-    if let Some(cfg) = push::push_config(&env)? {
-        let push_uuid_created = push::register_push_device(&cfg, &mut device).await?;
-        if push_uuid_created {
-            device.persist_push_uuid(&db).await?;
-        }
-    }
 
     Ok(Json(json!({})))
 }
@@ -202,10 +188,6 @@ async fn clear_device_token(
 
     device.set_push_token(&db, None).await?;
 
-    if let Some(cfg) = push::push_config(&env)? {
-        push::unregister_push_device(&cfg, device.push_uuid.as_deref()).await?;
-    }
-
     Ok(Json(json!({})))
 }
 
@@ -236,13 +218,9 @@ pub async fn deactivate(
     Path(id): Path<String>,
 ) -> Result<axum::http::StatusCode, AppError> {
     let db = db::get_db(&env)?;
-    let device = Device::find_by_identifier_and_user(&db, &id, &claims.sub)
+    Device::find_by_identifier_and_user(&db, &id, &claims.sub)
         .await?
-        .ok_or_else(|| AppError::NotFound("Device not found".into()))?;
-    if let Some(cfg) = push::push_config(&env)? {
-        push::unregister_push_device(&cfg, device.push_uuid.as_deref()).await?;
-    }
-    db.prepare("DELETE FROM devices WHERE identifier = ?1 AND user_id = ?2")
+        .ok_or_else(|| AppError::NotFound("Device not found".into()))?;    db.prepare("DELETE FROM devices WHERE identifier = ?1 AND user_id = ?2")
         .bind(&[id.into(), claims.sub.into()])?
         .run()
         .await

@@ -261,13 +261,7 @@ pub fn publish_user_update(
         let selector = PublishSelector::user(&user_id);
         futures_util::join!(
             send_ws_to_do(&env, &selector, &ws_bytes),
-            push::push_user_update(
-                &env,
-                &user_id,
-                update_type as i32,
-                &date,
-                context_id.as_deref()
-            ),
+            push::notify(&env, std::slice::from_ref(&user_id), update_type as i32, serde_json::json!({ "date": date }), context_id.as_deref()),
         );
     });
 }
@@ -300,14 +294,7 @@ pub fn publish_folder_update(
         let selector = PublishSelector::user(&user_id);
         futures_util::join!(
             send_ws_to_do(&env, &selector, &ws_bytes),
-            push::push_folder_update(
-                &env,
-                &user_id,
-                update_type as i32,
-                &folder_id,
-                &revision_date,
-                context_id.as_deref(),
-            ),
+            push::notify(&env, std::slice::from_ref(&user_id), update_type as i32, serde_json::json!({ "id": folder_id, "revisionDate": revision_date }), context_id.as_deref()),
         );
     });
 }
@@ -339,19 +326,14 @@ pub fn publish_cipher_update(
         );
         let selector = PublishSelector::user(&user_id);
         // A shared item: the vault's other members are told too (their apps ask the server for what changed).
-        for member in vault_mates(&env, &cipher_id, &user_id).await {
-            send_ws_to_do(&env, &PublishSelector::user(&member), &ws_bytes).await;
+        let mut phones = vault_mates(&env, &cipher_id, &user_id).await;
+        for member in &phones {
+            send_ws_to_do(&env, &PublishSelector::user(member), &ws_bytes).await;
         }
+        phones.push(user_id.clone());
         futures_util::join!(
             send_ws_to_do(&env, &selector, &ws_bytes),
-            push::push_cipher_update(
-                &env,
-                &user_id,
-                update_type as i32,
-                &cipher_id,
-                &revision_date,
-                context_id.as_deref(),
-            ),
+            push::notify(&env, &phones, update_type as i32, serde_json::json!({ "id": cipher_id, "organizationId": null, "collectionIds": null, "revisionDate": revision_date }), context_id.as_deref()),
         );
     });
 }
@@ -378,14 +360,15 @@ pub fn publish_org_vault(env: Env, org_id: String) {
         let members: Vec<String> = q.all().await.ok().and_then(|r| r.results::<serde_json::Value>().ok()).unwrap_or_default()
             .iter().filter_map(|r| r.get("id").and_then(|v| v.as_str()).map(String::from)).collect();
         let now = crate::db::now_string();
-        for member in members {
+        for member in &members {
             let ws_bytes = create_update(
                 vec![("UserId".into(), member.as_str().into()), ("Date".into(), serialize_date(parse_timestamp(&now)))],
                 UpdateType::SyncVault as i32,
                 None,
             );
-            send_ws_to_do(&env, &PublishSelector::user(&member), &ws_bytes).await;
+            send_ws_to_do(&env, &PublishSelector::user(member), &ws_bytes).await;
         }
+        push::notify(&env, &members, UpdateType::SyncVault as i32, serde_json::json!({ "date": now }), None).await;
     });
 }
 
@@ -413,14 +396,7 @@ pub fn publish_send_update(
         let selector = PublishSelector::user(&user_id);
         futures_util::join!(
             send_ws_to_do(&env, &selector, &ws_bytes),
-            push::push_send_update(
-                &env,
-                &user_id,
-                update_type as i32,
-                &send_id,
-                &revision_date,
-                context_id.as_deref(),
-            ),
+            push::notify(&env, std::slice::from_ref(&user_id), update_type as i32, serde_json::json!({ "id": send_id, "revisionDate": revision_date }), context_id.as_deref()),
         );
     });
 }
@@ -444,13 +420,7 @@ pub fn publish_auth_update(
         let selector = PublishSelector::user(&user_id);
         futures_util::join!(
             send_ws_to_do(&env, &selector, &ws_bytes),
-            push::push_auth_update(
-                &env,
-                &user_id,
-                update_type as i32,
-                &auth_request_id,
-                context_id.as_deref(),
-            ),
+            push::notify(&env, std::slice::from_ref(&user_id), update_type as i32, serde_json::json!({ "id": auth_request_id }), context_id.as_deref()),
         );
     });
 }

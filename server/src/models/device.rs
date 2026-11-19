@@ -112,13 +112,6 @@ impl Device {
             .transpose()
     }
 
-    pub fn is_push_device(&self) -> bool {
-        matches!(
-            DeviceType::from_i32(self.r#type),
-            DeviceType::Android | DeviceType::Ios
-        )
-    }
-
     pub async fn insert(&self, db: &crate::db::Db) -> Result<(), AppError> {
         d1_query!(
             db,
@@ -218,25 +211,6 @@ impl Device {
         .map_err(|_| AppError::Database)?;
 
         self.push_token = push_token.map(str::to_owned);
-        self.updated_at = now;
-        Ok(())
-    }
-
-    pub async fn persist_push_uuid(&mut self, db: &crate::db::Db) -> Result<(), AppError> {
-        let now = db::now_string();
-        d1_query!(
-            db,
-            "UPDATE devices SET push_uuid = ?1, updated_at = ?2 WHERE identifier = ?3 AND user_id = ?4",
-            self.push_uuid.as_deref(),
-            &now,
-            &self.identifier,
-            &self.user_id
-        )
-        .map_err(|_| AppError::Database)?
-        .run()
-        .await
-        .map_err(|_| AppError::Database)?;
-
         self.updated_at = now;
         Ok(())
     }

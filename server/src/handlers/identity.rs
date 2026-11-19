@@ -36,7 +36,6 @@ use crate::{
         twofactor::{TwoFactor, TwoFactorType},
         user::User,
     },
-    push,
 };
 
 const PASSWORD_SCOPE: &str = "api offline_access";
@@ -800,23 +799,6 @@ pub async fn token(
                 two_factor_remember_token = Some(remember_token);
             } else {
                 device.touch(&db).await?;
-            }
-
-            if device.push_token.is_some() && device.is_push_device() {
-                if let Ok(Some(cfg)) = push::push_config(&env) {
-                    match push::register_push_device(&cfg, &mut device).await {
-                        Ok(push_uuid_created) => {
-                            if push_uuid_created {
-                                if let Err(e) = device.persist_push_uuid(&db).await {
-                                    log::warn!("Push uuid persistence on login failed: {e}");
-                                }
-                            }
-                        }
-                        Err(e) => {
-                            log::warn!("Push re-registration on login failed: {e}");
-                        }
-                    }
-                }
             }
 
             let premium = crate::handlers::azet::premium_for(&env, &user.id).await;

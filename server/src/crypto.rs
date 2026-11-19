@@ -320,3 +320,32 @@ pub fn generate_recovery_code() -> Result<String, AppError> {
 pub fn ct_eq(a: &str, b: &str) -> bool {
     constant_time_eq(a.as_bytes(), b.as_bytes())
 }
+
+/// A signed JWT from a PKCS#8 private key in PEM, with WebCrypto: RS256 (Google) or, with `es256`, ES256 (Apple).
+pub async fn sign_jwt(es256: bool, pem: &str, header: &serde_json::Value, claims: &serde_json::Value) -> Result<String, AppError> {
+    use base64::engine::general_purpose::URL_SAFE_NO_PAD as B64U;
+    let bad = |what: &str, e: JsValue| AppError::Crypto(format!("JWT {what} failed: {e:?}"));
+    let der = BASE64
+        .decode(pem.lines().filter(|l| !l.starts_with("-----")).map(str::trim).collect::<String>())
+        .map_err(|_| AppError::Crypto("JWT key is not PEM".to_string()))?;
+    let alg = js_sys::Object::new();
+    for (k, v) in [("name", if es256 { "ECDSA" } else { "RSASSA-PKCS1-v1_5" }), ("namedCurve", "P-256"), ("hash", "SHA-256")] {
+        js_sys::Reflect::set(&alg, &k.into(), &v.into()).map_err(|e| bad("algorithm", e))?;
+    }
+    let subtle = subtle_crypto()?;
+    let key = JsFuture::from(
+        subtle
+            .import_key_with_object("pkcs8", &Uint8Array::new_from_slice(&der), &alg, false, &js_sys::Array::of1(&"sign".into()))
+            .map_err(|e| bad("key import", e))?,
+    )
+    .await
+    .map_err(|e| bad("key import", e))?;
+    let signed = format!("{}.{}", B64U.encode(header.to_string()), B64U.encode(claims.to_string()));
+    let mut bytes = signed.clone().into_bytes();
+    let signature = JsFuture::from(
+        subtle.sign_with_object_and_u8_array(&alg, &CryptoKey::from(key), &mut bytes).map_err(|e| bad("signing", e))?,
+    )
+    .await
+    .map_err(|e| bad("signing", e))?;
+    Ok(format!("{signed}.{}", B64U.encode(Uint8Array::new(&signature).to_vec())))
+}

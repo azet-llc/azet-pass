@@ -14,6 +14,17 @@ fn get_disable_user_registration(env: &Env) -> bool {
         .unwrap_or(true)
 }
 
+/// AZET: what the server decides for the AZET Pass apps without a store update — the oldest build allowed in per
+/// platform, feature switches, a notice. JSON in the AZET_CLIENT_CONFIG variable; absent or malformed = no decisions.
+/// Example: {"ios":{"minBuild":8,"updateUrl":"https://apps.apple.com/app/id…"},"flags":{"shareLinks":false},"notice":{"ko":"…","en":"…"}}
+fn azet_client_config(env: &Env) -> Value {
+    env.var("AZET_CLIENT_CONFIG")
+        .ok()
+        .and_then(|v| serde_json::from_str::<Value>(&v.to_string()).ok())
+        .filter(Value::is_object)
+        .unwrap_or_else(|| json!({}))
+}
+
 #[worker::send]
 pub async fn config(
     State(env): State<Arc<Env>>,
@@ -76,6 +87,7 @@ pub async fn config(
         // Not supported right now; clients use this to detect servers that require
         // additional work to establish a connection.
         "communication": null,
+        "azet": azet_client_config(&env),
         "object": "config",
     }))
 }

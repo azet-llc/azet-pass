@@ -54,6 +54,9 @@ simple = { limit = 15, period = 60 }
 DISABLE_USER_REGISTRATION = "false"
 # AZET: sender of the sign-up confirmation mail (src/signup.js), through the EMAIL binding below.
 MAIL_FROM = "pass@azet.io"
+# AZET: decisions the apps read from /api/config without a store update (oldest build allowed, feature switches,
+# notice). JSON; see azet_client_config in src/handlers/config.rs. "{}" = no decisions.
+AZET_CLIENT_CONFIG = "{}"
 # Base URL for the worker, used for generating up/down URLs for files.
 # If not set, the base URL will be extracted from the incoming request.
 # BASE_URL = "https://vault.example.com"

@@ -6,6 +6,8 @@ Scope: the sync server at `https://pass.azet.io` (Cloudflare Worker `azet-pass`,
 
 The server never holds anything that opens a vault. Every item field (name, username, password, notes, URIs, TOTP secret, card and identity fields, attachments, Send contents, folder names) is encrypted on the device before it leaves, with keys the server never receives. Proof: `server/test/e2ee.sh` (local) and `server/test/e2ee-live.sh` (production) store an item through the official `bw` CLI and search every byte on the wire and in D1 for the master password and each field; the count must be 0, and a control (the account email, which the server is meant to see) must be found.
 
+The server also enforces it (2026-11-19): a stored item or folder name whose text is not ciphertext is answered 400 (`CipherData::new`, `is_ciphertext` in `server/src/models/cipher.rs`), so a client bug, a script or a tool cannot leave readable data in D1. Checked on production the same day: all 4,656 items held ciphertext only in every name, username, password, note, URI, TOTP, card and custom field; the official `bw` CLI still saved an item and a folder; a readable name sent straight to `/api/ciphers` and `/api/folders` got 400.
+
 ## Keys (unchanged from Bitwarden)
 
 | Key | Made where | What the server gets |
@@ -27,7 +29,7 @@ The server never holds anything that opens a vault. Every item field (name, user
 - `auth_requests.request_ip` for "log in with device" requests (shown to the approving device, as in Bitwarden).
 - The AZET licence key the account entered (`users.azet_license`), its last status and expiry. The key unlocks Premium only; it opens no vault data.
 - Request IP and user agent in Cloudflare's own request logs (not stored in D1).
-- Master password hint, if the person set one, in clear (Bitwarden stores it the same way). It is never returned to anyone: `POST /api/accounts/password-hint` answers the same sentence for every address (upstream warden-worker returned the hint to whoever asked; closed here).
+- No master password hint: since 2026-11-19 the server does not keep the hint a client sends (Bitwarden stores it in clear), and the one that was stored was erased. Nothing is returned either: `POST /api/accounts/password-hint` answers the same sentence for every address (upstream warden-worker returned the hint to whoever asked; closed here).
 
 ## Attackers and what they get
 

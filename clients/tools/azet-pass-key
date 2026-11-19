@@ -9,14 +9,21 @@
 #   azet-pass-key list               names only
 #   azet-pass-key del <NAME>         to the trash (kept 30 days)
 #   azet-pass-key status | signout
+#   azet-pass-key serve              stays running and answers get/list in a fraction of a second (a read is about 6 s
+#                                    without it: the vault is opened again each time). It listens on this computer only
+#                                    and refuses requests that carry a browser's Origin; like the session file, it is
+#                                    readable by any program of the same user.
 # Folder: $AZET_PASS_KEY_HOME (default ~/.azet-pass-key). Server: $AZET_PASS_SERVER (default https://pass.azet.io).
 set -euo pipefail
 D=${AZET_PASS_KEY_HOME:-$HOME/.azet-pass-key}; export BITWARDENCLI_APPDATA_DIR="$D/data"
 die() { echo "azet-pass-key: $1" >&2; exit 1; }
 open() { [ -f "$D/session" ] || die "not signed in (azet-pass-key signin <email>)"; BW_SESSION=$(cat "$D/session"); export BW_SESSION
   # other devices' changes: at most every five minutes, and a failed sync still leaves the saved copy readable
-  if [ -z "$(find "$D/synced" -mmin -5 2>/dev/null)" ]; then bw sync >/dev/null 2>&1 && touch "$D/synced" || true; fi; }
-item() { bw list items --search "$1" | jq -c --arg n "$1" '[.[] | select(.type == 2 and .name == $n and any(.fields[]?; .name == "value"))][0] // empty'; }
+  if [ -z "$(find "$D/synced" -mmin -5 2>/dev/null)" ]; then { if served; then curl -sf -m 60 -X POST "$(at)/sync" >/dev/null; else bw sync >/dev/null 2>&1; fi; } && touch "$D/synced" || true; fi; }
+at() { echo "http://127.0.0.1:$(cat "$D/port" 2>/dev/null)"; }
+served() { [ -s "$D/port" ] && curl -sf -m 2 -o /dev/null "$(at)/status"; }
+pick() { jq -c --arg n "$1" '[.[] | select(.type == 2 and .name == $n and any(.fields[]?; .name == "value"))][0] // empty'; }
+item() { if served; then curl -sf -m 30 -G "$(at)/list/object/items" --data-urlencode "search=$1" | jq '.data.data' | pick "$1"; else bw list items --search "$1" | pick "$1"; fi; }
 case "${1:-}" in
   signin) [ -n "${2:-}" ] || die "usage: azet-pass-key signin <email>"; umask 077; mkdir -p "$D/data"
     bw config server "${AZET_PASS_SERVER:-https://pass.azet.io}" >/dev/null
@@ -28,7 +35,8 @@ case "${1:-}" in
   signout) bw logout >/dev/null 2>&1 || true; rm -f "$D/session" "$D/synced"; echo "signed out" ;;
   get) open; it=$(item "${2:?name}"); [ -n "$it" ] || die "no key named $2"
     printf %s "$(jq -r '.fields[] | select(.name == "value") | .value' <<<"$it")" ;;
-  list) open; bw list items | jq -r '.[] | select(.type == 2 and any(.fields[]?; .name == "value")) | .name' | sort ;;
+  serve) open; umask 077; echo $((20000 + RANDOM % 20000)) > "$D/port"; trap 'rm -f "$D/port"' EXIT; bw serve --hostname 127.0.0.1 --port "$(cat "$D/port")" ;;
+  list) open; { if served; then curl -sf -m 60 "$(at)/list/object/items" | jq '.data.data'; else bw list items; fi; } | jq -r '.[] | select(.type == 2 and any(.fields[]?; .name == "value")) | .name' | sort ;;
   set) open; name=${2:?name}; value=$(cat); [ -n "$value" ] || die "the value is empty"; it=$(item "$name")
     if [ -n "$it" ]; then
       jq -c --arg v "$value" '.fields = [{name: "value", value: $v, type: 1}]' <<<"$it" | bw encode | bw edit item "$(jq -r .id <<<"$it")" >/dev/null; echo "$name: changed"

@@ -2,8 +2,9 @@
 # AZET Pass reader: the official Bitwarden CLI (GPL-3.0, the OSS build), repackaged unchanged with its licence and a
 # source note so the published zip meets GPL-3.0 section 6. The binary is byte-for-byte the upstream one (hash checked).
 # usage: pack-reader.sh [work-dir]   -> <work-dir>/dist/pass-reader-darwin-arm64.zip  (bw + LICENSE.txt + SOURCE.txt)
-# The zip's sha256 changes whenever LICENSE.txt/SOURCE.txt change; the app pins it (azet-desktop READER_SHA256), so a
-# new zip is uploaded under a NEW release-asset name and READER_URL + READER_SHA256 are updated together. See SOURCE.md.
+# The app pins the zip by sha256 (azet-desktop READER_SHA256). The zip is NOT reproducible (ditto records mtimes), so
+# its hash differs every run: pin the hash of the exact file you upload, under a NEW asset name, updating READER_URL
+# and READER_SHA256 together — never clobber the live pass-reader-1 asset. See SOURCE.md + docs/APP-STORE-GPL-DECISION.md.
 set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd); . "$here/pins.env"
 W=${1:-$here/../../azet-pass-work}; dist="$W/dist"; stage="$W/pass-reader"; mkdir -p "$dist"
@@ -39,4 +40,4 @@ chk="$stage/check"; rm -rf "$chk"; ditto -x -k "$out" "$chk"
 [ -x "$chk/bw" ] && [ "$(shasum -a 256 "$chk/bw" | cut -d' ' -f1)" = "$CLI_BW_SHA256" ] || { echo "self-check failed"; exit 1; }
 [ -f "$chk/LICENSE.txt" ] && [ -f "$chk/SOURCE.txt" ] || { echo "licence/source missing from zip"; exit 1; }
 echo "built $out"
-echo "zip sha256: $(shasum -a 256 "$out" | cut -d' ' -f1)   # -> azet-desktop READER_SHA256 (new asset name)"
+echo "zip sha256: $(shasum -a 256 "$out" | cut -d' ' -f1)   # this file -> azet-desktop READER_SHA256 (differs each run; pin what you upload)"

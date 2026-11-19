@@ -8,8 +8,11 @@ W=$(mktemp -d); trap 'kill $(jobs -p) 2>/dev/null || true' EXIT
 worker-build --release --locked >/dev/null 2>&1
 printf 'JWT_SECRET=%s\nJWT_REFRESH_SECRET=%s\nALLOWED_EMAILS=*\nMAIL_WEBHOOK=http://127.0.0.1:48790\n' "$(openssl rand -hex 32)" "$(openssl rand -hex 32)" > .dev.vars
 rm -rf .wrangler/state; mkdir -p public/web-vault
-sed '/^\[build\]/,/^command/d' wrangler.toml > wrangler.test.toml
-D1_DATABASE_ID=00000000-0000-0000-0000-000000000000 npx -y wrangler@4 d1 execute vault1 -c wrangler.test.toml --local --file sql/schema.sql >/dev/null 2>&1
+# the test talks to the backend directly (entry.js): the wrangler main (private.js) answers only the gateway's internal key
+sed -e '/^\[build\]/,/^command/d' -e 's|^main = "src/private.js"|main = "src/entry.js"|' wrangler.toml > wrangler.test.toml
+for f in sql/schema.sql migrations/001[5-9]_*.sql; do
+  D1_DATABASE_ID=00000000-0000-0000-0000-000000000000 npx -y wrangler@4 d1 execute vault1 -c wrangler.test.toml --local --file "$f" >/dev/null 2>&1
+done
 node -e 'require("http").createServer((q,r)=>{let b="";q.on("data",c=>b+=c).on("end",()=>{require("fs").appendFileSync(process.argv[1],b+"\n");r.end("ok")})}).listen(48790,"127.0.0.1")' "$W/mail.jsonl" &
 D1_DATABASE_ID=00000000-0000-0000-0000-000000000000 npx -y wrangler@4 dev -c wrangler.test.toml --local --port 48787 >"$W/dev.log" 2>&1 &
 for i in $(seq 60); do curl -sf -o /dev/null http://127.0.0.1:48787/api/alive && break; sleep 1; done
@@ -20,8 +23,9 @@ REG='"name":null,"masterPasswordHash":"x","key":"2.a|b|c","kdf":0,"kdfIterations
 c=$(post /identity/accounts/register/finish "{\"email\":\"$E\",$REG}"); echo "finish without token: $c"; [ "$c" = 400 ]
 c=$(post /identity/accounts/register/finish "{\"email\":\"$E\",$REG,\"emailVerificationToken\":\"fixed-token-to-mock\"}"); echo "finish with the old mock token: $c"; [ "$c" = 400 ]
 c=$(post /identity/accounts/register/send-verification-email "{\"email\":\"$E\",\"name\":null,\"receiveMarketingEmails\":false}"); echo "send-verification-email: $c"; [ "$c" = 204 ]
+for i in $(seq 40); do [ -s "$W/mail.jsonl" ] && break; sleep 0.5; done # the mail leaves after the answer
 LINK=$(jq -r .text "$W/mail.jsonl" | grep -o 'http[^ ]*finish-signup[^ ]*' | head -1); echo "mailed link: ${LINK%%token=*}token=…"
-TOKEN=$(node -e 'const u=new URL(process.argv[1].replace("/#/","/"));console.log(u.searchParams.get("token"))' "$LINK")
+TOKEN=$(node -e 'console.log(decodeURIComponent(/[?&]token=([^&]+)/.exec(process.argv[1])[1]))' "$LINK") # the link keeps its query after the #
 c=$(post /identity/accounts/register/verification-email-clicked "{\"email\":\"$E\",\"emailVerificationToken\":\"$TOKEN\"}"); echo "clicked, right address: $c"; [ "$c" = 200 ]
 c=$(post /identity/accounts/register/verification-email-clicked "{\"email\":\"other-$E\",\"emailVerificationToken\":\"$TOKEN\"}"); echo "clicked, other address: $c"; [ "$c" = 400 ]
 c=$(post /identity/accounts/register/finish "{\"email\":\"other-$E\",$REG,\"emailVerificationToken\":\"$TOKEN\"}"); echo "finish, other address: $c"; [ "$c" = 400 ]

@@ -8,8 +8,11 @@ W=$(mktemp -d); trap 'kill $(jobs -p) 2>/dev/null || true' EXIT
 worker-build --release --locked >/dev/null 2>&1
 printf 'JWT_SECRET=%s\nJWT_REFRESH_SECRET=%s\nALLOWED_EMAILS=*\nSUITE_API_URL=http://127.0.0.1:48789\n' "$(openssl rand -hex 32)" "$(openssl rand -hex 32)" > .dev.vars
 rm -rf .wrangler/state; mkdir -p public/web-vault
-sed '/^\[build\]/,/^command/d' wrangler.toml > wrangler.test.toml
-D1_DATABASE_ID=00000000-0000-0000-0000-000000000000 npx -y wrangler@4 d1 execute vault1 -c wrangler.test.toml --local --file sql/schema.sql >/dev/null 2>&1
+# the test talks to the backend directly (entry.js): the wrangler main (private.js) answers only the gateway's internal key
+sed -e '/^\[build\]/,/^command/d' -e 's|^main = "src/private.js"|main = "src/entry.js"|' wrangler.toml > wrangler.test.toml
+for f in sql/schema.sql migrations/001[5-9]_*.sql; do
+  D1_DATABASE_ID=00000000-0000-0000-0000-000000000000 npx -y wrangler@4 d1 execute vault1 -c wrangler.test.toml --local --file "$f" >/dev/null 2>&1
+done
 node -e '
 require("http").createServer((q,r)=>{let b="";q.on("data",c=>b+=c).on("end",()=>{const j=JSON.parse(b||"{}");console.log(q.url,JSON.stringify(j));
  const good=j.license_key==="AZET-AAAAA-BBBBB-CCCCC-DDDDD";

@@ -4,6 +4,7 @@
 // only wrapped keys and encrypted items. Reading and writing items afterwards is done with the official `bw` CLI.
 //
 //   AZET_PASS_EMAIL=… AZET_PASS_PASSWORD=… [AZET_PASS_URL=https://pass.azet.io] node scripts/team.mjs <command>
+//   With two-step sign-in on: AZET_PASS_CODE=<6 digits from the authenticator app> as well.
 //
 //   create <name> [seats]                      make a team and its first shared vault → {org, vault}
 //   invite <org> <email> [--read-only] [--agent] [--days <n>] [--vault <id>] [--name <display name>]   → {member, token}
@@ -68,8 +69,10 @@ const masterKeys = async () => {
 const login = async () => {
   const { mk, hash } = await masterKeys()
   const r = await fetch(`${base}/identity/connect/token`, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ grant_type: 'password', username: email, password: hash, scope: 'api offline_access', client_id: 'cli', deviceType: '8', deviceIdentifier: c.randomUUID(), deviceName: 'azet-pass-team' }) })
+    body: new URLSearchParams({ grant_type: 'password', username: email, password: hash, scope: 'api offline_access', client_id: 'cli', deviceType: '8', deviceIdentifier: c.randomUUID(), deviceName: 'azet-pass-team',
+      ...(process.env.AZET_PASS_CODE ? { twoFactorToken: process.env.AZET_PASS_CODE, twoFactorProvider: '0' } : {}) }) })
   const j = await r.json()
+  if (!j.access_token && JSON.stringify(j).includes('TwoFactorProviders')) die('This account has two-step sign-in on: set AZET_PASS_CODE to the 6 digits from the authenticator app.')
   if (!j.access_token) return null
   const userKey = await decS(new Uint8Array([...await expand(mk, 'enc'), ...await expand(mk, 'mac')]), j.Key || j.key)
   return { tok: j.access_token, userKey, priv: await decS(userKey, j.PrivateKey || j.privateKey) }

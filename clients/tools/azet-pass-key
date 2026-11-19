@@ -3,6 +3,7 @@
 # shape as `azet-desktop pass` (a secure note named after the key, with a hidden field "value"), through the vault
 # command-line tool `bw` and `jq`. Where AZET Desktop is installed, use `azet-desktop pass` instead.
 #   azet-pass-key signin <email>     once per computer; the master password comes on stdin, the session stays in a 0600 file
+#                                    with two-step sign-in on: AZET_PASS_KEY_CODE=<6 digits from the authenticator app>
 #   azet-pass-key get <NAME>         the value, for a pipe or $(…)
 #   azet-pass-key set <NAME>         saves or replaces; the value comes on stdin
 #   azet-pass-key list               names only
@@ -21,7 +22,7 @@ case "${1:-}" in
     bw config server "${AZET_PASS_SERVER:-https://pass.azet.io}" >/dev/null
     IFS= read -r AZET_PASS_KEY_PW; export AZET_PASS_KEY_PW
     bw logout >/dev/null 2>&1 || true
-    bw login "$2" --passwordenv AZET_PASS_KEY_PW --raw > "$D/session.new" && mv "$D/session.new" "$D/session" || { rm -f "$D/session.new"; die "sign-in failed"; }
+    bw login "$2" --passwordenv AZET_PASS_KEY_PW ${AZET_PASS_KEY_CODE:+--method 0 --code "$AZET_PASS_KEY_CODE"} --raw > "$D/session.new" && mv "$D/session.new" "$D/session" || { rm -f "$D/session.new"; die "sign-in failed"; }
     echo "signed in" ;;
   status) [ -f "$D/session" ] && echo "signed in" || echo "signed out" ;;
   signout) bw logout >/dev/null 2>&1 || true; rm -f "$D/session" "$D/synced"; echo "signed out" ;;

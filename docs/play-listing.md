@@ -109,7 +109,7 @@ Scope: this F-Droid release plus the AZET sync service. Do not copy the upstream
 | Website domains for icons | Optional when icons are enabled (default on); sent through AZET proxy; evaluate web-browsing data as ephemeral collection, even without stored logs |
 | Encrypted vault/passkeys/attachments | E2EE contents qualify for the Play collection exclusion only while AZET/any intermediary cannot decrypt them. Metadata and plaintext account fields remain declared |
 | Camera/biometrics/accessibility screen fields | Local processing, not collected solely because a permission exists; validate by traffic capture |
-| Ads/analytics/crash reporting | No ads declared. Firebase dependencies are standard-only, not fdroid; verify final release dependency/traffic evidence before selecting no collection for all diagnostics |
+| Ads/analytics/crash reporting | No ads declared. From 2026.11.0-azet4 the build includes Firebase Cloud Messaging only (push; no Analytics, no Crashlytics): declare the device push token (Device or other IDs, app functionality, not shared, not optional); verify final release dependency/traffic evidence before selecting no collection for all diagnostics |
 | Breach check/email, password-prefix lookup | Only if exposed by the Android release; inspect invocation and third-party consent before finalizing sharing answers |
 | Encryption in transit | AZET default endpoints are HTTPS. Self-hosted endpoint behavior must be checked before answering universally Yes |
 | Sharing | Cloudflare processing on AZET's behalf can qualify for service-provider exclusion. Do not use this to omit independent optional third parties |

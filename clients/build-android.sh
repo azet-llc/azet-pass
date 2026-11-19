@@ -3,7 +3,7 @@
 # 1) Bitwarden SDK from source, GPL crates only (`bitwarden-uniffi` pulls nothing from bitwarden_license/),
 #    at the commit the Android tag asks for (pins.env ANDROID_SDK_COMMIT).
 #    The prebuilt com.bitwarden:sdk-android sits in GitHub Packages (needs a read:packages token) and its licence is not stated.
-# 2) pinned bitwarden/android tag + rebrand-android.mjs, F-Droid flavour (no Google services), release build.
+# 2) pinned bitwarden/android tag + rebrand-android.mjs, F-Droid flavour plus Firebase Cloud Messaging only (push), release build.
 # 3) zipalign + apksigner with the AZET Pass key (vault: AZET_PASS_ANDROID_KEYSTORE_B64 / _PASSWORD).
 set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd); . "$here/pins.env"
@@ -25,6 +25,7 @@ a="$W/android"
 git -C "$a" checkout -q -- . && git -C "$a" clean -qfd -e user.properties
 node "$here/rebrand-android.mjs" "$a"
 echo "localSdk=true" > "$a/user.properties"
+tkt get AZET_PASS_GOOGLE_SERVICES_JSON_B64 | base64 -d > "$a/app/src/fdroid/google-services.json"   # push: Firebase project azet-mobile
 (cd "$a" && ./gradlew :app:assembleFdroidRelease --no-daemon -q)
 bt=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1); ks=$(mktemp)
 tkt get AZET_PASS_ANDROID_KEYSTORE_B64 | base64 -d > "$ks"; export KS_PW=$(tkt get AZET_PASS_ANDROID_KEYSTORE_PASSWORD)

@@ -43,7 +43,7 @@ edit('app/build.gradle.kts', (s) => s.replace(`    packaging {
         }
         resources {`).replace(/(\n        versionName = libs\.versions\.appVersionName\.get\(\)\n)/, '$1        ndk { abiFilters += listOf("arm64-v8a") }\n'))
 // our own version line: upstream 2026.11.0 + AZET build 2 (versionCode grows with each AZET release)
-edit('gradle/libs.versions.toml', (s) => s.replace(/appVersionCode = "\d+"/, 'appVersionCode = "20261103"').replace(/appVersionName = "[^"]+"/, 'appVersionName = "2026.11.0-azet3"'))
+edit('gradle/libs.versions.toml', (s) => s.replace(/appVersionCode = "\d+"/, 'appVersionCode = "20261104"').replace(/appVersionName = "[^"]+"/, 'appVersionName = "2026.11.0-azet4"'))
 // One clear entry for bringing in everything: the Credential Exchange import (Android 14+, from Google Password Manager
 // and other apps) is named for what it does
 for (const [dir, text] of [['values', 'Import all passwords from other apps'], ['values-ko-rKR', '다른 앱의 비밀번호 모두 가져오기']])
@@ -216,4 +216,16 @@ if (process.env.AZET_LITE === '1') {
   edit('app/src/main/kotlin/com/x8bit/bitwarden/ui/platform/feature/settings/autofill/AutoFillScreen.kt',
     (s) => s.replace(/\n\s*AccessibilityAutofillSwitch\(\n[\s\S]*?\n {8}\)\n/, '\n'))
 }
+// Push (owner 11-19): the build stays the fdroid flavour (no Play Billing, no Crashlytics, no ML Kit, no Play review)
+// and gets only Firebase Cloud Messaging, so a change made elsewhere reaches the phone while the app is closed.
+// pass.azet.io sends to Google itself (server/src/push.rs): a message carries ids and dates, never vault content.
+// build-android.sh writes app/src/fdroid/google-services.json from the vault.
+edit('app/build.gradle.kts', (s) => s
+  .replace('    standardImplementation(libs.google.firebase.crashlytics)\n', (m) => m +
+    '    add("fdroidImplementation", platform(libs.google.firebase.bom))\n    add("fdroidImplementation", libs.google.firebase.cloud.messaging)\n')
+  .replace('tasks.withType<GoogleServicesTask>() +\n        tasks.withType<InjectMappingFileIdTask>()', 'tasks.withType<InjectMappingFileIdTask>()'))
+if (!fs.readFileSync(p('app/build.gradle.kts'), 'utf8').includes('fdroidImplementation", libs.google.firebase.cloud.messaging') ||
+  fs.readFileSync(p('app/build.gradle.kts'), 'utf8').includes('withType<GoogleServicesTask>() +')) throw new Error('rebrand-android: push was not added to the fdroid flavour')
+fs.cpSync(p('app/src/standard/kotlin/com/x8bit/bitwarden/data/push'), p('app/src/fdroid/kotlin/com/x8bit/bitwarden/data/push'), { recursive: true })
+fs.copyFileSync(p('app/src/standard/AndroidManifest.xml'), p('app/src/fdroid/AndroidManifest.xml'))
 console.log(`rebrand-android: ${renamed} strings renamed, server https://pass.azet.io, app id ${liteId}`)

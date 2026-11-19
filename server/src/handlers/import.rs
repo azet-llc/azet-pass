@@ -47,6 +47,9 @@ pub async fn import_data(
     let mut folders: Vec<String> = Vec::with_capacity(data.folders.len());
 
     for import_folder in data.folders {
+        if !crate::models::cipher::is_ciphertext(&import_folder.name) {
+            return Err(AppError::BadRequest("A folder name in the import is not encrypted".to_string()));
+        }
         let folder_id = if let Some(ref id) = import_folder.id {
             if existing_folders.contains(id) {
                 // Folder already exists, use existing ID

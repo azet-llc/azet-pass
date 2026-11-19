@@ -86,6 +86,7 @@ pub async fn create_cipher(
     // a family item belongs to the family (user_id NULL) and to at least one shared vault the caller may write to
     if let Some(org_id) = cipher_data_req.organization_id.as_deref() {
         crate::handlers::family::check_collections_writable(&db, org_id, &claims.sub, &payload.collection_ids).await?;
+        super::rotate::key_current(&db, Some(org_id), &claims.device).await?;
     }
 
     let cipher_data = CipherData::new(
@@ -175,6 +176,7 @@ pub async fn update_cipher(
 
     validate_folder_ownership(&db, payload.folder_id.as_deref(), &claims.sub).await?;
     super::family::log_agent_write(&db, &claims.sub, existing_cipher.organization_id.as_deref(), "write", &id).await?;
+    super::rotate::key_current(&db, existing_cipher.organization_id.as_deref(), &claims.device).await?;
 
     // Reject updates based on stale client data when the last known revision is provided
     if let Some(dt) = payload.last_known_revision_date.as_deref() {

@@ -167,6 +167,11 @@ pub async fn create_attachment_v2(
     let db = db::get_db(&env)?;
 
     let cipher = ensure_cipher_for_user(&db, &cipher_id, &claims.sub, true).await?;
+    // A file's key is wrapped with the item's key: from a device holding an old vault key nobody could open it.
+    super::rotate::key_current(&db, cipher.organization_id.as_deref(), &claims.device).await?;
+    if !crate::models::cipher::is_ciphertext(&payload.file_name) || !crate::models::cipher::is_ciphertext(&payload.key) {
+        return Err(AppError::BadRequest("The file name or its key is not encrypted".to_string()));
+    }
 
     let AttachmentCreateRequest {
         key,

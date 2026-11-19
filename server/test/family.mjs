@@ -225,4 +225,24 @@ await ok(b2.tok, 'POST', '/api/azet/travel-mode', { enabled: false, masterPasswo
 assert.ok((await sync(b2)).ciphers.some((x) => x.id === bank.id))
 console.log('9 travel mode: ok')
 
+// 10 the family key is changed (scripts/team.mjs rotate): the item, the file's name and key, and the member's recovery
+// key all open with the new keys, the old family key opens none of them, and the file itself is the same
+const rot = JSON.parse(execFileSync('node', [new URL('../scripts/team.mjs', import.meta.url).pathname, 'rotate', org.id],
+  { env: { ...process.env, AZET_PASS_URL: base, AZET_PASS_EMAIL: A, AZET_PASS_PASSWORD: pw(A) }, stdio: ['ignore', 'pipe', 'inherit'] }))
+assert.equal(rot.rotated, true); assert.equal(rot.files, 1); assert.deepEqual(rot.needConfirmAgain, [])
+const a3 = await login(A, pw(A)), s3 = await sync(a3), b3 = await login(B, temp)
+const newKey = await rsaDec(a3.priv, s3.profile.organizations.find((o) => o.id === org.id).key)
+assert.notDeepEqual(newKey, orgKey)
+assert.deepEqual(await rsaDec(b3.priv, (await sync(b3)).profile.organizations.find((o) => o.id === org.id).key), newKey, 'the member was handed the new key')
+const say = async (key, v) => Buffer.from(await decS(key, v)).toString()
+const x3 = s3.ciphers.find((x) => x.id === item.id), f3 = x3.attachments[0]
+assert.equal(await say(newKey, x3.name), SENT.name); assert.ok((await say(newKey, x3.login.password)).startsWith(SENT.pass)) // a member edited it in step 3
+assert.equal(await say(newKey, f3.fileName), 'passport.jpg'); assert.equal(await say(newKey, f3.key), 'k')
+for (const sealed of [x3.name, f3.fileName, f3.key]) await assert.rejects(decS(orgKey, sealed), 'the old family key opens nothing')
+assert.deepEqual(new Uint8Array(await (await fetch((await ok(a3.tok, 'GET', `/api/ciphers/${item.id}/attachment/${slot.attachmentId}`)).url)).arrayBuffer()), blob, 'the file is unchanged')
+const det3 = await ok(a3.tok, 'GET', `/api/organizations/${org.id}/users/${mid}/reset-password-details`)
+assert.deepEqual(await rsaDec(await decS(newKey, det3.encryptedPrivateKey), det3.resetPasswordKey), b.userKey, 'recovery still works, with the new key pair')
+await assert.rejects(rsaDec(orgPriv, det3.resetPasswordKey), 'the old family private key opens no recovery key')
+console.log('10 key change: item, file, recovery key and member all on the new key: ok')
+
 console.log('SENTINEL', SENT.name, SENT.user, SENT.pass, pw(A), pw(B), temp)

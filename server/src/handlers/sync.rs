@@ -90,6 +90,8 @@ pub async fn get_sync_data(
         Profile::from_user(user, two_factor_enabled, premium)?
     };
     profile.organizations = crate::handlers::family::profile_organizations(&db, &user_id).await?;
+    // This device is being handed the current key of each shared vault (see handlers/rotate.rs).
+    crate::handlers::rotate::mark_seen(&db, &user_id, &claims.device).await?;
     let travel: Option<Value> = db
         .prepare("SELECT 1 FROM users WHERE id = ?1 AND travel_mode = 1")
         .bind(&[user_id.clone().into()])?

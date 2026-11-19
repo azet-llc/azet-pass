@@ -152,6 +152,7 @@ const W = ko ? {
   add: '로그인 추가', itemName: '이름 (예: GitHub 배포)', user: '아이디', pass: '비밀번호', site: '웹 주소(선택)', addGo: '암호화해 저장', addFail: '저장하지 못했어요',
   itemLead: (p, a) => `구성원 ${p}명과 AI 계정 ${a}개가 볼 수 있는 로그인이에요.`, account: '계정', show: '비밀번호 보기', aiReads: 'AI가 다룬 기록', noReads: '아직 AI가 이 로그인을 따로 읽은 적이 없어요.',
   takeBack: '공유 그만하기', takeBackWhy: '이 로그인을 내 금고로 되돌려요. 멤버와 AI 계정은 다음 동기화부터 받지 못해요. 이미 본 값은 되돌릴 수 없으니 필요하면 비밀번호를 바꾸세요.', tookBack: '내 금고로 되돌렸어요', takeBackFail: '되돌리지 못했어요. 첨부 파일이 있으면 앱에서 해 주세요.',
+  rekeyed: '뺐어요. 금고 키도 새로 바꿨어요.', rekeyFail: '뺐지만 금고 키를 바꾸지 못했어요. 이 화면을 다시 열면 다시 시도해요.',
   roOn: '켜짐 · 읽기만', roOff: '꺼짐 · 저장도 가능', kick: '이 금고에서 빼기', kickSure: '한 번 더 누르면 빼요', keepSafe: '안전하게 지키는 방법', safe1: '이 기기에서만 풀려요', safe1Why: '비밀번호는 팀 키가 있는 기기에서만 풀려요. 서버에는 암호문만 있어요.', safe2: 'AI가 읽으면 기록돼요', safe2Why: 'AI 계정이 이 로그인을 받아 갈 때마다 접근 기록에 남아요.',
 } : {
   mkTitle: 'Create a shared vault', mkWhy: 'A vault for sharing logins with your family, your team or AI accounts. Its key is made on this device and reaches the server only in encrypted form.', mkName: 'Name (e.g. Our team)', mkGo: 'Create', mkFail: 'The vault could not be created',
@@ -170,6 +171,7 @@ const W = ko ? {
   add: 'Add a login', itemName: 'Name (e.g. GitHub deploy)', user: 'Username', pass: 'Password', site: 'Web address (optional)', addGo: 'Encrypt and save', addFail: 'The login could not be saved',
   itemLead: (p, a) => `${p} ${p === 1 ? 'member' : 'members'} and ${a} AI ${a === 1 ? 'account' : 'accounts'} can see this login.`, account: 'Account', show: 'Show password', aiReads: 'What AI did with it', noReads: 'No AI account has read this login on its own yet.',
   takeBack: 'Stop sharing', takeBackWhy: 'Moves this login back to your own vault. Members and AI accounts stop receiving it from their next sync. What they have already seen cannot be taken back, so change the password if that matters.', tookBack: 'Moved back to your vault', takeBackFail: 'Could not move it back. If it has attachments, do this in the app.',
+  rekeyed: 'Removed, and the vault key was changed.', rekeyFail: 'Removed, but the vault key could not be changed. Opening this page again tries once more.',
   roOn: 'On · reads only', roOff: 'Off · may also save', kick: 'Remove from this vault', kickSure: 'Tap again to remove', keepSafe: 'How it is kept safe', safe1: 'Opened only on this device', safe1Why: 'The password is decrypted only on a device that holds the team key. The server has ciphertext only.', safe2: 'Recorded when AI reads it', safe2Why: 'Each time an AI account receives this login, a record is written to the access log.',
   title: 'Access log', settings: 'Settings', out: 'Sign out', checking: 'Checking the log…', checked: 'Every record checked · just now', changed: 'A record was changed or is missing',
   what: (done) => `A record is kept each time an AI agent reads a shared login. This device ${done ? 'checked' : 'is checking'} with the team key that none was changed or removed.`,
@@ -214,10 +216,10 @@ async function signIn(email, password, fresh) {
   if (!j.access_token) throw new Error('auth')
   const userKey = await decS(k.stretched, j.Key || j.key)
   S = { tok: j.access_token, email, userKey, priv: await decS(userKey, j.PrivateKey || j.privateKey) }
-  const me = await api('GET', '/api/accounts/profile')
+  const me = await api('GET', '/api/accounts/profile'); S.me = me.id
   S.pub = me.accountKeys?.publicKeyEncryptionKeyPair?.publicKey || (await api('GET', `/api/users/${me.id}/public-key`)).publicKey
   const orgs = (await api('GET', '/api/sync?excludeDomains=true')).profile.organizations, o = orgs.find((x) => x.type <= 1 && x.status === 2)
-  if (o) { S.org = o.id; S.orgName = o.name; S.orgKey = await rsaDec(S.priv, o.key); return }
+  if (o) { S.org = o.id; S.orgName = o.name; S.orgKey = await rsaDec(S.priv, o.key); S.due = !!o.azetKeyChangeDue; return }
   if (INV) { S.mode = 'joined'; try { await api('POST', `/api/organizations/${INV[0]}/users/${INV[1]}/accept`, { token: INV[2] }) } catch { S.joinFail = true }; return }
   S.mode = orgs.length ? 'member' : 'new'
 }
@@ -243,6 +245,55 @@ async function takeBack(id) {
   await api('PUT', `/api/ciphers/${id}/unshare`, { cipher: { ...out, organizationId: null, collectionIds: [], folderId: null } })
 }
 
+// ---- a new vault key (the same steps as rotate in scripts/team.mjs) ----
+// Someone who was removed has seen the vault key, so this device makes a new key and key pair, opens everything the
+// old key sealed and seals it again, opens each value once more to compare, and sends it all in one request: the
+// server takes all of it or none. The new key goes only to public keys whose fingerprint was confirmed here.
+const pinOf = async (spki) => hex(await c.subtle.digest('SHA-256', unb64(spki)))
+const readPins = async (key, sealed) => sealed ? JSON.parse(dec.decode(await decS(key, sealed))) : null
+async function rotateKey() {
+  const old = S.orgKey, o = S.org, r = await api('GET', `/api/organizations/${o}/azet/rotation`)
+  if (r.pendingUploads) throw new Error('uploads')
+  const key = c.getRandomValues(new Uint8Array(64)), rsa = await rsaPair(), oldPriv = await decS(old, r.privateKey)
+  // this device's own public key, made from the private key it holds: never the one the server shows
+  const jwk = await c.subtle.exportKey('jwk', await c.subtle.importKey('pkcs8', S.priv, { name: 'RSA-OAEP', hash: 'SHA-1' }, true, ['decrypt']))
+  const myPub = b64(await c.subtle.exportKey('spki', await c.subtle.importKey('jwk', { kty: jwk.kty, n: jwk.n, e: jwk.e, alg: jwk.alg, ext: true }, { name: 'RSA-OAEP', hash: 'SHA-1' }, true, ['encrypt'])))
+  const reseal = async (v, from, to) => { const plain = await decS(from, v), out = await encB(to, plain); if (b64(await decS(to, out)) !== b64(plain)) throw new Error('reseal'); return out }
+  const walk = async (v, from, to) => typeof v === 'string'
+    ? (ENC.test(v) ? reseal(v, from, to) : v.length > 20 && /^\d+\.[A-Za-z0-9+/=]+(\||$)/.test(v) ? (() => { throw new Error('enc type') })() : v)
+    : Array.isArray(v) ? Promise.all(v.map((w) => walk(w, from, to)))
+    : v && typeof v === 'object' ? Object.fromEntries(await Promise.all(Object.entries(v).map(async ([k, w]) => [k, await walk(w, from, to)]))) : v
+  const itemKeys = {}, ciphers = []
+  for (const x of r.ciphers) { // an item with its own key gets a new one; the rest is sealed straight with the vault key
+    const { key: wrapped, ...fields } = x.cipher
+    const from = wrapped ? await decS(old, wrapped) : old, to = wrapped ? c.getRandomValues(new Uint8Array(64)) : key
+    itemKeys[x.id] = [from, to]
+    ciphers.push({ id: x.id, updatedAt: x.updatedAt, cipher: { ...(await walk(fields, from, to)), ...(wrapped ? { key: await encB(key, to) } : {}) } })
+  }
+  const attachments = await Promise.all(r.attachments.map(async (a) => { // the file itself stays; its key is wrapped again
+    const k = itemKeys[a.cipherId]; if (!k) throw new Error('file')
+    return { id: a.id, fileName: await reseal(a.fileName, k[0], k[1]), key: await reseal(a.key, k[0], k[1]) }
+  }))
+  const pinned = await readPins(old, r.pins), pins = {}
+  const members = await Promise.all(r.members.map(async (m) => {
+    const recovery = m.resetPasswordKey ? await rsaEnc(rsa.pub, await rsaDec(oldPriv, m.resetPasswordKey)) : null
+    if (m.userId === S.me) { pins[m.id] = await pinOf(myPub); return { id: m.id, key: await rsaEnc(myPub, key), resetPasswordKey: recovery } }
+    const pin = m.hasKey && m.publicKey ? await pinOf(m.publicKey) : null
+    if (!pin || (pinned && pinned[m.id] !== pin)) return { id: m.id, key: null, resetPasswordKey: recovery } // confirmed again by fingerprint
+    pins[m.id] = pin
+    return { id: m.id, key: await rsaEnc(m.publicKey, key), resetPasswordKey: recovery }
+  }))
+  await api('POST', `/api/organizations/${o}/azet/rotate-key`, { keyGen: r.keyGen, keys: { publicKey: rsa.pub, encryptedPrivateKey: await encB(key, rsa.priv) },
+    checkpoint: r.checkpoint ? await reseal(r.checkpoint, old, key) : null, pins: await encS(key, JSON.stringify(pins)),
+    members, collections: await Promise.all(r.collections.map(async (v) => ({ id: v.id, name: await reseal(v.name, old, key) }))), ciphers, attachments })
+  S.orgKey = key
+}
+// The fingerprint just confirmed is kept, sealed with the vault key, for the next key change.
+async function pin(m) {
+  const pins = (await readPins(S.orgKey, (await api('GET', `/api/organizations/${S.org}/azet/rotation`)).pins)) ?? {}
+  await api('PUT', `/api/organizations/${S.org}/azet/pins`, { value: await encS(S.orgKey, JSON.stringify({ ...pins, [m.id]: await pinOf(m.publicKey) })) })
+}
+
 // ---- access log ----
 const KO = { day: (d) => { const n = Math.floor((new Date().setHours(0, 0, 0, 0) - new Date(d).setHours(0, 0, 0, 0)) / 864e5); return n === 0 ? W.today : n === 1 ? W.yesterday : new Date(d).toLocaleDateString(LANG, { month: 'long', day: 'numeric' }) },
   time: (d) => new Date(d).toLocaleTimeString(LANG, { hour: 'numeric', minute: '2-digit' }), until: (d) => W.until(new Date(d).toLocaleDateString(LANG, { year: 'numeric', month: 'numeric', day: 'numeric' })) }
@@ -250,6 +301,7 @@ const text = async (key, v) => { try { return v ? dec.decode(await decS(key, v))
 // Members, shared vaults, shared logins (names and usernames decrypted here; passwords only when shown or copied), the access log.
 async function loadAll() {
   const o = S.org
+  if (S.due) { await rotateKey(); S.due = false } // a member left, or the last key change did not finish
   const [members, items, cols] = await Promise.all([api('GET', `/api/organizations/${o}/users`), api('GET', `/api/ciphers/organization-details?organizationId=${o}`), api('GET', `/api/organizations/${o}/collections/details`)])
   S.members = members.data
   S.vaults = await Promise.all(cols.data.map(async (v) => ({ id: v.id, name: (await text(S.orgKey, v.name)) || v.name })))
@@ -441,12 +493,12 @@ document.addEventListener('click', async (ev) => {
   const who = id ? S.members.filter((m) => m.id === id) : S.members.filter((m) => m.agent)
   if (act === 'kick' && !el.dataset.sure) { el.dataset.sure = 1; el.textContent = W.kickSure; return } // second tap removes
   el.disabled = true
-  if (act === 'kick') await api('DELETE', `${users}/${id}`)
+  if (act === 'kick') { await api('DELETE', `${users}/${id}`); try { await rotateKey(); toast(W.rekeyed) } catch { S.due = true; toast(W.rekeyFail) } }
   if (act === 'days') { const next = DAYS[(DAYS.indexOf(Number(el.querySelector('span').dataset.days)) + 1) % DAYS.length]
     for (const m of who) await api('PUT', `${users}/${m.id}/azet/access`, { accessDays: next }) }
   if (act === 'ro') { const m = who[0], ro = m.collections.every((v) => v.readOnly); await api('PUT', `${users}/${id}`, { accessAll: false, collections: m.collections.map((v) => ({ id: v.id, readOnly: !ro })) }) }
   if (act === 'off' || act === 'on') for (const m of who) await api('PUT', `${users}/${m.id}/${act === 'off' ? 'revoke' : 'restore'}`)
-  if (act === 'confirm') await api('POST', `${users}/${id}/confirm`, { key: await rsaEnc(who[0].publicKey, S.orgKey) })
+  if (act === 'confirm') { await api('POST', `${users}/${id}/confirm`, { key: await rsaEnc(who[0].publicKey, S.orgKey) }); await pin(who[0]) }
   document.querySelector('.scrim')?.remove(); await reload()
   if (act === 'days' || act === 'ro') open(accessSheet(id ? S.members.find((m) => m.id === id) : undefined))
 })

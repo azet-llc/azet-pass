@@ -7,7 +7,7 @@ use worker::Env;
 
 use crate::handlers::{
     accounts, attachments, auth_requests, azet, ciphers, config, devices, domains,
-    emergency_access, family, folders, identity, import, meta, sends, sync, twofactor, webauth,
+    emergency_access, family, folders, identity, import, meta, rotate, sends, sync, twofactor, webauth,
 };
 
 pub fn api_router(env: Env) -> Router {
@@ -306,6 +306,9 @@ pub fn api_router(env: Env) -> Router {
         .route("/api/organizations/{org_id}/collections/details", get(family::collections_details))
         .route("/api/organizations/{org_id}/users/{member_id}/azet/access", put(family::set_access))
         .route("/api/organizations/{org_id}/azet/access-log", get(family::access_log))
+        .route("/api/organizations/{org_id}/azet/rotation", get(rotate::rotation))
+        .route("/api/organizations/{org_id}/azet/rotate-key", post(rotate::rotate))
+        .route("/api/organizations/{org_id}/azet/pins", put(rotate::set_pins))
         .route("/api/organizations/{org_id}/azet/access-log/checkpoint", put(family::log_checkpoint))
         .route("/api/organizations/{org_id}/collections/{cid}/details", get(family::collection_details))
         .route("/api/organizations/{org_id}/groups", get(family::empty_list))

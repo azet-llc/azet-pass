@@ -13,6 +13,7 @@ pub mod identity;
 pub mod import;
 pub mod meta;
 pub mod purge;
+pub mod rotate;
 pub mod sends;
 pub mod streaming;
 pub mod sync;

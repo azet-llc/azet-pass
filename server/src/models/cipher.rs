@@ -180,6 +180,22 @@ mod ciphertext_tests {
     }
 
     #[test]
+    fn stores_a_passkey_and_an_identity_as_clients_send_them() {
+        let passkey = json!({"username": ENC, "password": null, "fido2Credentials": [{
+            "credentialId": ENC, "keyType": ENC, "keyAlgorithm": ENC, "keyCurve": ENC, "keyValue": ENC, "rpId": ENC,
+            "userHandle": ENC, "userName": ENC, "counter": ENC, "rpName": ENC, "userDisplayName": ENC,
+            "discoverable": ENC, "creationDate": "2026-11-19T00:00:00.000Z"}]});
+        assert!(CipherData::new(ENC.into(), None, fields(passkey)).is_ok());
+        let mut identity = CipherTypeFields::default();
+        identity.identity = Some(json!({"title": ENC, "firstName": ENC, "ssn": ENC, "passportNumber": ENC, "address1": null}));
+        identity.password_history = Some(json!([{"password": ENC, "lastUsedDate": "2026-11-19T00:00:00.000Z"}]));
+        assert!(CipherData::new(ENC.into(), None, identity).is_ok());
+        let mut readable = CipherTypeFields::default();
+        readable.identity = Some(json!({"firstName": ENC, "ssn": "900101-1234567"}));
+        assert!(CipherData::new(ENC.into(), None, readable).is_err());
+    }
+
+    #[test]
     fn refuses_readable_text_anywhere() {
         let ok = json!({"username": ENC, "password": ENC});
         assert!(CipherData::new("My bank".into(), None, fields(ok.clone())).is_err());

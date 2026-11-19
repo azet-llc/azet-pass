@@ -65,7 +65,7 @@ async fn me(db: &db::Db, org_id: &str, user_id: &str) -> Result<Value, AppError>
     }
 }
 
-async fn organizer(db: &db::Db, org_id: &str, user_id: &str) -> Result<Value, AppError> {
+pub(crate) async fn organizer(db: &db::Db, org_id: &str, user_id: &str) -> Result<Value, AppError> {
     let m = me(db, org_id, user_id).await?;
     if i(&m, "type") > ADMIN {
         return Err(AppError::BadRequest("Only a family organizer can do this".into()));
@@ -81,7 +81,7 @@ async fn target(db: &db::Db, org_id: &str, member_id: &str) -> Result<Value, App
         .ok_or_else(|| AppError::NotFound("Member not found".into()))
 }
 
-async fn touch_org_users(env: &Env, db: &db::Db, org_id: &str) -> Result<(), AppError> {
+pub(crate) async fn touch_org_users(env: &Env, db: &db::Db, org_id: &str) -> Result<(), AppError> {
     // clients resync when their account revision moves
     d1_query!(db, "UPDATE users SET updated_at = ?1 WHERE id IN (SELECT user_id FROM org_members WHERE org_id = ?2 AND user_id IS NOT NULL)", db::now_string(), org_id)
         .map_err(|_| AppError::Database)?
@@ -121,7 +121,9 @@ fn org_json(org: &Value, m: &Value) -> Value {
         "useResetPassword": true, "useCustomPermissions": false, "useActivateAutofillPolicy": false,
         "useSecretsManager": false, "usePasswordManager": true, "useOrganizationDomains": false,
         "selfHost": true, "usersGetPremium": true, "hasPublicAndPrivateKeys": org["public_key"].is_string(),
-        "resetPasswordEnrolled": m["reset_password_key"].is_string(), "planProductType": 1, "productTierType": 1,
+        "resetPasswordEnrolled": m["reset_password_key"].is_string(), "planProductType": 1,
+        // a member was removed or left: the organizer's device changes the vault key next (handlers/rotate.rs)
+        "azetKeyChangeDue": t <= ADMIN && org["rotate_due"].as_i64() == Some(1), "productTierType": 1,
         "keyConnectorEnabled": false, "keyConnectorUrl": null, "ssoBound": false, "identifier": null,
         "familySponsorshipAvailable": false, "familySponsorshipFriendlyName": null, "accessSecretsManager": false,
         "limitCollectionCreation": t > ADMIN, "limitCollectionDeletion": t > ADMIN,
@@ -138,7 +140,7 @@ fn org_json(org: &Value, m: &Value) -> Value {
 /// `profile.organizations` for /api/sync and /api/accounts/profile.
 pub async fn profile_organizations(db: &db::Db, user_id: &str) -> Result<Vec<Value>, AppError> {
     let rows: Vec<Value> = db
-        .prepare(&format!("SELECT m.*, o.name AS o_name, o.seats AS o_seats, o.public_key AS o_public_key FROM org_members m JOIN organizations o ON o.id = m.org_id WHERE m.user_id = ?1 AND m.status != ?2 AND {LIVE}"))
+        .prepare(&format!("SELECT m.*, o.name AS o_name, o.seats AS o_seats, o.public_key AS o_public_key, o.rotate_due AS o_rotate_due FROM org_members m JOIN organizations o ON o.id = m.org_id WHERE m.user_id = ?1 AND m.status != ?2 AND {LIVE}"))
         .bind(&[user_id.into(), (REVOKED as f64).into()])?
         .all()
         .await?
@@ -146,7 +148,7 @@ pub async fn profile_organizations(db: &db::Db, user_id: &str) -> Result<Vec<Val
     Ok(rows
         .iter()
         .map(|m| {
-            let org = json!({"id": m["org_id"], "name": m["o_name"], "seats": m["o_seats"], "public_key": m["o_public_key"]});
+            let org = json!({"id": m["org_id"], "name": m["o_name"], "seats": m["o_seats"], "public_key": m["o_public_key"], "rotate_due": m["o_rotate_due"]});
             org_json(&org, m)
         })
         .collect())
@@ -470,6 +472,8 @@ pub async fn remove(claims: Claims, State(env): State<Arc<Env>>, Path((org_id, m
     }
     touch_org_users(&env, &db, &org_id).await?;
     d1_query!(&db, "DELETE FROM org_members WHERE id = ?1", member_id).map_err(|_| AppError::Database)?.run().await?;
+    // The one who is gone has seen the vault key: the organizer's device changes it next (handlers/rotate.rs).
+    d1_query!(&db, "UPDATE organizations SET rotate_due = 1 WHERE id = ?1", org_id).map_err(|_| AppError::Database)?.run().await?;
     Ok(Json(json!({})))
 }
 
@@ -485,6 +489,8 @@ pub async fn leave(claims: Claims, State(env): State<Arc<Env>>, Path(org_id): Pa
         }
     }
     d1_query!(&db, "DELETE FROM org_members WHERE id = ?1", s(&m, "id")).map_err(|_| AppError::Database)?.run().await?;
+    // The one who is gone has seen the vault key: the organizer's device changes it next (handlers/rotate.rs).
+    d1_query!(&db, "UPDATE organizations SET rotate_due = 1 WHERE id = ?1", org_id).map_err(|_| AppError::Database)?.run().await?;
     db::touch_user_updated_at(&db, &claims.sub, &db::now_string()).await?;
     Ok(Json(json!({})))
 }
@@ -725,7 +731,8 @@ pub async fn create_collection(claims: Claims, State(env): State<Arc<Env>>, Path
     }
     let cid = Uuid::new_v4().to_string();
     let now = db::now_string();
-    let name = s(&p, "name").ok_or_else(|| bad("name"))?;
+    let name = s(&p, "name").filter(|n| crate::models::cipher::is_ciphertext(n)).ok_or_else(|| bad("The vault name is missing or not encrypted"))?;
+    super::rotate::key_current(&db, Some(&org_id), &claims.device).await?;
     d1_query!(&db, "INSERT INTO collections (id, org_id, name, travel_safe, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?5)",
         cid, org_id, name, b(&p, "travelSafe") as i64, now)
         .map_err(|_| AppError::Database)?.run().await?;
@@ -758,6 +765,12 @@ async fn may_manage(db: &db::Db, org_id: &str, cid: &str, user_id: &str) -> Resu
 pub async fn update_collection(claims: Claims, State(env): State<Arc<Env>>, Path((org_id, cid)): Path<(String, String)>, Json(p): Json<Value>) -> Result<Json<Value>, AppError> {
     let db = db::get_db(&env)?;
     may_manage(&db, &org_id, &cid, &claims.sub).await?;
+    if let Some(name) = s(&p, "name") {
+        if !crate::models::cipher::is_ciphertext(&name) {
+            return Err(bad("The vault name is not encrypted"));
+        }
+        super::rotate::key_current(&db, Some(&org_id), &claims.device).await?;
+    }
     d1_query!(&db, "UPDATE collections SET name = COALESCE(?1, name), travel_safe = COALESCE(?2, travel_safe), updated_at = ?3 WHERE id = ?4 AND org_id = ?5",
         s(&p, "name"), p.get("travelSafe").and_then(|x| x.as_bool()).map(|x| x as i64), db::now_string(), cid, org_id)
         .map_err(|_| AppError::Database)?.run().await?;
@@ -808,8 +821,10 @@ pub async fn set_cipher_collections(db: &db::Db, cipher_id: &str, ids: &[String]
 
 /// PUT /api/ciphers/{id}/share {cipher, collectionIds} — a personal item moves into a shared vault. The client has
 /// Moves one personal item of `user` into an organization's vaults; the answer is the whole item.
-async fn share_one(env: &Env, db: &db::Db, user: &str, id: &str, cipher: &Value, ids: &[String]) -> Result<Value, AppError> {
+async fn share_one(env: &Env, db: &db::Db, claims: &Claims, id: &str, cipher: &Value, ids: &[String]) -> Result<Value, AppError> {
+    let user = claims.sub.as_str();
     let org_id = s(cipher, "organizationId").ok_or_else(|| bad("organizationId"))?;
+    super::rotate::key_current(db, Some(&org_id), &claims.device).await?;
     check_collections_writable(db, &org_id, user, ids).await?;
     let owned: Option<Value> = db.prepare("SELECT 1 FROM ciphers WHERE id = ?1 AND user_id = ?2 AND organization_id IS NULL").bind(&[id.into(), user.into()])?.first(None).await?;
     if owned.is_none() {
@@ -840,7 +855,7 @@ fn collection_ids(p: &Value) -> Vec<String> {
 pub async fn share_cipher(claims: Claims, State(env): State<Arc<Env>>, Path(id): Path<String>, Json(p): Json<Value>) -> Result<Json<Value>, AppError> {
     let db = db::get_db(&env)?;
     let cipher = p.get("cipher").cloned().ok_or_else(|| bad("cipher"))?;
-    Ok(Json(share_one(&env, &db, &claims.sub, &id, &cipher, &collection_ids(&p)).await?))
+    Ok(Json(share_one(&env, &db, &claims, &id, &cipher, &collection_ids(&p)).await?))
 }
 
 /// PUT|POST /api/ciphers/share {ciphers: [{id, …}], collectionIds} — what the web vault's "Assign to collections" sends.
@@ -851,7 +866,7 @@ pub async fn share_ciphers(claims: Claims, State(env): State<Arc<Env>>, Json(p):
     let mut data = Vec::new();
     for cipher in p.get("ciphers").and_then(|c| c.as_array()).cloned().unwrap_or_default() {
         let id = s(&cipher, "id").ok_or_else(|| bad("id"))?;
-        data.push(share_one(&env, &db, &claims.sub, &id, &cipher, &ids).await?);
+        data.push(share_one(&env, &db, &claims, &id, &cipher, &ids).await?);
     }
     Ok(Json(json!({"object": "list", "data": data, "continuationToken": null})))
 }

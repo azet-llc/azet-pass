@@ -835,6 +835,9 @@ pub async fn post_rotatekey(
         let Some(folder_id) = &folder.id else {
             continue;
         };
+        if !crate::models::cipher::is_ciphertext(&folder.name) {
+            return Err(AppError::BadRequest("A folder name is not encrypted".to_string()));
+        }
         let stmt = d1_query!(
             &db,
             "UPDATE folders SET name = ?1, updated_at = ?2 WHERE id = ?3 AND user_id = ?4",

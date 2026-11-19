@@ -14,6 +14,9 @@
 //   access <org> <email> <days|forever|off|on> how long a member's access lasts from now, or suspend / restore it
 //   access <org> <email> <read-only|can-edit>  whether the member may save into the shared vault
 //   take-back <org> <item id>                  a shared item becomes the organizer's own again; no other member receives it
+//   remove <org> <email>                       take a member out of the team, then change the team key (rotate)
+//   rotate <org>                               change the team key: a new key and key pair, everything sealed again, handed to the
+//                                              members whose key fingerprint was confirmed; someone removed can open nothing new
 //   log <org>                                  the access log, checked: every row's hash, and against this team's last checkpoint
 //
 // The password is read from the environment only, never from the command line.
@@ -88,6 +91,69 @@ const rekey = async (x, from, to) => {
   return { ...out, organizationId: null, collectionIds: [], folderId: null }
 }
 
+// The public keys an organizer has confirmed by fingerprint, kept sealed with the team key next to the team. A key
+// change hands the new key only to these: the server shows the public keys, so without this it could swap one.
+const pinOf = async (spkiB64) => Buffer.from(await c.subtle.digest('SHA-256', unb64(spkiB64))).toString('hex')
+const readPins = async (orgKey, sealed) => sealed ? JSON.parse(new TextDecoder().decode(await decS(orgKey, sealed))) : null
+const same = (a, b) => b64(a) === b64(b)
+
+// A new team key. Everything the old key sealed is opened and sealed again on this device, each value is opened once
+// more and compared before anything is sent, and the server takes all of it in one request or none of it.
+const rotate = async (u, org) => {
+  const old = await orgKeyOf(u, org)
+  const r = await ok(u.tok, 'GET', `/api/organizations/${org}/azet/rotation`)
+  if (r.pendingUploads) die('A file is still being uploaded to this team. Nothing was changed; try again in a minute.')
+  const key = c.getRandomValues(new Uint8Array(64)), rsa = await rsaPair()
+  const pub = b64(new Uint8Array(await c.subtle.exportKey('spki', rsa.publicKey)))
+  const oldPriv = await decS(old, r.privateKey)
+  // This device's own public key, made from the private key it holds: the organizer's new key is never wrapped to a
+  // public key the server shows.
+  const jwk = await c.subtle.exportKey('jwk', await c.subtle.importKey('pkcs8', u.priv, { name: 'RSA-OAEP', hash: 'SHA-1' }, true, ['decrypt']))
+  const myPub = b64(new Uint8Array(await c.subtle.exportKey('spki', await c.subtle.importKey('jwk', { kty: jwk.kty, n: jwk.n, e: jwk.e, alg: jwk.alg, ext: true }, { name: 'RSA-OAEP', hash: 'SHA-1' }, true, ['encrypt']))))
+  const myId = (await ok(u.tok, 'GET', '/api/accounts/profile')).id
+  const reseal = async (v, from, to) => {
+    const plain = await decS(from, v), out = await encS(to, plain)
+    if (!same(await decS(to, out), plain)) die('A value did not survive being sealed again. Nothing was changed.')
+    return out
+  }
+  const walk = async (v, from, to) => typeof v === 'string'
+    ? (ENC.test(v) ? reseal(v, from, to) : v.length > 20 && /^\d+\.[A-Za-z0-9+/=]+(\||$)/.test(v) ? die('This team holds a value sealed in a way this tool cannot seal again. Nothing was changed.') : v)
+    : Array.isArray(v) ? Promise.all(v.map((w) => walk(w, from, to)))
+    : v && typeof v === 'object' ? Object.fromEntries(await Promise.all(Object.entries(v).map(async ([k, w]) => [k, await walk(w, from, to)]))) : v
+  // An item with its own key gets a new one (re-wrapping the old one would leave later edits readable to whoever
+  // had it); the rest is sealed straight with the team key, as it was.
+  const itemKeys = {}, ciphers = []
+  for (const x of r.ciphers) {
+    const { key: wrapped, ...fields } = x.cipher
+    const from = wrapped ? await decS(old, wrapped) : old, to = wrapped ? c.getRandomValues(new Uint8Array(64)) : key
+    itemKeys[x.id] = [from, to]
+    ciphers.push({ id: x.id, updatedAt: x.updatedAt, cipher: { ...(await walk(fields, from, to)), ...(wrapped ? { key: await encS(key, to) } : {}) } })
+  }
+  // A file's own key is wrapped again; the file itself stays as it is (someone who had the file key keeps that file).
+  const attachments = await Promise.all(r.attachments.map(async (a) => {
+    const [from, to] = itemKeys[a.cipherId] ?? die('A file without its item. Nothing was changed.')
+    return { id: a.id, fileName: await reseal(a.fileName, from, to), key: await reseal(a.key, from, to) }
+  }))
+  // Who gets the new key: members whose public key matches the fingerprint confirmed earlier. A team from before
+  // fingerprints were kept has none yet: its confirmed members are taken as the server shows them, once.
+  const pinned = await readPins(old, r.pins), pins = {}, dropped = []
+  const members = await Promise.all(r.members.map(async (m) => {
+    const recovery = m.resetPasswordKey ? await rsaEnc(pub, await rsaDec(oldPriv, m.resetPasswordKey)) : null
+    if (m.userId === myId) { pins[m.id] = await pinOf(myPub); return { id: m.id, key: await rsaEnc(myPub, key), resetPasswordKey: recovery } }
+    if (!m.hasKey) return { id: m.id, key: null, resetPasswordKey: recovery }
+    const pin = m.publicKey ? await pinOf(m.publicKey) : null
+    if (!pin || (pinned && pinned[m.id] !== pin)) { dropped.push(m.email); return { id: m.id, key: null, resetPasswordKey: recovery } }
+    pins[m.id] = pin
+    return { id: m.id, key: await rsaEnc(m.publicKey, key), resetPasswordKey: recovery }
+  }))
+  const done = await ok(u.tok, 'POST', `/api/organizations/${org}/azet/rotate-key`, {
+    keyGen: r.keyGen, keys: { publicKey: pub, encryptedPrivateKey: await encS(key, new Uint8Array(await c.subtle.exportKey('pkcs8', rsa.privateKey))) },
+    checkpoint: r.checkpoint ? await reseal(r.checkpoint, old, key) : null, pins: await encS(key, JSON.stringify(pins)),
+    members, collections: await Promise.all(r.collections.map(async (v) => ({ id: v.id, name: await reseal(v.name, old, key) }))), ciphers, attachments })
+  return { rotated: true, keyGeneration: done.keyGen, items: ciphers.length, files: attachments.length, members: members.filter((m) => m.key).length,
+    needConfirmAgain: dropped, firstPinning: !pinned }
+}
+
 const [cmd, ...rest] = process.argv.slice(2)
 const flag = (n) => { const i = rest.indexOf(n); return i < 0 ? null : rest.splice(i, 2)[1] }
 const has = (n) => { const i = rest.indexOf(n); if (i < 0) return false; rest.splice(i, 1); return true }
@@ -148,7 +214,11 @@ if (cmd === 'create') {
   // The server hands us this public key, so a server that swapped it would get the team key. The fingerprint the
   // member read from their own device is what rules that out.
   if ((await fingerprint(m.publicKey)) !== fp) die(`Fingerprint mismatch: the server shows ${await fingerprint(m.publicKey)}. Nothing was shared.`)
-  await ok(u.tok, 'POST', `/api/organizations/${org}/users/${m.id}/confirm`, { key: await rsaEnc(m.publicKey, await orgKeyOf(u, org)) })
+  const orgKey = await orgKeyOf(u, org)
+  await ok(u.tok, 'POST', `/api/organizations/${org}/users/${m.id}/confirm`, { key: await rsaEnc(m.publicKey, orgKey) })
+  // the fingerprint just checked is kept (sealed with the team key) for the next key change
+  const pins = (await readPins(orgKey, (await ok(u.tok, 'GET', `/api/organizations/${org}/azet/rotation`)).pins)) ?? {}
+  await ok(u.tok, 'PUT', `/api/organizations/${org}/azet/pins`, { value: await encS(orgKey, JSON.stringify({ ...pins, [m.id]: await pinOf(m.publicKey) })) })
   console.log(JSON.stringify({ confirmed: who.toLowerCase() }))
 } else if (cmd === 'access') {
   const [org, who, what] = rest
@@ -191,4 +261,13 @@ if (cmd === 'create') {
   if (!item) die('usage: take-back <org> <item id>')
   const u = await need(), orgKey = await orgKeyOf(u, org)
   console.log(JSON.stringify(await ok(u.tok, 'PUT', `/api/ciphers/${item}/unshare`, { cipher: await rekey(await ok(u.tok, 'GET', `/api/ciphers/${item}`), orgKey, u.userKey) })))
-} else die('commands: create | invite | join | members | confirm | access | take-back | log   (see the top of this file)')
+} else if (cmd === 'rotate' || cmd === 'remove') {
+  const [org, who] = rest
+  if (!org || (cmd === 'remove' && !who)) die(`usage: ${cmd} <org>${cmd === 'remove' ? ' <email>' : ''}`)
+  const u = await need()
+  if (cmd === 'remove') {
+    const m = (await ok(u.tok, 'GET', `/api/organizations/${org}/users`)).data.find((x) => x.email === who.toLowerCase()) ?? die('No such member.')
+    await ok(u.tok, 'DELETE', `/api/organizations/${org}/users/${m.id}`)
+  }
+  console.log(JSON.stringify({ ...(cmd === 'remove' ? { removed: who.toLowerCase() } : {}), ...(await rotate(u, org)) }))
+} else die('commands: create | invite | join | members | confirm | access | take-back | remove | rotate | log   (see the top of this file)')

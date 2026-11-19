@@ -165,6 +165,15 @@ fn prepare_send_data(payload: &SendRequestData) -> Result<String, AppError> {
 }
 
 /// Build a `SendDB` from request payload, setting all common fields.
+/// A Send's name, notes and key reach the server sealed by the device; readable ones are refused.
+fn ensure_sealed(payload: &SendRequestData) -> Result<(), AppError> {
+    let sealed = crate::models::cipher::is_ciphertext;
+    if !sealed(&payload.name) || !sealed(&payload.key) || payload.notes.as_deref().is_some_and(|n| !n.is_empty() && !sealed(n)) {
+        return Err(AppError::BadRequest("The Send's name, notes or key is not encrypted".into()));
+    }
+    Ok(())
+}
+
 fn build_send(
     user_id: String,
     payload: &SendRequestData,
@@ -173,6 +182,7 @@ fn build_send(
     expiration_date: Option<String>,
 ) -> Result<SendDB, AppError> {
     ensure_email_verification_is_not_requested(payload)?;
+    ensure_sealed(payload)?;
 
     let mut send = SendDB::new(
         user_id,
@@ -591,6 +601,7 @@ pub async fn update_send(
     Json(payload): Json<SendRequestData>,
 ) -> Result<Json<Value>, AppError> {
     ensure_email_verification_is_not_requested(&payload)?;
+    ensure_sealed(&payload)?;
 
     let (del, exp) =
         validate_send_dates(&payload.deletion_date, payload.expiration_date.as_deref())?;

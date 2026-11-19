@@ -145,6 +145,50 @@ for n in 1 2 3 4 5; do team "$OWNER" "$PW_O" invite "$ORG" "team-m$n-$RUN@exampl
 no team "$OWNER" "$PW_O" invite "$ORG" "team-m6-$RUN@example.com"
 grep -q "7 seats" "$W/no.out" && echo "6 seven seats enforced: ok"
 
+# 7 a member is removed and the team key is changed: what they held opens nothing new, the others keep everything
+LEAVER="team-leaver-$RUN@example.com"; PW_L="Leaver-$RUN-pw-long"
+sqlite3 "$(DBF)" "DELETE FROM org_members WHERE email LIKE 'team-m%-$RUN@example.com';" # the seat test's invites
+LI=$(team "$OWNER" "$PW_O" invite "$ORG" "$LEAVER" --name "Leaver")
+LFP=$(team "$LEAVER" "$PW_L" join "$ORG" "$(jq -r .member <<<"$LI")" "$(jq -r .token <<<"$LI")" | jq -r .fingerprint)
+team "$OWNER" "$PW_O" confirm "$ORG" "$LEAVER" "$LFP" >/dev/null
+OLDKEY=$(AZET_PASS_URL=$URL AZET_PASS_EMAIL=$LEAVER AZET_PASS_PASSWORD=$PW_L node test/old-key.mjs key "$ORG")
+row() { sqlite3 "$(DBF)" "SELECT json_extract(data, '$.$2') FROM ciphers WHERE id = '$1'"; }
+# what the team key itself seals in an item: the item's own key when it has one, otherwise its name
+probe() { local k; k=$(row "$1" key); [ -n "$k" ] && echo "$k" || row "$1" name; }
+N=$(sqlite3 "$(DBF)" "SELECT COUNT(*) FROM ciphers WHERE organization_id = '$ORG'")
+node test/old-key.mjs opens "$OLDKEY" "$(probe "$P1")" && node test/old-key.mjs opens "$OLDKEY" "$(probe "$ID")" || { echo "FAIL: the test's old key does not open the item before the change"; exit 1; }
+BEFORE="$(row "$ID" name)|$(row "$ID" key)|$(sqlite3 "$(DBF)" "SELECT private_key || public_key FROM organizations WHERE id = '$ORG'")"
+# a device that signed in before the change and does not sync
+export BITWARDENCLI_APPDATA_DIR="$W/bw-agent3"
+bw config server $URL >/dev/null
+export BW_SESSION=$(BW_PASSWORD=$PW_A bw login "$AGENT" --passwordenv BW_PASSWORD --raw)
+# an incomplete request (one item left out) is refused and changes nothing
+OTOK=$(AZET_PASS_URL=$URL AZET_PASS_EMAIL=$OWNER AZET_PASS_PASSWORD=$PW_O node test/old-key.mjs token)
+PART=$(curl -sk "$URL/api/organizations/$ORG/azet/rotation" -H "authorization: Bearer $OTOK" | jq -c '{keyGen, keys: {publicKey, encryptedPrivateKey: .privateKey}, checkpoint, pins: .privateKey, members: [.members[] | {id, key: null}], collections, ciphers: .ciphers[1:], attachments: []}')
+[ "$(curl -sk -o "$W/part.out" -w '%{http_code}' -X POST "$URL/api/organizations/$ORG/azet/rotate-key" -H "authorization: Bearer $OTOK" -H 'content-type: application/json' -d "$PART")" = 400 ] \
+  && [ "$BEFORE" = "$(row "$ID" name)|$(row "$ID" key)|$(sqlite3 "$(DBF)" "SELECT private_key || public_key FROM organizations WHERE id = '$ORG'")" ] \
+  && [ "$(sqlite3 "$(DBF)" "SELECT key_gen FROM organizations WHERE id = '$ORG'")" = 1 ] && echo "7a a key change that leaves an item out is refused and nothing changes: ok" || { echo "FAIL: partial key change $(cat "$W/part.out")"; exit 1; }
+R=$(team "$OWNER" "$PW_O" remove "$ORG" "$LEAVER")
+[ "$(jq -r '[.rotated,.keyGeneration,.items,(.needConfirmAgain|length),.firstPinning]|join(" ")' <<<"$R")" = "true 2 $N 0 false" ] || { echo "FAIL: remove + key change said $R"; exit 1; }
+AFTER="$(row "$ID" name)|$(row "$ID" key)|$(sqlite3 "$(DBF)" "SELECT private_key || public_key FROM organizations WHERE id = '$ORG'")"
+[ "$BEFORE" != "$AFTER" ] && ! node test/old-key.mjs opens "$OLDKEY" "$(probe "$P1")" && ! node test/old-key.mjs opens "$OLDKEY" "$(probe "$ID")" \
+  && [ "$(sqlite3 "$(DBF)" "SELECT COUNT(*) FROM org_members WHERE email = '$LEAVER'")" = 0 ] \
+  && echo "7b removed: the key the leaver held opens no item and no item key in the database any more: ok" || { echo "FAIL: the old key still opens something"; exit 1; }
+# the device that has not synced still holds the old key: what it would save nobody could open, so it is refused
+NEW=$(bw get template item | jq -c --arg n "$S_NAME-stale" --arg o "$ORG" --arg v "$VAULT" '.name=$n | .organizationId=$o | .collectionIds=[$v] | .login={username:"s",password:"stale",totp:null,uris:[]}' | bw encode)
+no bash -c "echo '$NEW' | bw create item"
+grep -q "key of this shared vault was changed" "$W/no.out" || { echo "FAIL: a device with the old key was not told to sync: $(cat "$W/no.out")"; exit 1; }
+bw sync >/dev/null
+[ "$(bw get item "$ID" | jq -r '[.name,.login.password]|join("|")')" = "$S_NAME|$S_PASS" ] && [ "$(bw get password "$S_NAME-private")" = private-one ] \
+  && [ -n "$(echo "$NEW" | bw create item | jq -r .id)" ] && echo "7c a device with the old key is refused until it syncs; then it reads every item and saves: ok" || { echo "FAIL: the agent after the key change"; exit 1; }
+bw logout >/dev/null; unset BW_SESSION
+export BITWARDENCLI_APPDATA_DIR="$W/bw-owner7"
+bw config server $URL >/dev/null
+export BW_SESSION=$(bw login "$OWNER" "$PW_O" --raw)
+[ "$(bw get item "$ID" | jq -r '.login.password')" = "$S_PASS" ] && [ "$(bw list items --organizationid "$ORG" | jq length)" = $((N + 1)) ] && echo "7d the organizer reads all of it with the new key: ok" || { echo "FAIL: the organizer after the key change"; exit 1; }
+bw logout >/dev/null; unset BW_SESSION
+[ "$(sqlite3 "$(DBF)" "SELECT COUNT(*) FROM org_events WHERE kind = 'rotate' AND org_id = '$ORG'")" = 1 ] && echo "7e the key change is in the access log: ok" || { echo "FAIL: the key change is not in the access log"; exit 1; }
+
 DB=$(find .wrangler/state/v3/d1 -name '*.sqlite' ! -name metadata.sqlite | head -1)
 sqlite3 "$DB" "PRAGMA wal_checkpoint(FULL);" >/dev/null 2>&1 || true
 fail=0

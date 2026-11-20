@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """What moving this computer's key stores into AZET Pass would carry: names and counts only, never a value.
-Reads the names in a .env file (default ~/.secrets/master.env) and in the tkt vault (`tkt list`), and reports how many
+Reads the names in a .env file ($SECRETS_ENV, or the path given) and in the tkt vault (`tkt list`), and reports how many
 keys each holds, how many names they share, and what an import would have to decide (a name twice in the file with
 different values). Values in the two stores are not compared: the vault opens one key per call, minutes for thousands.
-usage: keystore-inventory.py [.env path]"""
+usage: SECRETS_ENV=<.env path> keystore-inventory.py   (or: keystore-inventory.py <.env path>)"""
 import hashlib, os, re, subprocess, sys
 
-path = os.path.expanduser(sys.argv[1] if len(sys.argv) > 1 else '~/.secrets/master.env')
+src = sys.argv[1] if len(sys.argv) > 1 else os.environ.get('SECRETS_ENV')
+if not src:
+    sys.exit('set SECRETS_ENV to your secrets .env file, or pass its path')
+path = os.path.expanduser(src)
 digest = lambda v: hashlib.sha256(v.encode()).hexdigest()
 env, twice = {}, set()
 for line in open(path, encoding='utf-8', errors='replace'):

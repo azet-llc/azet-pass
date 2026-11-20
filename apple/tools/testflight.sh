@@ -5,7 +5,7 @@ set -euo pipefail
 cd "${0:A:h}/.."
 KID=$(tkt get APPLE_AZET_ASC_API_KEY_ID); ISS=$(tkt get APPLE_AZET_ASC_ISSUER_ID)
 AUTH=(-allowProvisioningUpdates -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_$KID.p8 -authenticationKeyID $KID -authenticationKeyIssuerID $ISS)
-OUT=${OUT:-$HOME/.dooyou/lane649/release}
+OUT=${OUT:-$HOME/build/azet-pass/release}
 mkdir -p $OUT
 xcodegen -q
 xcodebuild -project AZETPass.xcodeproj -scheme AZETPass -configuration Release -destination generic/platform=iOS \

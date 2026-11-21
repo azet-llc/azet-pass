@@ -45,8 +45,8 @@ final class Prefs {
 }
 
 enum Theme {
-    /// AZET Pass green — our own colour (not the reference's blue), warm amber for family moments.
-    static let brand = Color(red: 0.05, green: 0.49, blue: 0.40)
+    /// AZET blue #2f6fe8, the family accent (azet-desktop src/shared/design/azet-tokens.ts); warm amber for family moments.
+    static let brand = Color(red: 47 / 255, green: 111 / 255, blue: 232 / 255)
     static let warm = Color(red: 0.96, green: 0.64, blue: 0.15)
     static let card = Color(.secondarySystemGroupedBackground)
     static let page = Color(.systemGroupedBackground)

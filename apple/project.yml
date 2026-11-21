@@ -69,6 +69,7 @@ targets:
       - Autofill
       - Shared
       - Resources/Localizable.xcstrings
+      - Resources/PrivacyInfo.xcprivacy
     dependencies:
       - package: BitwardenSdk
     info:

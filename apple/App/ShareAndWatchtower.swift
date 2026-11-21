@@ -38,7 +38,7 @@ struct ShareLinkView: View {
                         Button { Task { await make() } } label: { HStack { Text("Create link"); if busy { Spacer(); ProgressView() } } }.disabled(busy)
                     }
                 }
-            }
+            }.azetList()
             .navigationTitle("Share \(item.name)")
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
             .errorAlert($error)
@@ -201,7 +201,7 @@ struct WatchtowerView: View {
                 if !prefs.watchtowerBreaches {
                     Section { Text("Checking passwords against data breaches is off in Settings.").font(.footnote).foregroundStyle(.secondary) }
                 }
-            }
+            }.azetList()
             .overlay { if w.running && w.checked == 0 { ProgressView() } }
             .navigationTitle("Watchtower")
             .toolbar { MainToolbar(showSettings: $showSettings, showNew: $showNew) }

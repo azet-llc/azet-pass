@@ -114,7 +114,7 @@ struct ItemDetailView: View {
                             Button(role: .destructive) { Task { try? await session.purge(id); dismiss() } } label: { Label("Delete for good", systemImage: "trash.slash") }
                         }
                     }
-                }
+                }.azetList()
                 .toolbar {
                     ToolbarItemGroup(placement: .topBarTrailing) {
                         Button { Task { try? await session.setFavorite(id, !v.favorite); await load() } } label: { Image(systemName: v.favorite ? "star.fill" : "star") }
@@ -295,7 +295,7 @@ struct PasswordHistoryView_: View {
         NavigationStack {
             List(Array(entries.enumerated()), id: \.offset) { _, e in
                 FieldRow(label: e.lastUsedDate.formatted(date: .abbreviated, time: .shortened), value: e.password, secret: true)
-            }
+            }.azetList()
             .navigationTitle("Password history")
         }
         .presentationDetents([.medium, .large])
@@ -340,7 +340,7 @@ struct NewItemView: View {
                 if !query.isEmpty {
                     Button { var d = Draft(category: .login); d.name = query; draft = d.placed(in: familyVault) } label: { Label("New login named \"\(query)\"", systemImage: "plus") }
                 }
-            }
+            }.azetList()
             .searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always), prompt: Text("Popular logins and categories"))
             .navigationTitle("New item")
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } } }
@@ -406,7 +406,7 @@ struct ItemEditView: View {
                     } label: { Label("Add more", systemImage: "plus.circle") }
                 }
                 Section("Notes") { TextField("Notes", text: $draft.notes, axis: .vertical).lineLimit(3...12) }
-            }
+            }.azetList()
             .navigationTitle(draft.id == nil ? String(localized: "New \(draft.category.title)") : String(localized: "Edit"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

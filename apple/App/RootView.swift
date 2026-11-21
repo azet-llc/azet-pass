@@ -104,7 +104,7 @@ struct JoinHelpView: View {
                 Button("Open invite") { prefs.pendingURL = URL(string: link.trimmingCharacters(in: .whitespacesAndNewlines)) }
                     .disabled(URL(string: link).flatMap(Session.parseInvite) == nil)
             }
-        }
+        }.azetList()
         .navigationTitle("Family invite")
     }
 }
@@ -136,7 +136,7 @@ struct SignInView: View {
                 } label: { HStack { Text("Sign in"); if busy { Spacer(); ProgressView() } } }
                 .disabled(email.isEmpty || password.isEmpty || busy)
             }
-        }
+        }.azetList()
         .navigationTitle("Sign in")
         .errorAlert($error)
     }
@@ -198,7 +198,7 @@ struct SignUpView: View {
                     Text(mailSent ? "Check your mail on this iPhone and tap the link. It opens AZET Pass to finish." : "We mail you a link to make sure the address is yours.")
                 }
             }
-        }
+        }.azetList()
         .navigationTitle(invite == nil ? "Create account" : "Join your family")
         .onAppear {
             if let m = mailToken { email = m.email }

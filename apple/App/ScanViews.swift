@@ -66,7 +66,7 @@ struct ScanNotebookView: View {
                         }
                     }
                 }
-            }
+            }.azetList()
             .navigationTitle("Scan notebook")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button(saved > 0 ? "Done" : "Cancel") { dismiss() } }

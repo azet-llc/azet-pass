@@ -45,7 +45,7 @@ struct CreateFamilyView: View {
                 Button { Task { await create() } } label: { HStack { Text("Make the family"); if busy { Spacer(); ProgressView() } } }
                     .disabled(name.isEmpty || busy)
             } footer: { Text("Got an invite instead? Open the link your family sent you.") }
-        }
+        }.azetList()
         .errorAlert($error)
     }
     private func create() async {
@@ -67,7 +67,7 @@ struct WaitingForConfirm: View {
                 }.padding(.vertical, 6)
             }
             Section { Button("Check again") { Task { try? await session.sync() } } }
-        }
+        }.azetList()
         .refreshable { try? await session.sync() }
     }
 }
@@ -125,7 +125,7 @@ struct FamilyHome: View {
                 }
                 if family.role != 5 { Button { newVault = true } label: { Label("New shared vault", systemImage: "plus") } }
             }
-        }
+        }.azetList()
         .task { await reload() }
         .refreshable { await reload() }
         .sheet(isPresented: $invite, onDismiss: { Task { await reload() } }) { InviteView(family: family) }
@@ -266,7 +266,7 @@ struct InviteView: View {
                             .disabled(name.isEmpty || !email.contains("@") || busy)
                     }
                 }
-            }
+            }.azetList()
             .navigationTitle("Invite")
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button(link == nil ? "Cancel" : "Done") { dismiss() } } }
             .errorAlert($error)
@@ -316,7 +316,7 @@ struct ConfirmMemberView: View {
                     Button { Task { await confirm() } } label: { HStack { Label("Same words, let them in", systemImage: "checkmark.circle.fill"); if busy { Spacer(); ProgressView() } } }
                     Button(role: .destructive) { Task { try? await session.remove(member, from: family); dismiss() } } label: { Label("Not the same", systemImage: "xmark.circle") }
                 }
-            }
+            }.azetList()
             .navigationTitle(member.name)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Later") { dismiss() } } }
             .errorAlert($error)
@@ -379,7 +379,7 @@ struct MemberView: View {
             if member.userId == session.account?.userId, !family.isOrganizer || session.families.count > 0 {
                 Section { Button(role: .destructive) { Task { try? await session.leave(family) } } label: { Text("Leave this family") } }
             }
-        }
+        }.azetList()
         .navigationTitle(member.name)
         .sheet(isPresented: $recover) { RecoverMemberView(family: family, member: member) }
         .sheet(isPresented: $confirming, onDismiss: { Task { await onChange() } }) { ConfirmMemberView(family: family, member: member) }
@@ -422,7 +422,7 @@ struct RecoverMemberView: View {
                             .disabled(temp.count < 8 || busy)
                     }
                 }
-            }
+            }.azetList()
             .navigationTitle("Account recovery")
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button(done ? "Done" : "Cancel") { dismiss() } } }
             .onAppear { temp = session.generate(words: true) }
@@ -461,7 +461,7 @@ struct VaultView: View {
             Section("Items") {
                 ForEach(items) { i in NavigationLink { ItemDetailView(id: i.id ?? "") } label: { ItemRow(item: i) } }
             }
-        }
+        }.azetList()
         .navigationTitle(vault.name)
         .toolbar { if family.isOrganizer || vault.manage { Button("Edit") { edit = true } } }
         .sheet(isPresented: $edit) { VaultEditView(family: family, members: members, vault: vault) }
@@ -501,7 +501,7 @@ struct VaultEditView: View {
                             Button("Delete", role: .destructive) { Task { try? await session.deleteVault(vault); dismiss() } }
                         }
                 }
-            }
+            }.azetList()
             .navigationTitle(vault == nil ? "New shared vault" : "Edit vault")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
@@ -548,7 +548,7 @@ struct JoinFamilyView: View {
                                 FingerprintWords(phrase: session.myFingerprint())
                             }.padding(.vertical, 6)
                         }
-                    }
+                    }.azetList()
                 } else if !loaded {
                     ProgressView()
                 } else if session.phase == .unlocked {
@@ -563,7 +563,7 @@ struct JoinFamilyView: View {
                             Button { Task { await join() } } label: { HStack { Text("Join the family"); if busy { Spacer(); ProgressView() } } }
                                 .disabled(session.account?.email != invite.email || busy)
                         }
-                    }
+                    }.azetList()
                 } else if session.phase == .locked {
                     VStack(spacing: 12) { Text("Unlock AZET Pass first, then open the link again."); Button("OK") { dismiss() } }.padding()
                 } else {

@@ -57,7 +57,7 @@ struct SettingsView: View {
                     Button("Lock now") { session.lock(); dismiss() }
                     Button("Sign out", role: .destructive) { session.signOut(); dismiss() }
                 }
-            }
+            }.azetList()
             .navigationTitle("Settings")
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
             .onAppear { faceID = session.biometricOn }
@@ -93,7 +93,7 @@ struct AutofillHelpView: View {
                 Text("Then click the AZET Pass button in the Safari toolbar on a sign-in page: it lists the logins for that site and fills them in.")
                 #endif
             }
-        }
+        }.azetList()
         .navigationTitle("AutoFill")
     }
 }
@@ -123,7 +123,7 @@ struct TwoStepLoginView: View {
                     Button("Set up") { Task { await start() } }.disabled(password.isEmpty)
                 } footer: { Text("Signing in on a new device will also ask for a code from your authenticator app.") }
             }
-        }
+        }.azetList()
         .navigationTitle("Two-step login")
         .task {
             if let r = try? await session.api.get("/api/two-factor"), let d = r["data"] as? [[String: Any]] { on = d.contains { ($0["enabled"] as? Bool) == true } }
@@ -169,7 +169,7 @@ struct ImportView: View {
                 Section { Button { Task { await importAll() } } label: { HStack { Text("Import \(rows.count) items"); if busy { Spacer(); ProgressView() } } }.disabled(busy) }
             }
             if done > 0 { Section { Label("\(done) items imported", systemImage: "checkmark.seal.fill").foregroundStyle(Theme.brand) } }
-        }
+        }.azetList()
         .navigationTitle("Import")
         .fileImporter(isPresented: $picking, allowedContentTypes: [.commaSeparatedText, .plainText, .data]) { r in
             guard case .success(let url) = r, url.startAccessingSecurityScopedResource() else { return }
@@ -250,7 +250,7 @@ struct ExportView: View {
             } footer: { Text(format == 1 ? "A CSV holds every password in plain text. Delete it once you've moved it." : "Only your private vault is exported. Family vaults belong to the family.") }
             Section { Button("Export") { Task { await export() } }.disabled(format == 0 && password.count < 8) }
             if let file { Section { ShareLink(item: file) { Label("Save or send the file", systemImage: "square.and.arrow.up") } } }
-        }
+        }.azetList()
         .navigationTitle("Export")
         .errorAlert($error)
     }
@@ -279,7 +279,7 @@ struct EmergencyKitView: View {
                 Button("Make the Emergency Kit") { pdf = make() }
                 if let pdf { ShareLink(item: pdf) { Label("Print or save", systemImage: "printer") } }
             }
-        }
+        }.azetList()
         .navigationTitle("Emergency Kit")
     }
     private func make() -> URL {
@@ -325,7 +325,7 @@ struct GeneratorView: View {
                     Toggle("Symbols", isOn: $symbols)
                 }
             }
-        }
+        }.azetList()
         .navigationTitle("Password generator")
         .onAppear(perform: make)
         .onChange(of: words) { make() }.onChange(of: length) { make() }.onChange(of: symbols) { make() }
@@ -423,7 +423,7 @@ struct FamilyHelpSheet: View {
                         }
                     }
                 }
-            }
+            }.azetList()
             .navigationTitle("Family help")
             .task { if let f = session.families.first { organizers = ((try? await session.members(f)) ?? []).filter { $0.role <= 1 && $0.userId != session.account?.userId } } }
         }

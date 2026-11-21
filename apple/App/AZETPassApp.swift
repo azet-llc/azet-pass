@@ -49,7 +49,15 @@ enum Theme {
     static let brand = Color(red: 47 / 255, green: 111 / 255, blue: 232 / 255)
     static let warm = Color(red: 0.96, green: 0.64, blue: 0.15)
     static let card = Color(.secondarySystemGroupedBackground)
-    static let page = Color(.systemGroupedBackground)
+    /// Grouped page #f4f4f5 / #0d0d0d: the AZET app's neutral grey instead of iOS's blue-grey.
+    #if os(iOS)
+    static let page = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? rgb(0x0d0d0d) : rgb(0xf4f4f5) })
+    private static func rgb(_ v: Int) -> UIColor {
+        UIColor(red: CGFloat((v >> 16) & 0xff) / 255, green: CGFloat((v >> 8) & 0xff) / 255, blue: CGFloat(v & 0xff) / 255, alpha: 1)
+    }
+    #else
+    static let page = Color(.windowBackgroundColor)
+    #endif
 
     static func color(for name: String) -> Color {
         let palette: [Color] = [.blue, .green, .orange, .pink, .purple, .teal, .indigo, .red, .brown, .mint]
@@ -112,4 +120,9 @@ func copyToClipboard(_ s: String) {
     let n = pb.changeCount
     DispatchQueue.main.asyncAfter(deadline: .now() + 90) { if pb.changeCount == n { pb.clearContents() } }
     #endif
+}
+
+extension View {
+    /// A list or form on the AZET page colour; its white groups stay as they are.
+    func azetList() -> some View { scrollContentBackground(.hidden).background(Theme.page) }
 }

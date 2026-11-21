@@ -197,7 +197,7 @@ struct ItemsView: View {
                         NavigationLink(value: Filter.trash) { Label("Recently Deleted", systemImage: "trash") }
                     }
                 }
-            }
+            }.azetList()
             .searchable(text: $query, prompt: Text("Search items, sites, vaults"))
             .navigationTitle("Items")
             .toolbar { MainToolbar(showSettings: $showSettings, showNew: $showNew) }
@@ -260,7 +260,7 @@ struct ItemListView: View {
             case .created: $0.creationDate > $1.creationDate
             }
         }
-        List(items) { i in NavigationLink(value: i.id ?? "") { ItemRow(item: i) } }
+        List(items) { i in NavigationLink(value: i.id ?? "") { ItemRow(item: i) } }.azetList()
             .overlay { if items.isEmpty { ContentUnavailableView(String(localized: "Nothing here yet"), systemImage: "tray") } }
             .navigationTitle(filter.title(session))
             .toolbar {

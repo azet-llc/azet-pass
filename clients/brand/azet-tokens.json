@@ -1,0 +1,279 @@
+{
+  "name": "AZET design tokens",
+  "version": "2.0.0",
+  "source": "azet-desktop src/shared/design/azet-tokens.ts",
+  "sourceCommit": "azet-desktop feat/azet-tokens-v1 21a17536ec0c6c6ef00293962879d54d89fbf502",
+  "cssPrefix": "--azet-",
+  "brandBlue": "#2f6fe8",
+  "palette": {
+    "light": {
+      "grey": {
+        "50": "#f7f7f8",
+        "100": "#f1f2f4",
+        "200": "#e5e5e5",
+        "300": "#d4d4d4",
+        "400": "#a3a3a3",
+        "500": "#737373",
+        "600": "#5d5d5d",
+        "700": "#404040",
+        "800": "#262626",
+        "900": "#0d0d0d"
+      },
+      "blue": {
+        "50": "#f3f7ff",
+        "100": "#e1ecfe",
+        "200": "#c5daff",
+        "300": "#9fc2ff",
+        "400": "#6198fe",
+        "500": "#2f6fe8",
+        "600": "#225be3",
+        "700": "#1046ac",
+        "800": "#073589",
+        "900": "#052564"
+      },
+      "red": {
+        "50": "#fff4f3",
+        "100": "#ffe4e1",
+        "200": "#ffcbc5",
+        "300": "#ffa9a2",
+        "400": "#f96b65",
+        "500": "#e40014",
+        "600": "#bd1e27",
+        "700": "#9f0819",
+        "800": "#7f0010",
+        "900": "#5d030b"
+      },
+      "green": {
+        "50": "#eefbf1",
+        "100": "#daf3df",
+        "200": "#b9e7c4",
+        "300": "#92d9a5",
+        "400": "#5aba78",
+        "500": "#1a9951",
+        "600": "#058141",
+        "700": "#127034",
+        "800": "#015428",
+        "900": "#003e1c"
+      },
+      "amber": {
+        "50": "#fef5eb",
+        "100": "#fce8cf",
+        "200": "#f7d2a5",
+        "300": "#fac27c",
+        "400": "#fab24f",
+        "500": "#eb9a04",
+        "600": "#ca8a04",
+        "700": "#b27407",
+        "800": "#976200",
+        "900": "#7b500b"
+      },
+      "purple": {
+        "50": "#f7f5ff",
+        "100": "#ede7ff",
+        "200": "#dcd2fe",
+        "300": "#c8b5fe",
+        "400": "#a884f8",
+        "500": "#9333ea",
+        "600": "#7246c0",
+        "700": "#5e35a2",
+        "800": "#492681",
+        "900": "#351b5f"
+      }
+    },
+    "dark": {
+      "grey": {
+        "50": "#0d0d0d",
+        "100": "#1a1a1c",
+        "200": "#262628",
+        "300": "#333336",
+        "400": "#48484b",
+        "500": "#737373",
+        "600": "#8e8e93",
+        "700": "#a8a8ad",
+        "800": "#d4d4d8",
+        "900": "#f4f4f5"
+      },
+      "blue": {
+        "50": "#161b24",
+        "100": "#192437",
+        "200": "#1b2f54",
+        "300": "#1f3f7b",
+        "400": "#2550a2",
+        "500": "#2f6fe8",
+        "600": "#588beb",
+        "700": "#7dacff",
+        "800": "#abcaff",
+        "900": "#e1ecff"
+      },
+      "red": {
+        "50": "#450a0a",
+        "100": "#351c1a",
+        "200": "#4f1f1d",
+        "300": "#722322",
+        "400": "#982c2c",
+        "500": "#bd3d3c",
+        "600": "#e1645f",
+        "700": "#ff6568",
+        "800": "#ffb4ad",
+        "900": "#fee4e2"
+      },
+      "green": {
+        "50": "#161d17",
+        "100": "#18281d",
+        "200": "#183822",
+        "300": "#174f2b",
+        "400": "#196938",
+        "500": "#16a34a",
+        "600": "#56a970",
+        "700": "#86efac",
+        "800": "#bbf7d0",
+        "900": "#dcfce7"
+      },
+      "amber": {
+        "50": "#1f1913",
+        "100": "#2e2112",
+        "200": "#422b08",
+        "300": "#5c3a00",
+        "400": "#794d02",
+        "500": "#d39335",
+        "600": "#eab308",
+        "700": "#f4b96e",
+        "800": "#ffcb8b",
+        "900": "#fee7cb"
+      },
+      "purple": {
+        "50": "#1b1922",
+        "100": "#262035",
+        "200": "#34284f",
+        "300": "#483473",
+        "400": "#60439a",
+        "500": "#7856bd",
+        "600": "#997ae0",
+        "700": "#d8b4fe",
+        "800": "#cebefe",
+        "900": "#ede7ff"
+      }
+    }
+  },
+  "semantic": {
+    "light": {
+      "surfaceLower": "#f7f7f8",
+      "surfaceDefault": "#ffffff",
+      "surfaceFloated1": "#f7f7f8",
+      "surfaceFloated2": "#ffffff",
+      "surfaceOverlay": "rgba(13, 13, 13, 0.04)",
+      "surfaceDim": "rgba(0, 0, 0, 0.2)",
+      "textPrimary": "#0d0d0d",
+      "textSecondary": "#5d5d5d",
+      "textTertiary": "#6b6b6b",
+      "textDisabled": "#a3a3a3",
+      "textOnAccent": "#ffffff",
+      "border": "#e5e5e5",
+      "borderInput": "#e5e5e5",
+      "borderStrong": "#737373",
+      "accent": "#225be3",
+      "accentFill": "#2f6fe8",
+      "statusSuccess": "#127034",
+      "statusWarning": "#ca8a04",
+      "statusDanger": "#e40014",
+      "onStatusDanger": "#ffffff",
+      "statusInfo": "#225be3"
+    },
+    "dark": {
+      "surfaceLower": "#1a1a1c",
+      "surfaceDefault": "#0d0d0d",
+      "surfaceFloated1": "#1a1a1c",
+      "surfaceFloated2": "#262628",
+      "surfaceOverlay": "rgba(244, 244, 245, 0.06)",
+      "surfaceDim": "rgba(0, 0, 0, 0.56)",
+      "textPrimary": "#f4f4f5",
+      "textSecondary": "#a8a8ad",
+      "textTertiary": "#8e8e93",
+      "textDisabled": "#737373",
+      "textOnAccent": "#ffffff",
+      "border": "rgba(255, 255, 255, 0.07)",
+      "borderInput": "rgba(255, 255, 255, 0.15)",
+      "borderStrong": "#737373",
+      "accent": "#2f6fe8",
+      "accentFill": "#2f6fe8",
+      "statusSuccess": "#86efac",
+      "statusWarning": "#eab308",
+      "statusDanger": "#ff6568",
+      "onStatusDanger": "#450a0a",
+      "statusInfo": "#7dacff"
+    }
+  },
+  "type": {
+    "size": {
+      "xs": 11,
+      "sm": 12,
+      "md": 13,
+      "base": 14,
+      "lg": 15,
+      "xl": 16,
+      "2xl": 18,
+      "3xl": 20,
+      "4xl": 24,
+      "5xl": 28
+    },
+    "lineHeight": {
+      "tight": 1.25,
+      "normal": 1.45,
+      "relaxed": 1.6
+    },
+    "weight": {
+      "regular": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700
+    }
+  },
+  "spacePx": {
+    "0": 0,
+    "1": 4,
+    "2": 8,
+    "3": 12,
+    "4": 16,
+    "5": 20,
+    "6": 24,
+    "8": 32,
+    "10": 40,
+    "12": 48
+  },
+  "radiusPx": {
+    "xs": 4,
+    "sm": 6,
+    "md": 10,
+    "lg": 12,
+    "xl": 16,
+    "2xl": 20,
+    "floating": 28,
+    "pill": 999
+  },
+  "motion": {
+    "fps": 60,
+    "frames": {
+      "instant": 5,
+      "fast": 6,
+      "quick": 7,
+      "moderate": 9,
+      "standard": 11,
+      "slow": 12,
+      "slower": 19
+    },
+    "easing": {
+      "emphasized": "cubic-bezier(0.16, 1, 0.3, 1)",
+      "snappy": "cubic-bezier(0.2, 0.8, 0.2, 1)",
+      "exit": "cubic-bezier(0.7, 0, 0.84, 0)"
+    },
+    "durationsMs": {
+      "instant": 83,
+      "fast": 100,
+      "quick": 117,
+      "moderate": 150,
+      "standard": 183,
+      "slow": 200,
+      "slower": 317
+    }
+  }
+}

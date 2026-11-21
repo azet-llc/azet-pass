@@ -5,9 +5,11 @@
 //  - name: "Bitwarden" -> "AZET Pass" in every UI string table (trademark; file-and-sentence rule c)
 //  - logo, shield mark and toolbar/app icons: our key mark in the same slots and pixel sizes (c)
 //  - 변형 축: the item view shows TOTP codes without Premium
+//  - AZET look (colour, type, radius, motion, Lucide icons): azet-identity.mjs, values from brand/azet-tokens.json
 // usage: node rebrand.mjs <clients-checkout>
 import fs from 'node:fs'
 import path from 'node:path'
+import { identity, resolve as tok } from './azet-identity.mjs'
 
 const root = path.resolve(process.argv[2])
 const here = path.dirname(new URL(import.meta.url).pathname)
@@ -239,7 +241,7 @@ swap('apps/desktop/src/index.html', [['<title>Bitwarden</title>', '<title>AZET P
 swap('libs/auth/src/angular/login/login.component.html', [[/\n\s*<div class="tw-text-center">\{\{ "or" \| i18n \}\}<\/div>[\s\S]*?\{\{ "useSingleSignOn" \| i18n \}\}\s*<\/button>/, '']])
 swap('apps/web/src/index.html', [['<title page-title>Bitwarden Web vault</title>', '<title page-title>AZET Pass Web vault</title>'],
   // browser bar = the page's top area (anon layout background-alt), not Bitwarden blue
-  ['<meta name="theme-color" content="#175DDC" />', '<meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />\n    <meta name="theme-color" content="#0c111d" media="(prefers-color-scheme: dark)" />']])
+  ['<meta name="theme-color" content="#175DDC" />', `<meta name="theme-color" content="${tok('L:@surfaceLower')}" media="(prefers-color-scheme: light)" />\n    <meta name="theme-color" content="${tok('D:@surfaceLower')}" media="(prefers-color-scheme: dark)" />`]])
 
 // 8. Ready-zero (lane 98, ~/hermes/02_Projects/azet-pass-ready-zero): nothing a user can reach may end in an error, a
 //    feature our server does not have, or a Bitwarden page/store. Numbers = rows of inventory-pass.md.
@@ -273,7 +275,7 @@ swap(W + 'auth/settings/two-factor/two-factor-setup-authenticator.component.html
   [/\s*<p class="tw-text-center">\s*<a\s+href="https:\/\/apps\.apple\.com\/ca\/app\/bitwarden-authenticator[\s\S]*?<\/p>/, '']])
 // #18 #19 404 page, PWA manifest, icons, U2F facets
 swap('apps/web/src/404.html', [['Page not found | Bitwarden Web vault', 'Page not found | AZET Pass Web vault'], ['alt="Bitwarden"', 'alt="AZET Pass"']])
-swap('apps/web/src/manifest.json', [['"name": "Bitwarden Vault"', '"name": "AZET Pass"'], ['"theme_color": "#175DDC"', '"theme_color": "#f9fafb"'], ['"background_color": "#175DDC"', '"background_color": "#f9fafb"']])
+swap('apps/web/src/manifest.json', [['"name": "Bitwarden Vault"', '"name": "AZET Pass"'], ['"theme_color": "#175DDC"', `"theme_color": "${tok('L:@surfaceLower')}"`], ['"background_color": "#175DDC"', `"background_color": "${tok('L:@surfaceLower')}"`]])
 swap('apps/web/src/app-id.json', [['"https://vault.bitwarden.com"', `"${BASE}"`]])
 if (fs.existsSync(p('apps/web/src/images/icons'))) {
   const wi = path.join(here, 'brand/generated/web') // brand/make-icons.sh output, resized with magick (committed)
@@ -393,36 +395,7 @@ for (const dir of ['apps/web/src', 'apps/browser/src', 'apps/desktop/src', 'libs
 }
 console.log(`rebrand: ready-zero links rewritten in ${relinked} files`)
 
-// 7. Theme: AZET family tokens (azet-suite design/dist, DESIGN-SPEC U10) on top of Bitwarden's colour variables, so every
-//    component keeps its upstream layout. Brand blue -> AZET violet (solid #6a4ae6 / dark #9a82ff), greys -> AZET ink and
-//    rules, dark surfaces -> ground #0c111d / card #161b26; buttons become pills. Korean keeps words whole.
-const AZ_THEME = `
-/* AZET Pass theme (rebrand.mjs section 7) */
-:root {
-  --color-brand-050: #f4f1ff; --color-brand-100: #ebe6ff; --color-brand-200: #d9d0ff; --color-brand-300: #bfb0ff;
-  --color-brand-400: #9a82ff; --color-brand-500: #8467f5; --color-brand-600: #7456ef; --color-brand-700: #6a4ae6;
-  --color-brand-700-rgb: 106, 74, 230; --color-brand-800: #5b3bd6; --color-brand-800-rgb: 91, 59, 214;
-  --color-brand-900: #4a2fb0; --color-brand-950: #2a2350; --color-brand-950-rgb: 42, 35, 80;
-  --color-gray-050: #f9fafb; --color-gray-100: #f2f4f7; --color-gray-200: #eaecf0; --color-gray-300: #d0d5dd;
-  --color-gray-400: #98a2b3; --color-gray-500: #667085; --color-gray-600: #475467; --color-gray-700: #344054;
-  --color-gray-800: #1d2939; --color-gray-900: #101828; --color-gray-950: #0c111d;
-  --color-primary-100: 244 241 255; --color-primary-300: 191 176 255; --color-primary-600: 106 74 230; --color-primary-700: 91 59 214;
-  --color-background-alt: 249 250 251; --color-background-alt2: 106 74 230; --color-background-alt3: 74 47 176; --color-background-alt4: 42 35 80;
-  --color-text-main: 16 24 40; --color-text-muted: 102 112 133;
-  --color-illustration-outline: 42 35 80; --color-illustration-bg-primary: 235 230 255; --color-illustration-bg-secondary: 217 208 255;
-  --color-illustration-logo: 106 74 230; --color-marketing-logo: 106 74 230;
-}
-.theme_dark {
-  --color-primary-100: 42 35 80; --color-primary-300: 91 59 214; --color-primary-600: 154 130 255; --color-primary-700: 173 153 255;
-  --color-background: 22 27 38; --color-background-alt: 12 17 29; --color-background-alt2: 31 36 47; --color-background-alt3: 51 55 65; --color-background-alt4: 12 17 29;
-  --color-text-main: 245 245 246; --color-text-muted: 148 150 156;
-  --color-bg-primary: #161b26; --color-bg-secondary: #0c111d; --color-bg-tertiary: #0c111d; --color-bg-quaternary: #1f242f; --color-bg-inactive: #0c111d;
-  --color-bg-brand-strong: #ad99ff;
-  --color-illustration-outline: 154 130 255; --color-illustration-bg-primary: 42 35 80; --color-illustration-bg-secondary: 74 47 176;
-}
-html:lang(ko) body { word-break: keep-all; overflow-wrap: anywhere; }
-`
-edit('libs/components/src/tw-theme.css', (s) => s + AZ_THEME)
-edit('libs/components/src/button/button.component.ts', (s) => s.replace('classes.push("tw-rounded-xl");', 'classes.push("tw-rounded-full"); // AZET: pill buttons'))
+// 9. AZET identity (colour, type, shape, motion, icons, inline-menu mark) from brand/azet-tokens.json: azet-identity.mjs
+identity(root)
 
 console.log(`rebrand: ${renamed} strings renamed, ${sizes.size} icon sizes, server ${BASE}`)

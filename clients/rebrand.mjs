@@ -71,6 +71,10 @@ const OVR = {
   alreadyHaveSubscriptionSelfHostedMessage: ['Enter your AZET Pass license key to add Premium to this account.', 'AZET Pass 라이선스 키를 입력하면 이 계정에 Premium이 추가됩니다.'],
   alreadyHaveSubscriptionSelfHostedMessageV3: ['Enter your AZET Pass license key to add Premium to this account.', 'AZET Pass 라이선스 키를 입력하면 이 계정에 Premium이 추가됩니다.'],
   twoStepLoginConfirmation: ['Two-step login asks for a code from your authenticator app when you log in. It is set up in the AZET Pass web vault. Do you want to open the web vault now?', '2단계 로그인은 로그인할 때 인증 앱의 코드를 한 번 더 확인합니다. AZET Pass 웹 보관함에서 설정합니다. 지금 웹 보관함을 열까요?'],
+  // spass-047: the site keeps its old password until it is changed there too
+  useGeneratorHelpTextPartTwo: ["to create a strong unique password. A change here does not change the site's password: change it there too.", '강력한 고유 비밀번호를 만드세요. 여기서 바꿔도 사이트의 비밀번호는 그대로이니 사이트에서도 바꾸세요.'],
+  // spass-081: a login whose authenticator code lives here is deleted only after two-step login is off on the site
+  deleteItemConfirmation: ['Move it to the trash? If this login keeps its authenticator code here, turn off two-step login on the site first, or you may not be able to sign in there.', '휴지통으로 옮길까요? 이 로그인의 인증 코드를 여기에 저장해 두었다면 먼저 사이트에서 2단계 인증을 끄세요. 그렇지 않으면 그 사이트에 로그인하지 못할 수 있습니다.'],
   continueToHelpCenterDesc: ['Learn more about using AZET Pass on the help page.', '도움말 페이지에서 AZET Pass 사용법을 더 알아보세요.'],
 }
 // new keys for the Premium benefits our server really gives (web vault Premium page)

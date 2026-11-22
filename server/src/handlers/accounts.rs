@@ -951,6 +951,13 @@ pub async fn post_rotatekey(
     .run()
     .await?;
 
+    // shortcut: keys wrapped around the old user key are dropped, not re-wrapped (Bitwarden sends them re-wrapped in
+    // unlockData): passkeys go back to sign-in only, and emergency contacts wait for the grantor to confirm again.
+    d1_query!(&db, "UPDATE webauthn_credentials SET prf_status = 1, encrypted_user_key = NULL, encrypted_public_key = NULL, encrypted_private_key = NULL WHERE user_id = ?1 AND prf_status = 0", user_id)
+        .map_err(|_| AppError::Database)?.run().await?;
+    d1_query!(&db, "UPDATE emergency_access SET status = 1, key_encrypted = NULL, recovery_initiated_at = NULL WHERE grantor_id = ?1 AND status >= 2", user_id)
+        .map_err(|_| AppError::Database)?.run().await?;
+
     notifications::publish_user_logout((*env).clone(), claims.sub, now, Some(claims.device));
 
     Ok(Json(json!({})))

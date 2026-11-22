@@ -26,6 +26,6 @@ Each script starts this Worker locally with a throwaway database and drives it w
 
 ## Not built
 
-Single sign-on, Key Connector, an admin panel, signing in to the vault with a passkey, two-step login by email, Duo or security key. The authenticator app (TOTP) is the supported second step.
+Single sign-on, Key Connector, an admin panel, two-step login by email, Duo or security key. The authenticator app (TOTP) is the supported second step.
 
 Operations: `docs/deployment.md`, `docs/db-backup-recovery.md`. Reporting a vulnerability: `../SECURITY.md`.

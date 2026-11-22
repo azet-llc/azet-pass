@@ -121,6 +121,10 @@ pub struct TokenRequest {
         deserialize_with = "deserialize_trimmed_i32"
     )]
     two_factor_remember: Option<i32>,
+    // grant_type=webauthn (handlers/webauth.rs)
+    token: Option<String>,
+    #[serde(rename = "deviceResponse", alias = "device_response")]
+    device_response: Option<String>,
     #[serde(rename = "device_identifier", alias = "deviceIdentifier")]
     device_identifier: Option<String>,
     #[serde(rename = "device_name", alias = "deviceName")]
@@ -188,6 +192,8 @@ pub struct UserDecryptionOptions {
     pub has_master_password: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub master_password_unlock: Option<serde_json::Value>,
+    #[serde(rename = "WebAuthnPrfOption", skip_serializing_if = "Option::is_none")]
+    pub web_authn_prf_option: Option<serde_json::Value>,
     pub object: String,
 }
 
@@ -581,6 +587,7 @@ fn generate_tokens_and_response(
         user_decryption_options: UserDecryptionOptions {
             has_master_password,
             master_password_unlock,
+            web_authn_prf_option: None,
             object: "userDecryptionOptions".to_string(),
         },
         account_keys,
@@ -647,6 +654,30 @@ pub async fn token(
             let premium = crate::handlers::azet::premium_for(&env, &user.id).await;
             generate_tokens_and_response(user, &device, &client_id, &env, None, premium)
                 .map(IntoResponse::into_response)
+        }
+        "webauthn" => {
+            enforce_ip_rate_limit(env.as_ref(), &headers, "LOGIN_RATE_LIMITER", "login-ip", "Too many login attempts. Please try again later.").await?;
+            let (user_id, prf) = crate::handlers::webauth::verify_login(
+                &db,
+                env.as_ref(),
+                &required_field(payload.token.as_deref(), "token")?,
+                &required_field(payload.device_response.as_deref(), "deviceResponse")?,
+            )
+            .await?;
+            let user = load_user_by_id(&db, &user_id).await?;
+            let client_id = required_field(payload.client_id.as_deref(), "client_id")?;
+            let device = Device::get_or_create(
+                &db,
+                required_field(payload.device_identifier.as_deref(), "device_identifier")?,
+                user.id.clone(),
+                required_field(payload.device_name.as_deref(), "device_name")?,
+                parse_required_device_type(payload.device_type.as_deref(), "device_type")?,
+            )
+            .await?;
+            let premium = crate::handlers::azet::premium_for(&env, &user.id).await;
+            let mut answer = generate_tokens_and_response(user, &device, &client_id, &env, None, premium)?;
+            answer.0.user_decryption_options.web_authn_prf_option = prf;
+            Ok(answer.into_response())
         }
         "password" => {
             let username = required_field(payload.username.as_deref(), "username")?;

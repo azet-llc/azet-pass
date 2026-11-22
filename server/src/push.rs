@@ -130,3 +130,22 @@ pub async fn notify(env: &Env, users: &[String], kind: i32, payload: Value, cont
         }
     }
 }
+
+/// Tells one device to sign out (`LogOut`, 11): sent before its row goes, so a removed phone wipes its local vault
+/// at once instead of at its next token refresh. A failure never fails the removal.
+pub async fn sign_out_device(env: &Env, user: &str, identifier: &str, date: &str) {
+    let Ok(db) = db::get_db_unconstrained(env) else { return };
+    let Ok(query) = db
+        .prepare("SELECT type, push_token FROM devices WHERE identifier = ?1 AND user_id = ?2 AND push_token IS NOT NULL AND type IN (0, 1)")
+        .bind(&[identifier.into(), user.into()])
+    else {
+        return;
+    };
+    let Some(row) = query.first::<Value>(None).await.ok().flatten() else { return };
+    let token = row.get("push_token").and_then(|v| v.as_str()).unwrap_or_default();
+    let ios = row.get("type").and_then(|v| v.as_f64()) == Some(1.0);
+    let payload = json!({ "userId": user, "date": date }).to_string();
+    if let Err(e) = send_one(env, ios, token, 11, &payload, None).await {
+        log::warn!("push: sign-out not sent: {e}");
+    }
+}

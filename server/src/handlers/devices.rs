@@ -220,7 +220,10 @@ pub async fn deactivate(
     let db = db::get_db(&env)?;
     Device::find_by_identifier_and_user(&db, &id, &claims.sub)
         .await?
-        .ok_or_else(|| AppError::NotFound("Device not found".into()))?;    db.prepare("DELETE FROM devices WHERE identifier = ?1 AND user_id = ?2")
+        .ok_or_else(|| AppError::NotFound("Device not found".into()))?;
+    // The removed device hears LogOut now and wipes its local vault (it would lose access at its next refresh).
+    crate::push::sign_out_device(&env, &claims.sub, &id, &db::now_string()).await;
+    db.prepare("DELETE FROM devices WHERE identifier = ?1 AND user_id = ?2")
         .bind(&[id.into(), claims.sub.into()])?
         .run()
         .await

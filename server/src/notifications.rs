@@ -270,6 +270,25 @@ pub fn publish_user_logout(env: Env, user_id: String, date: String, context_id: 
     publish_user_update(env, user_id, UpdateType::LogOut, date, context_id)
 }
 
+/// The account is about to be deleted: every other signed-in client hears `LogOut` now (websocket and push), while
+/// its devices still exist to be reached, and wipes its local copy instead of waiting for a refused token.
+pub async fn user_logout_now(env: &Env, user_id: &str, date: &str, context_id: Option<&str>) {
+    let ws_bytes = create_update(
+        vec![
+            ("UserId".into(), user_id.into()),
+            ("Date".into(), serialize_date(parse_timestamp(date))),
+        ],
+        UpdateType::LogOut as i32,
+        context_id,
+    );
+    let selector = PublishSelector::user(user_id);
+    let user = [user_id.to_string()];
+    futures_util::join!(
+        send_ws_to_do(env, &selector, &ws_bytes),
+        push::notify(env, &user, UpdateType::LogOut as i32, serde_json::json!({ "date": date }), context_id),
+    );
+}
+
 pub fn publish_folder_update(
     env: Env,
     user_id: String,

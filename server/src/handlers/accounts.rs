@@ -576,6 +576,9 @@ pub async fn delete_account(
     }
 
 
+    // Other devices sign out and wipe now, while their rows (and push tokens) still exist.
+    notifications::user_logout_now(&env, user_id, &db::now_string(), Some(&claims.device)).await;
+
     if attachments::attachments_enabled(env.as_ref()) {
         let keys = attachments::list_attachment_keys_for_user(&db, user_id).await?;
         attachments::delete_storage_objects(env.as_ref(), &keys).await?;

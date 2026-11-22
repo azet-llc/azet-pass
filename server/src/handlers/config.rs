@@ -1,4 +1,4 @@
-use axum::{extract::State, Extension, Json};
+use axum::{extract::State, http::HeaderMap, Extension, Json};
 use serde_json::{json, Value};
 use std::sync::Arc;
 use worker::Env;
@@ -17,18 +17,33 @@ fn get_disable_user_registration(env: &Env) -> bool {
 /// AZET: what the server decides for the AZET Pass apps without a store update — the oldest build allowed in per
 /// platform, feature switches, a notice. JSON in the AZET_CLIENT_CONFIG variable; absent or malformed = no decisions.
 /// Example: {"ios":{"minBuild":8,"updateUrl":"https://apps.apple.com/app/id…"},"flags":{"shareLinks":false},"notice":{"ko":"…","en":"…"}}
-fn azet_client_config(env: &Env) -> Value {
-    env.var("AZET_CLIENT_CONFIG")
+/// AZET Desktop and the extension also read: {"desktop"|"extension":{"minVersion":"1.4.2245","critical":true,"updateUrl":"…"},
+/// "rules":[{"country":["KR"],"platform":["desktop"],"below":"1.5.0","flags":{"pass cert sign":false}}],
+/// "features":{"pass cert":{"minVersion":"1.4.2200","url":"…"}},"defaults":{"strictLock":true},
+/// "notices":[{"id":"2026-11-22","ko":"…","en":"…","url":"…"}]}. The caller's country (Cloudflare) is added as
+/// "country" so a rule can name it; the apps keep the answer for 24 hours.
+fn azet_client_config(env: &Env, headers: &HeaderMap) -> Value {
+    let mut config = env
+        .var("AZET_CLIENT_CONFIG")
         .ok()
         .and_then(|v| serde_json::from_str::<Value>(&v.to_string()).ok())
         .filter(Value::is_object)
-        .unwrap_or_else(|| json!({}))
+        .unwrap_or_else(|| json!({}));
+    if let Some(country) = headers
+        .get("cf-ipcountry")
+        .and_then(|v| v.to_str().ok())
+        .filter(|v| v.len() == 2)
+    {
+        config["country"] = json!(country);
+    }
+    config
 }
 
 #[worker::send]
 pub async fn config(
     State(env): State<Arc<Env>>,
     Extension(BaseUrl(domain)): Extension<BaseUrl>,
+    headers: HeaderMap,
 ) -> Json<Value> {
     // Official available feature flags can be found here:
     // Server (v2025.6.2): https://github.com/bitwarden/server/blob/d094be3267f2030bd0dc62106bc6871cf82682f5/src/Core/Constants.cs#L103
@@ -87,7 +102,7 @@ pub async fn config(
         // Not supported right now; clients use this to detect servers that require
         // additional work to establish a connection.
         "communication": null,
-        "azet": azet_client_config(&env),
+        "azet": azet_client_config(&env, &headers),
         "object": "config",
     }))
 }

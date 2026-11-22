@@ -395,6 +395,73 @@ for (const dir of ['apps/web/src', 'apps/browser/src', 'apps/desktop/src', 'libs
 }
 console.log(`rebrand: ready-zero links rewritten in ${relinked} files`)
 
+// 8b. Server policy (spass-210..213, 217, 263): what pass.azet.io decides without a store update, from the "azet" block
+//     of /api/config (server/src/handlers/config.rs), kept a day in extension storage. Below the "extension" minimum
+//     the popup says to update (critical: it closes after the notice); each new notice shows once. A server that
+//     cannot be reached changes nothing. Same reading as AZET Desktop (azet-desktop src/shared/azet-pass-policy.ts).
+edit('apps/browser/src/popup/app.component.ts', (s) => s
+  .replace('  async ngOnInit() {\n    initPopupClosedListener();\n', '  async ngOnInit() {\n    initPopupClosedListener();\n    void this.azetPolicy();\n')
+  .replace('  private showToast(msg: any) {', `  private async azetPolicy() {
+    try {
+      const saved = await chrome.storage.local.get(["azetPolicy", "azetSeen"]);
+      let cached = saved.azetPolicy as { at: number; block: any } | undefined;
+      if (!cached || Date.now() - cached.at > 86_400_000) {
+        const res = await fetch("${BASE}/api/config");
+        if (res.ok) {
+          cached = { at: Date.now(), block: ((await res.json()) as any).azet ?? {} };
+          await chrome.storage.local.set({ azetPolicy: cached });
+        }
+      }
+      const block = cached?.block ?? {};
+      const ko = (this.i18nService as any).translationLocale?.startsWith("ko") === true;
+      const parts = (v: string) => String(v).split(".").map((n) => parseInt(n, 10) || 0);
+      const below = (v: string, min: string) => {
+        const a = parts(v), b = parts(min);
+        for (let i = 0; i < Math.max(a.length, b.length); i++) {
+          if ((a[i] ?? 0) !== (b[i] ?? 0)) return (a[i] ?? 0) < (b[i] ?? 0);
+        }
+        return false;
+      };
+      const gate = block.extension;
+      if (gate?.minVersion && below(chrome.runtime.getManifest().version, gate.minVersion)) {
+        await this.dialogService.openSimpleDialog({
+          title: "AZET Pass",
+          content: ko
+            ? \`AZET Pass 확장 프로그램을 \${gate.minVersion} 이상으로 업데이트해 주세요.\`
+            : \`Please update the AZET Pass extension to \${gate.minVersion} or newer.\`,
+          type: gate.critical ? "danger" : "info",
+          acceptButtonText: ko ? "확인" : "OK",
+          cancelButtonText: null,
+        });
+        if (typeof gate.updateUrl === "string" && gate.updateUrl.startsWith("https://")) {
+          window.open(gate.updateUrl);
+        }
+        if (gate.critical) {
+          window.close();
+          return;
+        }
+      }
+      const seen: string[] = Array.isArray(saved.azetSeen) ? saved.azetSeen : [];
+      const notices = [
+        ...(block.notice?.ko || block.notice?.en ? [{ id: "notice", ...block.notice }] : []),
+        ...(Array.isArray(block.notices) ? block.notices : []),
+      ].filter((n: any) => typeof n?.id === "string" && !seen.includes(n.id));
+      for (const n of notices) {
+        const text = (ko ? n.ko : n.en) ?? n.en ?? n.ko;
+        if (text) {
+          this.toastService.showToast({ variant: "info", title: "AZET Pass", message: text });
+        }
+      }
+      if (notices.length > 0) {
+        await chrome.storage.local.set({ azetSeen: [...seen, ...notices.map((n: any) => n.id)].slice(-200) });
+      }
+    } catch {
+      // the policy never stops the extension
+    }
+  }
+
+  private showToast(msg: any) {`))
+
 // 9. AZET identity (colour, type, shape, motion, icons, inline-menu mark) from brand/azet-tokens.json: azet-identity.mjs
 identity(root)
 

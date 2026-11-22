@@ -277,3 +277,51 @@ pub async fn premium_plan() -> Json<Value> {
         "object": "premiumPlan"
     }))
 }
+
+/// GET /api/azet/terms — the terms version this account accepted and when; the current one is in /api/config
+/// ("azet"."terms"), so an app compares the two and asks the person again when they differ.
+#[worker::send]
+pub async fn get_terms(claims: Claims, State(env): State<Arc<Env>>) -> Result<Json<Value>, AppError> {
+    let db = db::get_db(&env)?;
+    let row: Option<Value> = db
+        .prepare("SELECT terms_version, terms_accepted_at FROM users WHERE id = ?1")
+        .bind(&[claims.sub.into()])?
+        .first(None)
+        .await?;
+    let field = |k: &str| row.as_ref().and_then(|r| r.get(k)).cloned().unwrap_or(Value::Null);
+    Ok(Json(json!({ "version": field("terms_version"), "acceptedAt": field("terms_accepted_at"), "object": "azetTerms" })))
+}
+
+/// POST /api/azet/terms {"version"} — the person accepted that version (asked by the app, never assumed).
+#[worker::send]
+pub async fn post_terms(claims: Claims, State(env): State<Arc<Env>>, Json(p): Json<Value>) -> Result<Json<Value>, AppError> {
+    let version = terms_version(&p).ok_or_else(|| AppError::BadRequest("version".into()))?;
+    let at = Utc::now().format("%Y-%m-%dT%H:%M:%S%.3fZ").to_string();
+    let db = db::get_db(&env)?;
+    db.prepare("UPDATE users SET terms_version = ?1, terms_accepted_at = ?2 WHERE id = ?3")
+        .bind(&[version.clone().into(), at.clone().into(), claims.sub.into()])?
+        .run()
+        .await?;
+    Ok(Json(json!({ "version": version, "acceptedAt": at, "object": "azetTerms" })))
+}
+
+/// A version is a short label such as "2026-11-22" or "3".
+fn terms_version(p: &Value) -> Option<String> {
+    p.get("version")
+        .and_then(Value::as_str)
+        .filter(|s| !s.is_empty() && s.len() <= 32 && s.chars().all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '.'))
+        .map(str::to_string)
+}
+
+#[cfg(test)]
+mod terms_tests {
+    use super::terms_version;
+    use serde_json::json;
+    #[test]
+    fn takes_short_labels_only() {
+        assert_eq!(terms_version(&json!({"version": "2026-11-22"})).as_deref(), Some("2026-11-22"));
+        assert_eq!(terms_version(&json!({"version": ""})), None);
+        assert_eq!(terms_version(&json!({"version": "a b"})), None);
+        assert_eq!(terms_version(&json!({})), None);
+    }
+}

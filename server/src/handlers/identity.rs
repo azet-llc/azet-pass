@@ -675,6 +675,10 @@ pub async fn token(
             } = authenticate_password_grant(env.as_ref(), &db, &headers, &payload, &username)
                 .await?;
 
+            let held = password_hash.is_some()
+                && Device::find_by_identifier_and_user(&db, &device_request.identifier, &user.id)
+                    .await?
+                    .is_none();
             let mut device = Device::get_or_create(
                 &db,
                 device_request.identifier,
@@ -778,6 +782,9 @@ pub async fn token(
                 }
             }
 
+            if held {
+                crate::handlers::devices::approval_gate(&db, &user.id, &device.identifier, &device.name, device.r#type).await?;
+            }
             let user = if let Some(password_hash) = password_hash {
                 maybe_upgrade_password_hash(
                     &db,

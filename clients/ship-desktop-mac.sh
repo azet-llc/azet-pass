@@ -53,7 +53,7 @@ echo "== 2/5 build, sign, notarize"
 (cd "$src" && npm install --no-audit --no-fund --ignore-scripts >/dev/null 2>&1)
 (cd "$d/desktop_native" && node build.js >/dev/null)
 (cd "$d" && npm run build >/dev/null)
-. ~/.secrets/master.env >/dev/null 2>&1 # not exported: only the three values below reach the build
+. "${SECRETS_ENV:?set SECRETS_ENV to the build host's secrets .env file}" >/dev/null 2>&1 # not exported: only the three values below reach the build
 export APPLE_ID_USERNAME="$APPLE_AZET_APPLE_ID" APPLE_ID_PASSWORD="$APPLE_AZET_APP_SPECIFIC_PASSWORD"
 export CSC_KEYCHAIN="$HOME/Library/Keychains/azet-dist.keychain-db" CSC_NAME="AZET LLC ($TEAM)"
 security list-keychains -d user -s ~/Library/Keychains/login.keychain-db ~/Library/Keychains/azet-dist.keychain-db

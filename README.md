@@ -9,5 +9,5 @@ Password manager and authenticator codes for Mac, Windows, Android, iPhone and b
 Licence route: the clients are Bitwarden's own GPL-3.0 clients, rebranded and pointed at our server, published under GPL-3.0; the server is our Cloudflare Worker (warden-worker, MIT) with end-to-end encryption. Money comes from Premium, unlocked by an AZET licence key (suite-api product `pass`), not from selling the client code.
 
 - `server/` — Cloudflare Worker + D1 (+ Durable Objects, KV). Vendored from warden-worker 7a9f6b9 (MIT) plus AZET glue (`src/handlers/azet.rs`, migration 0014). Tests: `server/test/e2ee.sh` (official `bw` CLI through a recording proxy; the server never sees plaintext), `server/test/premium.sh` (Premium follows the AZET licence), `cargo test --lib`.
-- `clients/` — pinned upstream tags, rebrand patches and build scripts for the browser extension, desktop (Mac, Windows), Android and iOS.
+- `clients/` — pinned upstream tags, rebrand patches and build scripts for the browser extension, desktop (Mac, Windows), Android and iOS. The Mac app also fetches a reader built on the Bitwarden CLI (GPL-3.0, OSS build), repackaged unchanged by `clients/pack-reader.sh`.
 - `docs/THREAT-MODEL.md` — what the server sees and does not see.

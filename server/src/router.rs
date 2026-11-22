@@ -7,7 +7,7 @@ use worker::Env;
 
 use crate::handlers::{
     accounts, attachments, auth_requests, azet, ciphers, config, devices, domains,
-    emergency_access, family, folders, identity, import, meta, rotate, sends, sync, twofactor, webauth,
+    emergency_access, family, folders, identity, import, login_recipes, meta, rotate, sends, sync, twofactor, webauth,
 };
 
 pub fn api_router(env: Env) -> Router {
@@ -212,6 +212,7 @@ pub fn api_router(env: Env) -> Router {
             post(sends::access_file_send),
         )
         .route("/api/config", get(config::config))
+        .route("/api/login-recipes", get(login_recipes::login_recipes))
         // Meta endpoints (mirrors a subset of vaultwarden core/mod.rs)
         .route("/api/alive", get(meta::alive))
         .route("/api/now", get(meta::now))

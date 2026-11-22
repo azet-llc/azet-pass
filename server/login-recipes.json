@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "recipes": {
+    "nid.naver.com": { "username": "#id", "password": "#pw" },
+    "github.com": { "username": "#login_field", "password": "#password", "submit": "input[name=commit]" },
+    "login.coupang.com": { "username": "#login-email-input", "password": "#login-password-input", "submit": "button[type=submit]" },
+    "login.live.com": { "username": "#usernameEntry", "submit": "button[type=submit]" },
+    "accounts.google.com": { "username": "#identifierId" }
+  }
+}

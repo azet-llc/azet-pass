@@ -11,6 +11,7 @@ pub mod family;
 pub mod folders;
 pub mod identity;
 pub mod import;
+pub mod login_recipes;
 pub mod meta;
 pub mod purge;
 pub mod rotate;

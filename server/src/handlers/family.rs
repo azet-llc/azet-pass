@@ -500,7 +500,7 @@ pub async fn leave(claims: Claims, State(env): State<Arc<Env>>, Path(org_id): Pa
 pub async fn user_public_key(claims: Claims, State(env): State<Arc<Env>>, Path(user_id): Path<String>) -> Result<Json<Value>, AppError> {
     let db = db::get_db(&env)?;
     let row: Value = db
-        .prepare("SELECT u.public_key FROM users u WHERE u.id = ?1 AND (u.id = ?2 OR EXISTS (SELECT 1 FROM org_members a JOIN org_members b ON a.org_id = b.org_id WHERE a.user_id = ?1 AND b.user_id = ?2 AND b.status = 2))")
+        .prepare("SELECT u.public_key FROM users u WHERE u.id = ?1 AND (u.id = ?2 OR EXISTS (SELECT 1 FROM org_members a JOIN org_members b ON a.org_id = b.org_id WHERE a.user_id = ?1 AND b.user_id = ?2 AND b.status = 2) OR EXISTS (SELECT 1 FROM emergency_access ea WHERE ea.grantor_id = ?2 AND ea.grantee_id = ?1))")
         .bind(&[user_id.clone().into(), claims.sub.into()])?
         .first(None)
         .await?

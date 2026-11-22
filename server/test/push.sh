@@ -20,7 +20,7 @@ ACCOUNT=$(jq -c -n --rawfile key "$W/google.pem" --arg uri "http://127.0.0.1:$FA
   printf 'APNS_KEY="%s"\n' "$(awk '{printf "%s\\n", $0}' "$W/apple.pem")"; } > .dev.vars
 rm -rf .wrangler/state; mkdir -p public/web-vault
 sed -e '/^\[build\]/,/^command/d' -e 's|^main = "src/private.js"|main = "src/entry.js"|' -e 's|simple = { limit = 5, period = 60 }|simple = { limit = 1000, period = 60 }|' wrangler.toml > wrangler.test.toml
-for f in sql/schema.sql migrations/001[5-9]_*.sql; do
+for f in sql/schema.sql migrations/001[5-9]_*.sql migrations/002*.sql; do
   D1_DATABASE_ID=00000000-0000-0000-0000-000000000000 npx -y wrangler@4 d1 execute vault1 -c wrangler.test.toml --local --file "$f" >/dev/null 2>&1
 done
 D1_DATABASE_ID=00000000-0000-0000-0000-000000000000 npx -y wrangler@4 dev -c wrangler.test.toml --local --port $PORT >"$W/dev.log" 2>&1 &

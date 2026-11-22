@@ -229,8 +229,8 @@ if (fs.existsSync(p(shp + '.ts'))) {
   edit(shp + '.html', (s) => s.replace('href="https://bitwarden.com/pricing/"', 'href="https://azet.io/products/pass#plans"'))
 }
 
-// Sign-up and sign-in on our server: consent links are our terms and privacy policy; the passkey and SSO buttons go,
-// because the server has neither (a click ended in a 404 and an "unexpected error" toast).
+// Sign-up and sign-in on our server: consent links are our terms and privacy policy; the SSO button goes,
+// because the server has none (a click ended in a 404 and an "unexpected error" toast).
 // every pair must match (a stale one throws instead of shipping the upstream text); a missing file is skipped (other tags)
 const swap = (file, pairs) => fs.existsSync(p(file)) && edit(file, (s) => pairs.reduce((t, [a, b]) => {
   const u = t.replace(a, b)
@@ -242,7 +242,7 @@ const LEGAL = [['"https://bitwarden.com/terms/"', '"https://azet.io/terms"'], ['
 swap('libs/auth/src/angular/registration/registration-start/registration-start.component.html', [...LEGAL, ['<bit-form-control *ngIf="!isSelfHost">', '<bit-form-control *ngIf="false">']])
 swap('apps/desktop/src/main/menu/menu.help.ts', LEGAL)
 swap('apps/desktop/src/index.html', [['<title>Bitwarden</title>', '<title>AZET Pass</title>']]) // the Mac Window menu and window switcher show it
-swap('libs/auth/src/angular/login/login.component.html', [[/\n\s*<div class="tw-text-center">\{\{ "or" \| i18n \}\}<\/div>[\s\S]*?\{\{ "useSingleSignOn" \| i18n \}\}\s*<\/button>/, '']])
+swap('libs/auth/src/angular/login/login.component.html', [[/\n\s*<!-- Button to Login with SSO -->[\s\S]*?\{\{ "useSingleSignOn" \| i18n \}\}\s*<\/button>/, '']])
 swap('apps/web/src/index.html', [['<title page-title>Bitwarden Web vault</title>', '<title page-title>AZET Pass Web vault</title>'],
   // browser bar = the page's top area (anon layout background-alt), not Bitwarden blue
   ['<meta name="theme-color" content="#175DDC" />', `<meta name="theme-color" content="${tok('L:@surfaceLower')}" media="(prefers-color-scheme: light)" />\n    <meta name="theme-color" content="${tok('D:@surfaceLower')}" media="(prefers-color-scheme: dark)" />`]])
@@ -254,12 +254,11 @@ const HELP = `${BASE}/help/` // clients/brand/help, copied into the web vault by
 const W = 'apps/web/src/app/'
 // #2 two-step login: only the authenticator app (server: Email, Duo, YubiKey and FIDO2 have no routes)
 swap(W + 'auth/settings/two-factor/two-factor-setup.component.ts', [['return type === TwoFactorProviderType.OrganizationDuo;', 'return type !== TwoFactorProviderType.Authenticator; // AZET: the server supports the authenticator app only']])
-// #3 log in with passkey (no WebAuthn login on the server)
-swap(W + 'auth/settings/security/password-settings/password-settings.component.html', [['\n<app-webauthn-login-settings></app-webauthn-login-settings>', '']])
+// #3 log in with passkey: on our server since 2026-11-22 (server/src/handlers/webauth.rs), so the settings stay
 // #5 new-device login protection: our server sends no new-device codes, so there is nothing to turn off
 swap(W + 'auth/settings/account/account.component.html', [[/\n\s*<ng-container>\s*<button\s*\*ngIf="verifyNewDeviceLogin"[\s\S]*?<\/ng-container>/, '']])
-// #8 emergency access, #13 organizations: not on our server
-swap(W + 'layouts/user-layout.component.html', [[/@if \(showEmergencyAccess\(\)\) \{/g, '@if (false) {'], ['@if (!singleOrgPolicyApplies()) {', '@if (false) {'],
+// #8 emergency access is on our server since 2026-11-22 (server/src/handlers/emergency_access.rs); #13 organizations are not
+swap(W + 'layouts/user-layout.component.html', [['@if (!singleOrgPolicyApplies()) {', '@if (false) {'],
   // the way from the vault to sharing with people and AI accounts (pass.azet.io/team is our own page, outside the app's router)
   ['  </app-side-nav>', '    <a href="/team" target="_blank" rel="noopener" class="tw-block !tw-no-underline"><bit-nav-item icon="bwi-users" [text]="\'azetAiTeam\' | i18n"></bit-nav-item></a>\n  </app-side-nav>']])
 swap(W + 'vault/individual-vault/vault-filter/components/vault-filter.component.ts', [['const addAction = !singleOrgPolicy', 'const addAction = false // AZET: no organizations\n']])
@@ -338,10 +337,10 @@ swap(W + 'tools/send/send-access/send-access-explainer.component.html', [['>Bitw
 // new-account checklist: "Install extension" led to a page that says the extension is in no store yet
 swap(W + 'vault/individual-vault/vault-onboarding/vault-onboarding.component.html', [[/\n\s*<app-onboarding-task\s*\[title\]="'onboardingInstallTheBrowserExtensionTitle' \| i18n"[\s\S]*?<\/app-onboarding-task>/, '']])
 swap(W + 'vault/individual-vault/vault-onboarding/vault-onboarding.component.ts', [['        installExtension: false,', '        installExtension: true, // AZET: no store listing yet, so no extension step']])
-// typed addresses of screens with no server side (passkey and SSO login, emergency access, Families sponsorship, extension set-up)
+// typed addresses of screens with no server side (SSO login, Families sponsorship, extension set-up)
 swap(W + 'oss-routing.module.ts', [['const routes: Routes = [\n', 'const routes: Routes = [\n' +
-  ['login-with-passkey', 'sso'].map((x) => `  { path: "${x}", redirectTo: "/login" },\n`).join('') +
-  ['settings/emergency-access', 'settings/sponsored-families', 'setup-extension', 'browser-extension-prompt'].map((x) => `  { path: "${x}", redirectTo: "/vault" },\n`).join('')]])
+  ['sso'].map((x) => `  { path: "${x}", redirectTo: "/login" },\n`).join('') +
+  ['settings/sponsored-families', 'setup-extension', 'browser-extension-prompt'].map((x) => `  { path: "${x}", redirectTo: "/vault" },\n`).join('')]])
 
 swap(W + 'vault/guards/setup-extension-redirect.guard.ts', [['  return router.createUrlTree(["/setup-extension"]);', '  return true; // AZET: that screen is gone (its typed address goes to the vault)']])
 
@@ -368,7 +367,7 @@ const helpTopic = (slug) => {
     [/two-step|lost-two-step/, 'two-step'], [/send/, 'send'], [/attachments/, 'attachments'], [/kdf|encryption-key|fingerprint|account-recovery/, 'encryption'],
     [/passkey/, 'passkeys'], [/website-icons/, 'icons'], [/reports|phishing/, 'reports'], [/searching-vault|managing-items/, 'items'],
     [/create-bitwarden-account|learning-center|onboarding/, 'start'], [/server-geographies/, 'server'], [/wasm/, 'browser'],
-    [/emergency|collection|organization|families|secrets-manager|user-types|managing-users|transfer-ownership|claimed|licensing|automatic-confirmation|ssh-agent|environment-variables/, 'not-included']]
+    [/collection|organization|families|secrets-manager|user-types|managing-users|transfer-ownership|claimed|licensing|automatic-confirmation|ssh-agent|environment-variables/, 'not-included']]
     .find(([re]) => re.test(slug))
   return HELP + (t ? '#' + t[1] : '')
 }

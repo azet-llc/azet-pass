@@ -97,7 +97,7 @@ async function secret(id) {
 
 async function fillTab(tabId, id) {
   const s = await secret(id);
-  await chrome.tabs.sendMessage(tabId, { azet: "fill", data: { username: s.username, password: s.password, card: s.card, identity: s.identity } });
+  await chrome.tabs.sendMessage(tabId, { azet: "fill", data: { username: s.username, password: s.password, card: s.card, identity: s.identity, code: s.totp?.code } });
   return { totp: s.totp?.code ?? null };
 }
 
@@ -179,6 +179,13 @@ const handlers = {
   async settings(patch) { if (patch) await local.set(patch); return local.get(["lockMinutes", "offerSave"]); },
   async sendText(o) { const v = await openVault(); if (!v) throw new Error("locked"); return v.sendText(o); },
   submitted,
+  // One-time code boxes: which logins for the page that sent this (its own frame address, not one it claims) have codes.
+  async otpChoices(_m, sender) { const v = await openVault(); return v ? v.forPage(sender.url).map(row).filter((r) => r.totp) : null; },
+  async otpCode({ id }, sender) {
+    const v = await openVault(); if (!v) throw new Error("locked");
+    if (!v.forPage(sender.url).some((i) => i.id === id)) throw new Error("not a login for this site");
+    return (await secret(id)).totp?.code ?? null;
+  },
   acceptOffer,
   declineOffer: () => session.remove("offer"),
 };

@@ -1,173 +1,176 @@
 {
- "extName": {
-  "message": "AZET Pass"
- },
- "extDescription": {
-  "message": "Fill passwords, cards and addresses, keep one-time codes and save new sign-ins, end-to-end encrypted with your AZET Pass account."
- },
- "cmdFill": {
-  "message": "Fill the login for this site"
- },
- "signInLead": {
-  "message": "Sign in with your AZET Pass account."
- },
- "email": {
-  "message": "Email"
- },
- "accountPassword": {
-  "message": "Account password"
- },
- "twoFactorCode": {
-  "message": "6-digit code from your authenticator"
- },
- "signIn": {
-  "message": "Sign in"
- },
- "createAccount": {
-  "message": "Create an account"
- },
- "unlock": {
-  "message": "Unlock"
- },
- "lock": {
-  "message": "Lock"
- },
- "signOut": {
-  "message": "Sign out"
- },
- "lockedAs": {
-  "message": "Locked · $1"
- },
- "thisSite": {
-  "message": "This site"
- },
- "allItems": {
-  "message": "All"
- },
- "generator": {
-  "message": "Generator"
- },
- "check": {
-  "message": "Check"
- },
- "noneHere": {
-  "message": "Nothing saved for this site yet."
- },
- "search": {
-  "message": "Search"
- },
- "length": {
-  "message": "Length"
- },
- "symbols": {
-  "message": "Symbols"
- },
- "newPassword": {
-  "message": "New"
- },
- "copy": {
-  "message": "Copy"
- },
- "syncNow": {
-  "message": "Sync now"
- },
- "webVault": {
-  "message": "Web vault"
- },
- "fill": {
-  "message": "Fill"
- },
- "copyUser": {
-  "message": "Username"
- },
- "copyPassword": {
-  "message": "Password"
- },
- "copyCode": {
-  "message": "Code"
- },
- "login": {
-  "message": "Login"
- },
- "card": {
-  "message": "Card"
- },
- "identity": {
-  "message": "Identity"
- },
- "secureNote": {
-  "message": "Note"
- },
- "sshKey": {
-  "message": "SSH key"
- },
- "other": {
-  "message": "Item"
- },
- "checking": {
-  "message": "Checking…"
- },
- "checkSummary": {
-  "message": "$1 checked · $2 weak · $3 reused · $4 older than a year"
- },
- "weak": {
-  "message": "weak"
- },
- "reused": {
-  "message": "reused"
- },
- "old": {
-  "message": "over a year old"
- },
- "enterCode": {
-  "message": "Enter the code from your authenticator app."
- },
- "lockedNow": {
-  "message": "AZET Pass is locked. Unlock it first."
- },
- "barSave": {
-  "message": "Save this sign-in for {host} to AZET Pass?"
- },
- "barUpdate": {
-  "message": "Update the saved password for {host}?"
- },
- "save": {
-  "message": "Save"
- },
- "update": {
-  "message": "Update"
- },
- "notNow": {
-  "message": "Not now"
- },
- "pkSave": {
-  "message": "Save a passkey for {host} in AZET Pass?"
- },
- "pkUse": {
-  "message": "Sign in to {host} with a passkey from AZET Pass:"
- },
- "pkOther": {
-  "message": "Use another device"
- },
- "send": {
-  "message": "Send"
- },
- "sendLead": {
-  "message": "Share text through an encrypted link. The link holds the key; our server never sees the text."
- },
- "sendPlaceholder": {
-  "message": "Text to share"
- },
- "sendDays": {
-  "message": "Delete after (days)"
- },
- "sendOnce": {
-  "message": "Only one view"
- },
- "sendMake": {
-  "message": "Make link and copy"
- },
- "sendCopied": {
-  "message": "Link copied."
- }
+  "extName": {
+    "message": "AZET Pass"
+  },
+  "extDescription": {
+    "message": "Fill passwords, cards and addresses, keep one-time codes and save new sign-ins, end-to-end encrypted with your AZET Pass account."
+  },
+  "cmdFill": {
+    "message": "Fill the login for this site"
+  },
+  "signInLead": {
+    "message": "Sign in with your AZET Pass account."
+  },
+  "email": {
+    "message": "Email"
+  },
+  "accountPassword": {
+    "message": "Account password"
+  },
+  "twoFactorCode": {
+    "message": "6-digit code from your authenticator"
+  },
+  "signIn": {
+    "message": "Sign in"
+  },
+  "createAccount": {
+    "message": "Create an account"
+  },
+  "unlock": {
+    "message": "Unlock"
+  },
+  "lock": {
+    "message": "Lock"
+  },
+  "signOut": {
+    "message": "Sign out"
+  },
+  "lockedAs": {
+    "message": "Locked · $1"
+  },
+  "thisSite": {
+    "message": "This site"
+  },
+  "allItems": {
+    "message": "All"
+  },
+  "generator": {
+    "message": "Generator"
+  },
+  "check": {
+    "message": "Check"
+  },
+  "noneHere": {
+    "message": "Nothing saved for this site yet."
+  },
+  "search": {
+    "message": "Search"
+  },
+  "length": {
+    "message": "Length"
+  },
+  "symbols": {
+    "message": "Symbols"
+  },
+  "newPassword": {
+    "message": "New"
+  },
+  "copy": {
+    "message": "Copy"
+  },
+  "syncNow": {
+    "message": "Sync now"
+  },
+  "webVault": {
+    "message": "Web vault"
+  },
+  "fill": {
+    "message": "Fill"
+  },
+  "copyUser": {
+    "message": "Username"
+  },
+  "copyPassword": {
+    "message": "Password"
+  },
+  "copyCode": {
+    "message": "Code"
+  },
+  "login": {
+    "message": "Login"
+  },
+  "card": {
+    "message": "Card"
+  },
+  "identity": {
+    "message": "Identity"
+  },
+  "secureNote": {
+    "message": "Note"
+  },
+  "sshKey": {
+    "message": "SSH key"
+  },
+  "other": {
+    "message": "Item"
+  },
+  "checking": {
+    "message": "Checking…"
+  },
+  "checkSummary": {
+    "message": "$1 checked · $2 weak · $3 reused · $4 older than a year"
+  },
+  "weak": {
+    "message": "weak"
+  },
+  "reused": {
+    "message": "reused"
+  },
+  "old": {
+    "message": "over a year old"
+  },
+  "enterCode": {
+    "message": "Enter the code from your authenticator app."
+  },
+  "lockedNow": {
+    "message": "AZET Pass is locked. Unlock it first."
+  },
+  "barSave": {
+    "message": "Save this sign-in for {host} to AZET Pass?"
+  },
+  "barUpdate": {
+    "message": "Update the saved password for {host}?"
+  },
+  "save": {
+    "message": "Save"
+  },
+  "update": {
+    "message": "Update"
+  },
+  "notNow": {
+    "message": "Not now"
+  },
+  "pkSave": {
+    "message": "Save a passkey for {host} in AZET Pass?"
+  },
+  "pkUse": {
+    "message": "Sign in to {host} with a passkey from AZET Pass:"
+  },
+  "pkOther": {
+    "message": "Use another device"
+  },
+  "send": {
+    "message": "Send"
+  },
+  "sendLead": {
+    "message": "Share text through an encrypted link. The link holds the key; our server never sees the text."
+  },
+  "sendPlaceholder": {
+    "message": "Text to share"
+  },
+  "sendDays": {
+    "message": "Delete after (days)"
+  },
+  "sendOnce": {
+    "message": "Only one view"
+  },
+  "sendMake": {
+    "message": "Make link and copy"
+  },
+  "sendCopied": {
+    "message": "Link copied."
+  },
+  "barOtp": {
+    "message": "Enter the authentication code for {host} from AZET Pass?"
+  }
 }

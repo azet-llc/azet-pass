@@ -54,13 +54,51 @@
     return n;
   }
 
-  function fill({ username, password, card, identity }) {
+  // One-time code boxes (Google 2-Step, banks, Naver): autocomplete says so, or the box's name does.
+  const OTP_RE = /otp|one.?time|2fa|mfa|totp|verification.?code|auth.?code|security.?code|totppin|인증.?(코드|번호)|확인.?코드/i;
+  const otpField = () => inputs().find((i) => !/^(password|hidden|checkbox|radio|submit|button)$/.test(i.type) && !/cc-|cvc|cvv/i.test(i.autocomplete + i.name + i.id) &&
+    (i.autocomplete === "one-time-code" || OTP_RE.test([i.name, i.id, i.placeholder, i.getAttribute("aria-label")].join(" "))));
+
+  function fill({ username, password, card, identity, code }) {
     if (card || identity) return fillProfile(card, identity);
     const pw = passwordFields()[0];
-    set(usernameFor(pw), username);
-    set(pw, password);
-    return pw ? 1 : 0;
+    if (pw) { set(usernameFor(pw), username); set(pw, password); }
+    const otp = code && otpField();
+    if (otp) set(otp, code);
+    return pw || otp ? 1 : 0;
   }
+
+  // A code box appears (often on the page after the password): offer the logins for this site that have codes.
+  // The code itself leaves the background only after a real click in our bar.
+  let otpAsked = null, otpTimer;
+  async function offerOtp() {
+    const el = otpField();
+    if (!el || el === otpAsked || el.value) return;
+    otpAsked = el;
+    const r = await chrome.runtime.sendMessage({ type: "otpChoices" }).catch(() => null);
+    const choices = r?.ok ? r.result : null;
+    if (!choices?.length) return;
+    const { holder, root, t } = bar();
+    root.querySelector("span").textContent = t("barOtp").replace("{host}", location.hostname);
+    const acts = root.querySelector(".acts");
+    for (const c of choices.slice(0, 3)) {
+      const b = Object.assign(document.createElement("button"), { textContent: c.sub || c.name, className: "yes" });
+      b.onclick = async (ev) => {
+        if (!ev.isTrusted) return;
+        holder.remove();
+        const a = await chrome.runtime.sendMessage({ type: "otpCode", id: c.id }).catch(() => null);
+        if (a?.ok && a.result) set(el, a.result);
+      };
+      acts.append(b);
+    }
+    const no = Object.assign(document.createElement("button"), { textContent: t("notNow"), className: "no" });
+    no.onclick = (ev) => { if (ev.isTrusted) holder.remove(); };
+    acts.append(no);
+    document.documentElement.append(holder);
+    setTimeout(() => holder.remove(), 60000);
+  }
+  new MutationObserver(() => { clearTimeout(otpTimer); otpTimer = setTimeout(offerOtp, 400); }).observe(document.documentElement, { childList: true, subtree: true });
+  setTimeout(offerOtp, 300);
 
   // Sign-in capture: on submit (or a click on the form's button) read the boxes once.
   let lastSent = "";

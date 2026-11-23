@@ -137,9 +137,9 @@ export class Vault {
   /** Logins for the page, best match first. */
   forPage(url) { return this.list.filter((v) => v.type?.login && matchesSite(v.type.login.uris, url)); }
   /** Saves a new login (the "save to AZET Pass" offer after a sign-in). */
-  async saveLogin({ name, username, password, uri }) {
+  async saveLogin({ name, username, password, uri, totp }) {
     const view = { id: undefined, organizationId: undefined, folderId: undefined, collectionIds: [], key: undefined, name, notes: undefined, type: 1,
-      login: { username, password, passwordRevisionDate: undefined, uris: [{ uri, match: undefined, uriChecksum: undefined }], totp: undefined, autofillOnPageLoad: undefined, fido2Credentials: undefined },
+      login: { username, password, passwordRevisionDate: undefined, uris: [{ uri, match: undefined, uriChecksum: undefined }], totp: totp || undefined, autofillOnPageLoad: undefined, fido2Credentials: undefined },
       identity: undefined, card: undefined, secureNote: undefined, sshKey: undefined, bankAccount: undefined, driversLicense: undefined, passport: undefined,
       favorite: false, reprompt: 0, organizationUseTotp: true, edit: true, permissions: undefined, viewPassword: true, localData: undefined,
       attachments: undefined, fields: undefined, passwordHistory: undefined, creationDate: new Date().toISOString(), deletedDate: undefined,

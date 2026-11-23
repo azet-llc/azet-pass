@@ -150,4 +150,10 @@
     <string name="imported_n">로그인 정보 %1$d개를 가져왔습니다.</string>
     <string name="exported">내보냈습니다.</string>
     <string name="this_device">이 휴대폰</string>
+    <string name="google_otp_import">Google OTP에서 가져오기</string>
+    <string name="google_otp_import_sub">Google OTP 앱의 계정 내보내기 QR을 찍으면 모든 계정이 인증 코드와 함께 들어옵니다.</string>
+    <string name="google_otp_steps">Google OTP 앱에서 메뉴 &gt; 계정 이전 &gt; 계정 내보내기로 계정을 고른 뒤 나온 QR 코드를 여기서 찍으세요. QR 코드가 여러 장이면 한 장씩 찍으면 됩니다.</string>
+    <string name="google_otp_not_export">Google OTP 계정 내보내기 QR 코드가 아닙니다.</string>
+    <string name="scan_again">다음 QR 찍기</string>
+    <string name="otp_fill">인증 코드 · %1$s</string>
 </resources>

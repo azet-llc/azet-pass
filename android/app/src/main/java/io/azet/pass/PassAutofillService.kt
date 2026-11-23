@@ -17,14 +17,20 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 /** What a screen asks to fill: the username/password boxes and whose screen it is (web domain, else app package). */
-data class Form(val username: AutofillId?, val password: AutofillId?, val target: String, val isWeb: Boolean, val userValue: String?, val passValue: String?)
+data class Form(val username: AutofillId?, val password: AutofillId?, val target: String, val isWeb: Boolean, val userValue: String?, val passValue: String?, val otp: AutofillId? = null) {
+    /** A second-step screen that only asks for the one-time code (Google, Naver, banks). */
+    val otpOnly get() = otp != null && username == null && password == null
+}
 
 object FormParser {
     private val userWords = Regex("user|login|email|e-mail|account|id$|아이디|이메일|phone|mobile", RegexOption.IGNORE_CASE)
     private val passWords = Regex("pass|pwd|pin|비밀번호|암호", RegexOption.IGNORE_CASE)
+    // The device PIN and lock screens are not sign-ins (on the emulator the Settings PIN box was offered for saving).
+    private val systemScreens = setOf("com.android.settings", "com.android.systemui", "com.google.android.setupwizard", "com.samsung.android.biometrics.app.setting", "com.android.keyguard")
+    private val otpWords = Regex("otp|one.?time|2fa|mfa|totp|verification.?code|auth.?code|security.?code|totppin|인증.?(코드|번호)|확인.?코드|보안.?코드", RegexOption.IGNORE_CASE)
 
     fun parse(structures: List<AssistStructure>, ownPackage: String): Form? {
-        var user: AssistStructure.ViewNode? = null; var pass: AssistStructure.ViewNode? = null
+        var user: AssistStructure.ViewNode? = null; var pass: AssistStructure.ViewNode? = null; var otp: AssistStructure.ViewNode? = null
         var domain: String? = null; var pkg: String? = null
         fun walk(n: AssistStructure.ViewNode) {
             n.webDomain?.takeIf { it.isNotBlank() }?.let { domain = it }
@@ -32,6 +38,8 @@ object FormParser {
                 val hints = n.autofillHints.orEmpty().joinToString(" ").lowercase()
                 val html = n.htmlInfo?.attributes?.associate { it.first to it.second }.orEmpty()
                 val words = listOfNotNull(n.idEntry, n.hint, html["name"], html["id"], html["autocomplete"], hints).joinToString(" ")
+                val isOtp = Regex("otp|onetimecode|2fa").containsMatchIn(hints.replace("-", "").replace("_", "")) || html["autocomplete"] == "one-time-code" || otpWords.containsMatchIn(words)
+                if (isOtp) { if (otp == null) otp = n; for (i in 0 until n.childCount) walk(n.getChildAt(i)); return }
                 val isPw = hints.contains("password") || html["type"] == "password" ||
                     (n.inputType and InputType.TYPE_MASK_VARIATION).let { it == InputType.TYPE_TEXT_VARIATION_PASSWORD || it == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD || it == InputType.TYPE_NUMBER_VARIATION_PASSWORD } ||
                     (passWords.containsMatchIn(words) && !hints.contains("username"))
@@ -44,9 +52,9 @@ object FormParser {
             pkg = s.activityComponent?.packageName
             for (i in 0 until s.windowNodeCount) walk(s.getWindowNodeAt(i).rootViewNode)
         }
-        if (pkg == ownPackage || (user == null && pass == null)) return null
+        if (pkg == ownPackage || pkg in systemScreens || (user == null && pass == null && otp == null)) return null
         val target = domain ?: pkg ?: return null
-        return Form(user?.autofillId, pass?.autofillId, target, domain != null, user?.autofillValue?.textValue?.toString(), pass?.autofillValue?.textValue?.toString())
+        return Form(user?.autofillId, pass?.autofillId, target, domain != null, user?.autofillValue?.textValue?.toString(), pass?.autofillValue?.textValue?.toString(), otp?.autofillId)
     }
 }
 
@@ -60,13 +68,20 @@ class PassAutofillService : AutofillService() {
     override fun onFillRequest(request: FillRequest, cancel: CancellationSignal, callback: FillCallback) {
         Session.init(this)
         val form = FormParser.parse(request.fillContexts.map { it.structure }, packageName) ?: return callback.onSuccess(null)
-        val ids = listOfNotNull(form.username, form.password).toTypedArray()
+        val ids = (if (form.otpOnly) listOf(form.otp!!) else listOfNotNull(form.username, form.password)).toTypedArray()
         val r = FillResponse.Builder()
         if (Session.phase == Phase.Unlocked) {
-            val matches = Session.matches(form.target).take(5)
+            val matches = Session.matches(form.target).let { l -> if (form.otpOnly) l.filter { it.hasCode() } else l }.take(5)
             scope.launch {
                 val inline = inlineSpecs(request)
-                matches.forEachIndexed { i, m ->
+                if (form.otpOnly) matches.forEachIndexed { i, m ->
+                    val code = runCatching { Session.view(m.id!!).login?.totp?.let { Session.totp(it)?.code } }.getOrNull() ?: return@forEachIndexed
+                    val title = getString(R.string.otp_fill, m.name)
+                    val d = Dataset.Builder(presentation(this@PassAutofillService, title, code.chunked(3).joinToString(" ")))
+                    val chip = inline?.let { inlineChip(it, i, title, m.subtitle) }
+                    if (chip != null) d.setValue(form.otp!!, AutofillValue.forText(code), presentation(this@PassAutofillService, title, null), chip) else d.setValue(form.otp!!, AutofillValue.forText(code))
+                    r.addDataset(d.build())
+                } else matches.forEachIndexed { i, m ->
                     val v = runCatching { Session.view(m.id!!) }.getOrNull()?.login ?: return@forEachIndexed
                     val d = Dataset.Builder(presentation(this@PassAutofillService, m.name, v.username))
                     val chip = inline?.let { inlineChip(it, i, m.name, v.username) }
@@ -80,18 +95,18 @@ class PassAutofillService : AutofillService() {
                 callback.onSuccess(r.build())
             }
         } else if (Session.phase == Phase.Locked) {
-            val sender = pickIntent(form, ids, wholeResponse = true).intentSender
-            val chip = inlineSpecs(request)?.let { inlineChip(it, 0, getString(R.string.af_unlock), Session.email) }
-            if (chip != null && android.os.Build.VERSION.SDK_INT >= 30) r.setAuthentication(ids, sender, presentation(this, getString(R.string.af_unlock), Session.email), chip)
-            else r.setAuthentication(ids, sender, presentation(this, getString(R.string.af_unlock), Session.email))
+            // One row that unlocks (fingerprint or password) and then fills: a dataset-level authentication fills the
+            // boxes as soon as our sheet returns, where a whole-response one would only show the list again (one more tap).
+            val label = getString(R.string.af_unlock)
+            r.addDataset(pickDataset(form, ids, label, inlineSpecs(request)?.let { inlineChip(it, 0, label, Session.email) }, Session.email))
             saveInfo(form)?.let(r::setSaveInfo)
             callback.onSuccess(r.build())
         } else callback.onSuccess(null)
     }
 
-    private fun pickIntent(form: Form, ids: Array<AutofillId>, wholeResponse: Boolean = false): PendingIntent =
-        PendingIntent.getActivity(this, form.target.hashCode() + if (wholeResponse) 1 else 0, Intent(this, AutofillPickActivity::class.java)
-            .putExtra("target", form.target).putExtra("ids", ids).putExtra("hasUser", form.username != null).putExtra("wholeResponse", wholeResponse),
+    private fun pickIntent(form: Form, ids: Array<AutofillId>): PendingIntent =
+        PendingIntent.getActivity(this, form.target.hashCode(), Intent(this, AutofillPickActivity::class.java)
+            .putExtra("target", form.target).putExtra("ids", ids).putExtra("hasUser", form.username != null).putExtra("otpOnly", form.otpOnly),
             PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_MUTABLE, startAllowed())
 
     /** Samsung Pass "autofill display position: above keyboard" = Android inline suggestions (API 30+). */
@@ -108,8 +123,8 @@ class PassAutofillService : AutofillService() {
         return android.service.autofill.InlinePresentation(b.build().slice, spec, false)
     }
 
-    private fun pickDataset(form: Form, ids: Array<AutofillId>, label: String, chip: android.service.autofill.InlinePresentation? = null): Dataset {
-        val d = Dataset.Builder(presentation(this, label, null))
+    private fun pickDataset(form: Form, ids: Array<AutofillId>, label: String, chip: android.service.autofill.InlinePresentation? = null, sub: String? = null): Dataset {
+        val d = Dataset.Builder(presentation(this, label, sub))
         if (chip != null && android.os.Build.VERSION.SDK_INT >= 30) d.setInlinePresentation(chip)
         ids.forEach { d.setValue(it, null) }
         d.setAuthentication(pickIntent(form, ids).intentSender)

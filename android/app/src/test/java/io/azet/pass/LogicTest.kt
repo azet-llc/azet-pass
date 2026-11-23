@@ -5,6 +5,19 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class LogicTest {
+    @Test fun googleAuthenticatorExport() {
+        // protobuf: otp_parameters { secret "Hello!", name "me@gmail.com", issuer "Google", SHA1, 6 digits, TOTP }, version 1
+        fun f(n: Int, b: ByteArray) = byteArrayOf((n shl 3 or 2).toByte(), b.size.toByte()) + b
+        fun v(n: Int, x: Int) = byteArrayOf((n shl 3).toByte(), x.toByte())
+        val p = f(1, "Hello!".toByteArray()) + f(2, "me@gmail.com".toByteArray()) + f(3, "Google".toByteArray()) + v(4, 1) + v(5, 1) + v(6, 2)
+        val payload = f(1, p) + v(2, 1)
+        val link = "otpauth-migration://offline?data=" + java.net.URLEncoder.encode(java.util.Base64.getEncoder().encodeToString(payload), "UTF-8")
+        val a = GoogleOtp.parse(link).single()
+        assertEquals("Google", a.issuer); assertEquals("me@gmail.com", a.name)
+        assertEquals("otpauth://totp/Google:me@gmail.com?secret=JBSWY3DPEE&issuer=Google&algorithm=SHA1&digits=6", a.uri)
+        assertTrue(GoogleOtp.parse("otpauth://totp/x?secret=AAAA").isEmpty())
+    }
+
     @Test fun csvChromeAndQuotes() {
         val chrome = "\uFEFFname,url,username,password,note\r\nex,https://ex.com/login,a@b.c,\"p,\"\"q\"\"\",\"line1\nline2\"\r\n"
         val l = Csv.logins(chrome).single()

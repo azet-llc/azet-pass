@@ -15,7 +15,7 @@ class FormActivity : Activity() {
         val user = EditText(this).apply { hint = "Username"; setAutofillHints(View.AUTOFILL_HINT_USERNAME); contentDescription = "user" }
         val pass = EditText(this).apply { hint = "Password"; inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD; setAutofillHints(View.AUTOFILL_HINT_PASSWORD); contentDescription = "pass" }
         val out = TextView(this).apply { contentDescription = "out" }
-        val go = Button(this).apply { text = "Sign in"; setOnClickListener { out.text = "user=${user.text} pwlen=${pass.text.length}"; finish() } }
+        val go = Button(this).apply { text = "Sign in"; setOnClickListener { out.text = "user=${user.text} pwlen=${pass.text.length}" } }
         setContentView(LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(48, 200, 48, 48); addView(user); addView(pass); addView(go); addView(out) })
     }
 }

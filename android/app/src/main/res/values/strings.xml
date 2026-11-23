@@ -150,4 +150,10 @@
     <string name="imported_n">Imported %1$d sign-ins.</string>
     <string name="exported">Exported.</string>
     <string name="this_device">This phone</string>
+    <string name="google_otp_import">Import from Google Authenticator</string>
+    <string name="google_otp_import_sub">Scan the export QR of Google Authenticator; every account comes with live codes.</string>
+    <string name="google_otp_steps">In Google Authenticator, open the menu &gt; Transfer accounts &gt; Export accounts, pick the accounts, then scan the QR code here. If there are several QR codes, scan each one.</string>
+    <string name="google_otp_not_export">This is not a Google Authenticator export QR code.</string>
+    <string name="scan_again">Scan another</string>
+    <string name="otp_fill">Authentication code · %1$s</string>
 </resources>

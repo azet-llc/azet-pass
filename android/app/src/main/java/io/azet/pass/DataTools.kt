@@ -42,3 +42,62 @@ object Csv {
         }
     }
 }
+
+/** Google Authenticator's "Transfer accounts" QR (otpauth-migration://offline?data=…): a protobuf list of accounts,
+ *  turned into ordinary otpauth:// links so each becomes a login with live codes. */
+object GoogleOtp {
+    data class Account(val issuer: String, val name: String, val uri: String)
+
+    private class Reader(val b: ByteArray) {
+        var i = 0
+        fun more() = i < b.size
+        fun varint(): Long { var r = 0L; var s = 0; while (true) { val x = b[i++].toInt() and 0xff; r = r or ((x and 0x7f).toLong() shl s); if (x < 0x80) return r; s += 7 } }
+        fun bytes(): ByteArray { val n = varint().toInt(); val o = b.copyOfRange(i, i + n); i += n; return o }
+        fun skip(wire: Int) { when (wire) { 0 -> varint(); 1 -> i += 8; 2 -> bytes(); 5 -> i += 4; else -> error("bad protobuf") } }
+    }
+
+    fun parse(link: String): List<Account> {
+        val t = link.trim()
+        if (!t.startsWith("otpauth-migration://", ignoreCase = true)) return emptyList()
+        val data = t.substringAfter('?', "").split('&').firstOrNull { it.startsWith("data=") }?.removePrefix("data=") ?: return emptyList()
+        return parseData(java.util.Base64.getDecoder().decode(java.net.URLDecoder.decode(data, "UTF-8").replace(' ', '+')))
+    }
+
+    fun parseData(payload: ByteArray): List<Account> {
+        val out = mutableListOf<Account>(); val r = Reader(payload)
+        while (r.more()) {
+            val key = r.varint().toInt()
+            if (key shr 3 != 1 || key and 7 != 2) { r.skip(key and 7); continue }
+            val p = Reader(r.bytes())
+            var secret = ByteArray(0); var name = ""; var issuer = ""; var algo = 1; var digits = 1; var type = 2; var counter = 0L
+            while (p.more()) {
+                val k = p.varint().toInt()
+                when (k shr 3) {
+                    1 -> secret = p.bytes(); 2 -> name = String(p.bytes()); 3 -> issuer = String(p.bytes())
+                    4 -> algo = p.varint().toInt(); 5 -> digits = p.varint().toInt(); 6 -> type = p.varint().toInt(); 7 -> counter = p.varint()
+                    else -> p.skip(k and 7)
+                }
+            }
+            if (secret.isEmpty()) continue
+            val label = if (issuer.isNotEmpty() && !name.startsWith("$issuer:")) "$issuer:$name" else name
+            val q = buildString {
+                append("secret=").append(base32(secret))
+                if (issuer.isNotEmpty()) append("&issuer=").append(enc(issuer))
+                append("&algorithm=").append(when (algo) { 2 -> "SHA256"; 3 -> "SHA512"; 4 -> "MD5"; else -> "SHA1" })
+                append("&digits=").append(if (digits == 2) 8 else 6)
+                if (type == 1) append("&counter=").append(counter)
+            }
+            out += Account(issuer, name.removePrefix("$issuer:"), "otpauth://${if (type == 1) "hotp" else "totp"}/${enc(label).replace("%3A", ":").replace("%40", "@")}?$q")
+        }
+        return out
+    }
+
+    private fun enc(x: String) = java.net.URLEncoder.encode(x, "UTF-8").replace("+", "%20")
+
+    fun base32(b: ByteArray): String {
+        val a = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"; val sb = StringBuilder(); var buf = 0; var bits = 0
+        for (x in b) { buf = (buf shl 8) or (x.toInt() and 0xff); bits += 8; while (bits >= 5) { sb.append(a[(buf shr (bits - 5)) and 31]); bits -= 5 } }
+        if (bits > 0) sb.append(a[(buf shl (5 - bits)) and 31])
+        return sb.toString()
+    }
+}

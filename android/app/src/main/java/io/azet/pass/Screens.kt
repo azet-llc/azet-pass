@@ -3,6 +3,8 @@ package io.azet.pass
 import android.content.Intent
 import android.provider.Settings
 import android.view.autofill.AutofillManager
+import androidx.compose.foundation.background
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -121,7 +123,7 @@ fun SendScreen(onBack: () -> Unit) {
 }
 
 @Composable
-fun SettingsScreen(act: FragmentActivity, onBack: () -> Unit, onDevices: () -> Unit) {
+fun SettingsScreen(act: FragmentActivity, onBack: () -> Unit, onDevices: () -> Unit, onGoogleOtp: () -> Unit) {
     val store = Session.store
     var bio by remember { mutableStateOf(store.biometricOn) }
     var minutes by remember { mutableIntStateOf(store.lockMinutes) }
@@ -181,6 +183,8 @@ fun SettingsScreen(act: FragmentActivity, onBack: () -> Unit, onDevices: () -> U
                 OneDivider()
                 OneRow(stringResource(R.string.import_data), summary = stringResource(R.string.import_data_sub), onClick = { importer.launch(arrayOf("text/*", "text/csv", "application/vnd.ms-excel", "*/*")) })
                 OneDivider()
+                OneRow(stringResource(R.string.google_otp_import), summary = stringResource(R.string.google_otp_import_sub), onClick = onGoogleOtp)
+                OneDivider()
                 OneRow(stringResource(R.string.export_data), summary = stringResource(R.string.export_data_sub), onClick = { exportAsk = true })
                 OneDivider()
                 OneRow(stringResource(R.string.devices_using), onClick = onDevices)
@@ -202,7 +206,7 @@ fun SettingsScreen(act: FragmentActivity, onBack: () -> Unit, onDevices: () -> U
             }
             OneHeader(stringResource(R.string.account))
             OneCard {
-                OneRow(stringResource(R.string.lock_now), onClick = { Session.lock() })
+                OneRow(stringResource(R.string.lock_now), onClick = { Session.lockedByHand = true; Session.lock() })
                 OneDivider()
                 OneRow(stringResource(R.string.sign_out), titleColor = MaterialTheme.colorScheme.error, onClick = { Session.signOut() })
             }
@@ -258,6 +262,40 @@ fun DevicesScreen(onBack: () -> Unit) {
                 OneRow(d.name.ifBlank { "-" }, summary = listOfNotNull(if (d.current) thisPhone else null, d.created).joinToString(" · "),
                     icon = when (d.type) { 0, 1, 15, 16 -> Icons.Filled.PhoneAndroid; 2, 3, 4, 5, 9, 10, 19, 20 -> Icons.Filled.Language; else -> Icons.Filled.Computer })
             }
+        }
+    }
+}
+
+/** Google OTP (Google Authenticator) > Transfer accounts > Export: scan that QR, every account becomes a login with live codes. */
+@Composable
+fun GoogleOtpScreen(onBack: () -> Unit) {
+    var notice by remember { mutableStateOf<String?>(null) }
+    var busy by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val fmt = stringResource(R.string.imported_n)
+    val notQr = stringResource(R.string.google_otp_not_export)
+    fun take(code: String?) {
+        if (busy) return
+        val list = code?.let { GoogleOtp.parse(it) }.orEmpty()
+        if (list.isEmpty()) { notice = notQr; return }
+        busy = true
+        scope.launch {
+            notice = runCatching { fmt.format(Session.importLogins(list.map { Csv.Login(it.issuer.ifBlank { it.name }, null, it.name.ifBlank { null }, null, it.uri, null) })) }.getOrElse { it.message }
+            busy = false
+        }
+    }
+    val photo = PhotoQrPicker { take(it) }
+    OnePage(stringResource(R.string.google_otp_import), onBack) {
+        Text(stringResource(R.string.google_otp_steps), Modifier.padding(horizontal = 28.dp, vertical = 6.dp), fontSize = 14.sp, color = c().sub, lineHeight = 20.sp)
+        Box(Modifier.padding(OneDim.side).fillMaxWidth().aspectRatio(1f).clip(androidx.compose.foundation.shape.RoundedCornerShape(OneDim.radius))) {
+            if (notice == null && !busy) QrCamera { take(it) }
+            else Column(Modifier.fillMaxSize().background(c().card).padding(24.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+                if (busy) CircularProgressIndicator(color = c().primary) else Text(notice.orEmpty(), fontSize = 17.sp, color = c().text)
+            }
+        }
+        Row(Modifier.fillMaxWidth().padding(top = 12.dp), horizontalArrangement = Arrangement.Center) {
+            TextButton(photo) { Text(stringResource(R.string.qr_from_photo), color = c().primary, fontSize = 16.sp) }
+            if (notice != null) TextButton({ notice = null }) { Text(stringResource(R.string.scan_again), color = c().primary, fontSize = 16.sp) }
         }
     }
 }

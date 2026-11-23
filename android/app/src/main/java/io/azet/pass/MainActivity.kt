@@ -49,6 +49,7 @@ class MainActivity : FragmentActivity() {
         setContent { OneTheme { Box(Modifier.fillMaxSize().background(c().page)) { Root(this@MainActivity, link) } } }
     }
     override fun onUserInteraction() { super.onUserInteraction(); Session.touch() }
+    override fun onStop() { super.onStop(); Session.lockedByHand = false }
 }
 
 /** System BiometricPrompt around a Keystore cipher (on Galaxy phones it is the One UI sheet: title, line, fingerprint, Cancel). */
@@ -154,7 +155,7 @@ fun LockScreen(act: FragmentActivity) {
         val ok = act.biometric(ci, title, subtitle) ?: return@launch
         runCatching { Session.unlockWithKey(Session.store.openUserKey(ok)) }.onFailure { error = it.message }
     }
-    LaunchedEffect(Unit) { if (Session.store.biometricOn && act.canUseBiometrics()) bio() }
+    LaunchedEffect(Unit) { if (Session.store.biometricOn && act.canUseBiometrics() && !Session.lockedByHand) bio() }
     Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding().imePadding()) {
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
             Spacer(Modifier.height(96.dp))

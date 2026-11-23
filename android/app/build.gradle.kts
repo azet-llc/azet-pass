@@ -14,8 +14,8 @@ android {
         applicationId = "io.azet.pass"
         minSdk = 29
         targetSdk = 37
-        versionCode = 202611001
-        versionName = "2026.11.1"
+        versionCode = 202611002
+        versionName = "2026.11.2"
         ndk { abiFilters += "arm64-v8a" }
     }
     signingConfigs {

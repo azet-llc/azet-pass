@@ -126,6 +126,9 @@ object Session {
         if (m > 0 && phase == Phase.Unlocked) lockJob = scope.launch { delay(m * 60_000L); lock() }
     }
 
+    /** Set by "Lock now": the lock screen then waits for a tap instead of asking for a fingerprint straight away. Cleared when the app leaves the screen. */
+    var lockedByHand = false
+
     fun lock() { lockJob?.cancel(); client?.close(); client = null; items = emptyList(); ciphers = emptyMap(); if (store.account != null) phase = Phase.Locked }
     fun signOut() { lock(); store.signOut(); phase = Phase.SignedOut }
 

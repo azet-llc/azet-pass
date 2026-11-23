@@ -35,6 +35,7 @@ sealed interface Route {
     data object Check : Route
     data object Send : Route
     data object Devices : Route
+    data object GoogleOtp : Route
 }
 
 @Composable
@@ -54,7 +55,8 @@ fun MainScreen(act: FragmentActivity, link: String?) {
         Route.Search -> SearchScreen(::back, ::go)
         is Route.Detail -> DetailScreen(r.id, onEdit = { go(Route.Edit(r.id)) }, onBack = ::back)
         is Route.Edit -> EditScreen(r.target) { saved -> back(); if (saved != null && r.target.startsWith("new:")) go(Route.Detail(saved)) }
-        Route.Settings -> SettingsScreen(act, ::back) { go(Route.Devices) }
+        Route.Settings -> SettingsScreen(act, ::back, { go(Route.Devices) }) { go(Route.GoogleOtp) }
+        Route.GoogleOtp -> GoogleOtpScreen(::back)
         Route.Devices -> DevicesScreen(::back)
         Route.Generator -> GeneratorScreen(::back)
         Route.Check -> CheckScreen(::back) { go(Route.Detail(it)) }

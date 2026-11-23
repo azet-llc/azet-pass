@@ -42,8 +42,10 @@ class AutofillPickActivity : FragmentActivity() {
         var q by remember { mutableStateOf("") }
         val scope = rememberCoroutineScope()
         val here = Session.matches(target)
-        val list = if (q.isBlank()) here.ifEmpty { Session.items.filter { it.kind() == Kind.Login } }
-            else Session.items.filter { it.kind() == Kind.Login && (it.name + " " + it.subtitle).contains(q, true) }
+        val otpOnly = intent.getBooleanExtra("otpOnly", false)
+        val fits = { v: com.bitwarden.vault.CipherListView -> v.kind() == Kind.Login && (!otpOnly || v.hasCode()) }
+        val list = if (q.isBlank()) here.filter(fits).ifEmpty { Session.items.filter(fits) }
+            else Session.items.filter { fits(it) && (it.name + " " + it.subtitle).contains(q, true) }
         Text(target, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(8.dp))
         OutlinedTextField(q, { q = it }, Modifier.fillMaxWidth(), placeholder = { Text(stringResource(R.string.search)) }, singleLine = true)
         LazyColumn {
@@ -78,12 +80,14 @@ class AutofillPickActivity : FragmentActivity() {
         val ids = (IntentCompat.getParcelableArrayExtra(intent, "ids", AutofillId::class.java) ?: emptyArray()).map { it as AutofillId }
         val hasUser = intent.getBooleanExtra("hasUser", false)
         val d = Dataset.Builder(presentation(this, user ?: "", null))
-        ids.forEachIndexed { i, id -> d.setValue(id, AutofillValue.forText(if (hasUser && i == 0) user.orEmpty() else pass.orEmpty())) }
-        // Samsung Pass: after filling, the one-time code is on the clipboard for the next screen.
-        totp?.let { Session.totp(it)?.code }?.let { copySecret(it, "code") }
-        // A whole-response authentication (the locked row) must answer with a FillResponse, a dataset row with a Dataset.
-        val result: android.os.Parcelable = if (intent.getBooleanExtra("wholeResponse", false)) android.service.autofill.FillResponse.Builder().addDataset(d.build()).build() else d.build()
-        setResult(Activity.RESULT_OK, Intent().putExtra(AutofillManager.EXTRA_AUTHENTICATION_RESULT, result))
+        val code = totp?.let { Session.totp(it)?.code }
+        if (intent.getBooleanExtra("otpOnly", false)) ids.forEach { d.setValue(it, AutofillValue.forText(code.orEmpty())) }
+        else {
+            ids.forEachIndexed { i, id -> d.setValue(id, AutofillValue.forText(if (hasUser && i == 0) user.orEmpty() else pass.orEmpty())) }
+            // Samsung Pass: after filling, the one-time code is on the clipboard for the next screen.
+            code?.let { copySecret(it, "code") }
+        }
+        setResult(Activity.RESULT_OK, Intent().putExtra(AutofillManager.EXTRA_AUTHENTICATION_RESULT, d.build()))
         finish()
     }
 }

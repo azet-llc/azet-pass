@@ -100,3 +100,17 @@ final class PasskeyStore: Fido2CredentialStore, @unchecked Sendable {
         try await session.sync()
     }
 }
+
+// The SDK stamps new passkeys with another product's authenticator id, so sites would name that product as the provider.
+// With "none" attestation nothing signs that id: it is replaced with AZET Pass's own
+// (50f31ab8-fb1e-4c34-a9c1-5a017d87ceb3, the same in the Android app and the browser extension).
+func azetAaguid(_ data: Data) -> Data {
+    let sdk: [UInt8] = [0xd5, 0x48, 0x82, 0x6e, 0x79, 0xb4, 0xdb, 0x40, 0xa3, 0xd8, 0x11, 0x11, 0x6f, 0x7e, 0x83, 0x49]
+    let own: [UInt8] = [0x50, 0xf3, 0x1a, 0xb8, 0xfb, 0x1e, 0x4c, 0x34, 0xa9, 0xc1, 0x5a, 0x01, 0x7d, 0x87, 0xce, 0xb3]
+    var out = [UInt8](data)
+    var i = 0
+    while i + 16 <= out.count {
+        if Array(out[i..<i + 16]) == sdk { out.replaceSubrange(i..<i + 16, with: own); i += 16 } else { i += 1 }
+    }
+    return Data(out)
+}

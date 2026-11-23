@@ -23,7 +23,7 @@ final class CredentialProviderViewController: ASCredentialProviderViewController
         embed(UIHostingController(rootView: PasskeyRun(title: String(localized: "Save a passkey for \(id.relyingPartyIdentifier)")) { s in
             let res = try await PasskeyBridge(session: s).register(rpId: id.relyingPartyIdentifier, userName: id.userName, userHandle: id.userHandle, clientDataHash: r.clientDataHash)
             await self.extensionContext.completeRegistrationRequest(using: ASPasskeyRegistrationCredential(
-                relyingParty: id.relyingPartyIdentifier, clientDataHash: r.clientDataHash, credentialID: res.credentialId, attestationObject: res.attestationObject))
+                relyingParty: id.relyingPartyIdentifier, clientDataHash: r.clientDataHash, credentialID: res.credentialId, attestationObject: azetAaguid(res.attestationObject)))
         } cancel: { [weak self] in self?.fail() }))
     }
 

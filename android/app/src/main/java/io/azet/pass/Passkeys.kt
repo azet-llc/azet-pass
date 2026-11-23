@@ -75,6 +75,23 @@ fun passkeyRpId(requestJson: String): String? = runCatching {
     o["rpId"]?.jsonPrimitive?.contentOrNull ?: o["rp"]?.jsonObject?.get("id")?.jsonPrimitive?.contentOrNull
 }.getOrNull()
 
+// The SDK stamps new passkeys with another product's authenticator id, so sites would name that product as the
+// provider. With "none" attestation nothing signs that id: it is replaced with AZET Pass's own id
+// (50f31ab8-fb1e-4c34-a9c1-5a017d87ceb3, the same in the browser extension).
+private val SDK_AAGUID = byteArrayOf(0xd5.toByte(), 0x48, 0x82.toByte(), 0x6e, 0x79, 0xb4.toByte(), 0xdb.toByte(), 0x40, 0xa3.toByte(), 0xd8.toByte(), 0x11, 0x11, 0x6f, 0x7e, 0x83.toByte(), 0x49)
+private val AZET_AAGUID = byteArrayOf(0x50, 0xf3.toByte(), 0x1a, 0xb8.toByte(), 0xfb.toByte(), 0x1e, 0x4c, 0x34, 0xa9.toByte(), 0xc1.toByte(), 0x5a, 0x01, 0x7d, 0x87.toByte(), 0xce.toByte(), 0xb3.toByte())
+fun ownAaguid(data: ByteArray): ByteArray {
+    val out = data.copyOf()
+    var i = 0
+    while (i <= out.size - 16) {
+        if ((0 until 16).all { out[i + it] == SDK_AAGUID[it] }) { AZET_AAGUID.copyInto(out, i); i += 16 } else i++
+    }
+    return out
+}
+
+/** Android hands over the options object itself; the SDK reads the page form, the options under `publicKey`. */
+private fun wrap(requestJson: String) = "{\"publicKey\":$requestJson}"
+
 /** "AB:CD:…" SHA-256 of the app's signing certificate, the form assetlinks.json uses. */
 private fun certFingerprint(info: SigningInfo): String {
     val cert = (if (info.hasMultipleSigners()) info.apkContentsSigners else info.signingCertificateHistory).first()
@@ -161,12 +178,12 @@ class PasskeyActivity : FragmentActivity() {
             create != null -> {
                 val request = create.callingRequest as CreatePublicKeyCredentialRequest
                 val rpId = passkeyRpId(request.requestJson) ?: error("no relying party")
-                val r = Session.passkeyRegister(origin(this, create.callingAppInfo, rpId), request.requestJson, clientData(create.callingAppInfo, request.clientDataHash))
+                val r = Session.passkeyRegister(origin(this, create.callingAppInfo, rpId), wrap(request.requestJson), clientData(create.callingAppInfo, request.clientDataHash))
                 PendingIntentHandler.setCreateCredentialResponse(out, CreatePublicKeyCredentialResponse(buildJsonObject {
                     put("id", r.id); put("rawId", b64u(r.rawId)); put("type", r.ty); r.authenticatorAttachment?.let { put("authenticatorAttachment", it) }
                     putJsonObject("response") {
-                        put("clientDataJSON", b64u(r.response.clientDataJson)); put("authenticatorData", b64u(r.response.authenticatorData))
-                        put("attestationObject", b64u(r.response.attestationObject)); r.response.publicKey?.let { put("publicKey", b64u(it)) }
+                        put("clientDataJSON", b64u(r.response.clientDataJson)); put("authenticatorData", b64u(ownAaguid(r.response.authenticatorData)))
+                        put("attestationObject", b64u(ownAaguid(r.response.attestationObject))); r.response.publicKey?.let { put("publicKey", b64u(it)) }
                         put("publicKeyAlgorithm", r.response.publicKeyAlgorithm)
                         put("transports", JsonArray((r.response.transports ?: listOf("internal", "hybrid")).map(::JsonPrimitive)))
                     }
@@ -176,7 +193,7 @@ class PasskeyActivity : FragmentActivity() {
             get != null -> {
                 val option = get.credentialOptions.filterIsInstance<GetPublicKeyCredentialOption>().first()
                 val rpId = passkeyRpId(option.requestJson) ?: error("no relying party")
-                val r = Session.passkeyAuthenticate(origin(this, get.callingAppInfo, rpId), option.requestJson, clientData(get.callingAppInfo, option.clientDataHash), intent.getStringExtra("cipherId"))
+                val r = Session.passkeyAuthenticate(origin(this, get.callingAppInfo, rpId), wrap(option.requestJson), clientData(get.callingAppInfo, option.clientDataHash), intent.getStringExtra("cipherId"))
                 PendingIntentHandler.setGetCredentialResponse(out, GetCredentialResponse(PublicKeyCredential(buildJsonObject {
                     put("id", r.id); put("rawId", b64u(r.rawId)); put("type", r.ty); r.authenticatorAttachment?.let { put("authenticatorAttachment", it) }
                     putJsonObject("response") {

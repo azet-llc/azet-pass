@@ -35,7 +35,7 @@ export function rpAllowed(rpId, pageUrl) {
 }
 
 const FLAGS = { UP: 1, UV: 4, BE: 8, BS: 16, AT: 64 };
-const AAGUID = new Uint8Array(16); // "none" attestation: zero AAGUID
+const AAGUID = new Uint8Array([80, 243, 26, 184, 251, 30, 76, 52, 169, 193, 90, 1, 125, 135, 206, 179]); // AZET Pass's authenticator id 50f31ab8-fb1e-4c34-a9c1-5a017d87ceb3 (the Android app stamps the same)
 
 // WebCrypto ECDSA gives r||s; WebAuthn wants DER.
 function der(sig) {

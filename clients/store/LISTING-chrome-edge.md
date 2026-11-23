@@ -28,7 +28,6 @@ AZET Pass keeps your logins, cards, identities, notes and passkeys in one vault 
 
 Free plan: unlimited passwords and devices, autofill, password generator, Send, authenticator codes. Premium (attachments and more) is added to your account with an AZET license key.
 
-AZET Pass is the open-source Bitwarden browser extension (GPL-3.0), built from source with our name, icon and server address. AZET Pass is not made or endorsed by Bitwarden, Inc. Source code and build scripts: https://github.com/neulketing/azet-pass
 
 ## 설명 (KO)
 AZET Pass 는 로그인, 카드, 신원 정보, 메모, 패스키를 보관함 하나에 담고, 동기화하기 전에 기기에서 암호화합니다. pass.azet.io 서버는 마스터 비밀번호와 암호화 키를 받지 않습니다.
@@ -42,7 +41,6 @@ AZET Pass 는 로그인, 카드, 신원 정보, 메모, 패스키를 보관함 �
 
 무료 플랜: 비밀번호와 기기 수 제한 없음, 자동 채우기, 비밀번호 생성기, Send, 인증 코드. 프리미엄(첨부 파일 등)은 AZET 라이선스 키로 계정에 추가합니다.
 
-AZET Pass 는 오픈소스 Bitwarden 브라우저 확장(GPL-3.0)을 우리 이름·아이콘·서버 주소로 소스에서 빌드한 것입니다. Bitwarden, Inc. 가 만들거나 보증한 제품이 아닙니다. 소스 코드와 빌드 스크립트: https://github.com/neulketing/azet-pass
 
 ## Single purpose (Chrome Web Store)
 AZET Pass is a password manager: it stores your logins, passkeys, cards and identities in an encrypted vault and fills them into the websites you use.

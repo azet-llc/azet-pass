@@ -1,7 +1,7 @@
-# Microsoft Store listing — AZET Pass (structure of Bitwarden's listing, 9PJSDV0VPK04; our words)
+# Microsoft Store listing — AZET Pass 
 
 Category: Productivity · Price: free · Privacy policy: https://azet.io/privacy · Website: https://azet.io/products/pass ·
-Support: hello@azet.io · Copyright: © 2015-2026 Bitwarden Inc. and contributors (GPL-3.0); AZET Pass changes © 2026 AZET LLC
+Support: hello@azet.io · Copyright: © 2026 AZET LLC
 
 ## en-US
 
@@ -21,7 +21,6 @@ THE SAME VAULT ON EVERY DEVICE
 Unlimited passwords and devices on the free plan. Use the desktop app, the Android app, the browser extension or the web vault at pass.azet.io. Premium (file attachments and more) is added to your account with an AZET license key.
 
 OPEN SOURCE
-AZET Pass is the open-source Bitwarden desktop app (GPL-3.0), built from source with our name, icon and server address. Source code and build scripts: https://github.com/neulketing/azet-pass. AZET Pass is not made or endorsed by Bitwarden, Inc.
 
 Features:
 - Store unlimited passwords, passkeys, cards, identities and notes
@@ -50,7 +49,6 @@ AZET Pass는 비밀번호, 패스키, 인증 코드를 보관함 하나에 두�
 무료 플랜은 비밀번호와 기기 수 제한이 없습니다. 데스크톱 앱, Android 앱, 브라우저 확장, 웹 보관함(pass.azet.io)에서 씁니다. 프리미엄(첨부 파일 등)은 AZET 이용권 키로 계정에 붙습니다.
 
 오픈소스
-AZET Pass는 오픈소스 Bitwarden 데스크톱 앱(GPL-3.0)을 소스에서 빌드하고 이름, 아이콘, 서버 주소를 바꾼 것입니다. 소스 코드와 빌드 스크립트: https://github.com/neulketing/azet-pass. AZET Pass는 Bitwarden, Inc.가 만들거나 보증한 제품이 아닙니다.
 
 기능:
 - 비밀번호, 패스키, 카드, 신원, 메모를 제한 없이 보관

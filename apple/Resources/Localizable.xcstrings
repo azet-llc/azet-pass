@@ -172,6 +172,16 @@
         }
       }
     },
+    "A newer AZET Pass is ready": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 AZET Pass가 나왔어요"
+          }
+        }
+      }
+    },
     "A vault called \"%@\" is ready. Add their logins now, so everything is there the moment they join.": {
       "localizations": {
         "ko": {
@@ -4519,6 +4529,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "버전"
+          }
+        }
+      }
+    },
+    "Version %@. Download it and replace this app.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "버전 %@. 내려받아 이 앱을 바꿔 주세요."
           }
         }
       }

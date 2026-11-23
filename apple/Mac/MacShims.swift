@@ -69,3 +69,23 @@ final class UIGraphicsPDFRenderer {
     }
 }
 #endif
+
+#if os(macOS)
+/// The download from azet.io has no store to update it: the app reads azet.io's version file and says when a newer
+/// one is out. The App Store build (it has a store receipt) never asks.
+struct MacUpdate {
+    let version: String
+    let url: URL
+
+    static func newer(_ a: String, than b: String) -> Bool { a.compare(b, options: .numeric) == .orderedDescending }
+
+    static func check(current: String = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "") async -> MacUpdate? {
+        if let r = Bundle.main.appStoreReceiptURL, FileManager.default.fileExists(atPath: r.path) { return nil }
+        guard let (data, _) = try? await URLSession.shared.data(from: URL(string: "https://azet.io/downloads/pass/latest-mac.json")!),
+              let o = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let v = o["version"] as? String, let s = o["url"] as? String, let url = URL(string: s),
+              url.host == "github.com", url.path.hasPrefix("/azet-llc/azet-pass/"), newer(v, than: current) else { return nil }
+        return MacUpdate(version: v, url: url)
+    }
+}
+#endif

@@ -82,6 +82,9 @@ struct HomeView: View {
     @State private var showNew = false
     @State private var showScan = false
     @State private var open: String?
+    #if os(macOS)
+    @State private var update: MacUpdate?
+    #endif
 
     private var favorites: [CipherListView] { session.items.filter { $0.favorite && $0.deletedDate == nil } }
     private var recent: [CipherListView] { session.items.filter { $0.deletedDate == nil }.sorted { $0.revisionDate > $1.revisionDate }.prefix(8).map { $0 } }
@@ -90,6 +93,13 @@ struct HomeView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
+                    #if os(macOS)
+                    if let u = update {
+                        NoticeCard(title: String(localized: "A newer AZET Pass is ready"), text: String(localized: "Version \(u.version). Download it and replace this app."), symbol: "arrow.down.circle") {
+                            NSWorkspace.shared.open(u.url)
+                        }
+                    }
+                    #endif
                     if let banner = session.banner {
                         Label(banner, systemImage: "exclamationmark.triangle.fill").font(.footnote).frame(maxWidth: .infinity, alignment: .leading).cardStyle()
                     }
@@ -113,6 +123,9 @@ struct HomeView: View {
             .navigationTitle("Home")
             .toolbar { MainToolbar(showSettings: $showSettings, showNew: $showNew) }
             .refreshable { try? await session.sync() }
+            #if os(macOS)
+            .task { update = await MacUpdate.check() }
+            #endif
             .navigationDestination(item: $open) { ItemDetailView(id: $0) }
             .sheet(isPresented: $showSettings) { SettingsView() }
             .sheet(isPresented: $showNew) { NewItemView() }

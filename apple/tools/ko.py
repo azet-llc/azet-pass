@@ -486,4 +486,6 @@ KO = {
 "Stay closed on a jailbroken iPhone": "탈옥된 iPhone에서는 열지 않기",
 "Then click the AZET Pass button in the Safari toolbar on a sign-in page: it lists the logins for that site and fills them in.": "그다음 로그인 페이지에서 Safari 도구 막대의 AZET Pass 버튼을 누르세요. 그 사이트의 로그인을 보여 주고 채워 줘요.",
 "This iPhone looks jailbroken, and Settings asked AZET Pass not to open items here. Your items are safe on your other devices.": "이 iPhone은 탈옥된 것으로 보여요. 설정에서 이런 기기에서는 항목을 열지 않도록 해 두셨어요. 항목은 다른 기기에 안전하게 있어요.",
+"A newer AZET Pass is ready": "새 AZET Pass가 나왔어요",
+"Version %@. Download it and replace this app.": "버전 %@. 내려받아 이 앱을 바꿔 주세요.",
 }

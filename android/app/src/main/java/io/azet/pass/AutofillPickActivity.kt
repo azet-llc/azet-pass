@@ -67,7 +67,7 @@ class AutofillPickActivity : FragmentActivity() {
         Row(Modifier.padding(8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button({
                 scope.launch {
-                    runCatching { Session.saveSignIn(target, isWeb, user, pass.orEmpty()) }
+                    runCatching { Session.saveSignIn(target, isWeb, user, pass.orEmpty(), if (isWeb) null else AppLinks.cert(this@AutofillPickActivity, target)) }
                     finish()
                 }
             }) { Text(stringResource(R.string.save)) }

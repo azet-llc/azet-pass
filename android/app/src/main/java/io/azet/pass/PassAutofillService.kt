@@ -29,7 +29,8 @@ object FormParser {
     private val systemScreens = setOf("com.android.settings", "com.android.systemui", "com.google.android.setupwizard", "com.samsung.android.biometrics.app.setting", "com.android.keyguard")
     private val otpWords = Regex("otp|one.?time|2fa|mfa|totp|verification.?code|auth.?code|security.?code|totppin|인증.?(코드|번호)|확인.?코드|보안.?코드", RegexOption.IGNORE_CASE)
 
-    fun parse(structures: List<AssistStructure>, ownPackage: String): Form? {
+    /** [trustedBrowser] says whether an app may speak for the web address in its views (see AppLinks). */
+    fun parse(structures: List<AssistStructure>, ownPackage: String, trustedBrowser: (String) -> Boolean): Form? {
         var user: AssistStructure.ViewNode? = null; var pass: AssistStructure.ViewNode? = null; var otp: AssistStructure.ViewNode? = null
         var domain: String? = null; var pkg: String? = null
         fun walk(n: AssistStructure.ViewNode) {
@@ -53,8 +54,9 @@ object FormParser {
             for (i in 0 until s.windowNodeCount) walk(s.getWindowNodeAt(i).rootViewNode)
         }
         if (pkg == ownPackage || pkg in systemScreens || (user == null && pass == null && otp == null)) return null
-        val target = domain ?: pkg ?: return null
-        return Form(user?.autofillId, pass?.autofillId, target, domain != null, user?.autofillValue?.textValue?.toString(), pass?.autofillValue?.textValue?.toString(), otp?.autofillId)
+        val web = domain?.takeIf { pkg?.let(trustedBrowser) == true }
+        val target = web ?: pkg ?: return null
+        return Form(user?.autofillId, pass?.autofillId, target, web != null, user?.autofillValue?.textValue?.toString(), pass?.autofillValue?.textValue?.toString(), otp?.autofillId)
     }
 }
 
@@ -67,12 +69,14 @@ class PassAutofillService : AutofillService() {
 
     override fun onFillRequest(request: FillRequest, cancel: CancellationSignal, callback: FillCallback) {
         Session.init(this)
-        val form = FormParser.parse(request.fillContexts.map { it.structure }, packageName) ?: return callback.onSuccess(null)
+        val form = FormParser.parse(request.fillContexts.map { it.structure }, packageName) { AppLinks.trustedBrowser(this, it) } ?: return callback.onSuccess(null)
         val ids = (if (form.otpOnly) listOf(form.otp!!) else listOfNotNull(form.username, form.password)).toTypedArray()
         val r = FillResponse.Builder()
         if (Session.phase == Phase.Unlocked) {
-            val matches = Session.matches(form.target).let { l -> if (form.otpOnly) l.filter { it.hasCode() } else l }.take(5)
             scope.launch {
+                // An app also gets the sign-ins of the sites that name it in their assetlinks.json.
+                val linked = if (form.isWeb) emptyList() else AppLinks.linkedSites(this@PassAutofillService, form.target).flatMap { Session.matches(it) }
+                val matches = (Session.matches(form.target) + linked).distinctBy { it.id }.let { l -> if (form.otpOnly) l.filter { it.hasCode() } else l }.take(5)
                 val inline = inlineSpecs(request)
                 if (form.otpOnly) matches.forEachIndexed { i, m ->
                     val code = runCatching { Session.view(m.id!!).login?.totp?.let { Session.totp(it)?.code } }.getOrNull() ?: return@forEachIndexed
@@ -82,7 +86,10 @@ class PassAutofillService : AutofillService() {
                     if (chip != null) d.setValue(form.otp!!, AutofillValue.forText(code), presentation(this@PassAutofillService, title, null), chip) else d.setValue(form.otp!!, AutofillValue.forText(code))
                     r.addDataset(d.build())
                 } else matches.forEachIndexed { i, m ->
-                    val v = runCatching { Session.view(m.id!!) }.getOrNull()?.login ?: return@forEachIndexed
+                    val item = runCatching { Session.view(m.id!!) }.getOrNull() ?: return@forEachIndexed
+                    // Saved from an app with another signing certificate: not this app.
+                    if (!form.isWeb && item.fields.orEmpty().any { it.name == AppLinks.CERT_FIELD && it.value != AppLinks.cert(this@PassAutofillService, form.target) }) return@forEachIndexed
+                    val v = item.login ?: return@forEachIndexed
                     val d = Dataset.Builder(presentation(this@PassAutofillService, m.name, v.username))
                     val chip = inline?.let { inlineChip(it, i, m.name, v.username) }
                     form.username?.let { id -> if (chip != null) d.setValue(id, AutofillValue.forText(v.username.orEmpty()), presentation(this@PassAutofillService, m.name, v.username), chip) else d.setValue(id, AutofillValue.forText(v.username.orEmpty())) }
@@ -138,12 +145,12 @@ class PassAutofillService : AutofillService() {
 
     override fun onSaveRequest(request: SaveRequest, callback: SaveCallback) {
         Session.init(this)
-        val form = FormParser.parse(request.fillContexts.map { it.structure }, packageName)
+        val form = FormParser.parse(request.fillContexts.map { it.structure }, packageName) { AppLinks.trustedBrowser(this, it) }
         if (form?.passValue.isNullOrEmpty()) return callback.onSuccess()
         // The person already said "Save" in the system sheet: save now when unlocked; otherwise unlock first in our screen.
         if (Session.phase == Phase.Unlocked) {
             scope.launch {
-                runCatching { Session.saveSignIn(form!!.target, form.isWeb, form.userValue, form.passValue!!) }
+                runCatching { Session.saveSignIn(form!!.target, form.isWeb, form.userValue, form.passValue!!, if (form.isWeb) null else AppLinks.cert(this@PassAutofillService, form.target)) }
                     .onSuccess { android.widget.Toast.makeText(this@PassAutofillService, getString(R.string.af_saved), android.widget.Toast.LENGTH_SHORT).show(); callback.onSuccess() }
                     .onFailure { callback.onFailure(it.message ?: "save failed") }
             }

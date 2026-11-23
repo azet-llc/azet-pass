@@ -183,7 +183,7 @@ object Session {
     }
 
     /** A sign-in another app or site just submitted: updates the password of the same username there, else adds a login. */
-    suspend fun saveSignIn(target: String, isWeb: Boolean, user: String?, pass: String): String {
+    suspend fun saveSignIn(target: String, isWeb: Boolean, user: String?, pass: String, appCert: String? = null): String {
         val same = matches(target).firstOrNull { (it.subtitle.ifEmpty { null }) == user }
         if (same != null) {
             val v = view(same.id!!)
@@ -192,7 +192,9 @@ object Session {
             val history = v.login?.password?.let { listOf(com.bitwarden.vault.PasswordHistoryView(it, now)) + v.passwordHistory.orEmpty() }?.take(5)
             return save(v.copy(login = v.login?.copy(password = pass, passwordRevisionDate = now), passwordHistory = history ?: v.passwordHistory, revisionDate = now))
         }
-        return save(newLogin(target.removePrefix("www."), user, pass, if (isWeb) "https://$target" else "androidapp://$target"))
+        // A sign-in saved from an app remembers the app's signing certificate (see AppLinks).
+        val fields = appCert?.let { listOf(com.bitwarden.vault.FieldView(name = AppLinks.CERT_FIELD, value = it, type = com.bitwarden.vault.FieldType.TEXT, linkedId = null)) }
+        return save(newLogin(target.removePrefix("www."), user, pass, if (isWeb) "https://$target" else "androidapp://$target").copy(fields = fields))
     }
 
     /** Adds logins from a CSV export; returns how many were saved. */

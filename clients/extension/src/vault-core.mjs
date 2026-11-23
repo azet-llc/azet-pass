@@ -178,6 +178,14 @@ export class Vault {
     const rec = ciphers.decrypt_fido2_credentials(view).find((f) => f.credentialId === credentialId);
     return { rec, keyValue: ciphers.decrypt_fido2_private_key(view) };
   }
+  /** A text Send: an encrypted link that opens in any browser, gone after `days` (and after one view if asked). */
+  async sendText({ name, text, days = 7, oneView = false }) {
+    const end = new Date(Date.now() + (days || 1 / 24) * 864e5).toISOString();
+    const view = await this.client.sends().create({ name, notes: undefined, viewType: { Text: { text, hidden: true } },
+      maxAccessCount: oneView ? 1 : undefined, disabled: false, hideEmail: true, deletionDate: end, expirationDate: end, auth: { type: "none" } });
+    this.lastSendId = view.id;
+    return `${this.base}/#/send/${view.accessId}/${view.key.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "")}`;
+  }
   /** New password for a saved login; the old one goes to its password history. */
   async updatePassword(id, password) {
     const old = this.ciphers.find((c) => c.id === id), view = await this.view(id), now = new Date().toISOString();

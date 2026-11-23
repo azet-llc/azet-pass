@@ -148,5 +148,26 @@
  },
  "pkOther": {
   "message": "다른 기기 사용"
+ },
+ "send": {
+  "message": "보내기"
+ },
+ "sendLead": {
+  "message": "글을 암호화된 링크로 나눕니다. 열쇠는 링크 안에만 있어 저희 서버는 내용을 볼 수 없습니다."
+ },
+ "sendPlaceholder": {
+  "message": "나눌 글"
+ },
+ "sendDays": {
+  "message": "삭제까지(일)"
+ },
+ "sendOnce": {
+  "message": "한 번만 열람"
+ },
+ "sendMake": {
+  "message": "링크 만들고 복사"
+ },
+ "sendCopied": {
+  "message": "링크를 복사했습니다."
  }
 }

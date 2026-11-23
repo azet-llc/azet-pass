@@ -22,7 +22,7 @@
 </section>
 
 <section id="unlocked" hidden>
-  <nav><button data-tab="here" class="tab on" data-i18n="thisSite"></button><button data-tab="all" class="tab" data-i18n="allItems"></button><button data-tab="gen" class="tab" data-i18n="generator"></button><button data-tab="check" class="tab" data-i18n="check"></button></nav>
+  <nav><button data-tab="here" class="tab on" data-i18n="thisSite"></button><button data-tab="all" class="tab" data-i18n="allItems"></button><button data-tab="gen" class="tab" data-i18n="generator"></button><button data-tab="check" class="tab" data-i18n="check"></button><button data-tab="send" class="tab" data-i18n="send"></button></nav>
   <div id="here" class="pane"><ul id="hereList"></ul><p id="hereEmpty" class="note" hidden data-i18n="noneHere"></p></div>
   <div id="all" class="pane" hidden><input id="q" type="search" data-i18n-placeholder="search"><ul id="allList"></ul></div>
   <div id="gen" class="pane" hidden>
@@ -30,6 +30,14 @@
     <label><span data-i18n="length"></span> <input id="genLen" type="range" min="8" max="64" value="20"> <b id="genLenV">20</b></label>
     <label><input id="genSpecial" type="checkbox" checked> <span data-i18n="symbols"></span></label>
     <div class="acts"><button id="genNew" class="secondary" data-i18n="newPassword"></button><button id="genCopy" data-i18n="copy"></button></div>
+  </div>
+  <div id="send" class="pane" hidden>
+    <p class="note" data-i18n="sendLead"></p>
+    <textarea id="sendText" rows="5" data-i18n-placeholder="sendPlaceholder"></textarea>
+    <label><span data-i18n="sendDays"></span> <select id="sendDays"><option value="0">1h</option><option value="1" selected>1</option><option value="7">7</option><option value="30">30</option></select></label>
+    <label><input id="sendOnce" type="checkbox" checked> <span data-i18n="sendOnce"></span></label>
+    <button id="sendMake" data-i18n="sendMake"></button>
+    <output id="sendLink" hidden></output>
   </div>
   <div id="check" class="pane" hidden><p id="checkSum" class="note"></p><ul id="checkList"></ul></div>
   <footer class="note"><a href="#" id="syncNow" data-i18n="syncNow"></a> · <a href="https://pass.azet.io" target="_blank" data-i18n="webVault"></a></footer>

@@ -148,5 +148,26 @@
  },
  "pkOther": {
   "message": "Use another device"
+ },
+ "send": {
+  "message": "Send"
+ },
+ "sendLead": {
+  "message": "Share text through an encrypted link. The link holds the key; our server never sees the text."
+ },
+ "sendPlaceholder": {
+  "message": "Text to share"
+ },
+ "sendDays": {
+  "message": "Delete after (days)"
+ },
+ "sendOnce": {
+  "message": "Only one view"
+ },
+ "sendMake": {
+  "message": "Make link and copy"
+ },
+ "sendCopied": {
+  "message": "Link copied."
  }
 }

@@ -102,4 +102,12 @@ $("genLen").oninput = () => { $("genLenV").textContent = $("genLen").value; newP
 $("genSpecial").onchange = () => newPassword().catch(showErr);
 $("genNew").onclick = () => newPassword().catch(showErr);
 $("genCopy").onclick = () => copy($("genOut").value).catch(showErr);
+$("sendMake").onclick = async () => {
+  const text = $("sendText").value.trim(); if (!text) return;
+  try {
+    const link = await call("sendText", { name: text.split("\n")[0].slice(0, 40), text, days: +$("sendDays").value, oneView: $("sendOnce").checked });
+    $("sendLink").value = link; $("sendLink").hidden = false; await copy(link); $("sendText").value = "";
+    showErr(new Error(t("sendCopied")));
+  } catch (e) { showErr(e); }
+};
 render().catch(showErr);

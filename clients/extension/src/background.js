@@ -177,6 +177,7 @@ const handlers = {
   },
   async health() { const v = await openVault(); if (!v) throw new Error("locked"); return passwordHealth(v); },
   async settings(patch) { if (patch) await local.set(patch); return local.get(["lockMinutes", "offerSave"]); },
+  async sendText(o) { const v = await openVault(); if (!v) throw new Error("locked"); return v.sendText(o); },
   submitted,
   acceptOffer,
   declineOffer: () => session.remove("offer"),

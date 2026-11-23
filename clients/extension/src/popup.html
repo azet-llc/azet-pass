@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><link rel="stylesheet" href="popup.css"></head>
+<body>
+<header><img src="images/icon-48.png" alt=""><b>AZET Pass</b><span id="host"></span><button id="lockBtn" class="secondary" hidden data-i18n="lock"></button></header>
+
+<section id="signedOut" hidden>
+  <p data-i18n="signInLead"></p>
+  <form id="signInForm" class="stack">
+    <input id="email" type="email" autocomplete="username" required data-i18n-placeholder="email">
+    <input id="password" type="password" autocomplete="current-password" required data-i18n-placeholder="accountPassword">
+    <input id="code" inputmode="numeric" autocomplete="one-time-code" hidden data-i18n-placeholder="twoFactorCode">
+    <button data-i18n="signIn"></button>
+  </form>
+  <p class="note"><a href="https://pass.azet.io/#/register" target="_blank" data-i18n="createAccount"></a></p>
+</section>
+
+<section id="locked" hidden>
+  <p id="lockedAs"></p>
+  <form id="unlockForm"><input id="unlockPw" type="password" autocomplete="current-password" required data-i18n-placeholder="accountPassword"><button data-i18n="unlock"></button></form>
+  <p class="note"><a href="#" id="signOut" data-i18n="signOut"></a></p>
+</section>
+
+<section id="unlocked" hidden>
+  <nav><button data-tab="here" class="tab on" data-i18n="thisSite"></button><button data-tab="all" class="tab" data-i18n="allItems"></button><button data-tab="gen" class="tab" data-i18n="generator"></button><button data-tab="check" class="tab" data-i18n="check"></button></nav>
+  <div id="here" class="pane"><ul id="hereList"></ul><p id="hereEmpty" class="note" hidden data-i18n="noneHere"></p></div>
+  <div id="all" class="pane" hidden><input id="q" type="search" data-i18n-placeholder="search"><ul id="allList"></ul></div>
+  <div id="gen" class="pane" hidden>
+    <output id="genOut"></output>
+    <label><span data-i18n="length"></span> <input id="genLen" type="range" min="8" max="64" value="20"> <b id="genLenV">20</b></label>
+    <label><input id="genSpecial" type="checkbox" checked> <span data-i18n="symbols"></span></label>
+    <div class="acts"><button id="genNew" class="secondary" data-i18n="newPassword"></button><button id="genCopy" data-i18n="copy"></button></div>
+  </div>
+  <div id="check" class="pane" hidden><p id="checkSum" class="note"></p><ul id="checkList"></ul></div>
+  <footer class="note"><a href="#" id="syncNow" data-i18n="syncNow"></a> · <a href="https://pass.azet.io" target="_blank" data-i18n="webVault"></a></footer>
+</section>
+<p id="err" class="err" hidden></p>
+<script type="module" src="popup.js"></script>
+</body>
+</html>

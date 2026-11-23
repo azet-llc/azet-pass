@@ -1,0 +1,143 @@
+{
+ "extName": {
+  "message": "AZET Pass"
+ },
+ "extDescription": {
+  "message": "Fill passwords, cards and addresses, keep one-time codes and save new sign-ins, end-to-end encrypted with your AZET Pass account."
+ },
+ "cmdFill": {
+  "message": "Fill the login for this site"
+ },
+ "signInLead": {
+  "message": "Sign in with your AZET Pass account."
+ },
+ "email": {
+  "message": "Email"
+ },
+ "accountPassword": {
+  "message": "Account password"
+ },
+ "twoFactorCode": {
+  "message": "6-digit code from your authenticator"
+ },
+ "signIn": {
+  "message": "Sign in"
+ },
+ "createAccount": {
+  "message": "Create an account"
+ },
+ "unlock": {
+  "message": "Unlock"
+ },
+ "lock": {
+  "message": "Lock"
+ },
+ "signOut": {
+  "message": "Sign out"
+ },
+ "lockedAs": {
+  "message": "Locked · $1"
+ },
+ "thisSite": {
+  "message": "This site"
+ },
+ "allItems": {
+  "message": "All"
+ },
+ "generator": {
+  "message": "Generator"
+ },
+ "check": {
+  "message": "Check"
+ },
+ "noneHere": {
+  "message": "Nothing saved for this site yet."
+ },
+ "search": {
+  "message": "Search"
+ },
+ "length": {
+  "message": "Length"
+ },
+ "symbols": {
+  "message": "Symbols"
+ },
+ "newPassword": {
+  "message": "New"
+ },
+ "copy": {
+  "message": "Copy"
+ },
+ "syncNow": {
+  "message": "Sync now"
+ },
+ "webVault": {
+  "message": "Web vault"
+ },
+ "fill": {
+  "message": "Fill"
+ },
+ "copyUser": {
+  "message": "Username"
+ },
+ "copyPassword": {
+  "message": "Password"
+ },
+ "copyCode": {
+  "message": "Code"
+ },
+ "login": {
+  "message": "Login"
+ },
+ "card": {
+  "message": "Card"
+ },
+ "identity": {
+  "message": "Identity"
+ },
+ "secureNote": {
+  "message": "Note"
+ },
+ "sshKey": {
+  "message": "SSH key"
+ },
+ "other": {
+  "message": "Item"
+ },
+ "checking": {
+  "message": "Checking…"
+ },
+ "checkSummary": {
+  "message": "$1 checked · $2 weak · $3 reused · $4 older than a year"
+ },
+ "weak": {
+  "message": "weak"
+ },
+ "reused": {
+  "message": "reused"
+ },
+ "old": {
+  "message": "over a year old"
+ },
+ "enterCode": {
+  "message": "Enter the code from your authenticator app."
+ },
+ "lockedNow": {
+  "message": "AZET Pass is locked. Unlock it first."
+ },
+ "barSave": {
+  "message": "Save this sign-in for {host} to AZET Pass?"
+ },
+ "barUpdate": {
+  "message": "Update the saved password for {host}?"
+ },
+ "save": {
+  "message": "Save"
+ },
+ "update": {
+  "message": "Update"
+ },
+ "notNow": {
+  "message": "Not now"
+ }
+}

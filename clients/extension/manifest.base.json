@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "default_locale": "en",
+  "name": "__MSG_extName__",
+  "description": "__MSG_extDescription__",
+  "version": "2026.11.0",
+  "homepage_url": "https://azet.io/products/pass",
+  "icons": { "48": "images/icon-48.png", "96": "images/icon-96.png", "128": "images/icon-128.png" },
+  "action": { "default_popup": "popup.html", "default_icon": { "16": "images/toolbar-16.png", "32": "images/toolbar-32.png" } },
+  "permissions": ["storage", "activeTab", "tabs", "alarms", "clipboardWrite", "clipboardRead"],
+  "host_permissions": ["<all_urls>"],
+  "content_scripts": [{ "matches": ["http://*/*", "https://*/*"], "js": ["content.js"], "all_frames": true, "run_at": "document_idle" }],
+  "commands": { "fill-login": { "suggested_key": { "default": "Ctrl+Shift+L", "mac": "Command+Shift+L" }, "description": "__MSG_cmdFill__" } },
+  "content_security_policy": { "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'" },
+  "web_accessible_resources": [{ "resources": ["images/icon-48.png"], "matches": ["http://*/*", "https://*/*"] }]
+}

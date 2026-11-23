@@ -12,7 +12,8 @@ struct RootView: View {
             case .loading: ProgressView()
             case .welcome: WelcomeView(mailToken: $mailToken)
             case .locked: UnlockView()
-            case .unlocked: MainView()
+            case .unlocked:
+                if prefs.refuseJailbroken && DeviceIntegrity.isJailbroken { JailbreakRefusal() } else { MainView() }
             }
         }
         .animation(.default, value: session.phase)
@@ -25,6 +26,7 @@ struct RootView: View {
         guard let url else { return }
         prefs.pendingURL = nil
         if let i = Session.parseInvite(url) { invite = i; return }
+        if let link = DeepLink(url) { prefs.deepLink = link; return }
         // mailed sign-up link: https://pass.azet.io/redirect-connector.html#finish-signup?token=…&email=…
         if let frag = url.fragment, frag.hasPrefix("finish-signup"), let q = URLComponents(string: "x://y/?" + (frag.split(separator: "?", maxSplits: 1).last.map(String.init) ?? ""))?.queryItems,
            let t = q.first(where: { $0.name == "token" })?.value, let e = q.first(where: { $0.name == "email" })?.value {

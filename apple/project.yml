@@ -43,7 +43,7 @@ targets:
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
         NSFaceIDUsageDescription: Unlock AZET Pass with Face ID instead of typing your account password.
-        NSCameraUsageDescription: Take a photo of a notebook page so AZET Pass can read the logins on it. The photo stays on this iPhone.
+        NSCameraUsageDescription: Take a photo of a notebook page or a card so AZET Pass can read the logins or card number on it. The picture stays on this iPhone.
         NSPhotoLibraryUsageDescription: Pick a photo of a notebook page so AZET Pass can read the logins on it. The photo stays on this iPhone.
         CFBundleURLTypes:
           - CFBundleURLName: io.azet.pass

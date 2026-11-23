@@ -157,7 +157,9 @@ struct ItemDetailView: View {
             Section {
                 if let u = v.login?.username, !u.isEmpty { FieldRow(label: String(localized: "Username"), value: u) }
                 if let p = v.login?.password, !p.isEmpty { FieldRow(label: String(localized: "Password"), value: p, secret: true, strength: session.strength(p)) }
-                if let t = v.login?.totp, !t.isEmpty { TotpRow(key: t) }
+                if let t = v.login?.totp, !t.isEmpty {
+                    if let k = Hotp.parse(t) { HotpRow(view: v, key: k) } else { TotpRow(key: t) }
+                }
                 ForEach(Array((v.login?.uris ?? []).enumerated()), id: \.offset) { _, u in
                     if let s = u.uri, let url = URL(string: s) {
                         LabeledContent(String(localized: "Website")) { Link(url.host ?? s, destination: url) }
@@ -379,6 +381,7 @@ struct ItemEditView: View {
     @State private var busy = false
     @State private var error: String?
     @State private var scanTotp = false
+    @State private var scanCard = false
 
     var body: some View {
         NavigationStack {
@@ -417,6 +420,17 @@ struct ItemEditView: View {
             }
             #if os(iOS)
             .sheet(isPresented: $scanTotp) { QRScannerView { code in draft.totp = code; scanTotp = false } }
+            #if os(iOS)
+            .sheet(isPresented: $scanCard) {
+                CardScannerView { number, month, year, name in
+                    if let number { draft.cardNumber = number }
+                    if let month { draft.expMonth = month }
+                    if let year { draft.expYear = year }
+                    if let name, draft.cardholder.isEmpty { draft.cardholder = name }
+                    scanCard = false
+                }
+            }
+            #endif
             #endif
             .errorAlert($error)
         }
@@ -463,12 +477,18 @@ struct ItemEditView: View {
                         TextField("One-time password setup key", text: $draft.totp).textInputAutocapitalization(.never).autocorrectionDisabled()
                         #if os(iOS)
                         Button { scanTotp = true } label: { Image(systemName: "qrcode.viewfinder") }.accessibilityLabel(Text("Scan QR code"))
+                        PhotoQRButton { draft.totp = $0 }
                         #endif
                     }
                 } footer: { Text("Two-step login code. Scan the QR code the site shows, or paste its setup key.") }
             }
         case .card:
             Section {
+                #if os(iOS)
+                if CardScannerView.isAvailable {
+                    Button { scanCard = true } label: { Label("Scan card with camera", systemImage: "creditcard.viewfinder") }
+                }
+                #endif
                 TextField("Cardholder name", text: $draft.cardholder).textContentType(.name)
                 TextField("Card number", text: $draft.cardNumber).keyboardType(.numberPad).textContentType(.creditCardNumber)
                 HStack { TextField("MM", text: $draft.expMonth).keyboardType(.numberPad); TextField("YYYY", text: $draft.expYear).keyboardType(.numberPad) }

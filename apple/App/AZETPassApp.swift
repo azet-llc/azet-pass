@@ -13,6 +13,7 @@ struct AZETPassApp: App {
                 .environment(prefs)
                 .tint(Theme.brand)
                 .dynamicTypeSize(prefs.parentMode ? DynamicTypeSize.accessibility2 ... .accessibility2 : DynamicTypeSize.xSmall ... .accessibility3)
+                .modifier(PrivacyCover())
                 .onOpenURL { url in prefs.pendingURL = url }
                 .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { a in if let u = a.webpageURL { prefs.pendingURL = u } }
         }
@@ -32,6 +33,9 @@ final class Prefs {
     var seenOnboarding: Bool { didSet { d.set(seenOnboarding, forKey: "seenOnboarding") } }
     var watchtowerBreaches: Bool { didSet { d.set(watchtowerBreaches, forKey: "wtBreaches") } }
     var pendingURL: URL?
+    var deepLink: DeepLink?
+    /// Samsung Pass: off on a rooted / jailbroken phone. Off by default.
+    var refuseJailbroken: Bool { didSet { d.set(refuseJailbroken, forKey: "refuseJailbroken") } }
     var wentBackground: Date?
     private let d = SharedFiles.defaults
 
@@ -41,6 +45,7 @@ final class Prefs {
         autoLockMinutes = d.object(forKey: "autoLock") as? Int ?? 5
         seenOnboarding = d.bool(forKey: "seenOnboarding")
         watchtowerBreaches = d.object(forKey: "wtBreaches") as? Bool ?? true
+        refuseJailbroken = d.bool(forKey: "refuseJailbroken")
     }
 }
 

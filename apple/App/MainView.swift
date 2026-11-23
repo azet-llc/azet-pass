@@ -20,7 +20,16 @@ struct MainView: View {
                 WatchtowerView().tag(Tab.watchtower).tabItem { Label("Watchtower", systemImage: "shield.lefthalf.filled") }
             }
             .overlay(alignment: .top) { TravelBanner() }
+            .onChange(of: prefs.deepLink) { _, _ in openLinkedTab() }
+            .onAppear(perform: openLinkedTab)
         }
+    }
+
+    /// azetpass:// links: the tab here; search, new item, settings and item links finish in Items.
+    private func openLinkedTab() {
+        guard let link = prefs.deepLink else { return }
+        tab = link.tab
+        if case .tab = link { prefs.deepLink = nil }
     }
 }
 
@@ -206,7 +215,23 @@ struct ItemsView: View {
             .navigationDestination(for: String.self) { ItemDetailView(id: $0) }
             .sheet(isPresented: $showSettings) { SettingsView() }
             .sheet(isPresented: $showNew) { NewItemView() }
+            .navigationDestination(item: $linkedItem) { ItemDetailView(id: $0) }
+            .onChange(of: prefs.deepLink) { _, _ in takeLink() }
+            .onAppear(perform: takeLink)
         }
+    }
+
+    @Environment(Prefs.self) private var prefs
+    @State private var linkedItem: String?
+    private func takeLink() {
+        switch prefs.deepLink {
+        case .search(let q): query = q
+        case .newItem: showNew = true
+        case .settings: showSettings = true
+        case .item(let id): linkedItem = id
+        default: return
+        }
+        prefs.deepLink = nil
     }
 }
 

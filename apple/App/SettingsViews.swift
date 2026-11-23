@@ -38,6 +38,7 @@ struct SettingsView: View {
                     } label: { Label("Lock", systemImage: "lock") }
                     Toggle(isOn: Binding(get: { session.travelMode }, set: { _ in travelAsk = true })) { Label("Travel Mode", systemImage: "airplane") }
                     Toggle(isOn: $prefs.watchtowerBreaches) { Label("Check passwords against data breaches", systemImage: "shield.lefthalf.filled") }
+                    Toggle(isOn: $prefs.refuseJailbroken) { Label("Stay closed on a jailbroken iPhone", systemImage: "exclamationmark.shield") }
                     NavigationLink { AutofillHelpView() } label: { Label("Fill passwords in apps and Safari", systemImage: "key.viewfinder") }
                     NavigationLink { TwoStepLoginView() } label: { Label("Two-step login for this account", systemImage: "lock.rotation") }
                 }

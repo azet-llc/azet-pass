@@ -41,7 +41,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Take a photo of a notebook page so AZET Pass can read the logins on it. The photo stays on this iPhone.</string>
+	<string>Take a photo of a notebook page or a card so AZET Pass can read the logins or card number on it. The picture stays on this iPhone.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Unlock AZET Pass with Face ID instead of typing your account password.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

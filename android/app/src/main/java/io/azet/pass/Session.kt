@@ -207,6 +207,12 @@ object Session {
         sync(); return n
     }
 
+    /** Saves the items of an export file (ExportFile.items); returns how many. */
+    suspend fun importItems(list: List<CipherView>): Int {
+        for (v in list) api.obj("POST", "/api/ciphers", azetCipherRequestJson(c().vault().ciphers().encrypt(v)))
+        sync(); return list.size
+    }
+
     /** The person's own items (not family vaults) as a file only this password opens (Samsung Pass: export to the phone). */
     suspend fun exportEncrypted(password: String): String {
         val text = store.syncJson ?: api.raw("GET", "/api/sync?excludeDomains=true")

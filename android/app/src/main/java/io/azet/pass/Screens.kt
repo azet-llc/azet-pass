@@ -140,12 +140,17 @@ fun SettingsScreen(act: FragmentActivity, onBack: () -> Unit, onDevices: () -> U
     val scope = rememberCoroutineScope()
     val ctx = androidx.compose.ui.platform.LocalContext.current
     val importedFmt = stringResource(R.string.imported_n)
+    val importedItemsFmt = stringResource(R.string.imported_items_n)
+    val wrongFilePw = stringResource(R.string.import_pw_wrong)
+    var importText by remember { mutableStateOf<String?>(null) }
+    var importPw by remember { mutableStateOf("") }
     val exportedMsg = stringResource(R.string.exported)
     val importer = androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.OpenDocument()) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
         scope.launch {
             val text = ctx.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }.orEmpty()
-            notice = runCatching { importedFmt.format(Session.importLogins(Csv.logins(text))) }.getOrElse { it.message }
+            if (ExportFile.locked(text)) { importText = text; return@launch }
+            notice = runCatching { if (ExportFile.isJson(text)) importedItemsFmt.format(Session.importItems(ExportFile.items(text))) else importedFmt.format(Session.importLogins(Csv.logins(text))) }.getOrElse { it.message }
         }
     }
     val exporter = androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.CreateDocument("application/json")) { uri ->
@@ -182,7 +187,7 @@ fun SettingsScreen(act: FragmentActivity, onBack: () -> Unit, onDevices: () -> U
             OneCard {
                 OneRow(stringResource(R.string.privacy_policy), onClick = { openUrl("https://azet.io/privacy-ko#pass") })
                 OneDivider()
-                OneRow(stringResource(R.string.import_data), summary = stringResource(R.string.import_data_sub), onClick = { importer.launch(arrayOf("text/*", "text/csv", "application/vnd.ms-excel", "*/*")) })
+                OneRow(stringResource(R.string.import_data), summary = stringResource(R.string.import_data_sub), onClick = { importer.launch(arrayOf("application/json", "text/*", "text/csv", "application/vnd.ms-excel", "*/*")) })
                 OneDivider()
                 OneRow(stringResource(R.string.google_otp_import), summary = stringResource(R.string.google_otp_import_sub), onClick = onGoogleOtp)
                 OneDivider()
@@ -238,6 +243,15 @@ fun SettingsScreen(act: FragmentActivity, onBack: () -> Unit, onDevices: () -> U
         title = { Text(stringResource(R.string.use_in_chrome), fontWeight = FontWeight.Bold) }, text = { Text(stringResource(R.string.chrome_steps), fontSize = 15.sp, lineHeight = 21.sp) },
         confirmButton = { TextButton({ chromeHelp = false; act.packageManager.getLaunchIntentForPackage("com.android.chrome")?.let { act.startActivity(it) } }) { Text(stringResource(R.string.open_chrome), color = c().primary) } },
         dismissButton = { TextButton({ chromeHelp = false }) { Text(stringResource(R.string.cancel), color = c().primary) } })
+    importText?.let { file -> AlertDialog({ importText = null; importPw = "" }, containerColor = c().card, shape = androidx.compose.foundation.shape.RoundedCornerShape(26.dp),
+        title = { Text(stringResource(R.string.import_data), fontWeight = FontWeight.Bold) },
+        text = { Column { Text(stringResource(R.string.import_pw_lead), fontSize = 14.sp, color = c().sub); OneField(importPw, { importPw = it }, stringResource(R.string.export_pw), secret = true) } },
+        confirmButton = { TextButton({
+            val pw = importPw; importText = null; importPw = ""
+            scope.launch { notice = runCatching { importedItemsFmt.format(Session.importItems(ExportFile.items(kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) { ExportFile.open(file, pw) }))) }
+                .getOrElse { if (it.message == "password") wrongFilePw else it.message } }
+        }, enabled = importPw.isNotEmpty()) { Text(stringResource(R.string.import_data), color = c().primary) } },
+        dismissButton = { TextButton({ importText = null; importPw = "" }) { Text(stringResource(R.string.cancel), color = c().primary) } }) }
     if (exportAsk) AlertDialog({ exportAsk = false }, containerColor = c().card, shape = androidx.compose.foundation.shape.RoundedCornerShape(26.dp),
         title = { Text(stringResource(R.string.export_data), fontWeight = FontWeight.Bold) },
         text = { Column { Text(stringResource(R.string.export_pw_lead), fontSize = 14.sp, color = c().sub); OneField(exportPw, { exportPw = it }, stringResource(R.string.export_pw), secret = true) } },

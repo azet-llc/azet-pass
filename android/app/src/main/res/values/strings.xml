@@ -134,7 +134,7 @@
     <string name="intro_privacy_tail"> explains how your data is handled.</string>
     <string name="continue_">Continue</string>
     <string name="import_data">Import data</string>
-    <string name="import_data_sub">Import data to AZET Pass from a file (.csv).</string>
+    <string name="import_data_sub">Import data to AZET Pass from a file: a .csv from another app, or the file made by Export data to phone.</string>
     <string name="export_data">Export data to phone</string>
     <string name="export_data_sub">Export your personal data saved in AZET Pass. The file is locked with a password you choose; import it again in the AZET Pass web vault (pass.azet.io).</string>
     <string name="devices_using">Devices using AZET Pass</string>
@@ -163,4 +163,7 @@
     <string name="closed_on_rooted">Stay closed on a rooted phone</string>
     <string name="closed_on_rooted_sub">AZET Pass will not unlock or autofill on a phone that looks rooted.</string>
     <string name="rooted_closed">This phone looks rooted, and you chose to keep AZET Pass closed on rooted phones. Your items are safe in your account; open them on another device.</string>
+    <string name="imported_items_n">Imported %1$d items.</string>
+    <string name="import_pw_lead">This file is locked. Enter the password chosen when it was exported.</string>
+    <string name="import_pw_wrong">That password does not open this file.</string>
 </resources>

@@ -134,7 +134,7 @@
     <string name="intro_privacy_tail">에서 내 데이터가 어떻게 관리되는지 확인하세요.</string>
     <string name="continue_">계속</string>
     <string name="import_data">데이터 가져오기</string>
-    <string name="import_data_sub">파일(.csv 확장자)에서 AZET Pass로 데이터를 가져옵니다.</string>
+    <string name="import_data_sub">파일에서 AZET Pass로 가져옵니다. 다른 앱의 .csv, 또는 휴대폰으로 내보내기로 만든 파일.</string>
     <string name="export_data">폰에 데이터 내보내기</string>
     <string name="export_data_sub">AZET Pass에 저장된 개인 데이터를 내보냅니다. 내보낸 파일은 정한 비밀번호로 잠기며 AZET Pass 웹 보관함(pass.azet.io)에서 다시 가져올 수 있습니다.</string>
     <string name="devices_using">AZET Pass를 사용 중인 기기</string>
@@ -163,4 +163,7 @@
     <string name="closed_on_rooted">루팅된 휴대폰에서는 열지 않기</string>
     <string name="closed_on_rooted_sub">루팅된 것으로 보이는 휴대폰에서는 잠금 해제와 자동 입력을 하지 않습니다.</string>
     <string name="rooted_closed">이 휴대폰은 루팅된 것으로 보입니다. 루팅된 휴대폰에서는 AZET Pass를 열지 않도록 설정하셨습니다. 항목은 계정에 그대로 있으니 다른 기기에서 여세요.</string>
+    <string name="imported_items_n">%1$d개 항목을 가져왔습니다.</string>
+    <string name="import_pw_lead">잠긴 파일입니다. 내보낼 때 정한 비밀번호를 입력하세요.</string>
+    <string name="import_pw_wrong">이 비밀번호로는 파일이 열리지 않습니다.</string>
 </resources>

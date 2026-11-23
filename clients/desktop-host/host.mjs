@@ -6,6 +6,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 export const DIR = path.join(os.homedir(), "Library/Application Support/azet-desktop/azet-pass/browser-unlock");
 const CLI = process.env.AZET_DESKTOP_CLI || "/Applications/AZET Desktop.app/Contents/Resources/bin/azet-desktop";
@@ -55,4 +56,5 @@ function main() {
     }
   });
 }
-if (import.meta.url === `file://${process.argv[1]}`) main();
+// A path with a space reads differently as a URL, and Node resolves links in its own path: compare real URLs.
+if (import.meta.url === pathToFileURL(fs.realpathSync(process.argv[1])).href) main();

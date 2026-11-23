@@ -160,4 +160,7 @@
     <string name="passkey_create_title">%1$s의 패스키를 저장할까요?</string>
     <string name="passkey_use_title">패스키로 %1$s에 로그인</string>
     <string name="passkey_failed">패스키를 쓸 수 없습니다: %1$s</string>
+    <string name="closed_on_rooted">루팅된 휴대폰에서는 열지 않기</string>
+    <string name="closed_on_rooted_sub">루팅된 것으로 보이는 휴대폰에서는 잠금 해제와 자동 입력을 하지 않습니다.</string>
+    <string name="rooted_closed">이 휴대폰은 루팅된 것으로 보입니다. 루팅된 휴대폰에서는 AZET Pass를 열지 않도록 설정하셨습니다. 항목은 계정에 그대로 있으니 다른 기기에서 여세요.</string>
 </resources>

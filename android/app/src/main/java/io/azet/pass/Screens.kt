@@ -128,6 +128,7 @@ fun SettingsScreen(act: FragmentActivity, onBack: () -> Unit, onDevices: () -> U
     var bio by remember { mutableStateOf(store.biometricOn) }
     var minutes by remember { mutableIntStateOf(store.lockMinutes) }
     var shots by remember { mutableStateOf(store.blockScreenshots) }
+    var rooted by remember { mutableStateOf(store.closedOnRooted) }
     var pickLock by remember { mutableStateOf(false) }
     var pickPos by remember { mutableStateOf(false) }
     var inline by remember { mutableStateOf(store.inlineAutofill) }
@@ -201,6 +202,8 @@ fun SettingsScreen(act: FragmentActivity, onBack: () -> Unit, onDevices: () -> U
                 OneRow(stringResource(R.string.auto_lock), value = lockLabel(minutes), onClick = { pickLock = true })
                 OneDivider()
                 OneRow(stringResource(R.string.block_screenshots), trailing = { OneSwitch(shots) { shots = it; store.blockScreenshots = it } })
+                OneDivider()
+                OneRow(stringResource(R.string.closed_on_rooted), summary = stringResource(R.string.closed_on_rooted_sub), trailing = { OneSwitch(rooted) { rooted = it; store.closedOnRooted = it } })
                 OneDivider()
                 OneRow(stringResource(R.string.web_vault), summary = stringResource(R.string.web_vault_sub), onClick = { openUrl(SERVER) })
             }

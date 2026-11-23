@@ -44,6 +44,11 @@ class Store(private val ctx: Context) {
         get() = prefs.getBoolean("introSeen", false)
         set(v) { prefs.edit().putBoolean("introSeen", v).apply() }
 
+    /** Off by default: with it on, AZET Pass does not open on a phone that looks rooted. */
+    var closedOnRooted: Boolean
+        get() = prefs.getBoolean("closedOnRooted", false)
+        set(v) { prefs.edit().putBoolean("closedOnRooted", v).apply() }
+
     var blockScreenshots: Boolean
         get() = prefs.getBoolean("blockScreenshots", true)
         set(v) { prefs.edit().putBoolean("blockScreenshots", v).apply() }

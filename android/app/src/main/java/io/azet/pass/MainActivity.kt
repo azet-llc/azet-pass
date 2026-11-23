@@ -155,6 +155,16 @@ fun LockScreen(act: FragmentActivity) {
         val ok = act.biometric(ci, title, subtitle) ?: return@launch
         runCatching { Session.unlockWithKey(Session.store.openUserKey(ok)) }.onFailure { error = it.message }
     }
+    if (refusedHere()) {
+        // The person asked for this: no password box and no fingerprint on a rooted phone, only a way out.
+        Column(Modifier.fillMaxSize().statusBarsPadding().padding(28.dp)) {
+            Spacer(Modifier.height(96.dp))
+            Text(stringResource(R.string.app_name), fontSize = 36.sp, fontWeight = FontWeight.Bold, color = c().text)
+            Text(stringResource(R.string.rooted_closed), Modifier.padding(top = 16.dp), fontSize = 16.sp, color = c().sub)
+            TextButton({ Session.signOut() }, Modifier.padding(top = 16.dp)) { Text(stringResource(R.string.sign_out), color = c().primary, fontSize = 15.sp) }
+        }
+        return
+    }
     LaunchedEffect(Unit) { if (Session.store.biometricOn && act.canUseBiometrics() && !Session.lockedByHand) bio() }
     Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding().imePadding()) {
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {

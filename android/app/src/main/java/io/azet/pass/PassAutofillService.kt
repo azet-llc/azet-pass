@@ -69,6 +69,7 @@ class PassAutofillService : AutofillService() {
 
     override fun onFillRequest(request: FillRequest, cancel: CancellationSignal, callback: FillCallback) {
         Session.init(this)
+        if (refusedHere()) return callback.onSuccess(null)
         val form = FormParser.parse(request.fillContexts.map { it.structure }, packageName) { AppLinks.trustedBrowser(this, it) } ?: return callback.onSuccess(null)
         val ids = (if (form.otpOnly) listOf(form.otp!!) else listOfNotNull(form.username, form.password)).toTypedArray()
         val r = FillResponse.Builder()

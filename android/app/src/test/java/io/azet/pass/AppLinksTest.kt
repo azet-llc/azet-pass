@@ -21,3 +21,11 @@ class AppLinksTest {
         assertFalse(AppLinks.linkNames("not json", "com.shop.app", print))
     }
 }
+
+class RootedTest {
+    @Test fun `test keys or a su program mark a rooted phone`() {
+        assertTrue(deviceRooted("release-keys,test-keys") { false })
+        assertTrue(deviceRooted("release-keys") { it == "/system/xbin/su" })
+        assertFalse(deviceRooted("release-keys") { false })
+    }
+}

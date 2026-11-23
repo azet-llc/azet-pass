@@ -99,7 +99,7 @@ enum DeviceIntegrity {
 struct JailbreakRefusal: View {
     var body: some View {
         ContentUnavailableView {
-            Label("AZET Pass is off on this iPhone", systemImage: "exclamationmark.shield.fill")
+            Label("AZET Pass is off on this device", systemImage: "exclamationmark.shield.fill")
         } description: {
             Text("This iPhone looks jailbroken, and Settings asked AZET Pass not to open items here. Your items are safe on your other devices.")
         }
@@ -197,7 +197,7 @@ struct HotpRow: View {
 // MARK: QR code from a photo (spass-074)
 
 enum PhotoQR {
-    /// The first QR code text in the image, read on this iPhone.
+    /// The first QR code text in the image, read on this device.
     static func read(_ data: Data) -> String? {
         guard let image = CIImage(data: data),
               let detector = CIDetector(ofType: CIDetectorTypeQRCode, context: nil, options: [CIDetectorAccuracy: CIDetectorAccuracyHigh])

@@ -30,7 +30,7 @@ struct FilesSection: View {
                 PhotosPicker(selection: $photo, matching: .images) { Label("Attach a photo", systemImage: "photo") }
             }
             if busy { ProgressView() }
-        } header: { Text("Files") } footer: { Text("Files are encrypted on this iPhone before they are saved. Up to 25 MB each.") }
+        } header: { Text("Files") } footer: { Text("Files are encrypted on this device before they are saved. Up to 25 MB each.") }
         .fileImporter(isPresented: $pickFile, allowedContentTypes: [.item]) { r in
             guard case .success(let url) = r else { return }
             run {
@@ -71,7 +71,7 @@ struct ItemDetailView: View {
     var body: some View {
         Group {
             if let v = view {
-                List {
+                PageList {
                     Section {
                         HStack(spacing: 14) {
                             ItemIcon(name: v.name, category: ItemCategory.of(v), size: 56)
@@ -295,9 +295,9 @@ struct PasswordHistoryView_: View {
     let entries: [PasswordHistoryView]
     var body: some View {
         NavigationStack {
-            List(Array(entries.enumerated()), id: \.offset) { _, e in
+            PageList { ForEach(Array(entries.enumerated()), id: \.offset) { _, e in
                 FieldRow(label: e.lastUsedDate.formatted(date: .abbreviated, time: .shortened), value: e.password, secret: true)
-            }.azetList()
+            } }.azetList()
             .navigationTitle("Password history")
         }
         .presentationDetents([.medium, .large])
@@ -315,7 +315,7 @@ struct NewItemView: View {
 
     var body: some View {
         NavigationStack {
-            List {
+            PageList {
                 if query.isEmpty {
                     Section {
                         Button { scan = true } label: { Label("Scan a notebook page", systemImage: "camera.viewfinder") }

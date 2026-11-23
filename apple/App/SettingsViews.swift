@@ -82,7 +82,7 @@ struct SettingsView: View {
 
 struct AutofillHelpView: View {
     var body: some View {
-        List {
+        PageList {
             Section {
                 #if os(iOS)
                 Text("1. Open the Settings app\n2. General → AutoFill & Passwords\n3. Turn on AZET Pass").font(.body)
@@ -165,7 +165,7 @@ struct ImportView: View {
                 Text("1Password: File → Export → CSV. Chrome: Settings → Passwords → Export passwords. Apple Passwords, Bitwarden and most others export CSV too.")
                     .font(.subheadline)
                 Button { picking = true } label: { Label("Choose the exported file", systemImage: "doc.badge.plus") }
-            } footer: { Text("The file is read on this iPhone. Delete it after importing: it holds your passwords in plain text.") }
+            } footer: { Text("The file is read on this device. Delete it after importing: it holds your passwords in plain text.") }
             if !rows.isEmpty, done == 0 {
                 Section("\(rows.count) items found") {
                     ForEach(Array(rows.prefix(30).enumerated()), id: \.offset) { _, d in Text(d.name) }
@@ -475,7 +475,7 @@ struct FamilyHelpSheet: View {
     @State private var organizers: [Member] = []
     var body: some View {
         NavigationStack {
-            List {
+            PageList {
                 Section {
                     Text("Your family organizer can add logins for you, fix a password, or let you back in if you forget your account password.")
                 }

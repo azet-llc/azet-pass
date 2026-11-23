@@ -112,6 +112,16 @@
         }
       }
     },
+    "1. Open Safari Settings → Extensions\n2. Turn on AZET Pass\n3. Allow it on the sites you sign in to": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1. Safari 설정 → 확장 프로그램을 여세요\n2. AZET Pass를 켜세요\n3. 로그인하는 사이트에서 허용하세요"
+          }
+        }
+      }
+    },
     "1. Open the Settings app\n2. General → AutoFill & Passwords\n3. Turn on AZET Pass": {
       "localizations": {
         "ko": {
@@ -193,6 +203,16 @@
       }
     },
     "AZET Pass for iPhone — Copyright © 2026 AZET LLC. Licensed under the GNU General Public License v3.0. Source: https://github.com/azet-llc/azet-pass\n\nEncryption: Bitwarden SDK (sdk-internal), GNU GPL v3.0, Copyright © Bitwarden Inc. Built from source without the Bitwarden-licensed parts. AZET Pass is not made or endorsed by Bitwarden.\n\nSync server: warden-worker, MIT licence.\n\nPassword breach checks: Have I Been Pwned (Troy Hunt), range API, CC BY 4.0.\n\nThis program comes with ABSOLUTELY NO WARRANTY. You may redistribute it under the terms of the GPL v3.0: https://www.gnu.org/licenses/gpl-3.0.html": {},
+    "AZET Pass is off on this device": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 기기에서는 AZET Pass가 꺼져 있어요"
+          }
+        }
+      }
+    },
     "AZET Pass is ready to fill your passwords.": {
       "localizations": {
         "ko": {
@@ -693,12 +713,12 @@
         }
       }
     },
-    "Check your mail on this iPhone and tap the link. It opens AZET Pass to finish.": {
+    "Check your mail on this device and open the link. It opens AZET Pass to finish.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 iPhone에서 메일을 열고 링크를 누르세요. AZET Pass가 열리며 가입이 끝나요."
+            "value": "이 기기에서 메일을 확인하고 링크를 여세요. AZET Pass가 열리며 마무리돼요."
           }
         }
       }
@@ -839,6 +859,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "끝내지 못했어요"
+          }
+        }
+      }
+    },
+    "Couldn't move items": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "항목을 옮기지 못했어요"
           }
         }
       }
@@ -1463,12 +1493,12 @@
         }
       }
     },
-    "Files are encrypted on this iPhone before they are saved. Up to 25 MB each.": {
+    "Files are encrypted on this device before they are saved. Up to 25 MB each.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "파일은 이 iPhone에서 암호화된 뒤 저장돼요. 파일 하나에 25MB까지."
+            "value": "파일은 이 기기에서 암호화된 뒤 저장돼요. 파일 하나에 25MB까지."
           }
         }
       }
@@ -1603,6 +1633,16 @@
         }
       }
     },
+    "Google Authenticator": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google OTP"
+          }
+        }
+      }
+    },
     "Got an invite instead? Open the link your family sent you.": {
       "localizations": {
         "ko": {
@@ -1679,6 +1719,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "잊어버린 비밀번호 도와주기"
+          }
+        }
+      }
+    },
+    "Hidden while the screen is recorded or shared": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "화면을 녹화하거나 공유하는 동안에는 가려져요"
           }
         }
       }
@@ -1833,6 +1883,26 @@
         }
       }
     },
+    "Import from Google Authenticator": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google OTP에서 가져오기"
+          }
+        }
+      }
+    },
+    "In Google Authenticator, open the menu → Transfer accounts → Export accounts, pick the accounts, then scan the QR code here. If there are several QR codes, scan each one.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google OTP 앱에서 메뉴 → 계정 이전 → 계정 내보내기로 계정을 고른 뒤 나온 QR 코드를 여기서 찍으세요. QR 코드가 여러 장이면 한 장씩 찍으면 돼요."
+          }
+        }
+      }
+    },
     "Include the password": {
       "localizations": {
         "ko": {
@@ -1973,12 +2043,12 @@
         }
       }
     },
-    "Lay the page flat in good light. Handwriting works. The photo is read on this iPhone and is not saved or sent anywhere.": {
+    "Lay the page flat in good light. Handwriting works. The photo is read on this device and is not saved or sent anywhere.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "밝은 곳에 종이를 펴 놓고 찍으세요. 손글씨도 읽어요. 사진은 이 iPhone 안에서만 읽고, 저장하거나 보내지 않아요."
+            "value": "밝은 곳에 종이를 펴 놓고 찍으세요. 손글씨도 읽어요. 사진은 이 기기 안에서만 읽고, 저장하거나 보내지 않아요."
           }
         }
       }
@@ -2283,6 +2353,16 @@
         }
       }
     },
+    "Move passwords and passkeys to another app": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비밀번호와 패스키를 다른 앱으로 옮기기"
+          }
+        }
+      }
+    },
     "Move to Recently Deleted": {
       "localizations": {
         "ko": {
@@ -2299,6 +2379,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "가족 금고로 옮기기"
+          }
+        }
+      }
+    },
+    "Moved %lld items into AZET Pass": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld개 항목을 AZET Pass로 옮겼어요"
           }
         }
       }
@@ -2403,6 +2493,16 @@
         }
       }
     },
+    "Next code": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음 코드"
+          }
+        }
+      }
+    },
     "Next: call them and compare the five words, then tap Let in.": {
       "localizations": {
         "ko": {
@@ -2439,6 +2539,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "다음: 「가족 초대하기」를 누르세요. 부모님이 앱을 깔기 전에 로그인을 미리 넣어 둘 수 있어요."
+          }
+        }
+      }
+    },
+    "No QR code in that photo": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "그 사진에는 QR 코드가 없어요"
           }
         }
       }
@@ -2553,6 +2663,16 @@
         }
       }
     },
+    "One-time password (counter %llu)": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "일회용 비밀번호 (카운터 %llu)"
+          }
+        }
+      }
+    },
     "One-time password setup key": {
       "localizations": {
         "ko": {
@@ -2579,6 +2699,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "개인 금고만 내보내요. 가족 금고는 가족 모두의 것이에요."
+          }
+        }
+      }
+    },
+    "Open Safari Settings": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari 설정 열기"
           }
         }
       }
@@ -2619,6 +2749,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "오픈소스 라이선스"
+          }
+        }
+      }
+    },
+    "Or a screenshot of the QR code": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "또는 QR 코드 스크린샷"
           }
         }
       }
@@ -3003,6 +3143,16 @@
         }
       }
     },
+    "Read QR code from a photo": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사진에서 QR 코드 읽기"
+          }
+        }
+      }
+    },
     "Read these five words to %@. When their screen shows the same words, they let you in.": {
       "localizations": {
         "ko": {
@@ -3313,6 +3463,26 @@
         }
       }
     },
+    "Scan another": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음 QR 찍기"
+          }
+        }
+      }
+    },
+    "Scan card with camera": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "카메라로 카드 스캔"
+          }
+        }
+      }
+    },
     "Scan my notebook": {
       "localizations": {
         "ko": {
@@ -3603,12 +3773,12 @@
         }
       }
     },
-    "Sign out of this account on this iPhone?": {
+    "Sign out of this account on this device?": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 iPhone에서 이 계정을 로그아웃할까요?"
+            "value": "이 기기에서 이 계정을 로그아웃할까요?"
           }
         }
       }
@@ -3693,6 +3863,16 @@
         }
       }
     },
+    "Stay closed on a jailbroken iPhone": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "탈옥된 iPhone에서는 열지 않기"
+          }
+        }
+      }
+    },
     "Strong": {
       "localizations": {
         "ko": {
@@ -3773,12 +3953,12 @@
         }
       }
     },
-    "Take a photo of a page. AZET Pass reads the sites, IDs and passwords on this iPhone and lets you check each one.": {
+    "Take a photo of a page. AZET Pass reads the sites, IDs and passwords on this device and lets you check each one.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "한 쪽을 찍으면 AZET Pass가 이 iPhone 안에서 사이트·아이디·비밀번호를 읽고, 하나씩 확인하게 해 줘요."
+            "value": "한 쪽을 찍으면 AZET Pass가 이 기기 안에서 사이트·아이디·비밀번호를 읽고, 하나씩 확인하게 해 줘요."
           }
         }
       }
@@ -3833,12 +4013,12 @@
         }
       }
     },
-    "The file is read on this iPhone. Delete it after importing: it holds your passwords in plain text.": {
+    "The file is read on this device. Delete it after importing: it holds your passwords in plain text.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "파일은 이 iPhone 안에서만 읽어요. 비밀번호가 그대로 적혀 있으니 가져온 뒤 지워 주세요."
+            "value": "파일은 이 기기 안에서만 읽어요. 비밀번호가 그대로 적혀 있으니 가져온 뒤 지워 주세요."
           }
         }
       }
@@ -3883,6 +4063,16 @@
         }
       }
     },
+    "Then click the AZET Pass button in the Safari toolbar on a sign-in page: it lists the logins for that site and fills them in.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "그다음 로그인 페이지에서 Safari 도구 막대의 AZET Pass 버튼을 누르세요. 그 사이트의 로그인을 보여 주고 채워 줘요."
+          }
+        }
+      }
+    },
     "Then the keyboard offers your logins, passkeys and one-time passwords in every app and in Safari. On a computer, install AZET Pass for Chrome, Safari, Edge or Firefox.": {
       "localizations": {
         "ko": {
@@ -3923,12 +4113,32 @@
         }
       }
     },
+    "This iPhone looks jailbroken, and Settings asked AZET Pass not to open items here. Your items are safe on your other devices.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 iPhone은 탈옥된 것으로 보여요. 설정에서 이런 기기에서는 항목을 열지 않도록 해 두셨어요. 항목은 다른 기기에 안전하게 있어요."
+          }
+        }
+      }
+    },
     "This invite is for %@. You're signed in as %@. Sign out first to use it.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "이 초대는 %1$@ 님 것이에요. 지금 %2$@(으)로 로그인돼 있어요. 로그아웃한 뒤 열어 주세요."
+          }
+        }
+      }
+    },
+    "This is not a Google Authenticator export QR code.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google OTP 계정 내보내기 QR 코드가 아니에요."
           }
         }
       }
@@ -4013,12 +4223,12 @@
         }
       }
     },
-    "Travel Mode is on: only travel-safe items are on this iPhone": {
+    "Travel Mode is on: only travel-safe items are on this device": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "여행 모드 켜짐: 여행용 항목만 이 iPhone에 있어요"
+            "value": "여행 모드 켜짐: 여행용 항목만 이 기기에 있어요"
           }
         }
       }
@@ -4179,6 +4389,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Face ID로 열기"
+          }
+        }
+      }
+    },
+    "Unlock with Touch ID": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touch ID로 잠금 해제"
           }
         }
       }
@@ -4543,12 +4763,12 @@
         }
       }
     },
-    "Your account password never leaves this phone. Only a one-way proof of it is sent.": {
+    "Your account password never leaves this device. Only a one-way proof of it is sent.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "계정 비밀번호는 이 휴대폰 밖으로 나가지 않아요. 되돌릴 수 없는 확인 값만 보내요."
+            "value": "계정 비밀번호는 이 기기 밖으로 나가지 않아요. 되돌릴 수 없는 확인 값만 보내요."
           }
         }
       }

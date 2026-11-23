@@ -4,7 +4,7 @@ import PhotosUI
 import SwiftUI
 import Vision
 
-/// "Parents' notebook" → items. Vision reads the page on this iPhone (no upload); the parser turns lines into
+/// "Parents' notebook" → items. Vision reads the page on this device (no upload); the parser turns lines into
 /// site / ID / password candidates and every candidate is shown for a check before anything is saved.
 struct ScanNotebookView: View {
     @Environment(Session.self) private var session
@@ -21,13 +21,13 @@ struct ScanNotebookView: View {
 
     var body: some View {
         NavigationStack {
-            List {
+            PageList {
                 if image == nil {
                     Section {
                         VStack(alignment: .leading, spacing: 10) {
                             Image(systemName: "book.closed.fill").font(.largeTitle).foregroundStyle(Theme.warm)
                             Text("Photograph one notebook page").font(.title3.bold())
-                            Text("Lay the page flat in good light. Handwriting works. The photo is read on this iPhone and is not saved or sent anywhere.")
+                            Text("Lay the page flat in good light. Handwriting works. The photo is read on this device and is not saved or sent anywhere.")
                                 .foregroundStyle(.secondary)
                         }.padding(.vertical, 6)
                     }

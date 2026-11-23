@@ -13,12 +13,19 @@ struct AZETPassApp: App {
                 .environment(session)
                 .environment(prefs)
                 .tint(Theme.brand)
+#if os(macOS)
+                .formStyle(.grouped) // the Mac default (columns) cut the labels off at the window's left edge
+                .frame(minWidth: 720, minHeight: 560)
+#endif
                 .dynamicTypeSize(prefs.parentMode ? DynamicTypeSize.accessibility2 ... .accessibility2 : DynamicTypeSize.xSmall ... .accessibility3)
                 .modifier(PrivacyCover())
                 .onOpenURL { url in prefs.pendingURL = url }
                 .onContinueUserActivity(credentialExchangeActivity) { a in prefs.importToken = a.userInfo?[credentialImportTokenKey] as? UUID }
                 .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { a in if let u = a.webpageURL { prefs.pendingURL = u } }
         }
+#if os(macOS)
+        .defaultSize(width: 980, height: 700)
+#endif
         .onChange(of: scenePhase) { _, phase in
             if phase == .background { prefs.wentBackground = Date() }
             if phase == .active, let t = prefs.wentBackground, session.phase == .unlocked,
@@ -57,16 +64,20 @@ enum Theme {
     /// AZET blue #2f6fe8, the family accent (azet-desktop src/shared/design/azet-tokens.ts); warm amber for family moments.
     static let brand = Color(red: 47 / 255, green: 111 / 255, blue: 232 / 255)
     static let warm = Color(red: 0.96, green: 0.64, blue: 0.15)
-    static let card = Color(.secondarySystemGroupedBackground)
-    /// Grouped page #f4f4f5 / #0d0d0d: the AZET app's neutral grey instead of iOS's blue-grey.
-    #if os(iOS)
-    static let page = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? rgb(0x0d0d0d) : rgb(0xf4f4f5) })
-    private static func rgb(_ v: Int) -> UIColor {
-        UIColor(red: CGFloat((v >> 16) & 0xff) / 255, green: CGFloat((v >> 8) & 0xff) / 255, blue: CGFloat(v & 0xff) / 255, alpha: 1)
-    }
+    /// Flat surfaces: white screen and cards on a #f7f7f8 page (dark: #0d0d0d with #1a1a1c cards).
+    static let screen = Color(light: 0xffffff, dark: 0x0d0d0d)
+    #if os(macOS)
+    // A Mac's grouped rows are soft grey by themselves: the page stays white and cards take the same soft grey.
+    static let page = screen
+    static let card = Color(light: 0xf4f4f5, dark: 0xffffff, darkAlpha: 0.06)
     #else
-    static let page = Color(.windowBackgroundColor)
+    static let page = Color(light: 0xf7f7f8, dark: 0x0d0d0d)
+    static let card = Color(light: 0xffffff, dark: 0x1a1a1c)
     #endif
+    /// Icon wells, soft buttons, chips.
+    static let raised = Color(light: 0xf4f4f5, dark: 0xffffff, darkAlpha: 0.09)
+    static let input = Color(light: 0xf3f3f4, dark: 0xffffff, darkAlpha: 0.09)
+    static let hairline = Color(light: 0x000000, dark: 0xffffff, lightAlpha: 0.1, darkAlpha: 0.14)
 
     static func color(for name: String) -> Color {
         let palette: [Color] = [.blue, .green, .orange, .pink, .purple, .teal, .indigo, .red, .brown, .mint]
@@ -81,11 +92,12 @@ struct ItemIcon: View {
     var size: CGFloat = 40
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: size * 0.24).fill(Theme.color(for: name).gradient)
+            RoundedRectangle(cornerRadius: size * 0.3).fill(Theme.raised)
+                .overlay(RoundedRectangle(cornerRadius: size * 0.3).strokeBorder(Theme.hairline.opacity(0.5), lineWidth: 1))
             if category == .login || category == .password, let ch = name.trimmingCharacters(in: .whitespaces).first {
-                Text(String(ch).uppercased()).font(.system(size: size * 0.46, weight: .bold)).foregroundStyle(.white)
+                Text(String(ch).uppercased()).font(.system(size: size * 0.42, weight: .medium)).foregroundStyle(.primary)
             } else {
-                Image(systemName: category.symbol).font(.system(size: size * 0.42, weight: .semibold)).foregroundStyle(.white)
+                Image(systemName: category.symbol).font(.system(size: size * 0.42, weight: .medium)).foregroundStyle(Theme.brand)
             }
         }
         .frame(width: size, height: size)
@@ -97,8 +109,8 @@ struct Avatar: View {
     let name: String
     var size: CGFloat = 36
     var body: some View {
-        Circle().fill(Theme.color(for: name).gradient)
-            .overlay(Text(String(name.first ?? "?")).font(.system(size: size * 0.42, weight: .semibold)).foregroundStyle(.white))
+        Circle().fill(Theme.raised)
+            .overlay(Text(String(name.first ?? "?").uppercased()).font(.system(size: size * 0.42, weight: .medium)).foregroundStyle(.primary))
             .frame(width: size, height: size)
             .accessibilityHidden(true)
     }
@@ -106,7 +118,7 @@ struct Avatar: View {
 
 extension View {
     func cardStyle() -> some View {
-        padding().background(Theme.card, in: RoundedRectangle(cornerRadius: 14))
+        padding(16).background(Theme.card, in: RoundedRectangle(cornerRadius: Layout.cardRadius))
     }
 
     /// Shows a session error as an alert.
@@ -133,7 +145,13 @@ func copyToClipboard(_ s: String) {
 
 extension View {
     /// A list or form on the AZET page colour; its white groups stay as they are.
-    func azetList() -> some View { scrollContentBackground(.hidden).background(Theme.page) }
+    func azetList() -> some View {
+        #if os(macOS)
+        modifier(MacPageColumn())
+        #else
+        scrollContentBackground(.hidden).background(Theme.page)
+        #endif
+    }
 }
 
 /// iOS 26 credential exchange names; an activity type nothing sends on older iOS.

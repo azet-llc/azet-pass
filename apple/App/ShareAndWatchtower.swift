@@ -179,7 +179,7 @@ struct WatchtowerView: View {
 
     var body: some View {
         NavigationStack {
-            List {
+            PageList {
                 Section {
                     VStack(spacing: 10) {
                         Gauge(score: w.score)

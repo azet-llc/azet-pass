@@ -20,6 +20,15 @@ struct RootView: View {
         .onChange(of: prefs.pendingURL) { _, url in handle(url) }
         .onAppear { handle(prefs.pendingURL) }
         .sheet(item: $invite) { JoinFamilyView(invite: $0) }
+#if DEBUG
+        // Screen checks on a debug build: signs in with the account given in the environment (never in a release build).
+        .task(id: session.phase) {
+            let env = ProcessInfo.processInfo.environment, s = session
+            guard let p = env["AZET_PASS_DEBUG_PASSWORD"] else { return }
+            if s.phase == .welcome, let e = env["AZET_PASS_DEBUG_EMAIL"] { Task { try? await s.signIn(email: e, password: p, code: nil) } }
+            if s.phase == .locked { Task { try? await s.unlock(password: p) } }
+        }
+#endif
     }
 
     private func handle(_ url: URL?) {
@@ -47,28 +56,30 @@ struct WelcomeView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                Spacer()
-                Image("Mark").resizable().scaledToFit().frame(width: 76, height: 76)
-                Text("AZET Pass").font(.largeTitle.bold()).padding(.top, 12)
-                Text("The notebook of passwords, for the whole family.").font(.title3).multilineTextAlignment(.center)
-                    .foregroundStyle(.secondary).padding(.top, 6).padding(.horizontal, 32)
+                Spacer(minLength: 24)
+                Image("Mark").resizable().scaledToFit().frame(width: 72, height: 72)
+                Text("AZET Pass").font(.system(size: 28, weight: .semibold)).padding(.top, 14)
+                Text("The notebook of passwords, for the whole family.").font(.system(size: 17)).multilineTextAlignment(.center)
+                    .foregroundStyle(.secondary).padding(.top, 6)
                 VStack(alignment: .leading, spacing: 14) {
                     Feature(symbol: "person.3.fill", text: String(localized: "Up to 5 people share one family, each with a private vault"))
                     Feature(symbol: "camera.viewfinder", text: String(localized: "Take a photo of the notebook, the logins fill themselves in"))
                     Feature(symbol: "hand.raised.fill", text: String(localized: "Set up a parent's phone from yours, then compare five words"))
                     Feature(symbol: "lock.shield.fill", text: String(localized: "Locked on your phone first: the server only ever sees scrambled data"))
                 }
-                .padding(24)
-                Spacer()
-                VStack(spacing: 12) {
-                    NavigationLink(value: Route.signUp) { Text("Create a family account").frame(maxWidth: .infinity) }
-                        .buttonStyle(.borderedProminent).controlSize(.large)
-                    NavigationLink(value: Route.signIn) { Text("Sign in").frame(maxWidth: .infinity) }
-                        .buttonStyle(.bordered).controlSize(.large)
-                    NavigationLink(value: Route.joinHelp) { Text("I got an invite from my family") }.padding(.top, 4)
+                .frame(maxWidth: .infinity, alignment: .leading).padding(18)
+                .background(Theme.raised, in: RoundedRectangle(cornerRadius: Layout.cardRadius)).padding(.top, 28)
+                Spacer(minLength: 24)
+                VStack(spacing: 8) {
+                    NavigationLink(value: Route.signUp) { Text("Create a family account") }.buttonStyle(.pill)
+                    NavigationLink(value: Route.signIn) { Text("Sign in") }.buttonStyle(.softPill)
+                    NavigationLink(value: Route.joinHelp) { Text("I got an invite from my family").font(.system(size: 15, weight: .medium)) }
+                        .buttonStyle(.plain).foregroundStyle(Theme.brand).padding(.top, 10)
                 }
-                .padding(.horizontal, 24).padding(.bottom, 24)
+                .padding(.bottom, 28)
             }
+            .frame(maxWidth: 390).padding(.horizontal, 24).frame(maxWidth: .infinity)
+            .background(Theme.screen)
             .navigationDestination(for: Route.self) { r in
                 switch r {
                 case .signIn: SignInView()
@@ -88,9 +99,9 @@ struct Feature: View {
     let symbol: String
     let text: String
     var body: some View {
-        HStack(alignment: .top, spacing: 14) {
-            Image(systemName: symbol).font(.title3).foregroundStyle(Theme.brand).frame(width: 30)
-            Text(text).font(.body)
+        HStack(spacing: 12) {
+            IconWell(symbol: symbol, size: 34)
+            Text(text).font(.system(size: 15)).fixedSize(horizontal: false, vertical: true)
         }
     }
 }
@@ -123,22 +134,20 @@ struct SignInView: View {
     @State private var error: String?
 
     var body: some View {
-        Form {
-            Section {
-                TextField("Email", text: $email).keyboardType(.emailAddress).textContentType(.username)
-                    .textInputAutocapitalization(.never).autocorrectionDisabled()
-                SecureField("Account password", text: $password).textContentType(.password)
-                if needCode {
-                    TextField("6-digit code from your authenticator app", text: $code).keyboardType(.numberPad).textContentType(.oneTimeCode)
-                }
-            } footer: { Text("Your account password never leaves this phone. Only a one-way proof of it is sent.") }
-            Section {
-                Button {
-                    Task { await go() }
-                } label: { HStack { Text("Sign in"); if busy { Spacer(); ProgressView() } } }
-                .disabled(email.isEmpty || password.isEmpty || busy)
+        StepScreen(title: "Sign in") {
+            TextField("Email", text: $email).keyboardType(.emailAddress).textContentType(.username)
+                .textInputAutocapitalization(.never).autocorrectionDisabled().pillField()
+            SecureField("Account password", text: $password).textContentType(.password).pillField()
+                .onSubmit { Task { await go() } }
+            if needCode {
+                TextField("6-digit code from your authenticator app", text: $code).keyboardType(.numberPad).textContentType(.oneTimeCode).pillField()
+                    .onSubmit { Task { await go() } }
             }
-        }.azetList()
+            StepNote("Your account password never leaves this device. Only a one-way proof of it is sent.")
+        } action: {
+            Button { Task { await go() } } label: { if busy { ProgressView() } else { Text("Sign in") } }
+                .buttonStyle(.pill).disabled(email.isEmpty || password.isEmpty || busy)
+        }
         .navigationTitle("Sign in")
         .errorAlert($error)
     }
@@ -171,36 +180,29 @@ struct SignUpView: View {
     private var strength: UInt8 { password.isEmpty ? 0 : session.strength(password) }
 
     var body: some View {
-        Form {
-            Section {
-                TextField("Email", text: $email).keyboardType(.emailAddress).textContentType(.username)
-                    .textInputAutocapitalization(.never).autocorrectionDisabled().disabled(hasProof)
-                TextField("Your name", text: $name).textContentType(.name)
-            } footer: {
-                if invite != nil { Text("This is the address your family invited.") }
-            }
+        StepScreen(title: invite == nil ? "Create account" : "Join your family") {
+            TextField("Email", text: $email).keyboardType(.emailAddress).textContentType(.username)
+                .textInputAutocapitalization(.never).autocorrectionDisabled().disabled(hasProof).pillField()
+            TextField("Your name", text: $name).textContentType(.name).pillField()
+            if invite != nil { StepNote("This is the address your family invited.") }
             if hasProof {
-                Section {
-                    SecureField("Account password", text: $password).textContentType(.newPassword)
-                    StrengthBar(score: strength)
-                    SecureField("Type it again", text: $again).textContentType(.newPassword)
-                    TextField("Hint (optional, never the password)", text: $hint)
-                } header: { Text("Account password") } footer: {
-                    Text("This is the one password you remember. Write it on paper and keep it at home. If you forget it, a family organizer can help you back in.")
-                }
-                Section {
-                    Button { Task { await create() } } label: { HStack { Text("Create account"); if busy { Spacer(); ProgressView() } } }
-                        .disabled(password.count < 8 || password != again || busy || name.isEmpty)
-                }
+                SecureField("Account password", text: $password).textContentType(.newPassword).pillField().padding(.top, 14)
+                StrengthBar(score: strength).padding(.horizontal, 24)
+                SecureField("Type it again", text: $again).textContentType(.newPassword).pillField()
+                TextField("Hint (optional, never the password)", text: $hint).pillField()
+                StepNote("This is the one password you remember. Write it on paper and keep it at home. If you forget it, a family organizer can help you back in.")
             } else {
-                Section {
-                    Button { Task { await sendMail() } } label: { HStack { Text(mailSent ? "Send again" : "Send me the link"); if busy { Spacer(); ProgressView() } } }
-                        .disabled(!email.contains("@") || busy)
-                } footer: {
-                    Text(mailSent ? "Check your mail on this iPhone and tap the link. It opens AZET Pass to finish." : "We mail you a link to make sure the address is yours.")
-                }
+                StepNote(mailSent ? "Check your mail on this device and open the link. It opens AZET Pass to finish." : "We mail you a link to make sure the address is yours.")
             }
-        }.azetList()
+        } action: {
+            if hasProof {
+                Button { Task { await create() } } label: { if busy { ProgressView() } else { Text("Create account") } }
+                    .buttonStyle(.pill).disabled(password.count < 8 || password != again || busy || name.isEmpty)
+            } else {
+                Button { Task { await sendMail() } } label: { if busy { ProgressView() } else { Text(mailSent ? "Send again" : "Send me the link") } }
+                    .buttonStyle(.pill).disabled(!email.contains("@") || busy)
+            }
+        }
         .navigationTitle(invite == nil ? "Create account" : "Join your family")
         .onAppear {
             if let m = mailToken { email = m.email }
@@ -251,25 +253,25 @@ struct UnlockView: View {
     @State private var showSignOut = false
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 10) {
             Spacer()
             Image("Mark").resizable().scaledToFit().frame(width: 64, height: 64)
-            Text(session.account?.name ?? session.account?.email ?? "").font(.title2.bold())
-            Text(session.account?.email ?? "").foregroundStyle(.secondary)
-            SecureField("Account password", text: $password).textContentType(.password)
-                .padding().background(Theme.card, in: RoundedRectangle(cornerRadius: 12)).padding(.horizontal, 24)
+            Text(session.account?.name ?? session.account?.email ?? "").font(.system(size: 22, weight: .medium)).padding(.top, 8)
+            Text(session.account?.name == nil ? "" : session.account?.email ?? "").font(.system(size: 15)).foregroundStyle(.secondary).padding(.bottom, 14)
+            SecureField("Account password", text: $password).textContentType(.password).pillField()
                 .onSubmit { Task { await unlock() } }
-            Button { Task { await unlock() } } label: { HStack { if busy { ProgressView() } else { Text("Unlock") } }.frame(maxWidth: .infinity) }
-                .buttonStyle(.borderedProminent).controlSize(.large).padding(.horizontal, 24).disabled(password.isEmpty || busy)
+            Button { Task { await unlock() } } label: { if busy { ProgressView() } else { Text("Unlock") } }
+                .buttonStyle(.pill).disabled(password.isEmpty || busy)
             if session.biometricOn {
-                Button { Task { await bio() } } label: { Label("Unlock with Face ID", systemImage: "faceid") }
+                Button { Task { await bio() } } label: { Label(Biometry.unlockLabel, systemImage: Biometry.symbol) }.buttonStyle(.softPill)
             }
             Spacer()
-            Button("Use another account") { showSignOut = true }.font(.footnote)
+            Button("Use another account") { showSignOut = true }.buttonStyle(.plain).font(.system(size: 14)).foregroundStyle(.secondary).padding(.bottom, 20)
         }
-        .background(Theme.page)
+        .padding(.horizontal, 24).frame(maxWidth: .infinity)
+        .background(Theme.screen)
         .task { if session.biometricOn { await bio() } }
-        .confirmationDialog("Sign out of this account on this iPhone?", isPresented: $showSignOut, titleVisibility: .visible) {
+        .confirmationDialog("Sign out of this account on this device?", isPresented: $showSignOut, titleVisibility: .visible) {
             Button("Sign out", role: .destructive) { session.signOut() }
         }
         .errorAlert($error)
@@ -283,4 +285,13 @@ struct UnlockView: View {
     private func bio() async {
         do { try await session.unlockWithBiometrics() } catch {}
     }
+}
+
+/// What this device unlocks with: Touch ID on a Mac, Face ID on an iPhone.
+enum Biometry {
+    #if os(macOS)
+    static let unlockLabel = String(localized: "Unlock with Touch ID"), symbol = "touchid"
+    #else
+    static let unlockLabel = String(localized: "Unlock with Face ID"), symbol = "faceid"
+    #endif
 }

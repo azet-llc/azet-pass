@@ -58,7 +58,7 @@ struct WaitingForConfirm: View {
     @Environment(Session.self) private var session
     let family: Family
     var body: some View {
-        List {
+        PageList {
             Section {
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Almost in \(family.name)").font(.title2.bold())
@@ -99,7 +99,7 @@ struct FamilyHome: View {
     @State private var error: String?
 
     var body: some View {
-        List {
+        PageList {
             Section { SetupChecklist(family: family, members: members, invite: $invite) }
             Section {
                 ForEach(members) { m in
@@ -303,7 +303,7 @@ struct ConfirmMemberView: View {
 
     var body: some View {
         NavigationStack {
-            List {
+            PageList {
                 Section {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Call \(member.name) and ask them to read their five words.").font(.headline)
@@ -342,7 +342,7 @@ struct MemberView: View {
     @State private var error: String?
 
     var body: some View {
-        List {
+        PageList {
             Section { MemberRow(member: member) }
             if family.isOrganizer, member.userId != session.account?.userId {
                 if member.status == 0 {
@@ -446,7 +446,7 @@ struct VaultView: View {
 
     var body: some View {
         let items = session.items.filter { $0.collectionIds.contains(vault.id ?? "") && $0.deletedDate == nil }
-        List {
+        PageList {
             Section {
                 let who = members.filter { m in m.role <= 1 || m.vaults[vault.id ?? ""] != nil }
                 HStack(spacing: -8) { ForEach(who) { Avatar(name: $0.name, size: 30).overlay(Circle().stroke(.background, lineWidth: 2)) } }
@@ -540,7 +540,7 @@ struct JoinFamilyView: View {
         NavigationStack {
             Group {
                 if joined {
-                    List {
+                    PageList {
                         Section {
                             VStack(alignment: .leading, spacing: 12) {
                                 Text("You're in. One last step").font(.title2.bold())

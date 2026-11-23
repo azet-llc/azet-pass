@@ -48,7 +48,7 @@ struct TravelBanner: View {
     @Environment(Session.self) private var session
     var body: some View {
         if session.travelMode {
-            Label("Travel Mode is on: only travel-safe items are on this iPhone", systemImage: "airplane")
+            Label("Travel Mode is on: only travel-safe items are on this device", systemImage: "airplane")
                 .font(.footnote.weight(.semibold)).padding(.horizontal, 12).padding(.vertical, 6)
                 .background(.orange.opacity(0.9), in: Capsule()).foregroundStyle(.white).padding(.top, 2)
         }
@@ -94,20 +94,20 @@ struct HomeView: View {
                         Label(banner, systemImage: "exclamationmark.triangle.fill").font(.footnote).frame(maxWidth: .infinity, alignment: .leading).cardStyle()
                     }
                     if session.families.isEmpty {
-                        PromoCard(title: String(localized: "Set up the whole family today"),
-                                  text: String(localized: "Make a family, invite up to 4 people and fill their vaults for them. Most families finish in an afternoon."),
-                                  symbol: "person.3.fill", color: Theme.brand) { tab = .family }
+                        NoticeCard(title: String(localized: "Set up the whole family today"),
+                                   text: String(localized: "Make a family, invite up to 4 people and fill their vaults for them. Most families finish in an afternoon."),
+                                   symbol: "person.3.fill") { tab = .family }
                     }
-                    PromoCard(title: String(localized: "Scan a password notebook"),
-                              text: String(localized: "Take a photo of a page. AZET Pass reads the sites, IDs and passwords on this iPhone and lets you check each one."),
-                              symbol: "camera.viewfinder", color: Theme.warm) { showScan = true }
-                    if !favorites.isEmpty { HomeSection(title: String(localized: "Favorites"), symbol: "star.fill", color: .orange, items: favorites, open: $open) }
-                    HomeSection(title: String(localized: "Recently modified"), symbol: "clock.arrow.circlepath", color: .purple, items: recent, open: $open)
+                    NoticeCard(title: String(localized: "Scan a password notebook"),
+                               text: String(localized: "Take a photo of a page. AZET Pass reads the sites, IDs and passwords on this device and lets you check each one."),
+                               symbol: "camera.viewfinder") { showScan = true }
+                    if !favorites.isEmpty { HomeSection(title: String(localized: "Favorites"), items: favorites, open: $open) }
+                    if !recent.isEmpty { HomeSection(title: String(localized: "Recently modified"), items: recent, open: $open) }
                     if recent.isEmpty {
-                        Button { showNew = true } label: { Label("Add your first item", systemImage: "plus") }.buttonStyle(.borderedProminent)
+                        Button { showNew = true } label: { Label("Add your first item", systemImage: "plus") }.buttonStyle(.pill)
                     }
                 }
-                .padding()
+                .padding(16).pageColumn()
             }
             .background(Theme.page)
             .navigationTitle("Home")
@@ -121,40 +121,22 @@ struct HomeView: View {
     }
 }
 
-struct PromoCard: View {
-    let title: String
-    let text: String
-    let symbol: String
-    let color: Color
-    let action: () -> Void
-    var body: some View {
-        Button(action: action) {
-            VStack(alignment: .leading, spacing: 8) {
-                Image(systemName: symbol).font(.title2)
-                Text(title).font(.title3.bold()).multilineTextAlignment(.leading)
-                Text(text).font(.subheadline).multilineTextAlignment(.leading).opacity(0.9)
-            }
-            .foregroundStyle(.white).frame(maxWidth: .infinity, alignment: .leading).padding(18)
-            .background(color.gradient, in: RoundedRectangle(cornerRadius: 16))
-        }
-        .buttonStyle(.plain)
-    }
-}
-
 struct HomeSection: View {
     let title: String
-    let symbol: String
-    let color: Color
     let items: [CipherListView]
     @Binding var open: String?
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Label { Text(title).font(.headline) } icon: { Image(systemName: symbol).foregroundStyle(color) }
-            ForEach(items, id: \.id) { i in
-                Button { open = i.id } label: { ItemRow(item: i) }.buttonStyle(.plain)
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title).font(.system(size: 14, weight: .medium)).foregroundStyle(.secondary).padding(.leading, 6)
+            VStack(spacing: 0) {
+                ForEach(Array(items.enumerated()), id: \.element.id) { n, i in
+                    if n > 0 { Rectangle().fill(Theme.hairline).frame(height: 0.5).padding(.leading, 52) }
+                    Button { open = i.id } label: { ItemRow(item: i).padding(.vertical, 9) }.buttonStyle(.plain)
+                }
             }
+            .frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 16).padding(.vertical, 5)
+            .background(Theme.card, in: RoundedRectangle(cornerRadius: Layout.cardRadius))
         }
-        .frame(maxWidth: .infinity, alignment: .leading).cardStyle()
     }
 }
 
@@ -165,8 +147,8 @@ struct ItemRow: View {
         HStack(spacing: 12) {
             ItemIcon(name: item.name, category: ItemCategory.of(item))
             VStack(alignment: .leading, spacing: 2) {
-                Text(item.name).font(.body).lineLimit(1)
-                Text(item.subtitle).font(.subheadline).foregroundStyle(.secondary).lineLimit(1)
+                Text(item.name).font(.system(size: 16, weight: .medium)).lineLimit(1)
+                Text(item.subtitle).font(.system(size: 14)).foregroundStyle(.secondary).lineLimit(1)
             }
             Spacer()
             if item.organizationId != nil {
@@ -187,7 +169,7 @@ struct ItemsView: View {
 
     var body: some View {
         NavigationStack {
-            List {
+            PageList {
                 if !query.isEmpty {
                     ForEach(Filter.search(query).apply(session)) { i in NavigationLink(value: i.id ?? "") { ItemRow(item: i) } }
                 } else {
@@ -296,7 +278,7 @@ struct ItemListView: View {
             case .created: $0.creationDate > $1.creationDate
             }
         }
-        List(items) { i in NavigationLink(value: i.id ?? "") { ItemRow(item: i) } }.azetList()
+        PageList { ForEach(items) { i in NavigationLink(value: i.id ?? "") { ItemRow(item: i) } } }.azetList()
             .overlay { if items.isEmpty { ContentUnavailableView(String(localized: "Nothing here yet"), systemImage: "tray") } }
             .navigationTitle(filter.title(session))
             .toolbar {

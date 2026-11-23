@@ -35,6 +35,15 @@ class Store(private val ctx: Context) {
         get() = prefs.getInt("lockMinutes", 5)
         set(v) { prefs.edit().putInt("lockMinutes", v).apply() }
 
+    /** Autofill shown above the keyboard (inline suggestions) or under the box (dropdown); Samsung Pass default is above the keyboard. */
+    var inlineAutofill: Boolean
+        get() = prefs.getBoolean("inlineAutofill", true)
+        set(v) { prefs.edit().putBoolean("inlineAutofill", v).apply() }
+
+    var introSeen: Boolean
+        get() = prefs.getBoolean("introSeen", false)
+        set(v) { prefs.edit().putBoolean("introSeen", v).apply() }
+
     var blockScreenshots: Boolean
         get() = prefs.getBoolean("blockScreenshots", true)
         set(v) { prefs.edit().putBoolean("blockScreenshots", v).apply() }

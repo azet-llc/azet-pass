@@ -30,7 +30,7 @@ class AutofillPickActivity : FragmentActivity() {
         Session.init(this)
         window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         val target = intent.getStringExtra("target").orEmpty()
-        setContent { PassTheme { Surface { Column(Modifier.padding(8.dp).heightIn(min = 200.dp, max = 560.dp)) {
+        setContent { OneTheme { Surface(color = c().page) { Column(Modifier.padding(8.dp).heightIn(min = 200.dp, max = 560.dp)) {
             if (Session.phase != Phase.Unlocked) LockScreen(this@AutofillPickActivity)
             else if (intent.getBooleanExtra("save", false)) SaveSheet(target)
             else PickSheet(target)

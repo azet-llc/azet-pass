@@ -14,8 +14,8 @@ android {
         applicationId = "io.azet.pass"
         minSdk = 29
         targetSdk = 37
-        versionCode = 202611000
-        versionName = "2026.11.0"
+        versionCode = 202611001
+        versionName = "2026.11.1"
         ndk { abiFilters += "arm64-v8a" }
     }
     signingConfigs {
@@ -48,7 +48,10 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")
     implementation("androidx.core:core-ktx:1.19.1")
     implementation("androidx.biometric:biometric:1.2.0-alpha05")
+    // biometric pulls fragment 1.2.5, whose FragmentActivity rejects activity-result request codes above 16 bits (crash on file/photo pickers)
+    implementation("androidx.fragment:fragment-ktx:1.8.9")
     implementation("androidx.credentials:credentials:1.6.0")
+    implementation("androidx.autofill:autofill:1.1.0")
     implementation("androidx.camera:camera-camera2:1.6.2")
     implementation("androidx.camera:camera-lifecycle:1.6.2")
     implementation("androidx.camera:camera-view:1.6.2")

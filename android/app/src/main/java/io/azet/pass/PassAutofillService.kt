@@ -65,20 +65,25 @@ class PassAutofillService : AutofillService() {
         if (Session.phase == Phase.Unlocked) {
             val matches = Session.matches(form.target).take(5)
             scope.launch {
-                for (m in matches) {
-                    val v = runCatching { Session.view(m.id!!) }.getOrNull()?.login ?: continue
+                val inline = inlineSpecs(request)
+                matches.forEachIndexed { i, m ->
+                    val v = runCatching { Session.view(m.id!!) }.getOrNull()?.login ?: return@forEachIndexed
                     val d = Dataset.Builder(presentation(this@PassAutofillService, m.name, v.username))
-                    form.username?.let { d.setValue(it, AutofillValue.forText(v.username.orEmpty())) }
+                    val chip = inline?.let { inlineChip(it, i, m.name, v.username) }
+                    form.username?.let { id -> if (chip != null) d.setValue(id, AutofillValue.forText(v.username.orEmpty()), presentation(this@PassAutofillService, m.name, v.username), chip) else d.setValue(id, AutofillValue.forText(v.username.orEmpty())) }
                     form.password?.let { d.setValue(it, AutofillValue.forText(v.password.orEmpty())) }
                     r.addDataset(d.build())
                 }
                 // Always offer the full list as the last row (search all items, or save for this site).
-                r.addDataset(pickDataset(form, ids, getString(R.string.af_search)))
+                r.addDataset(pickDataset(form, ids, getString(R.string.af_search), inline?.let { inlineChip(it, matches.size, getString(R.string.af_search), null) }))
                 saveInfo(form)?.let(r::setSaveInfo)
                 callback.onSuccess(r.build())
             }
         } else if (Session.phase == Phase.Locked) {
-            r.setAuthentication(ids, pickIntent(form, ids, wholeResponse = true).intentSender, presentation(this, getString(R.string.af_unlock), Session.email))
+            val sender = pickIntent(form, ids, wholeResponse = true).intentSender
+            val chip = inlineSpecs(request)?.let { inlineChip(it, 0, getString(R.string.af_unlock), Session.email) }
+            if (chip != null && android.os.Build.VERSION.SDK_INT >= 30) r.setAuthentication(ids, sender, presentation(this, getString(R.string.af_unlock), Session.email), chip)
+            else r.setAuthentication(ids, sender, presentation(this, getString(R.string.af_unlock), Session.email))
             saveInfo(form)?.let(r::setSaveInfo)
             callback.onSuccess(r.build())
         } else callback.onSuccess(null)
@@ -89,8 +94,23 @@ class PassAutofillService : AutofillService() {
             .putExtra("target", form.target).putExtra("ids", ids).putExtra("hasUser", form.username != null).putExtra("wholeResponse", wholeResponse),
             PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_MUTABLE, startAllowed())
 
-    private fun pickDataset(form: Form, ids: Array<AutofillId>, label: String): Dataset {
+    /** Samsung Pass "autofill display position: above keyboard" = Android inline suggestions (API 30+). */
+    private fun inlineSpecs(request: FillRequest): android.view.inputmethod.InlineSuggestionsRequest? =
+        if (android.os.Build.VERSION.SDK_INT >= 30 && Session.store.inlineAutofill) request.inlineSuggestionsRequest else null
+
+    private fun inlineChip(req: android.view.inputmethod.InlineSuggestionsRequest, i: Int, title: String, sub: String?): android.service.autofill.InlinePresentation? {
+        if (android.os.Build.VERSION.SDK_INT < 30 || req.inlinePresentationSpecs.isEmpty() || i >= req.maxSuggestionCount) return null
+        val spec = req.inlinePresentationSpecs[minOf(i, req.inlinePresentationSpecs.size - 1)]
+        val attribution = PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
+        val b = androidx.autofill.inline.v1.InlineSuggestionUi.newContentBuilder(attribution).setTitle(title)
+            .setStartIcon(android.graphics.drawable.Icon.createWithResource(this, R.drawable.ic_chip))
+        if (!sub.isNullOrEmpty()) b.setSubtitle(sub)
+        return android.service.autofill.InlinePresentation(b.build().slice, spec, false)
+    }
+
+    private fun pickDataset(form: Form, ids: Array<AutofillId>, label: String, chip: android.service.autofill.InlinePresentation? = null): Dataset {
         val d = Dataset.Builder(presentation(this, label, null))
+        if (chip != null && android.os.Build.VERSION.SDK_INT >= 30) d.setInlinePresentation(chip)
         ids.forEach { d.setValue(it, null) }
         d.setAuthentication(pickIntent(form, ids).intentSender)
         return d.build()

@@ -71,6 +71,8 @@ object Session {
     }
 
     val email get() = store.account?.email
+    /** The name on the blue card: the account name, else the part of the email before @. */
+    val displayName get() = store.account?.name?.takeIf { it.isNotBlank() } ?: email?.substringBefore("@").orEmpty()
     private fun kdf(a: Account) = Kdf.Pbkdf2(a.kdfIterations.toUInt())
 
     private fun newClient() = Client(object : ClientManagedTokens { override suspend fun getAccessToken() = api.access },
@@ -174,6 +176,30 @@ object Session {
             return save(v.copy(login = v.login?.copy(password = pass, passwordRevisionDate = now), passwordHistory = history ?: v.passwordHistory, revisionDate = now))
         }
         return save(newLogin(target.removePrefix("www."), user, pass, if (isWeb) "https://$target" else "androidapp://$target"))
+    }
+
+    /** Adds logins from a CSV export; returns how many were saved. */
+    suspend fun importLogins(list: List<Csv.Login>): Int {
+        var n = 0
+        for (l in list) {
+            val view = newLogin(l.name, l.username, l.password, l.url, l.totp).copy(notes = l.notes)
+            api.obj("POST", "/api/ciphers", azetCipherRequestJson(c().vault().ciphers().encrypt(view))); n++
+        }
+        sync(); return n
+    }
+
+    /** The person's own items (not family vaults) as a file only this password opens (Samsung Pass: export to the phone). */
+    suspend fun exportEncrypted(password: String): String {
+        val text = store.syncJson ?: api.raw("GET", "/api/sync?excludeDomains=true")
+        val mine = ciphers.values.filter { it.organizationId == null && it.deletedDate == null }
+        return c().exporters().exportVault(com.bitwarden.sdk.azetFoldersFromJson(text), mine, com.bitwarden.exporters.ExportFormat.EncryptedJson(password))
+    }
+
+    data class Device(val name: String, val type: Int, val created: String?, val current: Boolean)
+    suspend fun devices(): List<Device> = (api.obj("GET", "/api/devices")["data"] as? JsonArray).orEmpty().map { d ->
+        val o = d.jsonObject
+        Device(o["name"]?.jsonPrimitive?.contentOrNull ?: "", o["type"]?.jsonPrimitive?.intOrNull ?: -1, o["creationDate"]?.jsonPrimitive?.contentOrNull?.take(10),
+            o["identifier"]?.jsonPrimitive?.contentOrNull == store.deviceId)
     }
 
     suspend fun trash(id: String) { api.raw("PUT", "/api/ciphers/$id/delete"); sync() }

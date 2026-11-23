@@ -13,7 +13,7 @@ import java.net.URL
 import java.net.URLEncoder
 
 const val SERVER = "https://pass.azet.io"
-const val CLIENT_VERSION = "2026.11.0"
+const val CLIENT_VERSION = "2026.11.1"
 
 class ApiError(val status: Int, message: String, val body: JsonObject? = null) : Exception(message)
 class TwoFactorNeeded : Exception("two-factor")

@@ -3,11 +3,7 @@ package io.azet.pass
 import android.content.Intent
 import android.provider.Settings
 import android.view.autofill.AutofillManager
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -16,9 +12,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.FragmentActivity
@@ -26,14 +22,9 @@ import com.bitwarden.vault.CipherListView
 import com.bitwarden.vault.CipherListViewType
 import kotlinx.coroutines.launch
 
-enum class Tab(val label: Int, val icon: ImageVector) {
-    Items(R.string.tab_items, Icons.Filled.Key), Generator(R.string.tab_generator, Icons.Filled.Password),
-    Check(R.string.tab_check, Icons.Filled.Shield), Send(R.string.tab_send, Icons.Filled.Send), Settings(R.string.tab_settings, Icons.Filled.Settings)
-}
-
 enum class Kind(val label: Int) { All(R.string.kind_all), Login(R.string.kind_login), Card(R.string.kind_card), Identity(R.string.kind_identity), Note(R.string.kind_note), Code(R.string.kind_code), Passkey(R.string.kind_passkey) }
 
-fun CipherListView.kind(): Kind = when (val t = type) {
+fun CipherListView.kind(): Kind = when (type) {
     is CipherListViewType.Login -> Kind.Login
     is CipherListViewType.Card -> Kind.Card
     CipherListViewType.Identity -> Kind.Identity
@@ -43,29 +34,50 @@ fun CipherListView.kind(): Kind = when (val t = type) {
 fun CipherListView.hasCode() = (type as? CipherListViewType.Login)?.v1?.totp != null
 fun CipherListView.hasPasskey() = (type as? CipherListViewType.Login)?.v1?.hasFido2 == true
 
+/** A value row in a detail group: small grey label over the value, copy (and show / open) on the right. */
 @Composable
-fun MainScreen(act: FragmentActivity, link: String?) {
-    var tab by remember { mutableStateOf(Tab.Items) }
-    var open by remember { mutableStateOf<String?>(null) }     // item id
-    var editing by remember { mutableStateOf<String?>(null) }  // item id or "new:<kind>"
-    LaunchedEffect(link) {
-        val u = link?.let { android.net.Uri.parse(it) } ?: return@LaunchedEffect
-        when (u.host) { "new", "add" -> editing = "new:login"; "settings" -> tab = Tab.Settings; "watchtower" -> tab = Tab.Check; "item" -> open = u.getQueryParameter("id") }
+fun Field(label: String, value: String?, secret: Boolean = false, mono: Boolean = false, onOpen: (() -> Unit)? = null) {
+    if (value.isNullOrEmpty()) return
+    var shown by remember { mutableStateOf(!secret) }
+    Row(Modifier.fillMaxWidth().heightIn(min = 64.dp).padding(start = OneDim.rowPad, end = 6.dp, top = 10.dp, bottom = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f)) {
+            Text(label, fontSize = 13.sp, color = c().sub)
+            Text(if (shown) value else "••••••••", fontSize = 17.sp, color = c().text, fontFamily = if (mono || (secret && shown)) FontFamily.Monospace else null, modifier = Modifier.padding(top = 2.dp))
+        }
+        if (secret) IconButton({ shown = !shown }) { Icon(if (shown) Icons.Filled.VisibilityOff else Icons.Filled.Visibility, stringResource(R.string.show), tint = c().sub) }
+        if (onOpen != null) IconButton(onOpen) { Icon(Icons.Filled.OpenInNew, stringResource(R.string.open), tint = c().sub) }
+        IconButton({ copySecret(value, label) }) { Icon(Icons.Filled.ContentCopy, stringResource(R.string.copy), tint = c().primary) }
     }
-    when {
-        editing != null -> EditScreen(editing!!) { saved -> editing = null; if (saved != null) open = saved }
-        open != null -> DetailScreen(open!!, onEdit = { editing = open }, onBack = { open = null })
-        else -> Scaffold(
-            bottomBar = { NavigationBar { Tab.entries.forEach { t -> NavigationBarItem(t == tab, { tab = t }, { Icon(t.icon, null) }, label = { Text(stringResource(t.label)) }) } } },
-            floatingActionButton = { if (tab == Tab.Items) FloatingActionButton({ editing = "new:login" }) { Icon(Icons.Filled.Add, stringResource(R.string.new_item)) } },
-        ) { pad ->
-            Box(Modifier.padding(pad)) {
-                when (tab) {
-                    Tab.Items -> ItemsScreen { open = it }
-                    Tab.Generator -> GeneratorScreen()
-                    Tab.Check -> CheckScreen { open = it }
-                    Tab.Send -> SendScreen()
-                    Tab.Settings -> SettingsScreen(act)
+}
+
+@Composable
+fun GeneratorScreen(onBack: () -> Unit) {
+    var length by remember { mutableFloatStateOf(20f) }
+    var symbols by remember { mutableStateOf(true) }
+    var words by remember { mutableStateOf(false) }
+    var value by remember { mutableStateOf("") }
+    fun make() { value = runCatching { if (words) Session.passphrase() else Session.password(length.toInt(), symbols) }.getOrDefault("") }
+    LaunchedEffect(length, symbols, words) { make() }
+    OnePage(stringResource(R.string.tab_generator), onBack) {
+        Column(Modifier.verticalScroll(rememberScrollState())) {
+            OneCard {
+                Text(value, Modifier.padding(horizontal = OneDim.cardPad, vertical = 22.dp), fontFamily = FontFamily.Monospace, fontSize = 20.sp, color = c().text)
+                Row(Modifier.padding(start = 12.dp, bottom = 10.dp)) {
+                    TextButton({ make() }) { Text(stringResource(R.string.new_password), color = c().primary, fontSize = 16.sp) }
+                    TextButton({ copySecret(value, "password") }) { Text(stringResource(R.string.copy), color = c().primary, fontSize = 16.sp, fontWeight = FontWeight.Bold) }
+                }
+            }
+            OneHeader(stringResource(R.string.gen_options))
+            OneCard {
+                OneRow(stringResource(R.string.passphrase), trailing = { OneSwitch(words) { words = it } })
+                if (!words) {
+                    OneDivider()
+                    Column(Modifier.padding(horizontal = OneDim.rowPad, vertical = 12.dp)) {
+                        Text(stringResource(R.string.length_n, length.toInt()), fontSize = 17.sp, color = c().text)
+                        Slider(length, { length = it }, valueRange = 8f..64f, colors = SliderDefaults.colors(thumbColor = c().primary, activeTrackColor = c().primary, inactiveTrackColor = c().faint))
+                    }
+                    OneDivider()
+                    OneRow(stringResource(R.string.symbols), trailing = { OneSwitch(symbols) { symbols = it } })
                 }
             }
         }
@@ -73,80 +85,7 @@ fun MainScreen(act: FragmentActivity, link: String?) {
 }
 
 @Composable
-fun ItemsScreen(onOpen: (String) -> Unit) {
-    var q by remember { mutableStateOf("") }
-    var kind by remember { mutableStateOf(Kind.All) }
-    var refreshing by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
-    val list = Session.items.filter { v ->
-        (kind == Kind.All || (kind == Kind.Code && v.hasCode()) || (kind == Kind.Passkey && v.hasPasskey()) || v.kind() == kind) &&
-            (q.isBlank() || (v.name + " " + v.subtitle).contains(q.trim(), ignoreCase = true))
-    }.sortedWith(compareByDescending<CipherListView> { it.favorite }.thenBy { it.name.lowercase() })
-    Column(Modifier.fillMaxSize().statusBarsPadding()) {
-        OutlinedTextField(q, { q = it }, Modifier.fillMaxWidth().padding(12.dp), placeholder = { Text(stringResource(R.string.search)) },
-            leadingIcon = { Icon(Icons.Filled.Search, null) }, singleLine = true)
-        Row(Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            Kind.entries.forEach { k -> FilterChip(k == kind, { kind = k }, { Text(stringResource(k.label)) }) }
-        }
-        Session.syncError?.let { Text(it, Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.error) }
-        if (list.isEmpty()) Text(stringResource(R.string.nothing_here), Modifier.padding(24.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
-        LazyColumn(Modifier.weight(1f)) {
-            items(list, key = { it.id ?: it.name }) { v ->
-                ListItem(headlineContent = { Text(v.name) }, supportingContent = { Text(v.subtitle) },
-                    leadingContent = { Icon(when (v.kind()) { Kind.Card -> Icons.Filled.CreditCard; Kind.Identity -> Icons.Filled.Badge; Kind.Note -> Icons.Filled.StickyNote2; else -> Icons.Filled.Language }, null) },
-                    trailingContent = { if (v.favorite) Icon(Icons.Filled.Star, null, tint = Brand) },
-                    modifier = Modifier.clickable { v.id?.let(onOpen) })
-            }
-        }
-        TextButton({ refreshing = true; scope.launch { runCatching { Session.sync() }; refreshing = false } }, Modifier.align(Alignment.CenterHorizontally), enabled = !refreshing) {
-            Text(stringResource(R.string.sync_now))
-        }
-    }
-}
-
-@Composable
-fun Field(label: String, value: String?, secret: Boolean = false, mono: Boolean = false, onOpen: (() -> Unit)? = null) {
-    if (value.isNullOrEmpty()) return
-    var shown by remember { mutableStateOf(!secret) }
-    ListItem(
-        overlineContent = { Text(label) },
-        headlineContent = { Text(if (shown) value else "••••••••", fontFamily = if (mono || secret) FontFamily.Monospace else null) },
-        trailingContent = {
-            Row {
-                if (secret) IconButton({ shown = !shown }) { Icon(if (shown) Icons.Filled.VisibilityOff else Icons.Filled.Visibility, stringResource(R.string.show)) }
-                if (onOpen != null) IconButton(onOpen) { Icon(Icons.Filled.OpenInNew, stringResource(R.string.open)) }
-                IconButton({ copySecret(value, label) }) { Icon(Icons.Filled.ContentCopy, stringResource(R.string.copy)) }
-            }
-        })
-}
-
-@Composable
-fun GeneratorScreen() {
-    var length by remember { mutableFloatStateOf(20f) }
-    var symbols by remember { mutableStateOf(true) }
-    var words by remember { mutableStateOf(false) }
-    var value by remember { mutableStateOf("") }
-    fun make() { value = runCatching { if (words) Session.passphrase() else Session.password(length.toInt(), symbols) }.getOrDefault("") }
-    LaunchedEffect(length, symbols, words) { make() }
-    Column(Modifier.fillMaxSize().statusBarsPadding().padding(16.dp)) {
-        Text(stringResource(R.string.tab_generator), style = MaterialTheme.typography.titleLarge)
-        Spacer(Modifier.height(12.dp))
-        Card(Modifier.fillMaxWidth()) { Text(value, Modifier.padding(16.dp), fontFamily = FontFamily.Monospace, fontSize = 18.sp) }
-        Row(verticalAlignment = Alignment.CenterVertically) { Text(stringResource(R.string.passphrase)); Spacer(Modifier.weight(1f)); Switch(words, { words = it }) }
-        if (!words) {
-            Text(stringResource(R.string.length_n, length.toInt()))
-            Slider(length, { length = it }, valueRange = 8f..64f)
-            Row(verticalAlignment = Alignment.CenterVertically) { Text(stringResource(R.string.symbols)); Spacer(Modifier.weight(1f)); Switch(symbols, { symbols = it }) }
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton({ make() }) { Text(stringResource(R.string.new_password)) }
-            Button({ copySecret(value, "password") }) { Text(stringResource(R.string.copy)) }
-        }
-    }
-}
-
-@Composable
-fun SendScreen() {
+fun SendScreen(onBack: () -> Unit) {
     var text by remember { mutableStateOf("") }
     var days by remember { mutableIntStateOf(1) }
     var once by remember { mutableStateOf(true) }
@@ -154,53 +93,171 @@ fun SendScreen() {
     var error by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
     val focus = androidx.compose.ui.platform.LocalFocusManager.current
-    Column(Modifier.fillMaxSize().statusBarsPadding().padding(16.dp).verticalScroll(rememberScrollState())) {
-        Text(stringResource(R.string.tab_send), style = MaterialTheme.typography.titleLarge)
-        Text(stringResource(R.string.send_lead), color = MaterialTheme.colorScheme.onSurfaceVariant)
-        OutlinedTextField(text, { text = it }, Modifier.fillMaxWidth().height(160.dp).padding(top = 12.dp), placeholder = { Text(stringResource(R.string.send_placeholder)) })
-        Text(stringResource(R.string.send_days), Modifier.padding(top = 8.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) { listOf(0, 1, 7, 30).forEach { d -> FilterChip(d == days, { days = d }, { Text(if (d == 0) "1h" else "$d") }) } }
-        Row(verticalAlignment = Alignment.CenterVertically) { Text(stringResource(R.string.send_once)); Spacer(Modifier.weight(1f)); Switch(once, { once = it }) }
-        Button({
-            error = null
-            scope.launch { runCatching { Session.sendText(text.lineSequence().first().take(40), text, days, once) }
-                .onSuccess { link = it; copySecret(it, "link"); text = ""; focus.clearFocus() }.onFailure { error = it.message } }
-        }, enabled = text.isNotBlank()) { Text(stringResource(R.string.send_make)) }
-        link?.let { Text(it, Modifier.padding(top = 8.dp), fontFamily = FontFamily.Monospace, fontSize = 12.sp) }
-        error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+    OnePage(stringResource(R.string.tab_send), onBack) {
+        Column(Modifier.verticalScroll(rememberScrollState())) {
+            Text(stringResource(R.string.send_lead), Modifier.padding(horizontal = 28.dp, vertical = 6.dp), fontSize = 14.sp, color = c().sub, lineHeight = 19.sp)
+            Spacer(Modifier.height(10.dp))
+            OneCard { Box(Modifier.padding(horizontal = 8.dp)) { OneField(text, { text = it }, stringResource(R.string.send_placeholder), singleLine = false) } }
+            OneHeader(stringResource(R.string.gen_options))
+            OneCard {
+                OneRow(stringResource(R.string.send_days)) {
+                    Row { listOf(0, 1, 7, 30).forEach { d -> TextButton({ days = d }) { Text(if (d == 0) "1h" else "$d", color = if (d == days) c().primary else c().sub, fontWeight = if (d == days) FontWeight.Bold else null) } } }
+                }
+                OneDivider()
+                OneRow(stringResource(R.string.send_once), trailing = { OneSwitch(once) { once = it } })
+            }
+            Spacer(Modifier.height(28.dp))
+            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                OnePill(stringResource(R.string.send_make), enabled = text.isNotBlank(), width = 240.dp) {
+                    error = null
+                    scope.launch { runCatching { Session.sendText(text.lineSequence().first().take(40), text, days, once) }
+                        .onSuccess { link = it; copySecret(it, "link"); text = ""; focus.clearFocus() }.onFailure { error = it.message } }
+                }
+            }
+            link?.let { Text(it, Modifier.padding(28.dp), fontFamily = FontFamily.Monospace, fontSize = 12.sp, color = c().sub) }
+            error?.let { Text(it, Modifier.padding(28.dp), color = MaterialTheme.colorScheme.error) }
+        }
     }
 }
 
 @Composable
-fun SettingsScreen(act: FragmentActivity) {
+fun SettingsScreen(act: FragmentActivity, onBack: () -> Unit, onDevices: () -> Unit) {
     val store = Session.store
     var bio by remember { mutableStateOf(store.biometricOn) }
     var minutes by remember { mutableIntStateOf(store.lockMinutes) }
     var shots by remember { mutableStateOf(store.blockScreenshots) }
+    var pickLock by remember { mutableStateOf(false) }
+    var pickPos by remember { mutableStateOf(false) }
+    var inline by remember { mutableStateOf(store.inlineAutofill) }
+    var chromeHelp by remember { mutableStateOf(false) }
+    var exportAsk by remember { mutableStateOf(false) }
+    var exportPw by remember { mutableStateOf("") }
+    var exportText by remember { mutableStateOf<String?>(null) }
+    var notice by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
-    val title = stringResource(R.string.unlock_title)
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    val importedFmt = stringResource(R.string.imported_n)
+    val exportedMsg = stringResource(R.string.exported)
+    val importer = androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        scope.launch {
+            val text = ctx.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }.orEmpty()
+            notice = runCatching { importedFmt.format(Session.importLogins(Csv.logins(text))) }.getOrElse { it.message }
+        }
+    }
+    val exporter = androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        val t = exportText; exportText = null
+        if (uri == null || t == null) return@rememberLauncherForActivityResult
+        ctx.contentResolver.openOutputStream(uri)?.use { it.write(t.toByteArray()) }; notice = exportedMsg
+    }
+    val title = stringResource(R.string.app_name)
+    val subtitle = stringResource(R.string.bio_subtitle)
     val autofillOn = remember { act.getSystemService(AutofillManager::class.java)?.hasEnabledAutofillServices() == true }
-    Column(Modifier.fillMaxSize().statusBarsPadding().verticalScroll(rememberScrollState())) {
-        ListItem(headlineContent = { Text(Session.email ?: "") }, supportingContent = { Text(stringResource(R.string.signed_in)) })
-        if (act.canUseBiometrics()) ListItem(headlineContent = { Text(stringResource(R.string.unlock_biometric)) }, trailingContent = {
-            Switch(bio, { on ->
-                if (!on) { store.turnOffBiometrics(); bio = false }
-                else scope.launch {
-                    val c = store.biometricCipher(true) ?: return@launch
-                    val ok = act.biometric(c, title) ?: return@launch
-                    store.sealUserKey(ok, Session.userKey()); bio = true
+    val lockLabel = @Composable { m: Int -> if (m == 0) stringResource(R.string.never) else stringResource(R.string.minutes_n, m) }
+    OnePage(stringResource(R.string.settings_title), onBack) {
+        Column(Modifier.verticalScroll(rememberScrollState())) {
+            OneCard { OneRow(stringResource(R.string.account_sync), onClick = { scope.launch { runCatching { Session.sync() } } }) }
+            OneHeader(stringResource(R.string.auth_methods))
+            OneCard {
+                if (act.hasBiometricHardware()) {
+                    OneRow(stringResource(R.string.fingerprint_face), trailing = {
+                        OneSwitch(bio) { on ->
+                            if (!on) { store.turnOffBiometrics(); bio = false }
+                            else if (!act.canUseBiometrics()) act.startActivity(Intent(Settings.ACTION_BIOMETRIC_ENROLL))
+                            else scope.launch {
+                                val ci = store.biometricCipher(true) ?: return@launch
+                                val ok = act.biometric(ci, title, subtitle) ?: return@launch
+                                store.sealUserKey(ok, Session.userKey()); bio = true
+                            }
+                        }
+                    })
+                    OneDivider()
                 }
-            })
+                OneRow(stringResource(R.string.account_password), trailing = { OneSwitch(true) {} })
+            }
+            OneHeader(stringResource(R.string.privacy))
+            OneCard {
+                OneRow(stringResource(R.string.privacy_policy), onClick = { openUrl("https://azet.io/privacy-ko#pass") })
+                OneDivider()
+                OneRow(stringResource(R.string.import_data), summary = stringResource(R.string.import_data_sub), onClick = { importer.launch(arrayOf("text/*", "text/csv", "application/vnd.ms-excel", "*/*")) })
+                OneDivider()
+                OneRow(stringResource(R.string.export_data), summary = stringResource(R.string.export_data_sub), onClick = { exportAsk = true })
+                OneDivider()
+                OneRow(stringResource(R.string.devices_using), onClick = onDevices)
+                OneDivider()
+                OneRow(stringResource(R.string.autofill_position), value = stringResource(if (inline) R.string.above_keyboard else R.string.below_field), onClick = { pickPos = true })
+                OneDivider()
+                OneRow(stringResource(R.string.use_in_chrome), onClick = { chromeHelp = true })
+                OneDivider()
+                OneRow(stringResource(R.string.autofill), value = stringResource(if (autofillOn) R.string.autofill_on else R.string.autofill_off),
+                    onClick = { act.startActivity(Intent(Settings.ACTION_REQUEST_SET_AUTOFILL_SERVICE).setData(android.net.Uri.parse("package:" + act.packageName))) })
+            }
+            OneHeader(stringResource(R.string.security))
+            OneCard {
+                OneRow(stringResource(R.string.auto_lock), value = lockLabel(minutes), onClick = { pickLock = true })
+                OneDivider()
+                OneRow(stringResource(R.string.block_screenshots), trailing = { OneSwitch(shots) { shots = it; store.blockScreenshots = it } })
+                OneDivider()
+                OneRow(stringResource(R.string.web_vault), summary = stringResource(R.string.web_vault_sub), onClick = { openUrl(SERVER) })
+            }
+            OneHeader(stringResource(R.string.account))
+            OneCard {
+                OneRow(stringResource(R.string.lock_now), onClick = { Session.lock() })
+                OneDivider()
+                OneRow(stringResource(R.string.sign_out), titleColor = MaterialTheme.colorScheme.error, onClick = { Session.signOut() })
+            }
+            Text("AZET Pass $CLIENT_VERSION · GPL-3.0", Modifier.padding(28.dp), color = c().sub, fontSize = 12.sp)
+        }
+    }
+    if (pickLock) AlertDialog({ pickLock = false }, confirmButton = {}, containerColor = c().card, shape = androidx.compose.foundation.shape.RoundedCornerShape(26.dp),
+        title = { Text(stringResource(R.string.auto_lock), fontWeight = FontWeight.Bold) }, text = {
+            Column { listOf(1, 5, 15, 60, 0).forEach { m ->
+                Row(Modifier.fillMaxWidth().padding(vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+                    RadioButton(m == minutes, { minutes = m; store.lockMinutes = m; Session.touch(); pickLock = false }, colors = RadioButtonDefaults.colors(selectedColor = c().primary))
+                    Text(lockLabel(m), fontSize = 17.sp)
+                }
+            } }
         })
-        ListItem(headlineContent = { Text(stringResource(R.string.auto_lock)) }, supportingContent = {
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) { listOf(1, 5, 15, 60, 0).forEach { m -> FilterChip(m == minutes, { minutes = m; store.lockMinutes = m; Session.touch() }, { Text(if (m == 0) stringResource(R.string.never) else "${m}m") }) } }
+    if (pickPos) AlertDialog({ pickPos = false }, confirmButton = {}, containerColor = c().card, shape = androidx.compose.foundation.shape.RoundedCornerShape(26.dp),
+        title = { Text(stringResource(R.string.autofill_position), fontWeight = FontWeight.Bold) }, text = {
+            Column { listOf(true to R.string.above_keyboard, false to R.string.below_field).forEach { (v, l) ->
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    RadioButton(v == inline, { inline = v; store.inlineAutofill = v; pickPos = false }, colors = RadioButtonDefaults.colors(selectedColor = c().primary))
+                    Text(stringResource(l), fontSize = 17.sp)
+                }
+            } }
         })
-        ListItem(headlineContent = { Text(stringResource(R.string.block_screenshots)) }, trailingContent = { Switch(shots, { shots = it; store.blockScreenshots = it }) })
-        ListItem(headlineContent = { Text(stringResource(R.string.autofill)) }, supportingContent = { Text(stringResource(if (autofillOn) R.string.autofill_on else R.string.autofill_off)) },
-            modifier = Modifier.clickable { act.startActivity(Intent(Settings.ACTION_REQUEST_SET_AUTOFILL_SERVICE).setData(android.net.Uri.parse("package:" + act.packageName))) })
-        ListItem(headlineContent = { Text(stringResource(R.string.web_vault)) }, modifier = Modifier.clickable { openUrl(SERVER) })
-        ListItem(headlineContent = { Text(stringResource(R.string.lock_now)) }, modifier = Modifier.clickable { Session.lock() })
-        ListItem(headlineContent = { Text(stringResource(R.string.sign_out), color = MaterialTheme.colorScheme.error) }, modifier = Modifier.clickable { Session.signOut() })
-        Text("AZET Pass $CLIENT_VERSION · GPL-3.0", Modifier.padding(16.dp), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
+    if (chromeHelp) AlertDialog({ chromeHelp = false }, containerColor = c().card, shape = androidx.compose.foundation.shape.RoundedCornerShape(26.dp),
+        title = { Text(stringResource(R.string.use_in_chrome), fontWeight = FontWeight.Bold) }, text = { Text(stringResource(R.string.chrome_steps), fontSize = 15.sp, lineHeight = 21.sp) },
+        confirmButton = { TextButton({ chromeHelp = false; act.packageManager.getLaunchIntentForPackage("com.android.chrome")?.let { act.startActivity(it) } }) { Text(stringResource(R.string.open_chrome), color = c().primary) } },
+        dismissButton = { TextButton({ chromeHelp = false }) { Text(stringResource(R.string.cancel), color = c().primary) } })
+    if (exportAsk) AlertDialog({ exportAsk = false }, containerColor = c().card, shape = androidx.compose.foundation.shape.RoundedCornerShape(26.dp),
+        title = { Text(stringResource(R.string.export_data), fontWeight = FontWeight.Bold) },
+        text = { Column { Text(stringResource(R.string.export_pw_lead), fontSize = 14.sp, color = c().sub); OneField(exportPw, { exportPw = it }, stringResource(R.string.export_pw), secret = true) } },
+        confirmButton = { TextButton({
+            exportAsk = false
+            scope.launch { runCatching { Session.exportEncrypted(exportPw) }.onSuccess { exportText = it; exportPw = ""; exporter.launch("azet-pass-export.json") }.onFailure { notice = it.message } }
+        }, enabled = exportPw.length >= 8) { Text(stringResource(R.string.export_go), color = c().primary) } },
+        dismissButton = { TextButton({ exportAsk = false }) { Text(stringResource(R.string.cancel), color = c().primary) } })
+    notice?.let { n -> AlertDialog({ notice = null }, containerColor = c().card, shape = androidx.compose.foundation.shape.RoundedCornerShape(26.dp), text = { Text(n, fontSize = 15.sp) },
+        confirmButton = { TextButton({ notice = null }) { Text("OK", color = c().primary) } }) }
+}
+
+@Composable
+fun DevicesScreen(onBack: () -> Unit) {
+    var list by remember { mutableStateOf<List<Session.Device>?>(null) }
+    var error by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(Unit) { runCatching { Session.devices() }.onSuccess { list = it }.onFailure { error = it.message } }
+    val thisPhone = stringResource(R.string.this_device)
+    OnePage(stringResource(R.string.devices_using), onBack) {
+        error?.let { Text(it, Modifier.padding(28.dp), color = MaterialTheme.colorScheme.error) }
+        val l = list ?: return@OnePage
+        OneCard {
+            l.forEachIndexed { i, d ->
+                if (i > 0) OneDivider()
+                OneRow(d.name.ifBlank { "-" }, summary = listOfNotNull(if (d.current) thisPhone else null, d.created).joinToString(" · "),
+                    icon = when (d.type) { 0, 1, 15, 16 -> Icons.Filled.PhoneAndroid; 2, 3, 4, 5, 9, 10, 19, 20 -> Icons.Filled.Language; else -> Icons.Filled.Computer })
+            }
+        }
     }
 }

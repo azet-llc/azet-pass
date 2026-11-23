@@ -81,7 +81,7 @@ function distance(a, b) {
   return d[a.length][b.length];
 }
 
-/** The saved site this page seems to imitate (one or two letters off, or a non-Latin spelling), or null.
+/** The saved site this page seems to imitate (a letter or two off, or a non-Latin spelling), or null.
  *  A page whose own site is saved is never flagged. */
 export function lookalike(host, savedHosts) {
   const here = base(host.replace(/^www\./, "").toLowerCase());
@@ -91,7 +91,8 @@ export function lookalike(host, savedHosts) {
   for (const s of saved) {
     if (s.length < 6) continue; // short names are one letter from many honest sites
     const d = distance(here, s);
-    if (d > 0 && (d <= (s.length >= 10 ? 2 : 1) || (plain && d <= 4))) return s;
+    // One letter off; two only for long names (github.com and gitlab.com are two apart and both honest).
+    if (d > 0 && (d <= (s.length >= 13 ? 2 : 1) || (plain && d <= 4))) return s;
   }
   return null;
 }

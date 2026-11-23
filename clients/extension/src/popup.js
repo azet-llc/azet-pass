@@ -111,11 +111,19 @@ $("pinForm").onsubmit = async (e) => {
 $("pinToggle").onclick = async (e) => {
   e.preventDefault();
   try {
-    if ($("pinToggle").dataset.on) await call("pinOff"); else { const pin = prompt(t("pinAsk")); if (!pin) return; await call("pinOn", { pin }); }
-    await showUnlocked();
+    if ($("pinToggle").dataset.on) { await call("pinOff"); await showUnlocked(); }
+    else { $("pinSet").hidden = !$("pinSet").hidden; $("pinNew").focus(); }
   } catch (err) { showErr(err); }
 };
-$("csvPick").onclick = (e) => { e.preventDefault(); $("csvFile").click(); };
+$("pinSet").onsubmit = async (e) => {
+  e.preventDefault();
+  try { await call("pinOn", { pin: $("pinNew").value }); $("pinNew").value = ""; $("pinSet").hidden = true; await showUnlocked(); } catch (err) { showErr(err); }
+};
+// A file picker closes the toolbar popup in some browsers, so importing runs in a tab of its own.
+$("csvPick").onclick = (e) => {
+  e.preventDefault();
+  if (location.hash === "#import") $("csvFile").click(); else chrome.tabs.create({ url: chrome.runtime.getURL("popup.html#import") });
+};
 $("csvFile").onchange = async () => {
   const f = $("csvFile").files[0]; if (!f) return;
   try { const r = await call("importCsv", { text: await f.text() }); await showUnlocked(); showErr(new Error(t("imported", String(r.added), String(r.skipped)))); } catch (err) { showErr(err); }

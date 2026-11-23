@@ -55,7 +55,9 @@ test("masked address keeps the mailbox and names the site", () => {
 });
 test("look-alike sites are flagged, the saved site and unrelated sites are not", () => {
   const saved = ["accounts.google.com", "www.naver.com", "kakaobank.com"];
-  assert.equal(lookalike("accounts.g00gle.com", saved), "google.com");
+  assert.equal(lookalike("accounts.g00gle.com", saved), null); // two letters off a short name is not flagged
+  assert.equal(lookalike("gitlab.com", ["github.com"]), null);
+  assert.equal(lookalike("kakaobenk-login.com", ["kakaobank-login.com"]), "kakaobank-login.com");
   assert.equal(lookalike("login.gooogle.com", saved), "google.com");
   assert.equal(lookalike("kakaobenk.com", saved), "kakaobank.com");
   assert.equal(lookalike("mail.google.com", saved), null);

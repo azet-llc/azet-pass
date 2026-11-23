@@ -28,7 +28,7 @@ data class Form(val username: AutofillId?, val password: AutofillId?, val target
 }
 
 object FormParser {
-    private val userWords = Regex("user|login|email|e-mail|account|id$|아이디|이메일|phone|mobile", RegexOption.IGNORE_CASE)
+    private val userWords = Regex("user|login|email|e-mail|account|id$|아이디|이메일|phone|mobile|\\btel\\b", RegexOption.IGNORE_CASE)
     private val passWords = Regex("pass|pwd|pin|비밀번호|암호", RegexOption.IGNORE_CASE)
     // The device PIN and lock screens are not sign-ins (on the emulator the Settings PIN box was offered for saving).
     private val systemScreens = setOf("com.android.settings", "com.android.systemui", "com.google.android.setupwizard", "com.samsung.android.biometrics.app.setting", "com.android.keyguard")
@@ -71,8 +71,10 @@ object FormParser {
                 val html = n.htmlInfo?.attributes?.associate { it.first to it.second }.orEmpty()
                 val words = listOfNotNull(n.idEntry, n.hint, html["name"], html["id"], html["autocomplete"], hints).joinToString(" ")
                 extraKind(hints.split(" ").toSet(), html["autocomplete"]?.lowercase().orEmpty())?.let { kind ->
-                    extras.putIfAbsent(kind, n.autofillId!!)
-                    if (kind != "email") { for (i in 0 until n.childCount) walk(n.getChildAt(i)); return }
+                    // A box the page hides is not filled (a hidden card box would take the number unseen).
+                    if (html["visibility"].let { it == null || it == "visible" }) extras.putIfAbsent(kind, n.autofillId!!)
+                    // A phone, name or e-mail box can also be the user name of a sign-in, so those go on to the checks below.
+                    if (kind !in setOf("email", "phone", "name")) { for (i in 0 until n.childCount) walk(n.getChildAt(i)); return }
                 }
                 val isOtp = Regex("otp|onetimecode|2fa").containsMatchIn(hints.replace("-", "").replace("_", "")) || html["autocomplete"] == "one-time-code" || otpWords.containsMatchIn(words)
                 if (isOtp) { if (otp == null) otp = n; for (i in 0 until n.childCount) walk(n.getChildAt(i)); return }

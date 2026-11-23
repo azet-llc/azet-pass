@@ -6,6 +6,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 export const DIR = path.join(os.homedir(), "Library/Application Support/azet-desktop/azet-pass/browser-unlock");
 const CLI = process.env.AZET_DESKTOP_CLI || "/Applications/AZET Desktop.app/Contents/Resources/bin/azet-desktop";
@@ -55,4 +56,5 @@ function main() {
     }
   });
 }
-if (import.meta.url === `file://${process.argv[1]}`) main();
+// A folder with a space in its name ("Application Support") is %20 in import.meta.url: compare paths, not addresses.
+if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(process.argv[1])) main();

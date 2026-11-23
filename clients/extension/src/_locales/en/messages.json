@@ -181,5 +181,47 @@
   },
   "desktopOff": {
     "message": "Turn off Touch ID unlock"
+  },
+  "tooManyTries": {
+    "message": "Too many wrong passwords. This browser was signed out; your vault is safe in your account."
+  },
+  "pin": {
+    "message": "PIN"
+  },
+  "unlockPin": {
+    "message": "Unlock with PIN"
+  },
+  "pinOn": {
+    "message": "Set a PIN"
+  },
+  "pinOff": {
+    "message": "Remove PIN"
+  },
+  "pinAsk": {
+    "message": "Choose a PIN of 4 to 12 digits. It unlocks AZET Pass in this browser only."
+  },
+  "pinRule": {
+    "message": "A PIN is 4 to 12 digits."
+  },
+  "pinWrong": {
+    "message": "Wrong PIN. $1 tries left."
+  },
+  "pinGone": {
+    "message": "The PIN was removed. Unlock with your account password."
+  },
+  "importCsv": {
+    "message": "Import .csv"
+  },
+  "imported": {
+    "message": "Imported $1 sign-ins. $2 were already here."
+  },
+  "maskedLead": {
+    "message": "An address of your own mailbox that names this site, for sign-ups:"
+  },
+  "maskedNew": {
+    "message": "New address"
+  },
+  "lookalike": {
+    "message": "Careful: $1 is not $2, the site you saved. Check the address before you sign in."
   }
 }

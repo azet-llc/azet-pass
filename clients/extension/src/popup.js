@@ -49,6 +49,8 @@ async function showUnlocked() {
   $("host").textContent = l.host;
   $("hereList").replaceChildren(...l.here.map(itemRow));
   $("hereEmpty").hidden = l.here.length > 0;
+  $("warn").hidden = !l.warn; if (l.warn) $("warn").textContent = t("lookalike", l.host, l.warn);
+  call("pinState").then((p) => { $("pinToggle").textContent = t(p.on ? "pinOff" : "pinOn"); $("pinToggle").dataset.on = p.on ? "1" : ""; }).catch(() => {});
   all = l.all; renderAll();
   if (!l.here.length) switchTab("all");
 }
@@ -56,11 +58,13 @@ async function showUnlocked() {
 function switchTab(name) {
   for (const b of document.querySelectorAll(".tab")) b.classList.toggle("on", b.dataset.tab === name);
   for (const p of document.querySelectorAll(".pane")) p.hidden = p.id !== name;
-  if (name === "gen" && !$("genOut").value) newPassword();
+  if (name === "gen" && !$("genOut").value) { newPassword(); newMask(); }
   if (name === "check") runCheck();
 }
 
 async function newPassword() { $("genOut").value = await call("generate", { length: +$("genLen").value, special: $("genSpecial").checked }); }
+
+async function newMask() { $("maskOut").value = (await call("maskedEmail", { url: tab?.url || "" })) || ""; }
 
 async function runCheck() {
   $("checkSum").textContent = t("checking");
@@ -80,6 +84,7 @@ async function render() {
   for (const id of ["signedOut", "locked", "unlocked"]) $(id).hidden = id !== s.phase;
   $("lockBtn").hidden = s.phase !== "unlocked";
   if (s.phase === "locked") { $("lockedAs").textContent = t("lockedAs", s.email); $("unlockPw").focus(); }
+  if (s.phase === "locked") call("pinState").then((p) => { $("pinForm").hidden = !p.on; if (p.on) $("pinIn").focus(); }).catch(() => {});
   if (s.phase !== "signedOut") call("desktopState").then((d) => {
     $("desktopUnlock").hidden = !(s.phase === "locked" && d.on);
     $("desktopToggleWrap").hidden = !(s.phase === "unlocked" && d.helper);
@@ -99,6 +104,25 @@ $("unlockForm").onsubmit = async (e) => {
   e.preventDefault();
   try { await call("unlock", { password: $("unlockPw").value }); $("unlockPw").value = ""; await render(); } catch (err) { showErr(err); }
 };
+$("pinForm").onsubmit = async (e) => {
+  e.preventDefault();
+  try { await call("unlockWithPin", { pin: $("pinIn").value }); $("pinIn").value = ""; await render(); } catch (err) { $("pinIn").value = ""; await render(); showErr(err); }
+};
+$("pinToggle").onclick = async (e) => {
+  e.preventDefault();
+  try {
+    if ($("pinToggle").dataset.on) await call("pinOff"); else { const pin = prompt(t("pinAsk")); if (!pin) return; await call("pinOn", { pin }); }
+    await showUnlocked();
+  } catch (err) { showErr(err); }
+};
+$("csvPick").onclick = (e) => { e.preventDefault(); $("csvFile").click(); };
+$("csvFile").onchange = async () => {
+  const f = $("csvFile").files[0]; if (!f) return;
+  try { const r = await call("importCsv", { text: await f.text() }); await showUnlocked(); showErr(new Error(t("imported", String(r.added), String(r.skipped)))); } catch (err) { showErr(err); }
+  $("csvFile").value = "";
+};
+$("maskNew").onclick = () => newMask().catch(showErr);
+$("maskCopy").onclick = () => copy($("maskOut").value).catch(showErr);
 $("lockBtn").onclick = () => call("lock").then(render, showErr);
 $("desktopUnlock").onclick = async () => { try { await call("unlockWithDesktop"); await render(); } catch (err) { showErr(err); } };
 $("desktopToggle").onclick = async (e) => { e.preventDefault(); try { await call($("desktopToggle").dataset.on ? "desktopOff" : "desktopOn"); await render(); } catch (err) { showErr(err); } };

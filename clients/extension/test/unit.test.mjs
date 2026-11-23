@@ -36,3 +36,28 @@ test("passkey helpers", async () => {
   assert.equal(a.id, response.id);
   assert.equal(a.userHandle, "AQID");
 });
+
+import { pinWrap, pinUnwrap, csvLogins, maskedEmail, lookalike } from "../src/extras.mjs";
+test("PIN seals the vault key; a wrong PIN opens nothing", async () => {
+  const sealed = await pinWrap("2.userkey==", "4821");
+  assert.equal(await pinUnwrap(sealed, "4821"), "2.userkey==");
+  assert.equal(await pinUnwrap(sealed, "4822"), null);
+});
+test("csv import reads Chrome and Samsung Pass style headers", () => {
+  const chrome = csvLogins('name,url,username,password,note\nShop,https://www.shop.example/login,me,"p,w""1",x\n');
+  assert.deepEqual(chrome, [{ name: "Shop", uri: "https://www.shop.example/login", username: "me", password: 'p,w"1', totp: undefined }]);
+  assert.equal(csvLogins("Title,Website,ID,Password\n,bank.example,kim,pw\n")[0].name, "bank.example");
+  assert.deepEqual(csvLogins("a,b\n1,2\n"), []);
+});
+test("masked address keeps the mailbox and names the site", () => {
+  assert.equal(maskedEmail("kim+old@mail.example", "www.shop-mall.co.kr", new Uint8Array([0, 1, 2])), "kim+shopmall-abc@mail.example");
+  assert.equal(maskedEmail("nope", "x.com"), null);
+});
+test("look-alike sites are flagged, the saved site and unrelated sites are not", () => {
+  const saved = ["accounts.google.com", "www.naver.com", "kakaobank.com"];
+  assert.equal(lookalike("accounts.g00gle.com", saved), "google.com");
+  assert.equal(lookalike("login.gooogle.com", saved), "google.com");
+  assert.equal(lookalike("kakaobenk.com", saved), "kakaobank.com");
+  assert.equal(lookalike("mail.google.com", saved), null);
+  assert.equal(lookalike("daum.net", saved), null);
+});

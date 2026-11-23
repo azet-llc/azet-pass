@@ -181,5 +181,47 @@
   },
   "desktopOff": {
     "message": "Touch ID 잠금 해제 끄기"
+  },
+  "tooManyTries": {
+    "message": "비밀번호를 너무 많이 틀렸습니다. 이 브라우저에서 로그아웃했습니다. 보관함은 계정에 그대로 있습니다."
+  },
+  "pin": {
+    "message": "PIN"
+  },
+  "unlockPin": {
+    "message": "PIN으로 잠금 해제"
+  },
+  "pinOn": {
+    "message": "PIN 설정"
+  },
+  "pinOff": {
+    "message": "PIN 제거"
+  },
+  "pinAsk": {
+    "message": "숫자 4~12자리 PIN을 정하세요. 이 브라우저에서만 AZET Pass를 엽니다."
+  },
+  "pinRule": {
+    "message": "PIN은 숫자 4~12자리입니다."
+  },
+  "pinWrong": {
+    "message": "PIN이 틀렸습니다. $1번 남았습니다."
+  },
+  "pinGone": {
+    "message": "PIN이 제거되었습니다. 계정 비밀번호로 잠금 해제하세요."
+  },
+  "importCsv": {
+    "message": ".csv 가져오기"
+  },
+  "imported": {
+    "message": "로그인 $1개를 가져왔습니다. $2개는 이미 있었습니다."
+  },
+  "maskedLead": {
+    "message": "가입할 때 쓰는, 이 사이트 이름이 들어간 내 메일 주소:"
+  },
+  "maskedNew": {
+    "message": "새 주소"
+  },
+  "lookalike": {
+    "message": "주의: $1 은(는) 저장해 둔 $2 이(가) 아닙니다. 로그인하기 전에 주소를 확인하세요."
   }
 }

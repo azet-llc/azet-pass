@@ -4,6 +4,7 @@
 import * as bg from "./sdk/bitwarden_wasm_internal_bg.js";
 import { Vault, hostOf, generatePassword } from "./vault-core.mjs";
 import { passwordHealth } from "./health.mjs";
+import { pinWrap, pinUnwrap, csvLogins, maskedEmail, lookalike } from "./extras.mjs";
 import { createPasskey, signAssertion, rpAllowed, credIdString, fromB64u } from "./passkey.mjs";
 
 const BASE = "https://pass.azet.io";
@@ -80,7 +81,9 @@ const row = (item) => ({ id: item.id, name: item.name, sub: item.subtitle, kind:
 async function listFor(url) {
   const v = await openVault(); if (!v) return null;
   const host = hostOf(url);
-  return { host, here: v.forPage(url).map(row), all: v.list.map(row).sort((a, b) => a.name.localeCompare(b.name)) };
+  const saved = v.list.flatMap((i) => (i.type?.login?.uris || []).map((u) => hostOf(u.uri || ""))).filter((h) => h.includes("."));
+  return { host, warn: host ? lookalike(host, saved) : null,
+    here: v.forPage(url).map(row), all: v.list.map(row).sort((a, b) => a.name.localeCompare(b.name)) };
 }
 
 /** Only the fields the caller acts on leave the background. */
@@ -203,14 +206,50 @@ const handlers = {
     const v = await newVault(); await v.signIn(email, password, code); await v.sync(); vault = v; await touch(); return state();
   },
   async unlock({ password }) {
-    const { account } = await local.get("account"); const v = await newVault(); v.account = account;
-    await v.unlock(password); await v.sync(); vault = v; await touch();
+    const { account, unlockFails = 0 } = await local.get(["account", "unlockFails"]); const v = await newVault(); v.account = account;
+    try { await v.unlock(password); } catch (e) {
+      // Ten wrong passwords in a row sign this browser out (the vault stays in the account).
+      if (unlockFails + 1 >= 10) { await handlers.signOut(); throw new Error(chrome.i18n.getMessage("tooManyTries")); }
+      await local.set({ unlockFails: unlockFails + 1 }); throw e;
+    }
+    await local.remove("unlockFails"); await v.sync(); vault = v; await touch();
     const { pending } = await session.get("pending");
     if (pending) { await session.remove("pending"); chrome.action.setBadgeText({ text: "" }); await submitted(pending, { tab: { id: pending.tabId } }); }
     return state();
   },
   lock: async () => { await lock(); return state(); },
-  async signOut() { await desktopOff().catch(() => {}); await lock(); await local.remove(["account", "snap"]); return state(); },
+  async signOut() { await desktopOff().catch(() => {}); await lock(); await local.remove(["account", "snap", "pin", "pinFails", "unlockFails"]); return state(); },
+  async pinState() { return { on: !!(await local.get("pin")).pin }; },
+  async pinOn({ pin }) {
+    const v = await openVault(); if (!v?.userKey) throw new Error("locked");
+    if (!/^\d{4,12}$/.test(pin || "")) throw new Error(chrome.i18n.getMessage("pinRule"));
+    await local.set({ pin: await pinWrap(v.userKey, pin), pinFails: 0 }); return { on: true };
+  },
+  async pinOff() { await local.remove(["pin", "pinFails"]); return { on: false }; },
+  async unlockWithPin({ pin }) {
+    const { pin: sealed, pinFails = 0, account, snap } = await local.get(["pin", "pinFails", "account", "snap"]);
+    if (!sealed || !account) throw new Error(chrome.i18n.getMessage("pinGone"));
+    const userKey = await pinUnwrap(sealed, pin || "");
+    if (!userKey) {
+      // Five wrong PINs forget the PIN: the account password is needed again.
+      if (pinFails + 1 >= 5) { await local.remove(["pin", "pinFails"]); throw new Error(chrome.i18n.getMessage("pinGone")); }
+      await local.set({ pinFails: pinFails + 1 }); throw new Error(chrome.i18n.getMessage("pinWrong", [String(4 - pinFails)]));
+    }
+    await local.set({ pinFails: 0 });
+    const v = await newVault(); v.account = account; await v.resume(userKey); await store.saveUserKey(userKey);
+    if (snap) await v.restore(snap); else await v.sync();
+    vault = v; await touch(); v.sync().catch(() => {});
+    return state();
+  },
+  async importCsv({ text }) {
+    const v = await openVault(); if (!v) throw new Error("locked");
+    const have = new Set(v.list.map(row).map((r) => `${r.name}\n${r.sub || ""}`));
+    const fresh = csvLogins(text).filter((l) => !have.has(`${l.name}\n${l.username || ""}`));
+    for (const l of fresh) await v.saveLogin(l);
+    if (fresh.length) await v.sync();
+    return { added: fresh.length, skipped: csvLogins(text).length - fresh.length };
+  },
+  async maskedEmail({ url }) { const { account } = await local.get("account"); return maskedEmail(account?.email || "", hostOf(url || "")); },
   async sync() { const v = await openVault(); if (!v) throw new Error("locked"); return v.sync(); },
   list: ({ url }) => listFor(url),
   secret: ({ id }) => secret(id),

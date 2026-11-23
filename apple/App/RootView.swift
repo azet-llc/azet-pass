@@ -27,6 +27,8 @@ struct RootView: View {
             guard let p = env["AZET_PASS_DEBUG_PASSWORD"] else { return }
             if s.phase == .welcome, let e = env["AZET_PASS_DEBUG_EMAIL"] { Task { try? await s.signIn(email: e, password: p, code: nil) } }
             if s.phase == .locked { Task { try? await s.unlock(password: p) } }
+            // AZET_PASS_DEBUG_LINK=items|family|watchtower|settings|new opens that screen once the vault is open.
+            if s.phase == .unlocked, let l = env["AZET_PASS_DEBUG_LINK"], let u = URL(string: "azetpass://\(l)") { prefs.deepLink = DeepLink(u) }
         }
 #endif
     }

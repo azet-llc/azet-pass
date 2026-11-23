@@ -13,10 +13,22 @@ import com.bitwarden.core.InitUserCryptoRequest
 import com.bitwarden.core.MasterPasswordUnlockData
 import com.bitwarden.core.WrappedAccountCryptographicState
 import com.bitwarden.crypto.HashPurpose
+import com.bitwarden.fido.CheckUserOptions
+import com.bitwarden.fido.ClientData
+import com.bitwarden.fido.Fido2CredentialAutofillView
+import com.bitwarden.fido.Origin
+import com.bitwarden.fido.PublicKeyCredentialAuthenticatorAssertionResponse
+import com.bitwarden.fido.PublicKeyCredentialAuthenticatorAttestationResponse
 import com.bitwarden.crypto.Kdf
 import com.bitwarden.generators.PassphraseGeneratorRequest
 import com.bitwarden.generators.PasswordGeneratorRequest
 import com.bitwarden.sdk.Client
+import com.bitwarden.sdk.CheckUserAndPickCredentialForCreationResult
+import com.bitwarden.sdk.CheckUserResult
+import com.bitwarden.sdk.CipherViewWrapper
+import com.bitwarden.sdk.Fido2CredentialStore
+import com.bitwarden.sdk.Fido2UserInterface
+import com.bitwarden.sdk.UiHint
 import com.bitwarden.sdk.azetCipherRequestJson
 import com.bitwarden.sdk.azetCiphersFromJson
 import com.bitwarden.sdk.azetSendFromJson
@@ -30,6 +42,8 @@ import com.bitwarden.vault.CipherListViewType
 import com.bitwarden.vault.CipherRepromptType
 import com.bitwarden.vault.CipherType
 import com.bitwarden.vault.CipherView
+import com.bitwarden.vault.EncryptionContext
+import com.bitwarden.vault.Fido2CredentialNewView
 import com.bitwarden.vault.LoginUriView
 import com.bitwarden.vault.LoginView
 import com.bitwarden.vault.TotpResponse
@@ -204,6 +218,47 @@ object Session {
         Device(o["name"]?.jsonPrimitive?.contentOrNull ?: "", o["type"]?.jsonPrimitive?.intOrNull ?: -1, o["creationDate"]?.jsonPrimitive?.contentOrNull?.take(10),
             o["identifier"]?.jsonPrimitive?.contentOrNull == store.deviceId)
     }
+
+    // Passkeys for other apps and browsers: the SDK's FIDO2 client makes the key and signs; this is the vault behind it.
+    private fun fido2() = c().platform().fido2()
+
+    /** The passkeys saved for a site (its relying-party id). */
+    suspend fun passkeys(rpId: String): List<Fido2CredentialAutofillView> = items.filter { it.hasPasskey() }
+        .flatMap { m -> runCatching { fido2().decryptFido2AutofillCredentials(view(m.id!!)) }.getOrDefault(emptyList()) }.filter { it.rpId == rpId }
+
+    private class PasskeyStore : Fido2CredentialStore {
+        override suspend fun findCredentials(ids: List<ByteArray>?, ripId: String, userHandle: ByteArray?): List<CipherView> =
+            items.filter { it.hasPasskey() }.mapNotNull { runCatching { view(it.id!!) }.getOrNull() }.filter { v ->
+                fido2().decryptFido2AutofillCredentials(v).any { f -> f.rpId == ripId && (ids == null || ids.any { it.contentEquals(f.credentialId) }) &&
+                    (userHandle == null || userHandle.contentEquals(f.userHandle)) }
+            }
+        override suspend fun allCredentials(): List<CipherListView> = items.filter { it.hasPasskey() }
+        override suspend fun saveCredential(cred: EncryptionContext) {
+            val id = cred.cipher.id; val body = azetCipherRequestJson(cred)
+            if (id != null) api.obj("PUT", "/api/ciphers/$id", body) else api.obj("POST", "/api/ciphers", body)
+            sync()
+        }
+    }
+
+    /** The person already unlocked AZET Pass (account password or fingerprint) on the screen that calls this, so the user is verified. */
+    private class PasskeyUi(private val cipherId: String?) : Fido2UserInterface {
+        override suspend fun checkUser(options: CheckUserOptions, hint: UiHint) = CheckUserResult(true, true)
+        override suspend fun pickCredentialForAuthentication(availableCredentials: List<CipherView>) =
+            CipherViewWrapper(availableCredentials.firstOrNull { it.id == cipherId } ?: availableCredentials.first())
+        /** The passkey goes on the login already saved for this site and user name, else on a new login. */
+        override suspend fun checkUserAndPickCredentialForCreation(options: CheckUserOptions, newCredential: Fido2CredentialNewView): CheckUserAndPickCredentialForCreationResult {
+            val same = matches(newCredential.rpId).firstOrNull { it.subtitle == newCredential.userName.orEmpty() && !it.hasPasskey() }
+            val cipher = same?.let { view(it.id!!) } ?: newLogin(newCredential.rpName ?: newCredential.rpId, newCredential.userName, null, "https://${newCredential.rpId}")
+            return CheckUserAndPickCredentialForCreationResult(CipherViewWrapper(cipher), CheckUserResult(true, true))
+        }
+        override fun isVerificationEnabled() = true
+    }
+
+    suspend fun passkeyRegister(origin: Origin, requestJson: String, clientData: ClientData): PublicKeyCredentialAuthenticatorAttestationResponse =
+        fido2().client(PasskeyUi(null), PasskeyStore()).register(origin, requestJson, clientData)
+
+    suspend fun passkeyAuthenticate(origin: Origin, requestJson: String, clientData: ClientData, cipherId: String?): PublicKeyCredentialAuthenticatorAssertionResponse =
+        fido2().client(PasskeyUi(cipherId), PasskeyStore()).authenticate(origin, requestJson, clientData)
 
     suspend fun trash(id: String) { api.raw("PUT", "/api/ciphers/$id/delete"); sync() }
 

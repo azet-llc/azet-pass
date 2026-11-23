@@ -156,4 +156,8 @@
     <string name="google_otp_not_export">Google OTP 계정 내보내기 QR 코드가 아닙니다.</string>
     <string name="scan_again">다음 QR 찍기</string>
     <string name="otp_fill">인증 코드 · %1$s</string>
+    <string name="passkeys_provider_line">비밀번호와 패스키</string>
+    <string name="passkey_create_title">%1$s의 패스키를 저장할까요?</string>
+    <string name="passkey_use_title">패스키로 %1$s에 로그인</string>
+    <string name="passkey_failed">패스키를 쓸 수 없습니다: %1$s</string>
 </resources>

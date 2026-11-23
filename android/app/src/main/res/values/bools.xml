@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Other apps and browsers ask a passkey provider only from Android 14. -->
+    <bool name="passkeys_provider">false</bool>
+</resources>

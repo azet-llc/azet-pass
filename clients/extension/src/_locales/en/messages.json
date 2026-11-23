@@ -172,5 +172,14 @@
   },
   "barOtp": {
     "message": "Enter the authentication code for {host} from AZET Pass?"
+  },
+  "unlockDesktop": {
+    "message": "Unlock with Touch ID"
+  },
+  "desktopOn": {
+    "message": "Turn on Touch ID unlock"
+  },
+  "desktopOff": {
+    "message": "Turn off Touch ID unlock"
   }
 }

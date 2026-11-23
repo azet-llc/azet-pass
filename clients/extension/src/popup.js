@@ -80,6 +80,12 @@ async function render() {
   for (const id of ["signedOut", "locked", "unlocked"]) $(id).hidden = id !== s.phase;
   $("lockBtn").hidden = s.phase !== "unlocked";
   if (s.phase === "locked") { $("lockedAs").textContent = t("lockedAs", s.email); $("unlockPw").focus(); }
+  if (s.phase !== "signedOut") call("desktopState").then((d) => {
+    $("desktopUnlock").hidden = !(s.phase === "locked" && d.on);
+    $("desktopToggleWrap").hidden = !(s.phase === "unlocked" && d.helper);
+    $("desktopToggle").textContent = t(d.on ? "desktopOff" : "desktopOn");
+    $("desktopToggle").dataset.on = d.on ? "1" : "";
+  }).catch(() => {});
   if (s.phase === "signedOut") $("email").focus();
   if (s.phase === "unlocked") await showUnlocked();
 }
@@ -94,6 +100,8 @@ $("unlockForm").onsubmit = async (e) => {
   try { await call("unlock", { password: $("unlockPw").value }); $("unlockPw").value = ""; await render(); } catch (err) { showErr(err); }
 };
 $("lockBtn").onclick = () => call("lock").then(render, showErr);
+$("desktopUnlock").onclick = async () => { try { await call("unlockWithDesktop"); await render(); } catch (err) { showErr(err); } };
+$("desktopToggle").onclick = async (e) => { e.preventDefault(); try { await call($("desktopToggle").dataset.on ? "desktopOff" : "desktopOn"); await render(); } catch (err) { showErr(err); } };
 $("signOut").onclick = (e) => { e.preventDefault(); call("signOut").then(render, showErr); };
 $("syncNow").onclick = (e) => { e.preventDefault(); call("sync").then(showUnlocked, showErr); };
 $("q").oninput = renderAll;

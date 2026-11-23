@@ -42,3 +42,4 @@ a { color: var(--brand); text-decoration: none; }
 textarea { width: 100%; box-sizing: border-box; padding: 12px 14px; background: var(--card); border: 0; border-radius: 18px; margin-bottom: 8px; }
 #sendMake { display: block; margin: 12px auto 0; width: 70%; }
 #sendLink { margin-top: 8px; font-size: 12px; }
+.wide { display: block; width: 70%; margin: 4px auto 12px; }

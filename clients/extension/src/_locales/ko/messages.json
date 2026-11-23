@@ -172,5 +172,14 @@
   },
   "barOtp": {
     "message": "{host} 인증 코드를 AZET Pass에서 넣을까요?"
+  },
+  "unlockDesktop": {
+    "message": "Touch ID로 잠금 해제"
+  },
+  "desktopOn": {
+    "message": "Touch ID 잠금 해제 켜기"
+  },
+  "desktopOff": {
+    "message": "Touch ID 잠금 해제 끄기"
   }
 }

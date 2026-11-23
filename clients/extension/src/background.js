@@ -151,7 +151,51 @@ async function passkeyComplete({ kind, req, choice }, sender) {
   return signAssertion(req, origin, rec, keyValue);
 }
 
+// Touch ID unlock through AZET Desktop on a Mac: the user key stays here, wrapped (AES-GCM) with a random key that the
+// helper io.azet.pass keeps and hands back only after AZET Pass on the Mac approves (Touch ID, the paired phone, or at
+// once in bypass mode). Without the helper nothing changes.
+const HOST = "io.azet.pass";
+const b64 = (u8) => btoa(String.fromCharCode(...u8));
+const unb64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+const native = (msg) => new Promise((res) => {
+  try { chrome.runtime.sendNativeMessage(HOST, msg, (r) => res(chrome.runtime.lastError ? null : r)); } catch { res(null); }
+});
+async function desktopState() {
+  const { desktopUnlock } = await local.get("desktopUnlock");
+  const ping = await native({ op: "ping" });
+  return { helper: !!ping?.ok, on: !!desktopUnlock && !!ping?.ok };
+}
+async function desktopOn() {
+  const v = await openVault(); if (!v?.userKey) throw new Error("locked");
+  const raw = crypto.getRandomValues(new Uint8Array(32)), iv = crypto.getRandomValues(new Uint8Array(12)), id = crypto.randomUUID();
+  const key = await crypto.subtle.importKey("raw", raw, "AES-GCM", false, ["encrypt"]);
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(v.userKey)));
+  const r = await native({ op: "store", id, key: b64(raw) });
+  if (!r?.ok) throw new Error("AZET Desktop helper is not installed on this Mac");
+  await local.set({ desktopUnlock: { id, iv: b64(iv), ct: b64(ct) } });
+  return desktopState();
+}
+async function desktopOff() {
+  const { desktopUnlock } = await local.get("desktopUnlock");
+  if (desktopUnlock) await native({ op: "forget", id: desktopUnlock.id });
+  await local.remove("desktopUnlock");
+  return desktopState();
+}
+async function unlockWithDesktop() {
+  const { desktopUnlock: d, account } = await local.get(["desktopUnlock", "account"]);
+  if (!d || !account) throw new Error("Touch ID unlock is off");
+  const r = await native({ op: "release", id: d.id, reason: "unlock AZET Pass in this browser" });
+  if (!r?.ok) throw new Error(r?.error || "AZET Desktop did not answer");
+  const key = await crypto.subtle.importKey("raw", unb64(r.key), "AES-GCM", false, ["decrypt"]);
+  const userKey = new TextDecoder().decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: unb64(d.iv) }, key, unb64(d.ct)));
+  const v = await newVault(); v.account = account; await v.resume(userKey); await store.saveUserKey(userKey);
+  const { snap } = await local.get("snap"); if (snap) await v.restore(snap); else await v.sync();
+  vault = v; await touch(); v.sync().catch(() => {});
+  return state();
+}
+
 const handlers = {
+  desktopState, desktopOn, desktopOff, unlockWithDesktop,
   passkeyPrepare,
   passkeyComplete,
   state,
@@ -166,7 +210,7 @@ const handlers = {
     return state();
   },
   lock: async () => { await lock(); return state(); },
-  async signOut() { await lock(); await local.remove(["account", "snap"]); return state(); },
+  async signOut() { await desktopOff().catch(() => {}); await lock(); await local.remove(["account", "snap"]); return state(); },
   async sync() { const v = await openVault(); if (!v) throw new Error("locked"); return v.sync(); },
   list: ({ url }) => listFor(url),
   secret: ({ id }) => secret(id),

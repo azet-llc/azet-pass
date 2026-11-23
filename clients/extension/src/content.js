@@ -126,11 +126,11 @@
     const t = (k) => chrome.i18n.getMessage(k) || k;
     root.innerHTML = `<style>
       .bar{position:fixed;top:12px;right:12px;z-index:2147483647;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px 14px;border-radius:22px;
-      background:#fcfcff;color:#000;box-shadow:0 6px 24px rgba(0,0,0,.18);font:13px system-ui,sans-serif;max-width:380px}
-      @media (prefers-color-scheme:dark){.bar{background:#171717;color:#fafaff}}
+      background:#fff;color:#0d0d0d;box-shadow:0 6px 24px rgba(0,0,0,.18);font:13px system-ui,sans-serif;max-width:380px}
+      @media (prefers-color-scheme:dark){.bar{background:#1a1a1c;color:#f4f4f5}}
       img{width:20px;height:20px}span{flex:1;min-width:160px}.acts{display:flex;flex-wrap:wrap;gap:6px}
       button{border:0;border-radius:999px;padding:7px 14px;font:inherit;font-weight:700;cursor:pointer}
-      .yes{background:#387aff;color:#fff}.no{background:transparent;color:#387aff}</style>
+      .yes{background:#2f6fe8;color:#fff}.no{background:transparent;color:#2f6fe8}</style>
       <div class="bar" role="dialog"><img alt=""><span></span><div class="acts"></div></div>`;
     root.querySelector("img").src = chrome.runtime.getURL("images/icon-48.png");
     return { holder, root, t };

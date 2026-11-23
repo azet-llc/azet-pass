@@ -24,21 +24,22 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// One UI look, measured from Samsung Pass screenshots at 864×1920 (2.4 px per dp):
-// page #f1f1f3, rounded groups #fcfcff with 26 dp corners and 10 dp side margins, 52 dp rows,
-// 1 dp dividers #e3e3e6, grey section headers, primary #387aff (Samsung Pass color_primary).
+// AZET look: design tokens v2 (azet-desktop src/shared/design/azet-tokens.ts, the shipped AZET phone app).
+// Screen white, content grouped on soft grey panels (#f7f7f8) with no borders or shadows, AZET blue #2f6fe8 kept for
+// things you can press, 16 dp panel corners and side margins. Dark: screen #0d0d0d, panels #1a1a1c.
+// The grouping (rows in rounded panels, a pill button at the bottom) follows the feature reference, Samsung Pass.
 data class OneColors(
     val page: Color, val card: Color, val primary: Color, val text: Color, val sub: Color,
     val header: Color, val divider: Color, val onPrimary: Color, val faint: Color,
 )
-val LightOne = OneColors(Color(0xFFF1F1F3), Color(0xFFFCFCFF), Color(0xFF387AFF), Color(0xFF000000), Color(0xFF6E6E71),
-    Color(0xFF717174), Color(0xFFE3E3E6), Color.White, Color(0xFFD9D9DE))
-val DarkOne = OneColors(Color(0xFF000000), Color(0xFF171717), Color(0xFF3E91FF), Color(0xFFFAFAFF), Color(0xFF9A9A9F),
-    Color(0xFF8E8E93), Color(0xFF2C2C2E), Color.White, Color(0xFF3A3A3C))
+val LightOne = OneColors(Color(0xFFFFFFFF), Color(0xFFF7F7F8), Color(0xFF2F6FE8), Color(0xFF0D0D0D), Color(0xFF5D5D5D),
+    Color(0xFF737373), Color(0xFFE5E5E5), Color.White, Color(0xFFD4D4D4))
+val DarkOne = OneColors(Color(0xFF0D0D0D), Color(0xFF1A1A1C), Color(0xFF2F6FE8), Color(0xFFF4F4F5), Color(0xFFA8A8AD),
+    Color(0xFF8E8E93), Color(0xFF262628), Color.White, Color(0xFF333336))
 val One = staticCompositionLocalOf { LightOne }
 
 object OneDim {
-    val side = 10.dp; val radius = 26.dp; val rowPad = 19.dp; val cardPad = 20.dp; val row = 52.dp; val gap = 20.dp
+    val side = 16.dp; val radius = 16.dp; val rowPad = 19.dp; val cardPad = 20.dp; val row = 52.dp; val gap = 20.dp
 }
 
 @Composable
@@ -55,7 +56,7 @@ fun OneTheme(content: @Composable () -> Unit) {
 
 @Composable fun c() = One.current
 
-/** Page with the One UI app bar: back chevron + title, actions on the right; content scrolls below. */
+/** Page with the app bar: back chevron + title, actions on the right; content scrolls below. */
 @Composable
 fun OnePage(title: String?, onBack: (() -> Unit)? = null, actions: @Composable RowScope.() -> Unit = {}, content: @Composable ColumnScope.() -> Unit) {
     Column(Modifier.fillMaxSize().background(c().page).statusBarsPadding().navigationBarsPadding().imePadding()) {
@@ -109,7 +110,7 @@ fun OneSwitch(checked: Boolean, onChange: (Boolean) -> Unit) {
     }
 }
 
-/** The blue pill button at the bottom of One UI start screens (200 × 52 dp). */
+/** The blue pill button at the bottom of start screens (200 × 52 dp). */
 @Composable
 fun OnePill(text: String, enabled: Boolean = true, width: Dp = 200.dp, onClick: () -> Unit) {
     Box(Modifier.width(width).height(52.dp).clip(CircleShape).background(if (enabled) c().primary else c().faint)
@@ -118,7 +119,7 @@ fun OnePill(text: String, enabled: Boolean = true, width: Dp = 200.dp, onClick: 
     }
 }
 
-/** Text box in One UI style: label above, underline, no outline. */
+/** Text box: label above, underline, no outline. */
 @Composable
 fun OneField(value: String, onChange: (String) -> Unit, label: String, secret: Boolean = false, keyboard: androidx.compose.foundation.text.KeyboardOptions = androidx.compose.foundation.text.KeyboardOptions.Default,
              singleLine: Boolean = true, trailing: @Composable (() -> Unit)? = null) {

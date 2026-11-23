@@ -21,7 +21,9 @@ struct MainView: View {
             }
             .modifier(SidebarOnIPad())
             .overlay(alignment: .top) { TravelBanner() }
+            #if os(iOS)  // credential exchange is iPhone-only (CredentialExchange.swift)
             .modifier(CredentialImportRunner())
+            #endif
             .onChange(of: prefs.deepLink) { _, _ in openLinkedTab() }
             .onAppear(perform: openLinkedTab)
         }
@@ -38,7 +40,7 @@ struct MainView: View {
 /// iPad and split screen: the tabs become a sidebar beside the list (iPadOS 18+); iPhone keeps the tab bar.
 struct SidebarOnIPad: ViewModifier {
     func body(content: Content) -> some View {
-        if #available(iOS 18.0, *) { content.tabViewStyle(.sidebarAdaptable) } else { content }
+        if #available(iOS 18.0, macOS 15.0, *) { content.tabViewStyle(.sidebarAdaptable) } else { content }
     }
 }
 

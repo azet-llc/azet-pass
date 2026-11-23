@@ -45,7 +45,9 @@ struct SettingsView: View {
                 Section("Your data") {
                     NavigationLink { ImportView() } label: { Label("Import from 1Password, Chrome, CSV", systemImage: "square.and.arrow.down") }
                     NavigationLink { GoogleOtpImportView() } label: { Label("Import from Google Authenticator", systemImage: "qrcode.viewfinder") }
+                    #if os(iOS)
                     CredentialExportRow()
+                    #endif
                     NavigationLink { ExportView() } label: { Label("Export", systemImage: "square.and.arrow.up") }
                     NavigationLink { EmergencyKitView() } label: { Label("Emergency Kit", systemImage: "doc.richtext") }
                     NavigationLink { GeneratorView() } label: { Label("Password generator", systemImage: "wand.and.stars") }
@@ -211,9 +213,11 @@ struct GoogleOtpImportView: View {
             Section {
                 Text("In Google Authenticator, open the menu → Transfer accounts → Export accounts, pick the accounts, then scan the QR code here. If there are several QR codes, scan each one.")
                     .font(.subheadline)
+                #if os(iOS)
                 if done == nil, !busy {
                     QRScannerView { take($0) }.frame(height: 300).clipShape(RoundedRectangle(cornerRadius: 26))
                 }
+                #endif
                 HStack { Text("Or a screenshot of the QR code"); Spacer(); PhotoQRButton { take($0) } }
             }
             if busy { Section { ProgressView() } }

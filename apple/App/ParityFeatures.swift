@@ -106,6 +106,13 @@ struct JailbreakRefusal: View {
     }
 }
 #endif
+#if os(macOS)
+/// The Mac window has no app-switcher snapshot or screen-capture flag to cover for.
+struct PrivacyCover: ViewModifier { func body(content: Content) -> some View { content } }
+/// A Mac is not jailbroken; the refusal switch is iPhone-only.
+enum DeviceIntegrity { static let isJailbroken = false }
+struct JailbreakRefusal: View { var body: some View { EmptyView() } }
+#endif
 
 // MARK: HOTP (counter codes, spass-082)
 

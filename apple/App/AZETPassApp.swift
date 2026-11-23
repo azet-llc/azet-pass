@@ -138,10 +138,10 @@ extension View {
 
 /// iOS 26 credential exchange names; an activity type nothing sends on older iOS.
 private var credentialExchangeActivity: String {
-    if #available(iOS 26.0, *) { return ASCredentialExchangeActivity }
+    if #available(iOS 26.0, macOS 26.0, *) { return ASCredentialExchangeActivity }
     return "io.azet.pass.no-credential-exchange"
 }
 private var credentialImportTokenKey: String {
-    if #available(iOS 26.0, *) { return ASCredentialImportToken }
+    if #available(iOS 26.0, macOS 26.0, *) { return ASCredentialImportToken }
     return "token"
 }

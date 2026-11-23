@@ -21,3 +21,18 @@ test("cipher round trip keeps the fields the server needs", () => {
   assert.equal(r.login.username, "2.u");
 });
 test("server hash is base64 of 32 bytes", async () => assert.equal(atob(await serverPasswordHash("a@b.c", "x", 1000)).length, 32));
+
+import { cbor, credIdBytes, credIdString, rpAllowed, createPasskey, signAssertion } from "../src/passkey.mjs";
+test("passkey helpers", async () => {
+  assert.deepEqual([...cbor({ a: 1 })], [0xa1, 0x61, 0x61, 0x01]);
+  assert.deepEqual([...cbor(-7)], [0x26]);
+  const id = crypto.randomUUID(); assert.equal(credIdString(credIdBytes(id)), id);
+  assert.equal(rpAllowed("example.com", "https://login.example.com/x"), true);
+  assert.equal(rpAllowed("com", "https://example.com"), false);
+  assert.equal(rpAllowed("example.com", "http://example.com"), false);
+  assert.equal(rpAllowed("other.com", "https://example.com"), false);
+  const { response, record } = await createPasskey({ rp: { id: "example.com", name: "Ex" }, user: { id: "AQID", name: "u", displayName: "U" }, challenge: "Y2g" }, "https://example.com");
+  const a = await signAssertion({ rpId: "example.com", challenge: "Y2g" }, "https://example.com", record, record.keyValue);
+  assert.equal(a.id, response.id);
+  assert.equal(a.userHandle, "AQID");
+});

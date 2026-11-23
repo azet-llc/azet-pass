@@ -4,6 +4,7 @@
 import * as bg from "./sdk/bitwarden_wasm_internal_bg.js";
 import { Vault, hostOf, generatePassword } from "./vault-core.mjs";
 import { passwordHealth } from "./health.mjs";
+import { createPasskey, signAssertion, rpAllowed, credIdString, fromB64u } from "./passkey.mjs";
 
 const BASE = "https://pass.azet.io";
 const local = chrome.storage.local, session = chrome.storage.session;
@@ -120,7 +121,39 @@ async function acceptOffer() {
   return v.saveLogin({ name: hostOf(offer.url), username: offer.username, password: offer.password, uri: new URL(offer.url).origin });
 }
 
+// Passkeys: the page script asks, the person picks in our bar, the background signs. The origin comes from the
+// browser (sender.url), never from the page; sub-frames from another origin go to the browser's own sheet.
+function passkeyOrigin(sender, rpId) {
+  if (!sender.url || !sender.tab) return null;
+  const origin = new URL(sender.url).origin;
+  if (sender.frameId && new URL(sender.tab.url).origin !== origin) return null;
+  return rpAllowed(rpId, sender.url) ? origin : null;
+}
+async function passkeyPrepare({ kind, req }, sender) {
+  const rpId = kind === "create" ? req.rp?.id : req.rpId;
+  if (!passkeyOrigin(sender, rpId)) return { use: false };
+  const v = await openVault(); if (!v) return { use: false, locked: true };
+  const saved = v.passkeysFor(rpId);
+  if (kind === "create") {
+    const exclude = new Set((req.exclude || []).map((b) => credIdString(fromB64u(b))));
+    return saved.some((p) => exclude.has(p.credentialId)) ? { use: false } : { use: true, host: rpId };
+  }
+  const allow = new Set((req.allow || []).map((b) => credIdString(fromB64u(b))));
+  const choices = saved.filter((p) => !allow.size || allow.has(p.credentialId));
+  return choices.length ? { use: true, host: rpId, choices } : { use: false };
+}
+async function passkeyComplete({ kind, req, choice }, sender) {
+  const rpId = kind === "create" ? req.rp?.id : req.rpId, origin = passkeyOrigin(sender, rpId);
+  if (!origin) throw new Error("origin");
+  const v = await openVault(); if (!v) throw new Error("locked");
+  if (kind === "create") { const { response, record } = await createPasskey(req, origin); await v.savePasskey(record, origin); return response; }
+  const { rec, keyValue } = await v.passkeySecret(choice.itemId, choice.credentialId);
+  return signAssertion(req, origin, rec, keyValue);
+}
+
 const handlers = {
+  passkeyPrepare,
+  passkeyComplete,
   state,
   async signIn({ email, password, code }) {
     const v = await newVault(); await v.signIn(email, password, code); await v.sync(); vault = v; await touch(); return state();

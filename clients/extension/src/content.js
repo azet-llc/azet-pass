@@ -80,27 +80,67 @@
   }, true);
   document.addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target?.type === "password") capture(e.target.form); }, true);
 
-  // The save bar sits in a closed shadow root so the page can neither style nor read it.
-  function offerSave(update, host) {
+  // Our bars sit in a closed shadow root so the page can neither style nor read them; clicks must be real (isTrusted).
+  function bar() {
     document.getElementById("azet-pass-bar")?.remove();
     const holder = Object.assign(document.createElement("div"), { id: "azet-pass-bar" });
     const root = holder.attachShadow({ mode: "closed" });
     const t = (k) => chrome.i18n.getMessage(k) || k;
     root.innerHTML = `<style>
-      .bar{position:fixed;top:12px;right:12px;z-index:2147483647;display:flex;gap:8px;align-items:center;padding:10px 12px;border-radius:10px;
-      background:#fff;color:#15191c;box-shadow:0 6px 24px rgba(0,0,0,.18);font:13px system-ui,sans-serif;max-width:360px}
+      .bar{position:fixed;top:12px;right:12px;z-index:2147483647;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 12px;border-radius:10px;
+      background:#fff;color:#15191c;box-shadow:0 6px 24px rgba(0,0,0,.18);font:13px system-ui,sans-serif;max-width:380px}
       @media (prefers-color-scheme:dark){.bar{background:#1c1f21;color:#f1f3f4}}
-      img{width:20px;height:20px}span{flex:1}button{border:0;border-radius:7px;padding:6px 10px;font:inherit;font-weight:600;cursor:pointer}
+      img{width:20px;height:20px}span{flex:1;min-width:160px}.acts{display:flex;flex-wrap:wrap;gap:6px}
+      button{border:0;border-radius:7px;padding:6px 10px;font:inherit;font-weight:600;cursor:pointer}
       .yes{background:#0d7d66;color:#fff}.no{background:transparent;color:inherit;border:1px solid #c9ced1}</style>
-      <div class="bar" role="dialog"><img alt=""><span></span><button class="yes"></button><button class="no"></button></div>`;
+      <div class="bar" role="dialog"><img alt=""><span></span><div class="acts"></div></div>`;
     root.querySelector("img").src = chrome.runtime.getURL("images/icon-48.png");
+    return { holder, root, t };
+  }
+
+  function offerSave(update, host) {
+    const { holder, root, t } = bar();
     root.querySelector("span").textContent = t(update ? "barUpdate" : "barSave").replace("{host}", host);
-    root.querySelector(".yes").textContent = t(update ? "update" : "save");
-    root.querySelector(".no").textContent = t("notNow");
-    root.querySelector(".yes").onclick = () => { send({ type: "acceptOffer" }); holder.remove(); };
-    root.querySelector(".no").onclick = () => { send({ type: "declineOffer" }); holder.remove(); };
+    const acts = root.querySelector(".acts");
+    for (const [label, cls, type] of [[t(update ? "update" : "save"), "yes", "acceptOffer"], [t("notNow"), "no", "declineOffer"]]) {
+      const b = Object.assign(document.createElement("button"), { textContent: label, className: cls });
+      b.onclick = (ev) => { if (!ev.isTrusted) return; send({ type }); holder.remove(); };
+      acts.append(b);
+    }
     document.documentElement.append(holder);
     setTimeout(() => holder.remove(), 30000);
+  }
+
+  // Passkey requests from the page script (page-webauthn.js). Nothing is signed without a real click in our bar.
+  window.addEventListener("message", async (e) => {
+    const m = e.data;
+    if (e.source !== window || !m?.azetPasskey || !m.id) return;
+    const answer = (result) => window.postMessage({ azetPasskeyReply: m.id, result }, location.origin);
+    const kind = m.azetPasskey === "create" ? "create" : "get";
+    const prep = await chrome.runtime.sendMessage({ type: "passkeyPrepare", kind, req: m.req }).catch(() => null);
+    if (!prep?.ok || !prep.result.use) return answer(null);
+    const choice = await passkeyBar(kind, prep.result);
+    if (!choice) return answer(null);
+    const done = await chrome.runtime.sendMessage({ type: "passkeyComplete", kind, req: m.req, choice: choice === true ? null : choice }).catch(() => null);
+    answer(done?.ok ? { response: done.result } : null);
+  });
+
+  function passkeyBar(kind, { host, choices }) {
+    return new Promise((resolve) => {
+      const { holder, root, t } = bar();
+      root.querySelector("span").textContent = t(kind === "create" ? "pkSave" : "pkUse").replace("{host}", host);
+      const acts = root.querySelector(".acts");
+      const button = (label, cls, value) => {
+        const b = Object.assign(document.createElement("button"), { textContent: label, className: cls });
+        b.onclick = (ev) => { if (!ev.isTrusted) return; holder.remove(); resolve(value); };
+        acts.append(b);
+      };
+      if (kind === "create") button(t("save"), "yes", true);
+      else for (const c of choices.slice(0, 4)) button(c.userName, "yes", { itemId: c.itemId, credentialId: c.credentialId });
+      button(t("pkOther"), "no", null);
+      document.documentElement.append(holder);
+      setTimeout(() => { if (holder.isConnected) { holder.remove(); resolve(null); } }, 120000);
+    });
   }
 
   chrome.runtime.onMessage.addListener((m, _s, reply) => {

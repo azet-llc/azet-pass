@@ -139,5 +139,14 @@
  },
  "notNow": {
   "message": "나중에"
+ },
+ "pkSave": {
+  "message": "{host} 패스키를 AZET Pass에 저장할까요?"
+ },
+ "pkUse": {
+  "message": "AZET Pass 패스키로 {host}에 로그인:"
+ },
+ "pkOther": {
+  "message": "다른 기기 사용"
  }
 }

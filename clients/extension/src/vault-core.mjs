@@ -148,6 +148,36 @@ export class Vault {
     const saved = await this.api("POST", "/api/ciphers", toRequest(cipher));
     await this.sync(); return saved.id;
   }
+  /** Puts a new passkey on the login for its site and user (a new login if there is none). */
+  async savePasskey(record, origin) {
+    const ciphers = this.client.vault().ciphers();
+    const mine = await Promise.all(this.forPage(origin).map((i) => this.view(i.id)));
+    let view = mine.find((c) => (c.login?.username || "") === (record.userName || ""));
+    const now = new Date().toISOString();
+    if (!view) {
+      view = { id: undefined, organizationId: undefined, folderId: undefined, collectionIds: [], key: undefined, name: record.rpName || record.rpId, notes: undefined, type: 1,
+        login: { username: record.userName, password: undefined, passwordRevisionDate: undefined, uris: [{ uri: origin, match: undefined, uriChecksum: undefined }], totp: undefined, autofillOnPageLoad: undefined, fido2Credentials: undefined },
+        identity: undefined, card: undefined, secureNote: undefined, sshKey: undefined, bankAccount: undefined, driversLicense: undefined, passport: undefined,
+        favorite: false, reprompt: 0, organizationUseTotp: true, edit: true, permissions: undefined, viewPassword: true, localData: undefined,
+        attachments: undefined, fields: undefined, passwordHistory: undefined, creationDate: now, deletedDate: undefined, revisionDate: now, archivedDate: undefined };
+    }
+    const withKey = ciphers.set_fido2_credentials(view, [record]);
+    const { cipher } = await ciphers.encrypt(withKey);
+    if (view.id) await this.api("PUT", `/api/ciphers/${view.id}`, toRequest(cipher, this.ciphers.find((c) => c.id === view.id)?.revisionDate));
+    else await this.api("POST", "/api/ciphers", toRequest(cipher));
+    await this.sync();
+  }
+  /** Passkeys saved for a relying party: [{ itemId, credentialId, userName }]. */
+  passkeysFor(rpId) {
+    return this.list.flatMap((i) => (i.type?.login?.fido2Credentials || []).filter((f) => f.rpId === rpId)
+      .map((f) => ({ itemId: i.id, credentialId: f.credentialId, userName: f.userName || f.userDisplayName || i.name })));
+  }
+  /** The decrypted key and record for one passkey. */
+  async passkeySecret(itemId, credentialId) {
+    const ciphers = this.client.vault().ciphers(), view = await this.view(itemId);
+    const rec = ciphers.decrypt_fido2_credentials(view).find((f) => f.credentialId === credentialId);
+    return { rec, keyValue: ciphers.decrypt_fido2_private_key(view) };
+  }
   /** New password for a saved login; the old one goes to its password history. */
   async updatePassword(id, password) {
     const old = this.ciphers.find((c) => c.id === id), view = await this.view(id), now = new Date().toISOString();

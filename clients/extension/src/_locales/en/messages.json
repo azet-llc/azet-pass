@@ -139,5 +139,14 @@
  },
  "notNow": {
   "message": "Not now"
+ },
+ "pkSave": {
+  "message": "Save a passkey for {host} in AZET Pass?"
+ },
+ "pkUse": {
+  "message": "Sign in to {host} with a passkey from AZET Pass:"
+ },
+ "pkOther": {
+  "message": "Use another device"
  }
 }

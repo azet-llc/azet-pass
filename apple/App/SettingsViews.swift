@@ -44,6 +44,7 @@ struct SettingsView: View {
                 }
                 Section("Your data") {
                     NavigationLink { ImportView() } label: { Label("Import from 1Password, Chrome, CSV", systemImage: "square.and.arrow.down") }
+                    NavigationLink { GoogleOtpImportView() } label: { Label("Import from Google Authenticator", systemImage: "qrcode.viewfinder") }
                     CredentialExportRow()
                     NavigationLink { ExportView() } label: { Label("Export", systemImage: "square.and.arrow.up") }
                     NavigationLink { EmergencyKitView() } label: { Label("Emergency Kit", systemImage: "doc.richtext") }
@@ -194,6 +195,62 @@ struct ImportView: View {
         }
         try? await session.sync()
         done = n
+    }
+}
+
+/// Google Authenticator > Transfer accounts > Export accounts: scan that QR (or pick a screenshot of it) and every
+/// account becomes a login with live codes.
+struct GoogleOtpImportView: View {
+    @Environment(Session.self) private var session
+    @State private var done: Int?
+    @State private var busy = false
+    @State private var error: String?
+
+    var body: some View {
+        Form {
+            Section {
+                Text("In Google Authenticator, open the menu → Transfer accounts → Export accounts, pick the accounts, then scan the QR code here. If there are several QR codes, scan each one.")
+                    .font(.subheadline)
+                if done == nil, !busy {
+                    QRScannerView { take($0) }.frame(height: 300).clipShape(RoundedRectangle(cornerRadius: 26))
+                }
+                HStack { Text("Or a screenshot of the QR code"); Spacer(); PhotoQRButton { take($0) } }
+            }
+            if busy { Section { ProgressView() } }
+            if let n = done {
+                Section {
+                    Label("\(n) items imported", systemImage: "checkmark.seal.fill").foregroundStyle(Theme.brand)
+                    Button("Scan another") { done = nil }
+                }
+            }
+        }.azetList()
+        .navigationTitle("Google Authenticator")
+        .errorAlert($error)
+    }
+
+    private func take(_ code: String) {
+        guard !busy else { return }
+        let accounts = GoogleOtp.parse(code)
+        guard !accounts.isEmpty else { error = String(localized: "This is not a Google Authenticator export QR code."); return }
+        busy = true
+        Task {
+            defer { busy = false }
+            var n = 0
+            for a in accounts {
+                var d = Draft(category: .login)
+                d.name = a.issuer.isEmpty ? a.name : a.issuer
+                d.username = a.name
+                d.urls = []
+                d.totp = a.uri
+                do {
+                    let ctx = try await session.client.vault().ciphers().encrypt(cipherView: d.view())
+                    try await session.api.send("POST", "/api/ciphers", try JSONSerialization.jsonObject(with: Data(try azetCipherRequestJson(ctx: ctx).utf8)))
+                    n += 1
+                } catch { self.error = error.localizedDescription; break }
+            }
+            try? await session.sync()
+            done = n
+        }
     }
 }
 

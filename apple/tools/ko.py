@@ -1,5 +1,11 @@
 # Korean UI strings for AZET Pass iOS. tools/make-strings.py writes Resources/Localizable.xcstrings from this.
 KO = {
+"Import from Google Authenticator": "Google OTP에서 가져오기",
+"In Google Authenticator, open the menu → Transfer accounts → Export accounts, pick the accounts, then scan the QR code here. If there are several QR codes, scan each one.": "Google OTP 앱에서 메뉴 → 계정 이전 → 계정 내보내기로 계정을 고른 뒤 나온 QR 코드를 여기서 찍으세요. QR 코드가 여러 장이면 한 장씩 찍으면 돼요.",
+"Or a screenshot of the QR code": "또는 QR 코드 스크린샷",
+"Scan another": "다음 QR 찍기",
+"Google Authenticator": "Google OTP",
+"This is not a Google Authenticator export QR code.": "Google OTP 계정 내보내기 QR 코드가 아니에요.",
 " or after one view": " 또는 한 번 열면",
 "%@ can sign in now": "%@ 님이 이제 로그인할 수 있어요",
 "%@ forgot their account password. Set a temporary one; their items stay exactly as they are.": "%@ 님이 계정 비밀번호를 잊었어요. 임시 비밀번호를 정해 주세요. 저장된 항목은 그대로 남아요.",

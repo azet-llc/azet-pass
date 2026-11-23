@@ -64,7 +64,16 @@ struct ShareLinkView: View {
                              accessCount: 0, disabled: false, hideEmail: true, revisionDate: Date(), deletionDate: end, expirationDate: end,
                              emails: [], authType: .none)
             let send = try session.client.sends().encrypt(send: v)
-            let body = try JSONSerialization.jsonObject(with: Data(try azetSendRequestJson(send: send).utf8))
+            // azetSendRequestJson wants an id (it builds the "update" request), so a new Send's body is written here (as on Android).
+            let iso = ISO8601DateFormatter(); iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            let body: [String: Any] = [
+                "type": 0, "name": send.name, "notes": send.notes as Any? ?? NSNull(), "key": send.key,
+                "text": ["text": send.text?.text as Any? ?? NSNull(), "hidden": true] as [String: Any],
+                "maxAccessCount": send.maxAccessCount.map { Int($0) } as Any? ?? NSNull(),
+                "deletionDate": iso.string(from: send.deletionDate),
+                "expirationDate": send.expirationDate.map { iso.string(from: $0) } as Any? ?? NSNull(),
+                "disabled": false, "hideEmail": true, "password": NSNull(), "file": NSNull(),
+            ]
             let r = try await session.api.raw("POST", "/api/sends", json: body)
             let made = try azetSendFromJson(json: String(data: r, encoding: .utf8) ?? "")
             let view = try session.client.sends().decrypt(send: made)

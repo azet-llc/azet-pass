@@ -1,3 +1,4 @@
+import AuthenticationServices
 import SwiftUI
 
 @main
@@ -15,6 +16,7 @@ struct AZETPassApp: App {
                 .dynamicTypeSize(prefs.parentMode ? DynamicTypeSize.accessibility2 ... .accessibility2 : DynamicTypeSize.xSmall ... .accessibility3)
                 .modifier(PrivacyCover())
                 .onOpenURL { url in prefs.pendingURL = url }
+                .onContinueUserActivity(credentialExchangeActivity) { a in prefs.importToken = a.userInfo?[credentialImportTokenKey] as? UUID }
                 .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { a in if let u = a.webpageURL { prefs.pendingURL = u } }
         }
         .onChange(of: scenePhase) { _, phase in
@@ -34,6 +36,8 @@ final class Prefs {
     var watchtowerBreaches: Bool { didSet { d.set(watchtowerBreaches, forKey: "wtBreaches") } }
     var pendingURL: URL?
     var deepLink: DeepLink?
+    /// Another app started moving its items here (iOS 26 credential exchange).
+    var importToken: UUID?
     /// Samsung Pass: off on a rooted / jailbroken phone. Off by default.
     var refuseJailbroken: Bool { didSet { d.set(refuseJailbroken, forKey: "refuseJailbroken") } }
     var wentBackground: Date?
@@ -130,4 +134,14 @@ func copyToClipboard(_ s: String) {
 extension View {
     /// A list or form on the AZET page colour; its white groups stay as they are.
     func azetList() -> some View { scrollContentBackground(.hidden).background(Theme.page) }
+}
+
+/// iOS 26 credential exchange names; an activity type nothing sends on older iOS.
+private var credentialExchangeActivity: String {
+    if #available(iOS 26.0, *) { return ASCredentialExchangeActivity }
+    return "io.azet.pass.no-credential-exchange"
+}
+private var credentialImportTokenKey: String {
+    if #available(iOS 26.0, *) { return ASCredentialImportToken }
+    return "token"
 }

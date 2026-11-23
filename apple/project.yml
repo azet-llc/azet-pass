@@ -87,6 +87,8 @@ targets:
               ProvidesPasskeys: true
               ProvidesOneTimeCodes: true
               ShowsConfigurationUI: true
+              SupportsCredentialExchange: true
+              SupportedCredentialExchangeVersions: ["1.0"]
     entitlements:
       path: Autofill/AZETPassAutofill.entitlements
       properties:

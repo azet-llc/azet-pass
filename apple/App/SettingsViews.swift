@@ -44,6 +44,7 @@ struct SettingsView: View {
                 }
                 Section("Your data") {
                     NavigationLink { ImportView() } label: { Label("Import from 1Password, Chrome, CSV", systemImage: "square.and.arrow.down") }
+                    CredentialExportRow()
                     NavigationLink { ExportView() } label: { Label("Export", systemImage: "square.and.arrow.up") }
                     NavigationLink { EmergencyKitView() } label: { Label("Emergency Kit", systemImage: "doc.richtext") }
                     NavigationLink { GeneratorView() } label: { Label("Password generator", systemImage: "wand.and.stars") }

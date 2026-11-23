@@ -19,7 +19,9 @@ struct MainView: View {
                 FamilyView().tag(Tab.family).tabItem { Label("Family", systemImage: "person.3.fill") }
                 WatchtowerView().tag(Tab.watchtower).tabItem { Label("Watchtower", systemImage: "shield.lefthalf.filled") }
             }
+            .modifier(SidebarOnIPad())
             .overlay(alignment: .top) { TravelBanner() }
+            .modifier(CredentialImportRunner())
             .onChange(of: prefs.deepLink) { _, _ in openLinkedTab() }
             .onAppear(perform: openLinkedTab)
         }
@@ -30,6 +32,13 @@ struct MainView: View {
         guard let link = prefs.deepLink else { return }
         tab = link.tab
         if case .tab = link { prefs.deepLink = nil }
+    }
+}
+
+/// iPad and split screen: the tabs become a sidebar beside the list (iPadOS 18+); iPhone keeps the tab bar.
+struct SidebarOnIPad: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 18.0, *) { content.tabViewStyle(.sidebarAdaptable) } else { content }
     }
 }
 

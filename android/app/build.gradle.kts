@@ -9,6 +9,7 @@ val sign = Properties().apply { System.getenv("AZET_PASS_SIGNING")?.let { f -> f
 android {
     namespace = "io.azet.pass"
     compileSdk = 37
+    ndkVersion = "27.1.12297006" // lets the build strip debug symbols from the SDK .so
     defaultConfig {
         applicationId = "io.azet.pass"
         minSdk = 29
@@ -25,7 +26,8 @@ android {
     }
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfigs.findByName("release")?.let { signingConfig = it }
         }
     }

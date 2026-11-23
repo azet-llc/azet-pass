@@ -7,7 +7,7 @@ enum Config {
     static let server = URL(string: "https://pass.azet.io")!
     #if os(macOS)
     static let appGroup = "95P4H2RG24.io.azet.pass"   // Mac App Store: team-prefixed group, no portal registration
-    static let safariExtension = "io.azet.pass.safari.extension"
+    static let safariExtension = "io.azet.pass.safari-extension"
     #else
     static let appGroup = "group.io.azet.pass"
     #endif

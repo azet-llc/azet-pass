@@ -1,0 +1,185 @@
+{
+  "extName": {
+    "message": "AZET Pass"
+  },
+  "extDescription": {
+    "message": "비밀번호·카드·주소를 채우고 인증 코드를 보관하며, 새 로그인을 저장합니다. AZET Pass 계정으로 종단간 암호화됩니다."
+  },
+  "cmdFill": {
+    "message": "이 사이트 로그인 채우기"
+  },
+  "signInLead": {
+    "message": "AZET Pass 계정으로 로그인하세요."
+  },
+  "email": {
+    "message": "이메일"
+  },
+  "accountPassword": {
+    "message": "계정 비밀번호"
+  },
+  "twoFactorCode": {
+    "message": "인증 앱의 6자리 코드"
+  },
+  "signIn": {
+    "message": "로그인"
+  },
+  "createAccount": {
+    "message": "계정 만들기"
+  },
+  "unlock": {
+    "message": "잠금 해제"
+  },
+  "lock": {
+    "message": "잠그기"
+  },
+  "signOut": {
+    "message": "로그아웃"
+  },
+  "lockedAs": {
+    "message": "잠김 · $1"
+  },
+  "thisSite": {
+    "message": "이 사이트"
+  },
+  "allItems": {
+    "message": "전체"
+  },
+  "generator": {
+    "message": "생성기"
+  },
+  "check": {
+    "message": "점검"
+  },
+  "noneHere": {
+    "message": "이 사이트에 저장된 항목이 아직 없습니다."
+  },
+  "search": {
+    "message": "검색"
+  },
+  "length": {
+    "message": "길이"
+  },
+  "symbols": {
+    "message": "기호"
+  },
+  "newPassword": {
+    "message": "새로 만들기"
+  },
+  "copy": {
+    "message": "복사"
+  },
+  "syncNow": {
+    "message": "지금 동기화"
+  },
+  "webVault": {
+    "message": "웹 보관함"
+  },
+  "fill": {
+    "message": "채우기"
+  },
+  "copyUser": {
+    "message": "아이디"
+  },
+  "copyPassword": {
+    "message": "비밀번호"
+  },
+  "copyCode": {
+    "message": "코드"
+  },
+  "login": {
+    "message": "로그인"
+  },
+  "card": {
+    "message": "카드"
+  },
+  "identity": {
+    "message": "신원"
+  },
+  "secureNote": {
+    "message": "메모"
+  },
+  "sshKey": {
+    "message": "SSH 키"
+  },
+  "other": {
+    "message": "항목"
+  },
+  "checking": {
+    "message": "점검 중…"
+  },
+  "checkSummary": {
+    "message": "$1개 점검 · 약함 $2 · 재사용 $3 · 1년 넘음 $4"
+  },
+  "weak": {
+    "message": "약함"
+  },
+  "reused": {
+    "message": "재사용"
+  },
+  "old": {
+    "message": "1년 넘음"
+  },
+  "enterCode": {
+    "message": "인증 앱의 코드를 입력하세요."
+  },
+  "lockedNow": {
+    "message": "AZET Pass가 잠겨 있습니다. 먼저 잠금을 해제하세요."
+  },
+  "barSave": {
+    "message": "{host} 로그인을 AZET Pass에 저장할까요?"
+  },
+  "barUpdate": {
+    "message": "{host}에 저장된 비밀번호를 바꿀까요?"
+  },
+  "save": {
+    "message": "저장"
+  },
+  "update": {
+    "message": "바꾸기"
+  },
+  "notNow": {
+    "message": "나중에"
+  },
+  "pkSave": {
+    "message": "{host} 패스키를 AZET Pass에 저장할까요?"
+  },
+  "pkUse": {
+    "message": "AZET Pass 패스키로 {host}에 로그인:"
+  },
+  "pkOther": {
+    "message": "다른 기기 사용"
+  },
+  "send": {
+    "message": "보내기"
+  },
+  "sendLead": {
+    "message": "글을 암호화된 링크로 나눕니다. 열쇠는 링크 안에만 있어 저희 서버는 내용을 볼 수 없습니다."
+  },
+  "sendPlaceholder": {
+    "message": "나눌 글"
+  },
+  "sendDays": {
+    "message": "삭제까지(일)"
+  },
+  "sendOnce": {
+    "message": "한 번만 열람"
+  },
+  "sendMake": {
+    "message": "링크 만들고 복사"
+  },
+  "sendCopied": {
+    "message": "링크를 복사했습니다."
+  },
+  "barOtp": {
+    "message": "{host} 인증 코드를 AZET Pass에서 넣을까요?"
+  },
+  "unlockDesktop": {
+    "message": "Touch ID로 잠금 해제"
+  },
+  "desktopOn": {
+    "message": "Touch ID 잠금 해제 켜기"
+  },
+  "desktopOff": {
+    "message": "Touch ID 잠금 해제 끄기"
+  }
+}

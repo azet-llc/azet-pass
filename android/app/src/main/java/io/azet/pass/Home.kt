@@ -64,7 +64,7 @@ fun MainScreen(act: FragmentActivity, link: String?) {
     }
 }
 
-/** Samsung Pass dashboard: title bar, blue profile card, "sign-in" and "personal info" cards with counts. */
+/** Home: whose vault it is with the check-up beside it, then sign-ins and personal items as two panels with counts. */
 @Composable
 fun HomeScreen(go: (Route) -> Unit) {
     val items = Session.items
@@ -82,11 +82,13 @@ fun HomeScreen(go: (Route) -> Unit) {
     }) {
         Column(Modifier.verticalScroll(rememberScrollState())) {
             Spacer(Modifier.height(4.dp))
-            // Blue card: whose vault, and a shortcut on the right (Samsung: name + "digital signature certificate").
-            Row(Modifier.padding(horizontal = OneDim.side).fillMaxWidth().height(72.dp).clip(RoundedCornerShape(OneDim.radius)).background(c().primary)
-                .padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text(Session.displayName, Modifier.weight(1f), color = c().onPrimary, fontSize = 21.sp, fontWeight = FontWeight.Bold, maxLines = 1)
-                Text(stringResource(R.string.tab_check), Modifier.clickable { go(Route.Check) }, color = c().onPrimary, fontSize = 15.sp)
+            // Whose vault, and the check-up on the right.
+            Row(Modifier.padding(horizontal = OneDim.side).fillMaxWidth().clip(RoundedCornerShape(OneDim.radius)).background(c().card).clickable { go(Route.Check) }
+                .padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+                OneWell { Text(Session.displayName.take(1).uppercase(), color = c().text, fontWeight = FontWeight.Medium, fontSize = 17.sp) }
+                Spacer(Modifier.width(14.dp))
+                Text(Session.displayName, Modifier.weight(1f), color = c().text, fontSize = 16.sp, fontWeight = FontWeight.Medium, maxLines = 1)
+                Text(stringResource(R.string.tab_check), color = c().primary, fontSize = 15.sp, fontWeight = FontWeight.Medium)
             }
             Spacer(Modifier.height(OneDim.gap))
             DashCard(stringResource(R.string.home_signin_title), stringResource(R.string.home_signin_desc)) {
@@ -110,9 +112,9 @@ fun HomeScreen(go: (Route) -> Unit) {
 @Composable
 private fun DashCard(title: String, desc: String, rows: @Composable ColumnScope.() -> Unit) {
     OneCard {
-        Text(title, Modifier.padding(start = OneDim.cardPad, end = OneDim.cardPad, top = 25.dp), fontSize = 20.5.sp, fontWeight = FontWeight.Bold, color = c().text)
-        Text(desc, Modifier.padding(start = OneDim.cardPad, end = OneDim.cardPad, top = 4.dp, bottom = 16.dp), fontSize = 14.sp, lineHeight = 18.3.sp, color = c().sub)
-        Column(Modifier.padding(start = 3.dp, bottom = 14.dp), content = rows)
+        Text(title, Modifier.padding(start = OneDim.cardPad, end = OneDim.cardPad, top = 20.dp), fontSize = 18.sp, fontWeight = FontWeight.Medium, color = c().text)
+        Text(desc, Modifier.padding(start = OneDim.cardPad, end = OneDim.cardPad, top = 4.dp, bottom = 8.dp), fontSize = 14.sp, lineHeight = 18.sp, color = c().sub)
+        Column(Modifier.padding(bottom = 8.dp), content = rows)
     }
 }
 
@@ -126,12 +128,10 @@ fun ItemRows(list: List<CipherListView>, go: (Route) -> Unit) {
             Column(Modifier.padding(horizontal = OneDim.side).clip(shape).background(c().card)) {
                 Row(Modifier.fillMaxWidth().clickable { v.id?.let { go(Route.Detail(it)) } }.heightIn(min = 64.dp).padding(horizontal = OneDim.rowPad, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.size(38.dp).clip(CircleShape).background(c().primary.copy(alpha = 0.12f)), contentAlignment = Alignment.Center) {
-                        Text(v.name.take(1).uppercase(), color = c().primary, fontWeight = FontWeight.Bold, fontSize = 17.sp)
-                    }
-                    Spacer(Modifier.width(16.dp))
+                    OneWell { Text(v.name.take(1).uppercase(), color = c().text, fontWeight = FontWeight.Medium, fontSize = 17.sp) }
+                    Spacer(Modifier.width(14.dp))
                     Column(Modifier.weight(1f)) {
-                        Text(v.name, fontSize = 17.sp, color = c().text, maxLines = 1)
+                        Text(v.name, fontSize = 16.sp, fontWeight = FontWeight.Medium, color = c().text, maxLines = 1)
                         if (v.subtitle.isNotBlank()) Text(v.subtitle, fontSize = 14.sp, color = c().sub, maxLines = 1)
                     }
                     if (v.favorite) Icon(Icons.Filled.Star, null, tint = c().primary, modifier = Modifier.size(18.dp))

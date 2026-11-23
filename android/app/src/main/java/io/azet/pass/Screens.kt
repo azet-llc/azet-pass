@@ -201,6 +201,14 @@ fun SettingsScreen(act: FragmentActivity, onBack: () -> Unit, onDevices: () -> U
                 OneDivider()
                 OneRow(stringResource(R.string.autofill), value = stringResource(if (autofillOn) R.string.autofill_on else R.string.autofill_off),
                     onClick = { act.startActivity(Intent(Settings.ACTION_REQUEST_SET_AUTOFILL_SERVICE).setData(android.net.Uri.parse("package:" + act.packageName))) })
+                if (android.os.Build.VERSION.SDK_INT >= 34) {
+                    OneDivider()
+                    // Android 14+: the system screen where AZET Pass is turned on as a passkey and password provider.
+                    OneRow(stringResource(R.string.passkey_provider), summary = stringResource(R.string.passkey_provider_sub), onClick = {
+                        runCatching { act.startActivity(Intent("android.settings.CREDENTIAL_PROVIDER").setData(android.net.Uri.parse("package:" + act.packageName))) }
+                            .onFailure { act.startActivity(Intent(Settings.ACTION_SETTINGS)) }
+                    })
+                }
             }
             OneHeader(stringResource(R.string.security))
             OneCard {

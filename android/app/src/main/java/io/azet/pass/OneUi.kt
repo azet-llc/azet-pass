@@ -1,5 +1,6 @@
 package io.azet.pass
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -27,7 +28,7 @@ import androidx.compose.ui.unit.sp
 // AZET look: design tokens v2 (azet-desktop src/shared/design/azet-tokens.ts, the shipped AZET phone app).
 // Screen white, content grouped on soft grey panels (#f7f7f8) with no borders or shadows, AZET blue #2f6fe8 kept for
 // things you can press, 16 dp panel corners and side margins. Dark: screen #0d0d0d, panels #1a1a1c.
-// The grouping (rows in rounded panels, a pill button at the bottom) follows the feature reference, Samsung Pass.
+// AZET Pass's form, the same on every device: one column, capsule buttons and fields, soft icon tiles, 20 dp panels.
 data class OneColors(
     val page: Color, val card: Color, val primary: Color, val text: Color, val sub: Color,
     val header: Color, val divider: Color, val onPrimary: Color, val faint: Color,
@@ -39,7 +40,7 @@ val DarkOne = OneColors(Color(0xFF0D0D0D), Color(0xFF1A1A1C), Color(0xFF2F6FE8),
 val One = staticCompositionLocalOf { LightOne }
 
 object OneDim {
-    val side = 16.dp; val radius = 16.dp; val rowPad = 19.dp; val cardPad = 20.dp; val row = 52.dp; val gap = 20.dp
+    val side = 16.dp; val radius = 20.dp; val rowPad = 19.dp; val cardPad = 20.dp; val row = 52.dp; val gap = 20.dp
 }
 
 @Composable
@@ -62,7 +63,7 @@ fun OnePage(title: String?, onBack: (() -> Unit)? = null, actions: @Composable R
     Column(Modifier.fillMaxSize().background(c().page).statusBarsPadding().navigationBarsPadding().imePadding()) {
         Row(Modifier.fillMaxWidth().height(64.dp).padding(start = if (onBack != null) 4.dp else 28.dp, end = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             if (onBack != null) IconButton(onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBackIos, stringResource(R.string.back), tint = c().text, modifier = Modifier.size(22.dp)) }
-            if (title != null) Text(title, Modifier.weight(1f).padding(start = if (onBack != null) 6.dp else 0.dp), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = c().text, maxLines = 1)
+            if (title != null) Text(title, Modifier.weight(1f).padding(start = if (onBack != null) 6.dp else 0.dp), fontSize = 20.sp, fontWeight = FontWeight.SemiBold, color = c().text, maxLines = 1)
             else Spacer(Modifier.weight(1f))
             actions()
         }
@@ -77,7 +78,7 @@ fun OneCard(modifier: Modifier = Modifier, color: Color = c().card, content: @Co
 
 @Composable
 fun OneHeader(text: String) {
-    Text(text, Modifier.padding(start = OneDim.side + OneDim.rowPad, top = 13.dp, bottom = 7.dp), fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = c().header)
+    Text(text, Modifier.padding(start = OneDim.side + 6.dp, top = 16.dp, bottom = 8.dp), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = c().header)
 }
 
 @Composable
@@ -91,11 +92,11 @@ fun OneRow(
 ) {
     Row(Modifier.fillMaxWidth().then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
         .heightIn(min = OneDim.row).padding(horizontal = OneDim.rowPad, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-        if (icon != null) { Icon(icon, null, Modifier.size(20.dp), tint = iconTint ?: c().primary); Spacer(Modifier.width(22.dp)) }
+        if (icon != null) { OneWell { Icon(icon, null, Modifier.size(18.dp), tint = iconTint ?: c().primary) }; Spacer(Modifier.width(14.dp)) }
         Column(Modifier.weight(1f)) {
-            Text(title, fontSize = 16.sp, color = titleColor ?: c().text)
-            if (summary != null) Text(summary, fontSize = 12.5.sp, color = c().sub, lineHeight = 16.5.sp, modifier = Modifier.padding(top = 2.dp))
-            if (value != null) Text(value, fontSize = 12.5.sp, color = c().primary, modifier = Modifier.padding(top = 2.dp))
+            Text(title, fontSize = 16.sp, fontWeight = FontWeight.Medium, color = titleColor ?: c().text)
+            if (summary != null) Text(summary, fontSize = 14.sp, color = c().sub, lineHeight = 18.sp, modifier = Modifier.padding(top = 2.dp))
+            if (value != null) Text(value, fontSize = 14.sp, color = c().primary, modifier = Modifier.padding(top = 2.dp))
         }
         if (trailing != null) { Spacer(Modifier.width(12.dp)); trailing() }
     }
@@ -110,13 +111,30 @@ fun OneSwitch(checked: Boolean, onChange: (Boolean) -> Unit) {
     }
 }
 
-/** The blue pill button at the bottom of start screens (200 × 52 dp). */
+/** The 40 dp well a row's symbol or a site's first letter sits in. */
 @Composable
-fun OnePill(text: String, enabled: Boolean = true, width: Dp = 200.dp, onClick: () -> Unit) {
-    Box(Modifier.width(width).height(52.dp).clip(CircleShape).background(if (enabled) c().primary else c().faint)
+fun OneWell(size: Dp = 40.dp, content: @Composable BoxScope.() -> Unit) {
+    Box(Modifier.size(size).clip(RoundedCornerShape(12.dp)).background(c().page).border(1.dp, c().divider.copy(alpha = 0.6f), RoundedCornerShape(12.dp)),
+        contentAlignment = Alignment.Center, content = content)
+}
+
+/** The one filled action of a screen: a capsule as wide as the column (328 × 56 dp). */
+@Composable
+fun OnePill(text: String, enabled: Boolean = true, width: Dp = 328.dp, onClick: () -> Unit) {
+    Box(Modifier.padding(horizontal = 24.dp).widthIn(max = width).fillMaxWidth().height(56.dp).clip(CircleShape).background(c().primary.copy(alpha = if (enabled) 1f else 0.4f))
         .clickable(enabled = enabled, onClick = onClick), contentAlignment = Alignment.Center) {
-        Text(text, color = c().onPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(text, color = c().onPrimary, fontSize = 17.sp, fontWeight = FontWeight.Medium)
     }
+}
+
+/** A text or password box as one capsule (sign-in and unlock). */
+@Composable
+fun OnePillField(value: String, onChange: (String) -> Unit, label: String, secret: Boolean = false, keyboard: androidx.compose.foundation.text.KeyboardOptions = androidx.compose.foundation.text.KeyboardOptions.Default) {
+    TextField(value, onChange, Modifier.padding(horizontal = 24.dp).widthIn(max = 328.dp).fillMaxWidth().heightIn(min = 56.dp), placeholder = { Text(label, fontSize = 17.sp, color = c().sub) },
+        singleLine = true, keyboardOptions = keyboard, shape = CircleShape, textStyle = TextStyle(fontSize = 17.sp, fontWeight = FontWeight.Medium),
+        visualTransformation = if (secret) androidx.compose.ui.text.input.PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
+        colors = TextFieldDefaults.colors(focusedContainerColor = c().card, unfocusedContainerColor = c().card, focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent, cursorColor = c().primary))
 }
 
 /** Text box: label above, underline, no outline. */

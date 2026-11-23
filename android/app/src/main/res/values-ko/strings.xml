@@ -167,4 +167,6 @@
     <string name="import_pw_lead">잠긴 파일입니다. 내보낼 때 정한 비밀번호를 입력하세요.</string>
     <string name="import_pw_wrong">이 비밀번호로는 파일이 열리지 않습니다.</string>
     <string name="card_nfc_hint">비접촉 카드를 휴대폰 뒷면에 대면 카드 번호와 유효기간이 채워집니다.</string>
+    <string name="passkey_provider">패스키</string>
+    <string name="passkey_provider_sub">휴대폰 설정에서 AZET Pass를 켜면 앱과 브라우저에서 패스키를 저장하고 쓸 수 있습니다.</string>
 </resources>

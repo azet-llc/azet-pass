@@ -167,4 +167,6 @@
     <string name="import_pw_lead">This file is locked. Enter the password chosen when it was exported.</string>
     <string name="import_pw_wrong">That password does not open this file.</string>
     <string name="card_nfc_hint">Hold a contactless card to the back of the phone to fill in its number and expiry.</string>
+    <string name="passkey_provider">Passkeys</string>
+    <string name="passkey_provider_sub">Turn on AZET Pass in the phone settings to save and use passkeys in apps and browsers.</string>
 </resources>

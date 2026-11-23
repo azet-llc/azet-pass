@@ -84,7 +84,7 @@ fun IntroScreen(onContinue: () -> Unit) {
     Column(Modifier.fillMaxSize().background(c().card).statusBarsPadding().navigationBarsPadding()) {
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 35.dp)) {
             Spacer(Modifier.height(86.dp))
-            Text(stringResource(R.string.app_name), Modifier.fillMaxWidth(), fontSize = 36.sp, fontWeight = FontWeight.Bold, color = c().text,
+            Text(stringResource(R.string.app_name), Modifier.fillMaxWidth(), fontSize = 28.sp, fontWeight = FontWeight.SemiBold, color = c().text,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center)
             Spacer(Modifier.height(58.dp))
             listOf(R.string.intro_1_t to R.string.intro_1_d, R.string.intro_2_t to R.string.intro_2_d, R.string.intro_3_t to R.string.intro_3_d).forEach { (t, d) ->
@@ -118,13 +118,13 @@ fun SignInScreen() {
     Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding().imePadding()) {
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
             Spacer(Modifier.height(96.dp))
-            Text(stringResource(R.string.app_name), Modifier.fillMaxWidth(), fontSize = 36.sp, fontWeight = FontWeight.Bold, color = c().text, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+            Text(stringResource(R.string.app_name), Modifier.fillMaxWidth(), fontSize = 28.sp, fontWeight = FontWeight.SemiBold, color = c().text, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
             Text(stringResource(R.string.sign_in_lead), Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 36.dp), fontSize = 15.sp, color = c().sub, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-            OneCard { Column(Modifier.padding(horizontal = 8.dp, vertical = 6.dp)) {
-                OneField(email, { email = it }, stringResource(R.string.email), keyboard = KeyboardOptions(keyboardType = KeyboardType.Email))
-                OneField(password, { password = it }, stringResource(R.string.account_password), secret = true, keyboard = KeyboardOptions(keyboardType = KeyboardType.Password))
-                if (needCode) OneField(code, { code = it }, stringResource(R.string.two_factor_code), keyboard = KeyboardOptions(keyboardType = KeyboardType.NumberPassword))
-            } }
+            Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                OnePillField(email, { email = it }, stringResource(R.string.email), keyboard = KeyboardOptions(keyboardType = KeyboardType.Email))
+                OnePillField(password, { password = it }, stringResource(R.string.account_password), secret = true, keyboard = KeyboardOptions(keyboardType = KeyboardType.Password))
+                if (needCode) OnePillField(code, { code = it }, stringResource(R.string.two_factor_code), keyboard = KeyboardOptions(keyboardType = KeyboardType.NumberPassword))
+            }
             error?.let { Text(it, Modifier.padding(horizontal = 28.dp, vertical = 12.dp), color = MaterialTheme.colorScheme.error, fontSize = 14.sp) }
             TextButton({ openUrl("$SERVER/#/register") }, Modifier.padding(start = 18.dp, top = 8.dp)) { Text(stringResource(R.string.create_account), color = c().primary, fontSize = 15.sp) }
         }
@@ -159,7 +159,7 @@ fun LockScreen(act: FragmentActivity) {
         // The person asked for this: no password box and no fingerprint on a rooted phone, only a way out.
         Column(Modifier.fillMaxSize().statusBarsPadding().padding(28.dp)) {
             Spacer(Modifier.height(96.dp))
-            Text(stringResource(R.string.app_name), fontSize = 36.sp, fontWeight = FontWeight.Bold, color = c().text)
+            Text(stringResource(R.string.app_name), fontSize = 28.sp, fontWeight = FontWeight.SemiBold, color = c().text)
             Text(stringResource(R.string.rooted_closed), Modifier.padding(top = 16.dp), fontSize = 16.sp, color = c().sub)
             TextButton({ Session.signOut() }, Modifier.padding(top = 16.dp)) { Text(stringResource(R.string.sign_out), color = c().primary, fontSize = 15.sp) }
         }
@@ -169,11 +169,11 @@ fun LockScreen(act: FragmentActivity) {
     Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding().imePadding()) {
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
             Spacer(Modifier.height(96.dp))
-            Text(stringResource(R.string.app_name), Modifier.fillMaxWidth(), fontSize = 36.sp, fontWeight = FontWeight.Bold, color = c().text, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+            Text(stringResource(R.string.app_name), Modifier.fillMaxWidth(), fontSize = 28.sp, fontWeight = FontWeight.SemiBold, color = c().text, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
             Text(stringResource(R.string.locked_as, Session.email ?: ""), Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 36.dp), fontSize = 15.sp, color = c().sub, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-            OneCard { Box(Modifier.padding(horizontal = 8.dp, vertical = 6.dp)) {
-                OneField(password, { password = it }, stringResource(R.string.account_password), secret = true, keyboard = KeyboardOptions(keyboardType = KeyboardType.Password))
-            } }
+            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                OnePillField(password, { password = it }, stringResource(R.string.account_password), secret = true, keyboard = KeyboardOptions(keyboardType = KeyboardType.Password))
+            }
             error?.let { Text(it, Modifier.padding(horizontal = 28.dp, vertical = 12.dp), color = MaterialTheme.colorScheme.error, fontSize = 14.sp) }
             Row(Modifier.padding(start = 18.dp, top = 8.dp)) {
                 if (Session.store.biometricOn) TextButton({ bio() }) { Text(stringResource(R.string.unlock_biometric), color = c().primary, fontSize = 15.sp) }

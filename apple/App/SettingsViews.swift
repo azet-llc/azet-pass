@@ -20,7 +20,7 @@ struct SettingsView: View {
             Form {
                 Section {
                     HStack(spacing: 12) {
-                        Avatar(name: session.account?.name ?? "?", size: 44)
+                        Avatar(name: session.account?.name ?? session.account?.email ?? "?", size: 44)
                         VStack(alignment: .leading) {
                             Text(session.account?.name ?? "").font(.headline)
                             Text(session.account?.email ?? "").font(.subheadline).foregroundStyle(.secondary)
@@ -31,14 +31,16 @@ struct SettingsView: View {
                     Toggle(isOn: $prefs.parentMode) { Label("Parent mode", systemImage: "textformat.size.larger") }
                 } footer: { Text("Big letters and only three buttons: find a password, save a new one, ask family for help.") }
                 Section("Security") {
-                    Toggle(isOn: $faceID) { Label("Unlock with Face ID", systemImage: "faceid") }
+                    Toggle(isOn: $faceID) { Label(Biometry.unlockLabel, systemImage: Biometry.symbol) }
                         .onChange(of: faceID) { _, on in Task { await session.setBiometrics(on) } }
                     Picker(selection: $prefs.autoLockMinutes) {
                         Text("Immediately").tag(0); Text("After 1 minute").tag(1); Text("After 5 minutes").tag(5); Text("After 1 hour").tag(60)
                     } label: { Label("Lock", systemImage: "lock") }
                     Toggle(isOn: Binding(get: { session.travelMode }, set: { _ in travelAsk = true })) { Label("Travel Mode", systemImage: "airplane") }
                     Toggle(isOn: $prefs.watchtowerBreaches) { Label("Check passwords against data breaches", systemImage: "shield.lefthalf.filled") }
+                    #if os(iOS)  // a Mac is not jailbroken
                     Toggle(isOn: $prefs.refuseJailbroken) { Label("Stay closed on a jailbroken iPhone", systemImage: "exclamationmark.shield") }
+                    #endif
                     NavigationLink { AutofillHelpView() } label: { Label("Fill passwords in apps and Safari", systemImage: "key.viewfinder") }
                     NavigationLink { TwoStepLoginView() } label: { Label("Two-step login for this account", systemImage: "lock.rotation") }
                 }

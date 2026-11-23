@@ -152,6 +152,7 @@ struct MacPageColumn: ViewModifier {
                 .contentMargins(.horizontal, max(0, (g.size.width - Layout.page) / 2), for: .scrollContent)
                 .background(Theme.page)
         }
+        .frame(minWidth: 520, minHeight: 560) // a Mac sheet takes its size from its content, and a list has none
     }
 }
 #endif

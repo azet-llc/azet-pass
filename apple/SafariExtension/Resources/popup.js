@@ -3,7 +3,7 @@ const $ = (s) => document.querySelector(s);
 const t = (k) => browser.i18n.getMessage(k) || k;
 let tab;
 
-const ask = (msg) => browser.runtime.sendNativeMessage("io.azet.pass.safari", { ...msg, url: tab?.url ?? "" });
+const ask = (msg) => browser.runtime.sendNativeMessage("io.azet.pass", { ...msg, url: tab?.url ?? "" });
 
 function show(r) {
   $("#host").textContent = r.host || "";

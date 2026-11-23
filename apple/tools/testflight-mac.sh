@@ -21,8 +21,8 @@ cat > $OUT/export.plist <<PLIST
 <key>signingCertificate</key><string>Apple Distribution</string>
 <key>installerSigningCertificate</key><string>3rd Party Mac Developer Installer</string>
 <key>provisioningProfiles</key><dict>
-<key>io.azet.pass.safari</key><string>io.azet.pass.safari mac</string>
-<key>io.azet.pass.safari.extension</key><string>io.azet.pass.safari.extension mac</string>
+<key>io.azet.pass</key><string>io.azet.pass mac</string>
+<key>io.azet.pass.safari-extension</key><string>io.azet.pass.safari-extension mac</string>
 </dict>
 <key>manageAppVersionAndBuildNumber</key><false/>
 </dict></plist>

@@ -98,7 +98,8 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: io.azet.pass.autofill
         TARGETED_DEVICE_FAMILY: "1,2"
         APPLICATION_EXTENSION_API_ONLY: YES
-  # AZET Pass for Safari (Mac App Store record io.azet.pass.safari): the same SwiftUI app on macOS + a Safari web
+  # AZET Pass on the Mac: the macOS edition of the AZET Pass app record (io.azet.pass, universal purchase with the iPhone app;
+  # 11-23: the separate io.azet.pass.safari record was rejected under 4.3) — the same SwiftUI app + a Safari web
   # extension written for it (popup + page fill, no Bitwarden extension code). Mac/MacShims.swift maps the iOS-only names.
   AZETPassMac:
     type: application
@@ -137,7 +138,7 @@ targets:
         keychain-access-groups: [$(AppIdentifierPrefix)io.azet.pass.shared]
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: io.azet.pass.safari
+        PRODUCT_BUNDLE_IDENTIFIER: io.azet.pass
         PRODUCT_NAME: AZET Pass
         PRODUCT_MODULE_NAME: AZETPass
         ASSETCATALOG_COMPILER_APPICON_NAME: MacAppIcon
@@ -147,7 +148,7 @@ targets:
         Release:
           CODE_SIGN_STYLE: Manual
           CODE_SIGN_IDENTITY: Apple Distribution
-          PROVISIONING_PROFILE_SPECIFIER: io.azet.pass.safari mac
+          PROVISIONING_PROFILE_SPECIFIER: io.azet.pass mac
   AZETPassSafariExt:
     type: app-extension
     platform: macOS
@@ -191,7 +192,7 @@ targets:
         keychain-access-groups: [$(AppIdentifierPrefix)io.azet.pass.shared]
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: io.azet.pass.safari.extension
+        PRODUCT_BUNDLE_IDENTIFIER: io.azet.pass.safari-extension
         APPLICATION_EXTENSION_API_ONLY: YES
         ARCHS: arm64
         ENABLE_HARDENED_RUNTIME: YES
@@ -199,7 +200,7 @@ targets:
         Release:
           CODE_SIGN_STYLE: Manual
           CODE_SIGN_IDENTITY: Apple Distribution
-          PROVISIONING_PROFILE_SPECIFIER: io.azet.pass.safari.extension mac
+          PROVISIONING_PROFILE_SPECIFIER: io.azet.pass.safari-extension mac
   AZETPassUITests:
     type: bundle.ui-testing
     platform: iOS

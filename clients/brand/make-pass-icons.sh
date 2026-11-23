@@ -23,3 +23,22 @@ done
 for d in mdpi:48 hdpi:72 xhdpi:96 xxhdpi:144 xxxhdpi:192; do
   png 230 .8 ${d#*:} android/app/src/main/res/mipmap-${d%:*}/ic_launcher.png
 done
+
+# The builds made from the fork (Windows app, web vault): the same drawing in their icon slots
+# (signed in / signed out grey / locked with the padlock badge), the Mac and Windows icon files and the web icons.
+G=clients/brand/generated
+LOCK='<g transform="translate(560 560) scale(8)"><rect x="4" y="22" width="50" height="36" rx="6" fill="#555" stroke="#fff" stroke-width="5"/><path d="M14 22v-8a15 15 0 0 1 30 0v8" fill="none" stroke="#555" stroke-width="8"/></g>'
+slot() { echo "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1024 1024\"><rect width=\"1024\" height=\"1024\" rx=\"144\" fill=\"$1\"/>$2$3</svg>" | rsvg-convert -w "$4" -h "$4" -o "$5"; }
+for s in 16 19 32 38 48 64 96 128 256 512 1024; do
+  slot '#0d0d0d' "$GLYPH" '' $s $G/blue-$s.png
+  slot '#7c7c7c' "${GLYPH//#2f6fe8/#ffffff}" '' $s $G/gray-$s.png
+  slot '#0d0d0d' "$GLYPH" "$LOCK" $s $G/locked-$s.png
+done
+set=$(mktemp -d)/icon.iconset; mkdir -p $set
+for s in 16 32 128 256 512; do png 230 .805 $s $set/icon_${s}x${s}.png; png 230 .805 $((s * 2)) $set/icon_${s}x${s}@2x.png; done
+iconutil -c icns -o $G/icon.icns $set
+magick $G/blue-16.png $G/blue-32.png $G/blue-48.png $G/blue-64.png $G/blue-128.png $G/blue-256.png $G/icon.ico
+magick $G/blue-16.png $G/blue-32.png $G/blue-48.png $G/web/favicon.ico
+for t in android-chrome-192x192:192 android-chrome-512x512:512 apple-touch-icon:180 favicon-16x16:16 favicon-32x32:32 mstile-150x150:150; do
+  slot '#0d0d0d' "$GLYPH" '' ${t#*:} $G/web/${t%:*}.png
+done

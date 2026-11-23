@@ -130,6 +130,13 @@ fun EditScreen(target: String, onDone: (String?) -> Unit) {
     var busy by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val noQr = stringResource(R.string.no_qr)
+    // Card editor: a contactless card held to the phone fills in its number and expiry.
+    val nfcAct = androidx.compose.ui.platform.LocalContext.current as? android.app.Activity
+    val nfcOn = type == CipherType.CARD && nfcAct != null && NfcCard.available(nfcAct)
+    androidx.compose.runtime.DisposableEffect(nfcOn) {
+        if (nfcOn) NfcCard.listen(nfcAct!!) { card -> f["number"] = card.number; card.month?.let { f["month"] = it }; card.year?.let { f["year"] = it } }
+        onDispose { if (nfcOn) NfcCard.stop(nfcAct!!) }
+    }
     val pickPhoto = PhotoQrPicker { code -> if (code != null) f["totp"] = code else error = noQr }
     LaunchedEffect(target) {
         if (isNew) return@LaunchedEffect
@@ -163,7 +170,8 @@ fun EditScreen(target: String, onDone: (String?) -> Unit) {
                             IconButton({ scanning = true }) { Icon(Icons.Filled.QrCodeScanner, stringResource(R.string.scan_qr), tint = c().primary) }
                             IconButton(pickPhoto) { Icon(Icons.Filled.Image, stringResource(R.string.qr_from_photo), tint = c().primary) } } }
                     }
-                    CipherType.CARD -> { input("holder", R.string.card_holder); input("number", R.string.card_number); input("month", R.string.card_month); input("year", R.string.card_year); input("cvc", R.string.card_code, secret = true) }
+                    CipherType.CARD -> { if (nfcOn) Text(stringResource(R.string.card_nfc_hint), Modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp), fontSize = 13.sp, color = c().sub)
+                        input("holder", R.string.card_holder); input("number", R.string.card_number); input("month", R.string.card_month); input("year", R.string.card_year); input("cvc", R.string.card_code, secret = true) }
                     CipherType.IDENTITY -> { input("first", R.string.first_name); input("last", R.string.last_name); input("email", R.string.email); input("phone", R.string.phone)
                         input("addr", R.string.address); input("city", R.string.city); input("zip", R.string.postal_code); input("country", R.string.country) }
                     else -> {}

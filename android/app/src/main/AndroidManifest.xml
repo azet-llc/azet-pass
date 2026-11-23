@@ -3,6 +3,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-feature android:name="android.hardware.nfc" android:required="false" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <!-- Autofill checks the signing certificate of the app it fills (a trusted browser, or the app a sign-in was saved from). -->
     <queries><intent><action android:name="android.intent.action.MAIN" /></intent></queries>

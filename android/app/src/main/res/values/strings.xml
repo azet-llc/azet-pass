@@ -166,4 +166,5 @@
     <string name="imported_items_n">Imported %1$d items.</string>
     <string name="import_pw_lead">This file is locked. Enter the password chosen when it was exported.</string>
     <string name="import_pw_wrong">That password does not open this file.</string>
+    <string name="card_nfc_hint">Hold a contactless card to the back of the phone to fill in its number and expiry.</string>
 </resources>

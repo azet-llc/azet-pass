@@ -166,4 +166,5 @@
     <string name="imported_items_n">%1$d개 항목을 가져왔습니다.</string>
     <string name="import_pw_lead">잠긴 파일입니다. 내보낼 때 정한 비밀번호를 입력하세요.</string>
     <string name="import_pw_wrong">이 비밀번호로는 파일이 열리지 않습니다.</string>
+    <string name="card_nfc_hint">비접촉 카드를 휴대폰 뒷면에 대면 카드 번호와 유효기간이 채워집니다.</string>
 </resources>

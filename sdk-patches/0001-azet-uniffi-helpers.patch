@@ -1,0 +1,300 @@
+diff --git a/crates/bitwarden-uniffi/Cargo.toml b/crates/bitwarden-uniffi/Cargo.toml
+index 71c72a9d..ea496adb 100644
+--- a/crates/bitwarden-uniffi/Cargo.toml
++++ b/crates/bitwarden-uniffi/Cargo.toml
+@@ -24,6 +24,7 @@ dangerous-crypto-debug = ["bitwarden-core/dangerous-crypto-debug"]
+ 
+ [dependencies]
+ async-trait = { workspace = true }
++bitwarden-api-api = { workspace = true }
+ bitwarden-auth = { workspace = true, features = ["uniffi"] }
+ bitwarden-collections = { workspace = true, features = ["uniffi"] }
+ bitwarden-core = { workspace = true, features = ["uniffi"] }
+@@ -46,6 +47,8 @@ bitwarden-uniffi-error = { workspace = true }
+ bitwarden-user-crypto-management = { workspace = true, features = ["uniffi"] }
+ bitwarden-vault = { workspace = true, features = ["uniffi"] }
+ chrono = { workspace = true, features = ["std"] }
++serde = { workspace = true }
++serde_json = { workspace = true }
+ thiserror = { workspace = true }
+ tracing = { workspace = true }
+ tracing-subscriber = { workspace = true }
+diff --git a/crates/bitwarden-uniffi/src/lib.rs b/crates/bitwarden-uniffi/src/lib.rs
+index 40213b96..73b82c16 100644
+--- a/crates/bitwarden-uniffi/src/lib.rs
++++ b/crates/bitwarden-uniffi/src/lib.rs
+@@ -9,6 +9,8 @@ use bitwarden_core::{ClientSettings, auth::ClientManagedTokens};
+ 
+ #[allow(missing_docs)]
+ pub mod auth;
++pub mod azet_family;
++pub mod azet_json;
+ #[allow(missing_docs)]
+ pub mod crypto;
+ #[allow(missing_docs)]
+diff --git a/crates/bitwarden-uniffi/swift/Package.swift b/crates/bitwarden-uniffi/swift/Package.swift
+index 1a215687..7abdfe12 100644
+--- a/crates/bitwarden-uniffi/swift/Package.swift
++++ b/crates/bitwarden-uniffi/swift/Package.swift
+@@ -7,6 +7,7 @@ let package = Package(
+     name: "BitwardenSdk",
+     platforms: [
+         .iOS(.v13),
++        .macOS(.v13),
+     ],
+     products: [
+         // Products define the executables and libraries a package produces, and make them visible to other packages.
+diff --git a/crates/bitwarden-uniffi/src/azet_family.rs b/crates/bitwarden-uniffi/src/azet_family.rs
+new file mode 100644
+index 00000000..5a6a2c7f
+--- /dev/null
++++ b/crates/bitwarden-uniffi/src/azet_family.rs
+@@ -0,0 +1,152 @@
++//! AZET Pass families (GPL-3.0, AZET LLC 2026): the few organization key operations the iOS app needs and the
++//! Bitwarden mobile SDK does not expose (family creation, handing the family key to a confirmed member, organizer
++//! recovery). Thin wrappers over bitwarden-crypto, the same primitives `PureCrypto` exposes to the web clients.
++#![allow(deprecated)]
++
++use std::str::FromStr;
++
++use bitwarden_core::key_management::KeySlotIds;
++use bitwarden_crypto::{
++    BitwardenLegacyKeyBytes, CryptoError, Decryptable, EncString, HashPurpose, Kdf, KeyDecryptable, KeyEncryptable,
++    KeyStore, MasterKey, Pkcs8PrivateKeyBytes, PrimitiveEncryptable, PrivateKey, PublicKey,
++    PublicKeyEncryptionAlgorithm, SpkiPublicKeyBytes, SymmetricCryptoKey, SymmetricKeyAlgorithm,
++    UnsignedSharedKey,
++};
++use bitwarden_encoding::B64;
++
++use crate::error::Result;
++
++fn b64(s: &str) -> Result<Vec<u8>> {
++    Ok(B64::try_from(s.to_string()).map_err(|_| CryptoError::InvalidKey)?.into())
++}
++
++fn sym(s: &str) -> Result<SymmetricCryptoKey> {
++    Ok(SymmetricCryptoKey::try_from(&BitwardenLegacyKeyBytes::from(b64(s)?))?)
++}
++
++fn public(s: &str) -> Result<PublicKey> {
++    Ok(PublicKey::from_der(&SpkiPublicKeyBytes::from(b64(s)?))?)
++}
++
++fn private_with(key: &SymmetricCryptoKey, wrapped: &str) -> Result<PrivateKey> {
++    let store: KeyStore<KeySlotIds> = KeyStore::default();
++    let mut ctx = store.context();
++    let k = ctx.add_local_symmetric_key(key.clone());
++    let der: Vec<u8> = EncString::from_str(wrapped)?.decrypt(&mut ctx, k)?;
++    Ok(PrivateKey::from_der(&Pkcs8PrivateKeyBytes::from(der))?)
++}
++
++#[allow(missing_docs)]
++#[derive(uniffi::Record)]
++pub struct AzetFamilyKeys {
++    /// The family key (base64). Kept in memory only, like the user key.
++    pub org_key: String,
++    /// The family key wrapped to the organizer's public key (the organizer's `akey`).
++    pub owner_key: String,
++    pub public_key: String,
++    pub encrypted_private_key: String,
++    pub encrypted_vault_name: String,
++}
++
++#[allow(missing_docs)]
++#[derive(uniffi::Record)]
++pub struct AzetRecovery {
++    pub new_master_password_hash: String,
++    pub new_key: String,
++}
++
++/// A new family: family key, family key pair, the organizer's wrapped copy and the first shared vault's name.
++#[uniffi::export]
++pub fn azet_family_make(owner_public_key: String, first_vault_name: String) -> Result<AzetFamilyKeys> {
++    let org_key = SymmetricCryptoKey::make(SymmetricKeyAlgorithm::Aes256CbcHmac);
++    let pair = PrivateKey::make(PublicKeyEncryptionAlgorithm::RsaOaepSha1);
++    let public_der = pair.to_public_key().to_der()?;
++    let store: KeyStore<KeySlotIds> = KeyStore::default();
++    let mut ctx = store.context();
++    let k = ctx.add_local_symmetric_key(org_key.clone());
++    let encrypted_private_key = Pkcs8PrivateKeyBytes::from(pair.to_der()?.to_vec()).encrypt(&mut ctx, k)?.to_string();
++    Ok(AzetFamilyKeys {
++        owner_key: UnsignedSharedKey::encapsulate_key_unsigned(&org_key, &public(&owner_public_key)?)?.to_string(),
++        public_key: B64::from(public_der.as_ref()).to_string(),
++        encrypted_private_key,
++        encrypted_vault_name: first_vault_name.encrypt_with_key(&org_key)?.to_string(),
++        org_key: B64::from(org_key.to_encoded().to_vec()).to_string(),
++    })
++}
++
++/// The family key wrapped to a member's public key (organizer confirms a member).
++#[uniffi::export]
++pub fn azet_family_wrap(org_key: String, member_public_key: String) -> Result<String> {
++    Ok(UnsignedSharedKey::encapsulate_key_unsigned(&sym(&org_key)?, &public(&member_public_key)?)?.to_string())
++}
++
++/// The family key from the member's `akey`, with the member's user key and their wrapped private key.
++#[uniffi::export]
++pub fn azet_family_unwrap(user_key: String, user_private_key: String, akey: String) -> Result<String> {
++    let private = private_with(&sym(&user_key)?, &user_private_key)?;
++    let org = UnsignedSharedKey::from_str(&akey)?.decapsulate_key_unsigned(&private)?;
++    Ok(B64::from(org.to_encoded().to_vec()).to_string())
++}
++
++/// Vault names and other family strings.
++#[uniffi::export]
++pub fn azet_family_encrypt(org_key: String, plain: String) -> Result<String> {
++    Ok(plain.encrypt_with_key(&sym(&org_key)?)?.to_string())
++}
++
++/// Reverse of [azet_family_encrypt].
++#[uniffi::export]
++pub fn azet_family_decrypt(org_key: String, enc: String) -> Result<String> {
++    Ok(EncString::from_str(&enc)?.decrypt_with_key(&sym(&org_key)?)?)
++}
++
++/// Organizer recovery: the member's user key (wrapped to the family public key when they joined) re-wrapped with
++/// a temporary account password the organizer gives them. The vault itself is untouched.
++#[uniffi::export]
++pub fn azet_family_recover(
++    org_key: String,
++    org_encrypted_private_key: String,
++    reset_password_key: String,
++    email: String,
++    new_password: String,
++    kdf: Kdf,
++) -> Result<AzetRecovery> {
++    let org_private = private_with(&sym(&org_key)?, &org_encrypted_private_key)?;
++    let user_key = UnsignedSharedKey::from_str(&reset_password_key)?.decapsulate_key_unsigned(&org_private)?;
++    let master = MasterKey::derive(&new_password, &email, &kdf)?;
++    Ok(AzetRecovery {
++        new_master_password_hash: master.derive_master_key_hash(new_password.as_bytes(), HashPurpose::ServerAuthorization).to_string(),
++        new_key: master.encrypt_user_key(&user_key)?.to_string(),
++    })
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    #[test]
++    fn family_round_trip() {
++        let member = PrivateKey::make(PublicKeyEncryptionAlgorithm::RsaOaepSha1);
++        let member_pub = B64::from(member.to_public_key().to_der().unwrap().as_ref()).to_string();
++        let user_key = SymmetricCryptoKey::make(SymmetricKeyAlgorithm::Aes256CbcHmac);
++        let user_key_b64 = B64::from(user_key.to_encoded().to_vec()).to_string();
++        let wrapped_private = Pkcs8PrivateKeyBytes::from(member.to_der().unwrap().to_vec());
++        let store: KeyStore<KeySlotIds> = KeyStore::default();
++        let mut ctx = store.context();
++        let uk = ctx.add_local_symmetric_key(user_key.clone());
++        let wrapped_private = wrapped_private.encrypt(&mut ctx, uk).unwrap().to_string();
++
++        let fam = azet_family_make(member_pub.clone(), "가족 공유".into()).unwrap();
++        assert_eq!(azet_family_decrypt(fam.org_key.clone(), fam.encrypted_vault_name.clone()).unwrap(), "가족 공유");
++        assert_eq!(azet_family_unwrap(user_key_b64.clone(), wrapped_private.clone(), fam.owner_key.clone()).unwrap(), fam.org_key);
++        let akey = azet_family_wrap(fam.org_key.clone(), member_pub).unwrap();
++        assert_eq!(azet_family_unwrap(user_key_b64, wrapped_private, akey).unwrap(), fam.org_key);
++
++        // recovery: user key wrapped to the family public key comes back under a new password
++        let reset = UnsignedSharedKey::encapsulate_key_unsigned(&user_key, &public(&fam.public_key).unwrap()).unwrap().to_string();
++        let kdf = Kdf::PBKDF2 { iterations: std::num::NonZeroU32::new(5000).unwrap() };
++        let r = azet_family_recover(fam.org_key, fam.encrypted_private_key, reset, "mom@x.test".into(), "temp-pass-1".into(), kdf.clone()).unwrap();
++        let back = MasterKey::derive("temp-pass-1", "mom@x.test", &kdf).unwrap().decrypt_user_key(EncString::from_str(&r.new_key).unwrap()).unwrap();
++        assert_eq!(back.to_encoded().to_vec(), user_key.to_encoded().to_vec());
++    }
++}
+diff --git a/crates/bitwarden-uniffi/src/azet_json.rs b/crates/bitwarden-uniffi/src/azet_json.rs
+new file mode 100644
+index 00000000..881c8f62
+--- /dev/null
++++ b/crates/bitwarden-uniffi/src/azet_json.rs
+@@ -0,0 +1,90 @@
++//! AZET Pass (GPL-3.0, AZET LLC 2026): server JSON in and out of the SDK's encrypted models, through the SDK's own
++//! API-model conversions, so the iOS app does not hand-map every cipher field.
++use bitwarden_api_api::models::{
++    CipherDetailsResponseModel, CipherRequestModel, CollectionDetailsResponseModel, FolderResponseModel,
++};
++use bitwarden_collections::collection::Collection;
++use bitwarden_crypto::CryptoError;
++use bitwarden_api_api::models::{SendResponseModel, SendWithIdRequestModel};
++use bitwarden_send::Send;
++use bitwarden_vault::{Cipher, EncryptionContext, Folder};
++use serde_json::Value;
++
++use crate::error::Result;
++
++fn list<T: serde::de::DeserializeOwned>(json: &str, key: &str) -> Result<Vec<T>> {
++    let v: Value = serde_json::from_str(json).map_err(|_| CryptoError::InvalidKey)?;
++    let items = match v.get(key) {
++        Some(Value::Array(a)) => a.clone(),
++        _ => match v {
++            Value::Array(a) => a,
++            other => vec![other],
++        },
++    };
++    // an item the SDK cannot read is skipped, not fatal for the whole vault
++    Ok(items.into_iter().filter_map(|i| serde_json::from_value(i).ok()).collect())
++}
++
++/// Ciphers from a /api/sync body (key `ciphers`), a list body, or one cipher object.
++#[uniffi::export]
++pub fn azet_ciphers_from_json(json: String) -> Result<Vec<Cipher>> {
++    Ok(list::<CipherDetailsResponseModel>(&json, "ciphers")?.into_iter().filter_map(|m| Cipher::try_from(m).ok()).collect())
++}
++
++/// Collections (shared vaults) from a /api/sync body.
++#[uniffi::export]
++pub fn azet_collections_from_json(json: String) -> Result<Vec<Collection>> {
++    Ok(list::<CollectionDetailsResponseModel>(&json, "collections")?.into_iter().filter_map(|m| Collection::try_from(m).ok()).collect())
++}
++
++/// Folders from a /api/sync body.
++#[uniffi::export]
++pub fn azet_folders_from_json(json: String) -> Result<Vec<Folder>> {
++    Ok(list::<FolderResponseModel>(&json, "folders")?.into_iter().filter_map(|m| Folder::try_from(m).ok()).collect())
++}
++
++/// The request body for POST /api/ciphers, PUT /api/ciphers/{id} and the `cipher` of /api/ciphers/create.
++#[uniffi::export]
++pub fn azet_cipher_request_json(ctx: EncryptionContext) -> Result<String> {
++    Ok(serde_json::to_string(&CipherRequestModel::from(ctx)).map_err(|_| CryptoError::InvalidKey)?)
++}
++
++/// A Send (share link) from a /api/sends response.
++#[uniffi::export]
++pub fn azet_send_from_json(json: String) -> Result<Send> {
++    let m: SendResponseModel = serde_json::from_str(&json).map_err(|_| CryptoError::InvalidKey)?;
++    Ok(Send::try_from(m).map_err(|_| CryptoError::InvalidKey)?)
++}
++
++/// The request body for POST /api/sends.
++#[uniffi::export]
++pub fn azet_send_request_json(send: Send) -> Result<String> {
++    Ok(serde_json::to_string(&SendWithIdRequestModel::from(send)).map_err(|_| CryptoError::InvalidKey)?)
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    // shape of an AZET Pass /api/sync body (server/src/handlers/ciphers.rs cipher_json_expr, family.rs)
++    const SYNC: &str = r#"{"ciphers":[{"object":"cipherDetails","id":"0b5e0f6c-6b39-4c8e-9a1c-1f1f1f1f1f1f","userId":null,
++      "organizationId":"1c5e0f6c-6b39-4c8e-9a1c-1f1f1f1f1f1f","folderId":null,"type":1,"favorite":false,"edit":true,
++      "viewPassword":true,"travelSafe":false,"permissions":{"delete":true,"restore":true},"organizationUseTotp":true,
++      "collectionIds":["2c5e0f6c-6b39-4c8e-9a1c-1f1f1f1f1f1f"],"revisionDate":"2026-10-27T09:00:00.000Z",
++      "creationDate":"2026-10-27T09:00:00.000Z","deletedDate":null,"archivedDate":null,"attachments":null,
++      "name":"2.AAAAAAAAAAAAAAAAAAAAAA==|AAAAAAAAAAAAAAAAAAAAAA==|AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
++      "notes":null,"login":{"username":null,"password":null,"uris":[],"totp":null},"fields":null,"passwordHistory":null,
++      "reprompt":0,"key":null}],
++      "collections":[{"object":"collectionDetails","id":"2c5e0f6c-6b39-4c8e-9a1c-1f1f1f1f1f1f","organizationId":"1c5e0f6c-6b39-4c8e-9a1c-1f1f1f1f1f1f",
++      "name":"2.AAAAAAAAAAAAAAAAAAAAAA==|AAAAAAAAAAAAAAAAAAAAAA==|AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=","externalId":null,"type":0,
++      "readOnly":false,"hidePasswords":false,"manage":true,"travelSafe":false}],"folders":[]}"#;
++
++    #[test]
++    fn reads_azet_sync() {
++        let c = azet_ciphers_from_json(SYNC.into()).unwrap();
++        assert_eq!(c.len(), 1);
++        assert_eq!(c[0].collection_ids.len(), 1);
++        assert!(c[0].organization_id.is_some());
++        assert_eq!(azet_collections_from_json(SYNC.into()).unwrap().len(), 1);
++    }
++}

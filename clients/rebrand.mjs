@@ -170,6 +170,12 @@ if (fs.existsSync(p(eb))) {
   j.productName = 'AZET Pass'
   j.appId = 'io.azet.pass'
   j.copyright = 'Copyright © 2015-2026 Bitwarden Inc. and contributors (GPL-3.0); AZET Pass changes © 2026 AZET LLC'
+  // Linux: our name in the app menu, and the two package kinds build-desktop-linux.sh makes
+  j.linux.synopsis = 'AZET Pass: the password vault for the whole family.'
+  j.linux.desktop.entry.Name = 'AZET Pass'
+  j.linux.maintainer = 'AZET LLC <hello@azet.io>'
+  j.linux.description = 'Passwords, passkeys and cards for the whole family, encrypted on this computer before they are sent.'
+  j.linux.target = ['AppImage', 'deb']
   j.publish = { provider: 'generic', url: `${BASE}/desktop` } // update feed on our server (Bitwarden: artifacts.bitwarden.com)
   // Microsoft Store identity: Partner Center > AZET Pass (9NF3686MBT1N) > Product identity
   Object.assign(j.appx, { applicationId: 'azetpass', identityName: 'AZET.ioSoftware.AZETPass',

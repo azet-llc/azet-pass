@@ -41,7 +41,8 @@ class AutofillPickActivity : FragmentActivity() {
     private fun PickSheet(target: String) {
         var q by remember { mutableStateOf("") }
         val scope = rememberCoroutineScope()
-        val here = Session.matches(target)
+        var here by remember { mutableStateOf(emptyList<com.bitwarden.vault.CipherListView>()) }
+        LaunchedEffect(target) { here = AppLinks.offered(this@AutofillPickActivity, target, intent.getBooleanExtra("isWeb", true)) }
         val otpOnly = intent.getBooleanExtra("otpOnly", false)
         val fits = { v: com.bitwarden.vault.CipherListView -> v.kind() == Kind.Login && (!otpOnly || v.hasCode()) }
         val list = if (q.isBlank()) here.filter(fits).ifEmpty { Session.items.filter(fits) }

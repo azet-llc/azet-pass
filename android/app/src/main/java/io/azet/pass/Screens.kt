@@ -150,7 +150,7 @@ fun SettingsScreen(act: FragmentActivity, onBack: () -> Unit, onDevices: () -> U
         scope.launch {
             val text = ctx.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }.orEmpty()
             if (ExportFile.locked(text)) { importText = text; return@launch }
-            notice = runCatching { if (ExportFile.isJson(text)) importedItemsFmt.format(Session.importItems(ExportFile.items(text))) else importedFmt.format(Session.importLogins(Csv.logins(text))) }.getOrElse { it.message }
+            notice = runCatching { if (ExportFile.isJson(text)) Session.importItems(ExportFile.items(text)).let { (n, old) -> importedItemsFmt.format(n, old) } else importedFmt.format(Session.importLogins(Csv.logins(text))) }.getOrElse { it.message }
         }
     }
     val exporter = androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.CreateDocument("application/json")) { uri ->
@@ -248,7 +248,7 @@ fun SettingsScreen(act: FragmentActivity, onBack: () -> Unit, onDevices: () -> U
         text = { Column { Text(stringResource(R.string.import_pw_lead), fontSize = 14.sp, color = c().sub); OneField(importPw, { importPw = it }, stringResource(R.string.export_pw), secret = true) } },
         confirmButton = { TextButton({
             val pw = importPw; importText = null; importPw = ""
-            scope.launch { notice = runCatching { importedItemsFmt.format(Session.importItems(ExportFile.items(kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) { ExportFile.open(file, pw) }))) }
+            scope.launch { notice = runCatching { Session.importItems(ExportFile.items(kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) { ExportFile.open(file, pw) })).let { (n, old) -> importedItemsFmt.format(n, old) } }
                 .getOrElse { if (it.message == "password") wrongFilePw else it.message } }
         }, enabled = importPw.isNotEmpty()) { Text(stringResource(R.string.import_data), color = c().primary) } },
         dismissButton = { TextButton({ importText = null; importPw = "" }) { Text(stringResource(R.string.cancel), color = c().primary) } }) }

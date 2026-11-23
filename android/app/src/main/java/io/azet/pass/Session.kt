@@ -207,10 +207,13 @@ object Session {
         sync(); return n
     }
 
-    /** Saves the items of an export file (ExportFile.items); returns how many. */
-    suspend fun importItems(list: List<CipherView>): Int {
-        for (v in list) api.obj("POST", "/api/ciphers", azetCipherRequestJson(c().vault().ciphers().encrypt(v)))
-        sync(); return list.size
+    /** Saves the items of an export file (ExportFile.items) that are not here yet (same kind, name and user name);
+     *  returns how many were saved and how many were already here. Passkeys and password history are not in the file's items. */
+    suspend fun importItems(list: List<CipherView>): Pair<Int, Int> {
+        val have = items.map { Triple(it.kind() == Kind.Login, it.name, if (it.kind() == Kind.Login) it.subtitle else "") }.toSet()
+        val fresh = list.filter { Triple(it.type == CipherType.LOGIN, it.name, if (it.type == CipherType.LOGIN) it.login?.username.orEmpty() else "") !in have }
+        for (v in fresh) api.obj("POST", "/api/ciphers", azetCipherRequestJson(c().vault().ciphers().encrypt(v)))
+        sync(); return fresh.size to list.size - fresh.size
     }
 
     /** The person's own items (not family vaults) as a file only this password opens (Samsung Pass: export to the phone). */

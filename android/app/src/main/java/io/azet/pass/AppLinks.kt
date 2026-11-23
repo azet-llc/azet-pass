@@ -61,6 +61,19 @@ object AppLinks {
         return found
     }
 
+    /** The sign-ins autofill may offer this app or site: its own, those of sites that name the app, and none saved
+     *  from an app with the same name and another certificate. The one place both the chips and the picker ask. */
+    suspend fun offered(ctx: Context, target: String, isWeb: Boolean): List<com.bitwarden.vault.CipherListView> {
+        if (isWeb) return Session.matches(target)
+        val print = cert(ctx, target)
+        return (Session.matches(target) + linkedSites(ctx, target).flatMap { Session.matches(it) }).distinctBy { it.id }.filter { m ->
+            runCatching { Session.view(m.id!!) }.getOrNull()?.fields.orEmpty().none { it.name == CERT_FIELD && it.value != print }
+        }
+    }
+
+    /** True when the site's assetlinks.json names this app and certificate (passkeys asked for by an app, not a browser). */
+    suspend fun siteNames(site: String, pkg: String, print: String): Boolean = withContext(Dispatchers.IO) { confirms(site, pkg, print) }
+
     /** The web sites the app's manifest points at (meta-data asset_statements). */
     private fun declaredSites(ctx: Context, pkg: String): List<String> = runCatching {
         val pm = ctx.packageManager

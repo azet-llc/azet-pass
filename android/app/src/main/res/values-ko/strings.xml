@@ -163,7 +163,7 @@
     <string name="closed_on_rooted">루팅된 휴대폰에서는 열지 않기</string>
     <string name="closed_on_rooted_sub">루팅된 것으로 보이는 휴대폰에서는 잠금 해제와 자동 입력을 하지 않습니다.</string>
     <string name="rooted_closed">이 휴대폰은 루팅된 것으로 보입니다. 루팅된 휴대폰에서는 AZET Pass를 열지 않도록 설정하셨습니다. 항목은 계정에 그대로 있으니 다른 기기에서 여세요.</string>
-    <string name="imported_items_n">%1$d개 항목을 가져왔습니다.</string>
+    <string name="imported_items_n">%1$d개 항목을 가져왔습니다. %2$d개는 이미 있었습니다.</string>
     <string name="import_pw_lead">잠긴 파일입니다. 내보낼 때 정한 비밀번호를 입력하세요.</string>
     <string name="import_pw_wrong">이 비밀번호로는 파일이 열리지 않습니다.</string>
     <string name="card_nfc_hint">비접촉 카드를 휴대폰 뒷면에 대면 카드 번호와 유효기간이 채워집니다.</string>

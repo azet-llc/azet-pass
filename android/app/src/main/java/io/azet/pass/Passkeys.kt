@@ -99,11 +99,13 @@ private fun certFingerprint(info: SigningInfo): String {
 }
 
 /** Who is asking: a browser we trust speaks for a web origin; any other app must be linked by the site's assetlinks.json. */
-private fun origin(ctx: Context, app: CallingAppInfo, rpId: String): Origin {
+private suspend fun origin(ctx: Context, app: CallingAppInfo, rpId: String): Origin {
     val browsers = ctx.resources.openRawResource(R.raw.passkey_browsers).bufferedReader().use { it.readText() }
     val web = if (app.isOriginPopulated()) runCatching { app.getOrigin(browsers) }.getOrNull() else null
-    return if (web != null) Origin.Web(web)
-    else Origin.Android(UnverifiedAssetLink(app.packageName, certFingerprint(app.signingInfo), rpId, "https://$rpId/.well-known/assetlinks.json"))
+    if (web != null) return Origin.Web(web)
+    // An app (not a browser) asking for a site's passkey: the site must name the app and its certificate.
+    require(AppLinks.siteNames(rpId, app.packageName, certFingerprint(app.signingInfo))) { "${app.packageName} is not linked to $rpId" }
+    return Origin.Android(UnverifiedAssetLink(app.packageName, certFingerprint(app.signingInfo), rpId, "https://$rpId/.well-known/assetlinks.json"))
 }
 
 private fun clientData(app: CallingAppInfo, hash: ByteArray?): ClientData =
@@ -119,7 +121,7 @@ class PasskeyService : CredentialProviderService() {
                                              callback: OutcomeReceiver<BeginGetCredentialResponse, GetCredentialException>) {
         Session.init(this)
         val options = request.beginGetCredentialOptions.filterIsInstance<BeginGetPublicKeyCredentialOption>()
-        if (options.isEmpty() || Session.phase == Phase.SignedOut) return callback.onResult(BeginGetCredentialResponse())
+        if (options.isEmpty() || Session.phase == Phase.SignedOut || refusedHere() || guestHere(this)) return callback.onResult(BeginGetCredentialResponse())
         // Locked: one row that unlocks, after which the list is answered from the screen.
         if (Session.phase != Phase.Unlocked) return callback.onResult(BeginGetCredentialResponse.Builder()
             .setAuthenticationActions(listOf(AuthenticationAction(getString(R.string.app_name), open { putExtra("unlock", true) }))).build())
@@ -129,7 +131,7 @@ class PasskeyService : CredentialProviderService() {
     override fun onBeginCreateCredentialRequest(request: BeginCreateCredentialRequest, cancellationSignal: CancellationSignal,
                                                 callback: OutcomeReceiver<BeginCreateCredentialResponse, CreateCredentialException>) {
         Session.init(this)
-        if (request !is BeginCreatePublicKeyCredentialRequest || Session.phase == Phase.SignedOut) return callback.onResult(BeginCreateCredentialResponse())
+        if (request !is BeginCreatePublicKeyCredentialRequest || Session.phase == Phase.SignedOut || refusedHere() || guestHere(this)) return callback.onResult(BeginCreateCredentialResponse())
         callback.onResult(BeginCreateCredentialResponse.Builder()
             .addCreateEntry(CreateEntry.Builder(Session.email ?: getString(R.string.app_name), open { putExtra("create", true) }).build()).build())
     }

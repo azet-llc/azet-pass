@@ -69,15 +69,14 @@ class PassAutofillService : AutofillService() {
 
     override fun onFillRequest(request: FillRequest, cancel: CancellationSignal, callback: FillCallback) {
         Session.init(this)
-        if (refusedHere()) return callback.onSuccess(null)
+        if (refusedHere() || guestHere(this)) return callback.onSuccess(null)
         val form = FormParser.parse(request.fillContexts.map { it.structure }, packageName) { AppLinks.trustedBrowser(this, it) } ?: return callback.onSuccess(null)
         val ids = (if (form.otpOnly) listOf(form.otp!!) else listOfNotNull(form.username, form.password)).toTypedArray()
         val r = FillResponse.Builder()
         if (Session.phase == Phase.Unlocked) {
             scope.launch {
                 // An app also gets the sign-ins of the sites that name it in their assetlinks.json.
-                val linked = if (form.isWeb) emptyList() else AppLinks.linkedSites(this@PassAutofillService, form.target).flatMap { Session.matches(it) }
-                val matches = (Session.matches(form.target) + linked).distinctBy { it.id }.let { l -> if (form.otpOnly) l.filter { it.hasCode() } else l }.take(5)
+                val matches = AppLinks.offered(this@PassAutofillService, form.target, form.isWeb).let { l -> if (form.otpOnly) l.filter { it.hasCode() } else l }.take(5)
                 val inline = inlineSpecs(request)
                 if (form.otpOnly) matches.forEachIndexed { i, m ->
                     val code = runCatching { Session.view(m.id!!).login?.totp?.let { Session.totp(it)?.code } }.getOrNull() ?: return@forEachIndexed
@@ -88,8 +87,6 @@ class PassAutofillService : AutofillService() {
                     r.addDataset(d.build())
                 } else matches.forEachIndexed { i, m ->
                     val item = runCatching { Session.view(m.id!!) }.getOrNull() ?: return@forEachIndexed
-                    // Saved from an app with another signing certificate: not this app.
-                    if (!form.isWeb && item.fields.orEmpty().any { it.name == AppLinks.CERT_FIELD && it.value != AppLinks.cert(this@PassAutofillService, form.target) }) return@forEachIndexed
                     val v = item.login ?: return@forEachIndexed
                     val d = Dataset.Builder(presentation(this@PassAutofillService, m.name, v.username))
                     val chip = inline?.let { inlineChip(it, i, m.name, v.username) }
@@ -114,7 +111,7 @@ class PassAutofillService : AutofillService() {
 
     private fun pickIntent(form: Form, ids: Array<AutofillId>): PendingIntent =
         PendingIntent.getActivity(this, form.target.hashCode(), Intent(this, AutofillPickActivity::class.java)
-            .putExtra("target", form.target).putExtra("ids", ids).putExtra("hasUser", form.username != null).putExtra("otpOnly", form.otpOnly),
+            .putExtra("target", form.target).putExtra("isWeb", form.isWeb).putExtra("ids", ids).putExtra("hasUser", form.username != null).putExtra("otpOnly", form.otpOnly),
             PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_MUTABLE, startAllowed())
 
     /** Samsung Pass "autofill display position: above keyboard" = Android inline suggestions (API 30+). */

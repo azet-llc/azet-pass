@@ -163,7 +163,7 @@
     <string name="closed_on_rooted">Stay closed on a rooted phone</string>
     <string name="closed_on_rooted_sub">AZET Pass will not unlock or autofill on a phone that looks rooted.</string>
     <string name="rooted_closed">This phone looks rooted, and you chose to keep AZET Pass closed on rooted phones. Your items are safe in your account; open them on another device.</string>
-    <string name="imported_items_n">Imported %1$d items.</string>
+    <string name="imported_items_n">Imported %1$d items. %2$d were already here.</string>
     <string name="import_pw_lead">This file is locked. Enter the password chosen when it was exported.</string>
     <string name="import_pw_wrong">That password does not open this file.</string>
     <string name="card_nfc_hint">Hold a contactless card to the back of the phone to fill in its number and expiry.</string>

@@ -37,5 +37,12 @@ fun deviceRooted(tags: String? = android.os.Build.TAGS, exists: (String) -> Bool
     tags?.contains("test-keys") == true ||
         listOf("/system/bin/su", "/system/xbin/su", "/sbin/su", "/su/bin/su", "/system/app/Superuser.apk", "/data/adb/magisk", "/system/bin/.ext/su").any(exists)
 
+/** A guest or other secondary user of the phone, or a phone in maintenance mode (handed in for repair): the owner's
+ *  sign-ins are not offered there. */
+fun guestHere(ctx: Context): Boolean {
+    val um = ctx.getSystemService(android.os.UserManager::class.java)
+    return um?.isSystemUser == false || android.provider.Settings.Global.getInt(ctx.contentResolver, "maintenance_mode", 0) == 1
+}
+
 /** True when the person chose to keep AZET Pass closed on a rooted phone and this is one. */
 fun refusedHere(): Boolean = Session.store.closedOnRooted && deviceRooted()

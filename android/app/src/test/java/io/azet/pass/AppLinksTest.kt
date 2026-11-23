@@ -29,3 +29,24 @@ class RootedTest {
         assertFalse(deviceRooted("release-keys") { false })
     }
 }
+
+class OtpLabelTest {
+    @Test fun `issuer and account come from the link`() {
+        org.junit.Assert.assertEquals("GitHub" to "me@x.com", otpLabel("otpauth://totp/GitHub:me%40x.com?secret=ABC&issuer=GitHub"))
+        org.junit.Assert.assertEquals("Naver" to "kim", otpLabel("otpauth://totp/kim?secret=ABC&issuer=Naver"))
+        org.junit.Assert.assertEquals("Shop" to "", otpLabel("otpauth://totp/Shop?secret=ABC"))
+    }
+}
+
+class PersonalFillTest {
+    @Test fun `card and address boxes are recognised from hints and autocomplete names`() {
+        org.junit.Assert.assertEquals("cc-number", FormParser.extraKind(setOf("creditcardnumber"), ""))
+        org.junit.Assert.assertEquals("cc-exp", FormParser.extraKind(emptySet(), "cc-exp"))
+        org.junit.Assert.assertEquals("zip", FormParser.extraKind(setOf("postalcode"), ""))
+        org.junit.Assert.assertEquals("name", FormParser.extraKind(setOf("name"), ""))
+        org.junit.Assert.assertEquals("addr", FormParser.extraKind(setOf("street-address"), ""))
+        org.junit.Assert.assertEquals("first", FormParser.extraKind(setOf("given-name"), ""))
+        org.junit.Assert.assertNull(FormParser.extraKind(setOf("username"), "username"))
+        org.junit.Assert.assertNull(FormParser.extraKind(setOf("password"), "current-password"))
+    }
+}

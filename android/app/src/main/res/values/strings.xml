@@ -169,4 +169,8 @@
     <string name="card_nfc_hint">Hold a contactless card to the back of the phone to fill in its number and expiry.</string>
     <string name="passkey_provider">Passkeys</string>
     <string name="passkey_provider_sub">Turn on AZET Pass in the phone settings to save and use passkeys in apps and browsers.</string>
+    <string name="never_list">Never save for</string>
+    <string name="never_empty">No sites or apps. Choosing Never when asked to save a sign-in adds one here.</string>
+    <string name="never_remove">Remove</string>
+    <string name="never_saved">AZET Pass will not ask to save for %1$s.</string>
 </resources>

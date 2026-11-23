@@ -139,7 +139,14 @@ fun EditScreen(target: String, onDone: (String?) -> Unit) {
     }
     val pickPhoto = PhotoQrPicker { code -> if (code != null) f["totp"] = code else error = noQr }
     LaunchedEffect(target) {
-        if (isNew) return@LaunchedEffect
+        if (isNew) {
+            Session.pendingOtp?.let { link ->
+                Session.pendingOtp = null
+                val (issuer, account) = otpLabel(link)
+                f["totp"] = link; f["name"] = issuer; f["username"] = account
+            }
+            return@LaunchedEffect
+        }
         val v = Session.view(target); base = v; type = v.type
         f["name"] = v.name; f["notes"] = v.notes.orEmpty()
         v.login?.let { f["username"] = it.username.orEmpty(); f["password"] = it.password.orEmpty(); f["uri"] = it.uris?.firstOrNull()?.uri.orEmpty(); f["totp"] = it.totp.orEmpty() }

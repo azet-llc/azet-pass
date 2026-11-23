@@ -45,7 +45,7 @@ class MainActivity : FragmentActivity() {
         Session.init(this)
         if (Session.store.blockScreenshots) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         enableEdgeToEdge()
-        val link = intent?.data?.takeIf { it.scheme == "azetpass" }?.toString()
+        val link = intent?.data?.takeIf { it.scheme == "azetpass" || it.scheme == "otpauth" }?.toString()
         setContent { OneTheme { Box(Modifier.fillMaxSize().background(c().page)) { Root(this@MainActivity, link) } } }
     }
     override fun onUserInteraction() { super.onUserInteraction(); Session.touch() }

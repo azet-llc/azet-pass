@@ -30,6 +30,12 @@ class AutofillPickActivity : FragmentActivity() {
         Session.init(this)
         window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         val target = intent.getStringExtra("target").orEmpty()
+        // "Never" in the system's save question: remember the site or app and ask no more.
+        if (intent.getBooleanExtra("never", false)) {
+            if (target.isNotEmpty()) Session.store.neverSave = Session.store.neverSave + target
+            android.widget.Toast.makeText(this, getString(R.string.never_saved, target), android.widget.Toast.LENGTH_SHORT).show()
+            finish(); return
+        }
         setContent { OneTheme { Surface(color = c().page) { Column(Modifier.padding(8.dp).heightIn(min = 200.dp, max = 560.dp)) {
             if (Session.phase != Phase.Unlocked) LockScreen(this@AutofillPickActivity)
             else if (intent.getBooleanExtra("save", false)) SaveSheet(target)

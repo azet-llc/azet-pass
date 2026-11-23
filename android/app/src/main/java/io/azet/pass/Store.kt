@@ -40,6 +40,11 @@ class Store(private val ctx: Context) {
         get() = prefs.getBoolean("inlineAutofill", true)
         set(v) { prefs.edit().putBoolean("inlineAutofill", v).apply() }
 
+    /** Sites and apps the person said "Never" to when asked to save a sign-in. */
+    var neverSave: Set<String>
+        get() = prefs.getStringSet("neverSave", emptySet()).orEmpty()
+        set(v) { prefs.edit().putStringSet("neverSave", v).apply() }
+
     var introSeen: Boolean
         get() = prefs.getBoolean("introSeen", false)
         set(v) { prefs.edit().putBoolean("introSeen", v).apply() }

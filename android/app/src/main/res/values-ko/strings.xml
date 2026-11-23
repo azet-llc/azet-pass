@@ -169,4 +169,8 @@
     <string name="card_nfc_hint">비접촉 카드를 휴대폰 뒷면에 대면 카드 번호와 유효기간이 채워집니다.</string>
     <string name="passkey_provider">패스키</string>
     <string name="passkey_provider_sub">휴대폰 설정에서 AZET Pass를 켜면 앱과 브라우저에서 패스키를 저장하고 쓸 수 있습니다.</string>
+    <string name="never_list">저장 안 함 목록</string>
+    <string name="never_empty">없습니다. 로그인 저장을 물을 때 「안 함」을 고르면 여기에 들어갑니다.</string>
+    <string name="never_remove">지우기</string>
+    <string name="never_saved">%1$s 에서는 저장을 묻지 않습니다.</string>
 </resources>

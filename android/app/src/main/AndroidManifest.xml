@@ -27,6 +27,13 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="azetpass" />
             </intent-filter>
+            <!-- "Add to authenticator" links and QR codes opened from the camera or a browser -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="otpauth" />
+            </intent-filter>
         </activity>
         <activity android:name=".AutofillPickActivity" android:exported="false" android:theme="@android:style/Theme.Material.Light.Dialog" />
         <service

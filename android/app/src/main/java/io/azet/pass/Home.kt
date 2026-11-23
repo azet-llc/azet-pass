@@ -45,6 +45,8 @@ fun MainScreen(act: FragmentActivity, link: String?) {
     fun back() { if (stack.size > 1) stack.removeAt(stack.lastIndex) }
     LaunchedEffect(link) {
         val u = link?.let { android.net.Uri.parse(it) } ?: return@LaunchedEffect
+        // An authenticator link: a new sign-in with the code key filled in, named after the issuer.
+        if (u.scheme == "otpauth") { Session.pendingOtp = link; go(Route.Edit("new:login")); return@LaunchedEffect }
         when (u.host) { "new", "add" -> go(Route.Edit("new:login")); "settings" -> go(Route.Settings); "watchtower" -> go(Route.Check)
             "item" -> u.getQueryParameter("id")?.let { go(Route.Detail(it)) } }
     }

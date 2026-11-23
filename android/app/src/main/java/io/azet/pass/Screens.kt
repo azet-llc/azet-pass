@@ -133,6 +133,8 @@ fun SettingsScreen(act: FragmentActivity, onBack: () -> Unit, onDevices: () -> U
     var pickPos by remember { mutableStateOf(false) }
     var inline by remember { mutableStateOf(store.inlineAutofill) }
     var chromeHelp by remember { mutableStateOf(false) }
+    var never by remember { mutableStateOf(store.neverSave.sorted()) }
+    var neverOpen by remember { mutableStateOf(false) }
     var exportAsk by remember { mutableStateOf(false) }
     var exportPw by remember { mutableStateOf("") }
     var exportText by remember { mutableStateOf<String?>(null) }
@@ -199,6 +201,8 @@ fun SettingsScreen(act: FragmentActivity, onBack: () -> Unit, onDevices: () -> U
                 OneDivider()
                 OneRow(stringResource(R.string.use_in_chrome), onClick = { chromeHelp = true })
                 OneDivider()
+                OneRow(stringResource(R.string.never_list), value = never.size.toString(), onClick = { neverOpen = true })
+                OneDivider()
                 OneRow(stringResource(R.string.autofill), value = stringResource(if (autofillOn) R.string.autofill_on else R.string.autofill_off),
                     onClick = { act.startActivity(Intent(Settings.ACTION_REQUEST_SET_AUTOFILL_SERVICE).setData(android.net.Uri.parse("package:" + act.packageName))) })
                 if (android.os.Build.VERSION.SDK_INT >= 34) {
@@ -260,6 +264,16 @@ fun SettingsScreen(act: FragmentActivity, onBack: () -> Unit, onDevices: () -> U
                 .getOrElse { if (it.message == "password") wrongFilePw else it.message } }
         }, enabled = importPw.isNotEmpty()) { Text(stringResource(R.string.import_data), color = c().primary) } },
         dismissButton = { TextButton({ importText = null; importPw = "" }) { Text(stringResource(R.string.cancel), color = c().primary) } }) }
+    if (neverOpen) AlertDialog({ neverOpen = false }, containerColor = c().card, shape = androidx.compose.foundation.shape.RoundedCornerShape(26.dp),
+        title = { Text(stringResource(R.string.never_list), fontWeight = FontWeight.Medium) },
+        text = { Column {
+            if (never.isEmpty()) Text(stringResource(R.string.never_empty), fontSize = 14.sp, color = c().sub)
+            never.forEach { site -> Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(site, Modifier.weight(1f), fontSize = 15.sp, maxLines = 1)
+                TextButton({ store.neverSave = store.neverSave - site; never = store.neverSave.sorted() }) { Text(stringResource(R.string.never_remove), color = c().primary) }
+            } }
+        } },
+        confirmButton = { TextButton({ neverOpen = false }) { Text("OK", color = c().primary) } })
     if (exportAsk) AlertDialog({ exportAsk = false }, containerColor = c().card, shape = androidx.compose.foundation.shape.RoundedCornerShape(26.dp),
         title = { Text(stringResource(R.string.export_data), fontWeight = FontWeight.Bold) },
         text = { Column { Text(stringResource(R.string.export_pw_lead), fontSize = 14.sp, color = c().sub); OneField(exportPw, { exportPw = it }, stringResource(R.string.export_pw), secret = true) } },

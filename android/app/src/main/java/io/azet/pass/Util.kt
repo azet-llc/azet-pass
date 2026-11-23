@@ -46,3 +46,12 @@ fun guestHere(ctx: Context): Boolean {
 
 /** True when the person chose to keep AZET Pass closed on a rooted phone and this is one. */
 fun refusedHere(): Boolean = Session.store.closedOnRooted && deviceRooted()
+
+/** Issuer and account of an otpauth:// link ("otpauth://totp/GitHub:me@x.com?secret=…&issuer=GitHub"). */
+fun otpLabel(link: String): Pair<String, String> {
+    val u = java.net.URI(link)
+    val label = java.net.URLDecoder.decode(u.rawPath.orEmpty().removePrefix("/"), "UTF-8")
+    val issuerParam = u.rawQuery.orEmpty().split("&").firstOrNull { it.startsWith("issuer=") }?.let { java.net.URLDecoder.decode(it.removePrefix("issuer="), "UTF-8") }
+    val issuer = issuerParam ?: label.substringBefore(":", "").ifEmpty { label }
+    return issuer.trim() to label.substringAfter(":", if (issuerParam != null) label else "").trim()
+}

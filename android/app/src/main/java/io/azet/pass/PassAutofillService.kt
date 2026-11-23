@@ -17,7 +17,12 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 /** What a screen asks to fill: the username/password boxes and whose screen it is (web domain, else app package). */
-data class Form(val username: AutofillId?, val password: AutofillId?, val target: String, val isWeb: Boolean, val userValue: String?, val passValue: String?, val otp: AutofillId? = null) {
+data class Form(val username: AutofillId?, val password: AutofillId?, val target: String, val isWeb: Boolean, val userValue: String?, val passValue: String?, val otp: AutofillId? = null,
+                val extras: Map<String, AutofillId> = emptyMap()) {
+    /** Card boxes of a payment form (cc-number, cc-month, cc-year, cc-exp, cc-csc, cc-name). */
+    val card get() = extras.filterKeys { it.startsWith("cc-") }
+    /** Name, address and contact boxes of a form with no password box (an e-mail box alone is a sign-in, not an address). */
+    val identity get() = if (password != null) emptyMap() else extras.filterKeys { !it.startsWith("cc-") }.takeIf { m -> m.keys.any { it != "email" } }.orEmpty()
     /** A second-step screen that only asks for the one-time code (Google, Naver, banks). */
     val otpOnly get() = otp != null && username == null && password == null
 }
@@ -30,15 +35,45 @@ object FormParser {
     private val otpWords = Regex("otp|one.?time|2fa|mfa|totp|verification.?code|auth.?code|security.?code|totppin|인증.?(코드|번호)|확인.?코드|보안.?코드", RegexOption.IGNORE_CASE)
 
     /** [trustedBrowser] says whether an app may speak for the web address in its views (see AppLinks). */
+    /** Which card or address box this is. Apps name it in autofill hints ("creditCardNumber"); browsers pass the page's
+     *  autocomplete name, as a hint (Chrome) or as the autocomplete attribute. */
+    fun extraKind(hints: Set<String>, autocomplete: String): String? {
+        val k = hints + autocomplete
+        fun any(vararg names: String) = names.any { it in k }
+        return when {
+            any("creditcardnumber", "cc-number") -> "cc-number"
+            any("creditcardexpirationmonth", "cc-exp-month") -> "cc-month"
+            any("creditcardexpirationyear", "cc-exp-year") -> "cc-year"
+            any("creditcardexpirationdate", "cc-exp") -> "cc-exp"
+            any("creditcardsecuritycode", "cc-csc") -> "cc-csc"
+            any("cc-name") -> "cc-name"
+            any("postalcode", "postal-code") -> "zip"
+            any("postaladdress", "street-address", "address-line1") -> "addr"
+            any("phone", "tel", "tel-national") -> "phone"
+            any("given-name") -> "first"
+            any("family-name") -> "last"
+            any("name", "personname") -> "name"
+            any("address-level2") -> "city"
+            any("country", "country-name") -> "country"
+            any("emailaddress", "email") -> "email"
+            else -> null
+        }
+    }
+
     fun parse(structures: List<AssistStructure>, ownPackage: String, trustedBrowser: (String) -> Boolean): Form? {
         var user: AssistStructure.ViewNode? = null; var pass: AssistStructure.ViewNode? = null; var otp: AssistStructure.ViewNode? = null
         var domain: String? = null; var pkg: String? = null
+        val extras = mutableMapOf<String, AutofillId>()
         fun walk(n: AssistStructure.ViewNode) {
             n.webDomain?.takeIf { it.isNotBlank() }?.let { domain = it }
             if (n.autofillId != null && n.autofillType == View.AUTOFILL_TYPE_TEXT && n.visibility == View.VISIBLE) {
                 val hints = n.autofillHints.orEmpty().joinToString(" ").lowercase()
                 val html = n.htmlInfo?.attributes?.associate { it.first to it.second }.orEmpty()
                 val words = listOfNotNull(n.idEntry, n.hint, html["name"], html["id"], html["autocomplete"], hints).joinToString(" ")
+                extraKind(hints.split(" ").toSet(), html["autocomplete"]?.lowercase().orEmpty())?.let { kind ->
+                    extras.putIfAbsent(kind, n.autofillId!!)
+                    if (kind != "email") { for (i in 0 until n.childCount) walk(n.getChildAt(i)); return }
+                }
                 val isOtp = Regex("otp|onetimecode|2fa").containsMatchIn(hints.replace("-", "").replace("_", "")) || html["autocomplete"] == "one-time-code" || otpWords.containsMatchIn(words)
                 if (isOtp) { if (otp == null) otp = n; for (i in 0 until n.childCount) walk(n.getChildAt(i)); return }
                 val isPw = hints.contains("password") || html["type"] == "password" ||
@@ -53,10 +88,10 @@ object FormParser {
             pkg = s.activityComponent?.packageName
             for (i in 0 until s.windowNodeCount) walk(s.getWindowNodeAt(i).rootViewNode)
         }
-        if (pkg == ownPackage || pkg in systemScreens || (user == null && pass == null && otp == null)) return null
+        if (pkg == ownPackage || pkg in systemScreens || (user == null && pass == null && otp == null && extras.isEmpty())) return null
         val web = domain?.takeIf { pkg?.let(trustedBrowser) == true }
         val target = web ?: pkg ?: return null
-        return Form(user?.autofillId, pass?.autofillId, target, web != null, user?.autofillValue?.textValue?.toString(), pass?.autofillValue?.textValue?.toString(), otp?.autofillId)
+        return Form(user?.autofillId, pass?.autofillId, target, web != null, user?.autofillValue?.textValue?.toString(), pass?.autofillValue?.textValue?.toString(), otp?.autofillId, extras)
     }
 }
 
@@ -71,6 +106,8 @@ class PassAutofillService : AutofillService() {
         Session.init(this)
         if (refusedHere() || guestHere(this)) return callback.onSuccess(null)
         val form = FormParser.parse(request.fillContexts.map { it.structure }, packageName) { AppLinks.trustedBrowser(this, it) } ?: return callback.onSuccess(null)
+        if (form.card.isNotEmpty() || form.identity.isNotEmpty()) return fillPersonal(form, request, callback)
+        if (form.username == null && form.password == null && form.otp == null) return callback.onSuccess(null)
         val ids = (if (form.otpOnly) listOf(form.otp!!) else listOfNotNull(form.username, form.password)).toTypedArray()
         val r = FillResponse.Builder()
         if (Session.phase == Phase.Unlocked) {
@@ -109,6 +146,30 @@ class PassAutofillService : AutofillService() {
         } else callback.onSuccess(null)
     }
 
+    /** Payment and address forms: one row per saved card or address, filling every box it has a value for.
+     *  shortcut: only while unlocked (no unlock row for these forms); add one when people ask for it. */
+    private fun fillPersonal(form: Form, request: FillRequest, callback: FillCallback) {
+        if (Session.phase != Phase.Unlocked) return callback.onSuccess(null)
+        val wantCard = form.card.isNotEmpty()
+        val boxes = if (wantCard) form.card else form.identity
+        scope.launch {
+            val inline = inlineSpecs(request); val r = FillResponse.Builder(); var n = 0
+            Session.items.filter { it.kind() == (if (wantCard) Kind.Card else Kind.Identity) && it.deletedDate == null }.take(3).forEach { m ->
+                val v = runCatching { Session.view(m.id!!) }.getOrNull() ?: return@forEach
+                val values = (if (wantCard) cardValues(v.card) else identityValues(v.identity)).filterKeys { it in boxes }.filterValues { !it.isNullOrBlank() }
+                if (values.isEmpty()) return@forEach
+                val d = Dataset.Builder(presentation(this@PassAutofillService, m.name, m.subtitle))
+                val chip = inline?.let { inlineChip(it, n, m.name, m.subtitle) }
+                values.entries.forEachIndexed { i, (k, value) ->
+                    if (i == 0 && chip != null) d.setValue(boxes[k]!!, AutofillValue.forText(value), presentation(this@PassAutofillService, m.name, m.subtitle), chip)
+                    else d.setValue(boxes[k]!!, AutofillValue.forText(value))
+                }
+                r.addDataset(d.build()); n++
+            }
+            callback.onSuccess(if (n > 0) r.build() else null)
+        }
+    }
+
     private fun pickIntent(form: Form, ids: Array<AutofillId>): PendingIntent =
         PendingIntent.getActivity(this, form.target.hashCode(), Intent(this, AutofillPickActivity::class.java)
             .putExtra("target", form.target).putExtra("isWeb", form.isWeb).putExtra("ids", ids).putExtra("hasUser", form.username != null).putExtra("otpOnly", form.otpOnly),
@@ -138,13 +199,17 @@ class PassAutofillService : AutofillService() {
 
     private fun saveInfo(form: Form): SaveInfo? {
         val pw = form.password ?: return null
-        return SaveInfo.Builder(SaveInfo.SAVE_DATA_TYPE_PASSWORD or (if (form.username != null) SaveInfo.SAVE_DATA_TYPE_USERNAME else 0), listOfNotNull(form.username, pw).toTypedArray()).build()
+        if (form.target in Session.store.neverSave) return null
+        val never = PendingIntent.getActivity(this, form.target.hashCode() xor 0x4e56, Intent(this, AutofillPickActivity::class.java).putExtra("never", true).putExtra("target", form.target),
+            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE, startAllowed())
+        return SaveInfo.Builder(SaveInfo.SAVE_DATA_TYPE_PASSWORD or (if (form.username != null) SaveInfo.SAVE_DATA_TYPE_USERNAME else 0), listOfNotNull(form.username, pw).toTypedArray())
+            .setNegativeAction(SaveInfo.NEGATIVE_BUTTON_STYLE_NEVER, never.intentSender).build()
     }
 
     override fun onSaveRequest(request: SaveRequest, callback: SaveCallback) {
         Session.init(this)
         val form = FormParser.parse(request.fillContexts.map { it.structure }, packageName) { AppLinks.trustedBrowser(this, it) }
-        if (form?.passValue.isNullOrEmpty()) return callback.onSuccess()
+        if (form?.passValue.isNullOrEmpty() || form!!.target in Session.store.neverSave) return callback.onSuccess()
         // The person already said "Save" in the system sheet: save now when unlocked; otherwise unlock first in our screen.
         if (Session.phase == Phase.Unlocked) {
             scope.launch {
@@ -163,3 +228,12 @@ class PassAutofillService : AutofillService() {
 /** Android 14 blocks activity starts from a PendingIntent unless its creator allows it. */
 fun startAllowed(): android.os.Bundle? = if (android.os.Build.VERSION.SDK_INT >= 34)
     android.app.ActivityOptions.makeBasic().setPendingIntentCreatorBackgroundActivityStartMode(android.app.ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED).toBundle() else null
+
+/** What each card box gets ("cc-exp" is MM/YY). */
+fun cardValues(c: com.bitwarden.vault.CardView?): Map<String, String?> = mapOf(
+    "cc-number" to c?.number, "cc-month" to c?.expMonth?.padStart(2, '0'), "cc-year" to c?.expYear, "cc-csc" to c?.code, "cc-name" to c?.cardholderName,
+    "cc-exp" to if (c?.expMonth != null && c.expYear != null) "${c.expMonth!!.padStart(2, '0')}/${c.expYear!!.takeLast(2)}" else null)
+
+fun identityValues(i: com.bitwarden.vault.IdentityView?): Map<String, String?> = mapOf(
+    "first" to i?.firstName, "last" to i?.lastName, "name" to listOfNotNull(i?.firstName, i?.lastName).joinToString(" ").ifBlank { null },
+    "email" to i?.email, "phone" to i?.phone, "addr" to i?.address1, "city" to i?.city, "zip" to i?.postalCode, "country" to i?.country)

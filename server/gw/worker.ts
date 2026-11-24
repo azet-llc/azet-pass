@@ -23,13 +23,13 @@ const AASA = { applinks: { details: [{ appIDs: ["95P4H2RG24.io.azet.pass"], comp
 
 // Family invite landing page: the token stays in the #fragment (never sent to a server); the page hands it to the app.
 const INVITE = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AZET Pass</title><style>body{margin:0;font:17px/1.5 -apple-system,system-ui,sans-serif;background:#f4f7f6;color:#0d1f1a}
+<title>AZET Pass</title><style>body{margin:0;font:17px/1.5 -apple-system,system-ui,sans-serif;background:#f5f6f8;color:#0d0d0d}
 main{max-width:420px;margin:0 auto;padding:48px 20px;text-align:center}h1{font-size:26px;margin:16px 0 8px}p{color:#4a5b56}
-a.b{display:block;margin:14px 0;padding:15px;border-radius:14px;background:#0d7d66;color:#fff;text-decoration:none;font-weight:600}
-a.s{background:#fff;color:#0d7d66;border:1px solid #cfe3dd}.logo{width:76px;height:76px;border-radius:18px;background:linear-gradient(135deg,#14a386,#0b5e4e);margin:0 auto}</style></head>
-<body><main><div class="logo"></div><h1 id="t">Your family invited you</h1><p id="d">Open this page on your phone. Install AZET Pass, then tap Open in the app.</p>
+a.b{display:block;margin:14px 0;padding:15px;border-radius:14px;background:#2f6fe8;color:#fff;text-decoration:none;font-weight:600}
+a.s{background:#fff;color:#2f6fe8;border:1px solid #d5dbe5}.logo{display:block;width:76px;height:76px;margin:0 auto}</style></head>
+<body><main><svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><g transform="translate(512 512) scale(1) translate(-512 -512)"><rect width="1024" height="1024" rx="230" fill="#0d0d0d"/><g transform="translate(512 536) scale(.82) translate(-512 -512)"><path d="M262 822 512 196 762 822" fill="none" stroke="#fff" stroke-width="104" stroke-miterlimit="10"/><circle cx="512" cy="612" r="66" fill="#2f6fe8"/><path d="M486 650h52l26 172h-104z" fill="#2f6fe8"/></g></g></svg><h1 id="t">Your family invited you</h1><p id="d">Open this page on your phone. Install AZET Pass, then tap Open in the app.</p>
 <a class="b" id="open" href="#">Open in AZET Pass</a><a class="b s" id="get" href="https://apps.apple.com/app/id6823484052">Get AZET Pass for iPhone</a>
-<a class="b s" id="and" href="https://play.google.com/store/apps/details?id=io.azet.pass">Get AZET Pass for Android</a><a class="b s" id="web" href="/team">Join in the browser</a></main>
+<a class="b s" id="and" href="https://play.google.com/store/apps/details?id=io.azet.pass.lite">Get AZET Pass for Android</a><a class="b s" id="web" href="/team">Join in the browser</a></main>
 <script>var $=function(i){return document.getElementById(i)};if((navigator.language||'').indexOf('ko')==0){$('t').textContent='가족이 AZET Pass에 초대했어요';$('d').textContent='휴대폰에서 이 페이지를 여세요. AZET Pass를 설치한 뒤 「앱에서 열기」를 누르면 돼요.';$('open').textContent='앱에서 열기';$('get').textContent='iPhone용 AZET Pass 받기';$('and').textContent='Android용 AZET Pass 받기'}
 $('open').href='azetpass://invite'+location.hash;$('web').href='/team'+location.hash;if((navigator.language||'').indexOf('ko')==0)$('web').textContent='브라우저에서 참여';</script></body></html>`;
 

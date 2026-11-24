@@ -38,6 +38,7 @@ object ExportFile {
         require(o["passwordProtected"]?.jsonPrimitive?.booleanOrNull == true) { "account" }
         // shortcut: only PBKDF2 files (what our apps and the web vault write by default); add Argon2id when a file needs it.
         require((o["kdfType"]?.jsonPrimitive?.intOrNull ?: 0) == 0) { "kdf" }
+        require((o["kdfIterations"]?.jsonPrimitive?.intOrNull ?: 0) in 5_000..5_000_000) { "kdf" } // a file cannot make the phone grind for hours
         val master = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
             .generateSecret(PBEKeySpec(password.toCharArray(), s("salt")!!.toByteArray(), o["kdfIterations"]!!.jsonPrimitive.intOrNull!!, 256)).encoded
         fun expand(info: String) = Mac.getInstance("HmacSHA256").run { init(SecretKeySpec(master, "HmacSHA256")); doFinal(info.toByteArray() + 1) }

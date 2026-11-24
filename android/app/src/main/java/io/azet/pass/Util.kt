@@ -55,3 +55,20 @@ fun otpLabel(link: String): Pair<String, String> {
     val issuer = issuerParam ?: label.substringBefore(":", "").ifEmpty { label }
     return issuer.trim() to label.substringAfter(":", if (issuerParam != null) label else "").trim()
 }
+
+/** Second-level names that hand out names to anyone, so "x.github.io" and "y.github.io" are different sites. */
+private val sharedHosts = setOf("github.io", "gitlab.io", "vercel.app", "netlify.app", "pages.dev", "workers.dev", "web.app", "firebaseapp.com", "herokuapp.com",
+    "cloudfront.net", "azurewebsites.net", "blogspot.com", "appspot.com", "amazonaws.com", "tistory.com", "cafe24.com", "myshopify.com", "wixsite.com", "glitch.me", "fly.dev", "onrender.com", "r2.dev")
+
+/** The part of a host one owner registers: "login.bank.co.kr" is "bank.co.kr", never "co.kr".
+ *  shortcut: no public-suffix list in the app. A two-letter country ending whose second label is short ("co.kr", "ac.uk",
+ *  "com.au") or a known shared host takes three labels, which errs toward treating sites as different; ship the list if
+ *  people report sign-ins missing on honest sub-sites. */
+fun siteOf(host: String): String {
+    val h = host.lowercase().trim('.').removePrefix("www.")
+    val p = h.split('.')
+    if (p.size <= 2) return h
+    val two = p.takeLast(2).joinToString(".")
+    val wide = two in sharedHosts || (p.last().length == 2 && p[p.size - 2].length <= 3)
+    return p.takeLast(if (wide) 3 else 2).joinToString(".")
+}

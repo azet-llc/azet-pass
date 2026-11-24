@@ -63,9 +63,11 @@ object FormParser {
     fun parse(structures: List<AssistStructure>, ownPackage: String, trustedBrowser: (String) -> Boolean): Form? {
         var user: AssistStructure.ViewNode? = null; var pass: AssistStructure.ViewNode? = null; var otp: AssistStructure.ViewNode? = null
         var domain: String? = null; var pkg: String? = null
+        var userAt: String? = null; var passAt: String? = null; var mixed = false
         val extras = mutableMapOf<String, AutofillId>()
         fun walk(n: AssistStructure.ViewNode) {
-            n.webDomain?.takeIf { it.isNotBlank() }?.let { domain = it }
+            // A page served without https never gets a saved sign-in, and a frame of another site changes whose boxes these are.
+            n.webDomain?.takeIf { it.isNotBlank() }?.let { domain = if (n.webScheme == "http") null else it; if (n.webScheme == "http") mixed = true }
             if (n.autofillId != null && n.autofillType == View.AUTOFILL_TYPE_TEXT && n.visibility == View.VISIBLE) {
                 val hints = n.autofillHints.orEmpty().joinToString(" ").lowercase()
                 val html = n.htmlInfo?.attributes?.associate { it.first to it.second }.orEmpty()
@@ -81,8 +83,8 @@ object FormParser {
                 val isPw = hints.contains("password") || html["type"] == "password" ||
                     (n.inputType and InputType.TYPE_MASK_VARIATION).let { it == InputType.TYPE_TEXT_VARIATION_PASSWORD || it == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD || it == InputType.TYPE_NUMBER_VARIATION_PASSWORD } ||
                     (passWords.containsMatchIn(words) && !hints.contains("username"))
-                if (isPw) { if (pass == null) pass = n }
-                else if (user == null && pass == null && (hints.contains("username") || hints.contains("email") || userWords.containsMatchIn(words) || html["type"] == "email")) user = n
+                if (isPw) { if (pass == null) { pass = n; passAt = domain } }
+                else if (user == null && pass == null && (hints.contains("username") || hints.contains("email") || userWords.containsMatchIn(words) || html["type"] == "email")) { user = n; userAt = domain }
             }
             for (i in 0 until n.childCount) walk(n.getChildAt(i))
         }
@@ -91,7 +93,11 @@ object FormParser {
             for (i in 0 until s.windowNodeCount) walk(s.getWindowNodeAt(i).rootViewNode)
         }
         if (pkg == ownPackage || pkg in systemScreens || (user == null && pass == null && otp == null && extras.isEmpty())) return null
-        val web = domain?.takeIf { pkg?.let(trustedBrowser) == true }
+        // The site is the one the chosen boxes sit in, not the last frame seen; boxes in two sites are not filled together.
+        if (user != null && pass != null && userAt != passAt) return null
+        val boxSite = if (pass != null) passAt else if (user != null) userAt else domain
+        if (mixed && boxSite == null && pkg?.let(trustedBrowser) == true) return null
+        val web = boxSite?.takeIf { pkg?.let(trustedBrowser) == true }
         val target = web ?: pkg ?: return null
         return Form(user?.autofillId, pass?.autofillId, target, web != null, user?.autofillValue?.textValue?.toString(), pass?.autofillValue?.textValue?.toString(), otp?.autofillId, extras)
     }
@@ -107,6 +113,7 @@ class PassAutofillService : AutofillService() {
     override fun onFillRequest(request: FillRequest, cancel: CancellationSignal, callback: FillCallback) {
         Session.init(this)
         if (refusedHere() || guestHere(this)) return callback.onSuccess(null)
+        Session.lockIfIdle()
         val form = FormParser.parse(request.fillContexts.map { it.structure }, packageName) { AppLinks.trustedBrowser(this, it) } ?: return callback.onSuccess(null)
         if (form.card.isNotEmpty() || form.identity.isNotEmpty()) return fillPersonal(form, request, callback)
         if (form.username == null && form.password == null && form.otp == null) return callback.onSuccess(null)
@@ -153,7 +160,9 @@ class PassAutofillService : AutofillService() {
     private fun fillPersonal(form: Form, request: FillRequest, callback: FillCallback) {
         if (Session.phase != Phase.Unlocked) return callback.onSuccess(null)
         val wantCard = form.card.isNotEmpty()
-        val boxes = if (wantCard) form.card else form.identity
+        // The security code goes only into the box the person is standing in: a form cannot collect it from a tap on another box.
+        val focused = request.fillContexts.lastOrNull()?.focusedId
+        val boxes = (if (wantCard) form.card else form.identity).filter { (k, id) -> k != "cc-csc" || id == focused }
         scope.launch {
             val inline = inlineSpecs(request); val r = FillResponse.Builder(); var n = 0
             Session.items.filter { it.kind() == (if (wantCard) Kind.Card else Kind.Identity) && it.deletedDate == null }.take(3).forEach { m ->

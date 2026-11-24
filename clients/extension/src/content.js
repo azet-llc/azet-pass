@@ -5,7 +5,12 @@
   window.__azetPass = true;
   const send = (m) => chrome.runtime.sendMessage(m).catch(() => {});
 
-  const visible = (el) => !!el && el.getClientRects().length > 0 && getComputedStyle(el).visibility !== "hidden" && !el.disabled && !el.readOnly;
+  // A box counts only if the person could see it: laid out, not hidden, not transparent, not a speck.
+  const visible = (el) => {
+    if (!el || el.disabled || el.readOnly) return false;
+    const r = el.getBoundingClientRect(), s = getComputedStyle(el);
+    return el.getClientRects().length > 0 && s.visibility !== "hidden" && +s.opacity > 0.1 && r.width > 8 && r.height > 8;
+  };
   const inputs = (root = document) => [...root.querySelectorAll("input")].filter(visible);
   const passwordFields = () => inputs().filter((i) => i.type === "password");
 
@@ -182,7 +187,8 @@
   }
 
   chrome.runtime.onMessage.addListener((m, _s, reply) => {
-    if (m?.azet === "fill") reply({ filled: fill(m.data) });
+    // Only the page itself, or a frame served from the very same host, takes a fill.
+    if (m?.azet === "fill") reply({ filled: location.hostname === m.host ? fill(m.data) : false });
     else if (m?.azet === "offerSave") offerSave(m.update, m.host);
   });
 })();

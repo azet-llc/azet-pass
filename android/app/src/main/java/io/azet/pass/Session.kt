@@ -138,6 +138,14 @@ object Session {
         lockJob?.cancel()
         val m = store.lockMinutes
         if (m > 0 && phase == Phase.Unlocked) lockJob = scope.launch { delay(m * 60_000L); lock() }
+        touchedAt = android.os.SystemClock.elapsedRealtime()
+    }
+
+    private var touchedAt = 0L
+    /** The timer above stands still while the phone sleeps, so whoever is about to hand out a secret asks this first. */
+    fun lockIfIdle() {
+        val m = store.lockMinutes
+        if (m > 0 && phase == Phase.Unlocked && android.os.SystemClock.elapsedRealtime() - touchedAt > m * 60_000L) lock()
     }
 
     /** Set by "Lock now": the lock screen then waits for a tap instead of asking for a fingerprint straight away. Cleared when the app leaves the screen. */
@@ -186,7 +194,7 @@ object Session {
 
     /** A sign-in another app or site just submitted: updates the password of the same username there, else adds a login. */
     suspend fun saveSignIn(target: String, isWeb: Boolean, user: String?, pass: String, appCert: String? = null): String {
-        val same = matches(target).firstOrNull { (it.subtitle.ifEmpty { null }) == user }
+        val same = matches(target, isWeb).firstOrNull { (it.subtitle.ifEmpty { null }) == user }
         if (same != null) {
             val v = view(same.id!!)
             if (v.login?.password == pass) return v.id!!
@@ -300,17 +308,17 @@ object Session {
         return "$SERVER/#/send/${made.accessId}/$key"
     }
 
-    /** Logins whose saved address shares the app's or site's domain. */
-    fun matches(domainOrPackage: String): List<CipherListView> {
-        val target = domainOrPackage.removePrefix("www.").lowercase()
-        val base = { h: String -> h.split('.').takeLast(2).joinToString(".") }
+    /** Logins saved for this site (web = true: a host, compared by its registered part) or saved from this app
+     *  (web = false: the package name, exactly). A package name is never read as a web address: anyone can publish an
+     *  app named "login.bank.com". */
+    fun matches(domainOrPackage: String, web: Boolean = true): List<CipherListView> {
+        val target = domainOrPackage.lowercase()
         return items.filter { v ->
             val l = (v.type as? CipherListViewType.Login)?.v1 ?: return@filter false
             l.uris.orEmpty().any { u ->
                 val s = u.uri ?: return@any false
-                if (s.startsWith("androidapp://")) s.removePrefix("androidapp://") == target
-                else runCatching { java.net.URI(if ("://" in s) s else "https://$s").host?.removePrefix("www.")?.lowercase() }.getOrNull()
-                    ?.let { it == target || base(it) == base(target) } == true
+                if (s.startsWith("androidapp://")) !web && s.removePrefix("androidapp://") == target
+                else web && runCatching { java.net.URI(if ("://" in s) s else "https://$s").host }.getOrNull()?.let { siteOf(it) == siteOf(target) } == true
             }
         }
     }

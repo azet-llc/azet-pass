@@ -1,5 +1,7 @@
 package io.azet.pass
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
@@ -160,9 +162,22 @@ class PasskeyActivity : FragmentActivity() {
         val get = PendingIntentHandler.retrieveProviderGetCredentialRequest(intent)
         val site = (create?.callingRequest as? CreatePublicKeyCredentialRequest)?.requestJson?.let(::passkeyRpId)
             ?: get?.credentialOptions?.filterIsInstance<GetPublicKeyCredentialOption>()?.firstOrNull()?.requestJson?.let(::passkeyRpId) ?: getString(R.string.app_name)
+        Session.lockIfIdle()
+        // A passkey answer says "the person was checked just now". An already open vault is not that: ask for the
+        // fingerprint, or lock so the password is typed.
+        var checked by androidx.compose.runtime.mutableStateOf(Session.phase != Phase.Unlocked)
         setContent { OneTheme { Surface(color = c().page) { Column(Modifier.padding(16.dp).heightIn(min = 160.dp, max = 560.dp)) {
             if (Session.phase != Phase.Unlocked) LockScreen(this@PasskeyActivity)
-            else {
+            else if (!checked) {
+                val title = stringResource(R.string.app_name); val subtitle = stringResource(R.string.bio_subtitle)
+                CircularProgressIndicator(Modifier.padding(top = 16.dp))
+                LaunchedEffect(Unit) {
+                    val ci = if (Session.store.biometricOn && canUseBiometrics()) Session.store.biometricCipher(false) else null
+                    if (ci == null) { checked = true; Session.lock() }
+                    else if (biometric(ci, title, subtitle) != null) checked = true
+                    else finish()
+                }
+            } else {
                 Text(stringResource(if (create != null) R.string.passkey_create_title else R.string.passkey_use_title, site), style = MaterialTheme.typography.titleMedium)
                 CircularProgressIndicator(Modifier.padding(top = 16.dp))
                 LaunchedEffect(Unit) { finishWith(runCatching { answer() }) }

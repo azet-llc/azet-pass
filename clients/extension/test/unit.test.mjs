@@ -63,3 +63,14 @@ test("look-alike sites are flagged, the saved site and unrelated sites are not",
   assert.equal(lookalike("mail.google.com", saved), null);
   assert.equal(lookalike("daum.net", saved), null);
 });
+
+test("the same site is the registered name, never a shared ending or a plain-http copy", async () => {
+  const { siteOf, matchesSite } = await import("../src/vault-core.mjs");
+  assert.equal(siteOf("login.bank.co.kr"), "bank.co.kr");
+  assert.equal(siteOf("nid.naver.com"), "naver.com");
+  assert.equal(matchesSite([{ uri: "https://www.bank.co.kr/login" }], "https://evil.co.kr/"), false);
+  assert.equal(matchesSite([{ uri: "https://victim.github.io" }], "https://attacker.github.io/x"), false);
+  assert.equal(matchesSite([{ uri: "https://bank.com" }], "http://bank.com:8080/"), false);
+  assert.equal(matchesSite([{ uri: "https://accounts.google.com" }], "https://www.google.com/"), true);
+  assert.equal(matchesSite([{ uri: "naver.com" }], "https://nid.naver.com/login"), true);
+});

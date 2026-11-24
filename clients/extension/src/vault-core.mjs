@@ -50,12 +50,26 @@ export function toRequest(c, lastKnownRevisionDate) {
 }
 
 /** Host of a URL without "www.", or "" for non-web addresses. */
-export const hostOf = (u) => { try { const h = new URL(u).hostname; return h.replace(/^www\./, ""); } catch { return ""; } };
-/** Logins whose saved address shares the page's site (example.com matches login.example.com and back). */
+export const hostOf = (u) => { try { const h = new URL(/^[a-z][a-z0-9+.-]*:/i.test(u) ? u : `https://${u}`).hostname; return h.replace(/^www\./, ""); } catch { return ""; } }; // an address saved without "https://" is still a site
+// Second-level names that hand out names to anyone, so "x.github.io" and "y.github.io" are different sites.
+const SHARED = new Set(["github.io", "gitlab.io", "vercel.app", "netlify.app", "pages.dev", "workers.dev", "web.app", "firebaseapp.com", "herokuapp.com",
+  "cloudfront.net", "azurewebsites.net", "blogspot.com", "appspot.com", "amazonaws.com", "tistory.com", "cafe24.com", "myshopify.com", "wixsite.com", "glitch.me", "fly.dev", "onrender.com", "r2.dev"]);
+/** The part of a host one owner registers: "login.bank.co.kr" is "bank.co.kr", never "co.kr".
+ *  shortcut: no public-suffix list here. A two-letter country ending whose second label is short ("co.kr", "ac.uk",
+ *  "com.au") or a known shared host takes three labels, which errs toward treating sites as different; ship the list if
+ *  people report sign-ins missing on honest sub-sites. */
+export function siteOf(host) {
+  const p = host.toLowerCase().replace(/^www\./, "").split(".");
+  if (p.length <= 2) return p.join(".");
+  const wide = SHARED.has(p.slice(-2).join(".")) || (p.at(-1).length === 2 && p.at(-2).length <= 3);
+  return p.slice(wide ? -3 : -2).join(".");
+}
+/** Logins whose saved address is the page's site (example.com matches login.example.com and back). A sign-in saved
+ *  for an https address is not offered to the same name served without https. */
 export function matchesSite(uris, pageUrl) {
   const page = hostOf(pageUrl); if (!page) return false;
-  const base = (h) => h.split(".").slice(-2).join(".");
-  return (uris || []).some((u) => { const h = hostOf(u.uri || u); return h && (h === page || base(h) === base(page)); });
+  const plain = /^http:/i.test(pageUrl);
+  return (uris || []).some((u) => { const s = u.uri || u, h = hostOf(s); return h && siteOf(h) === siteOf(page) && !(plain && /^https:/i.test(s)); });
 }
 
 /** Works on any client, also one with no account behind it (the generator needs no keys). */

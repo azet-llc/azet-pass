@@ -113,7 +113,7 @@ async function render() {
     $("desktopUnlock").hidden = !(s.phase === "locked" && d.on);
     // With AZET Desktop on this Mac the browser follows it: asked once as the popup opens (Touch ID, or at once in bypass mode).
     if (s.phase === "locked" && d.on && !askedDesktop) { askedDesktop = true; call("unlockWithDesktop").then(render, () => {}); }
-    if (s.phase === "unlocked" && d.helper && !d.on) call("desktopOn").catch(() => {});
+    if (s.phase === "unlocked" && d.helper && !d.on && !d.asked) call("desktopOn").catch(() => {}); // once; turning it off stays off
     $("desktopToggleWrap").hidden = !(s.phase === "unlocked" && d.helper);
     $("desktopToggle").textContent = t(d.on ? "desktopOff" : "desktopOn");
     $("desktopToggle").dataset.on = d.on ? "1" : "";

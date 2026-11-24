@@ -100,13 +100,16 @@ async function secret(id) {
 
 async function fillTab(tabId, id) {
   const s = await secret(id);
-  await chrome.tabs.sendMessage(tabId, { azet: "fill", data: { username: s.username, password: s.password, card: s.card, identity: s.identity, code: s.totp?.code } });
+  // Every frame hears this, so it names the page's own host: a frame of another site (an ad, a widget) does not fill.
+  const tab = await chrome.tabs.get(tabId);
+  await chrome.tabs.sendMessage(tabId, { azet: "fill", host: new URL(tab.url).hostname, data: { username: s.username, password: s.password, card: s.card, identity: s.identity, code: s.totp?.code } });
   return { totp: s.totp?.code ?? null };
 }
 
 /** A sign-in the page just submitted: offer to save it unless the vault already has that username here. */
 async function submitted(msg, sender) {
   if (!msg.password || !sender.tab) return;
+  msg = { ...msg, url: sender.url }; // where the frame really is, not where it says it is
   const v = await openVault();
   if (!v) { await session.set({ pending: { ...msg, tabId: sender.tab.id } }); chrome.action.setBadgeText({ text: "1" }); return; }
   const known = await Promise.all(v.forPage(msg.url).map((i) => v.view(i.id)));
@@ -164,9 +167,10 @@ const native = (msg) => new Promise((res) => {
   try { chrome.runtime.sendNativeMessage(HOST, msg, (r) => res(chrome.runtime.lastError ? null : r)); } catch { res(null); }
 });
 async function desktopState() {
-  const { desktopUnlock } = await local.get("desktopUnlock");
+  const { desktopUnlock, desktopAsked } = await local.get(["desktopUnlock", "desktopAsked"]);
   const ping = await native({ op: "ping" });
-  return { helper: !!ping?.ok, on: !!desktopUnlock && !!ping?.ok };
+  // asked: it was turned on or off once already, so the popup does not turn it on by itself again.
+  return { helper: !!ping?.ok, on: !!desktopUnlock && !!ping?.ok, asked: !!desktopAsked };
 }
 async function desktopOn() {
   const v = await openVault(); if (!v?.userKey) throw new Error("locked");
@@ -175,13 +179,13 @@ async function desktopOn() {
   const ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(v.userKey)));
   const r = await native({ op: "store", id, key: b64(raw) });
   if (!r?.ok) throw new Error("AZET Desktop helper is not installed on this Mac");
-  await local.set({ desktopUnlock: { id, iv: b64(iv), ct: b64(ct) } });
+  await local.set({ desktopUnlock: { id, iv: b64(iv), ct: b64(ct) }, desktopAsked: true });
   return desktopState();
 }
 async function desktopOff() {
   const { desktopUnlock } = await local.get("desktopUnlock");
   if (desktopUnlock) await native({ op: "forget", id: desktopUnlock.id });
-  await local.remove("desktopUnlock");
+  await local.remove("desktopUnlock"); await local.set({ desktopAsked: true });
   return desktopState();
 }
 async function unlockWithDesktop() {
@@ -197,6 +201,7 @@ async function unlockWithDesktop() {
   return state();
 }
 
+let pinTurn = Promise.resolve();
 const handlers = {
   desktopState, desktopOn, desktopOff, unlockWithDesktop,
   passkeyPrepare,
@@ -218,7 +223,7 @@ const handlers = {
     return state();
   },
   lock: async () => { await lock(); return state(); },
-  async signOut() { await desktopOff().catch(() => {}); await lock(); await local.remove(["account", "snap", "pin", "pinFails", "unlockFails"]); return state(); },
+  async signOut() { await desktopOff().catch(() => {}); await lock(); await local.remove(["account", "snap", "pin", "pinFails", "unlockFails", "desktopAsked"]); return state(); },
   async pinState() { return { on: !!(await local.get("pin")).pin }; },
   async pinOn({ pin }) {
     const v = await openVault(); if (!v?.userKey) throw new Error("locked");
@@ -227,15 +232,23 @@ const handlers = {
   },
   async pinOff() { await local.remove(["pin", "pinFails"]); return { on: false }; },
   async unlockWithPin({ pin }) {
-    const { pin: sealed, pinFails = 0, account, snap } = await local.get(["pin", "pinFails", "account", "snap"]);
-    if (!sealed || !account) throw new Error(chrome.i18n.getMessage("pinGone"));
-    const userKey = await pinUnwrap(sealed, pin || "");
-    if (!userKey) {
+    // One try at a time, and the try is counted before the slow check: many tries sent together cannot share one count.
+    const turn = pinTurn; let done; pinTurn = new Promise((r) => (done = r)); await turn;
+    let userKey, account, snap;
+    try {
+      const got = await local.get(["pin", "pinFails", "account", "snap"]); ({ account, snap } = got);
+      const sealed = got.pin, pinFails = got.pinFails || 0;
+      if (!sealed || !account) throw new Error(chrome.i18n.getMessage("pinGone"));
       // Five wrong PINs forget the PIN: the account password is needed again.
-      if (pinFails + 1 >= 5) { await local.remove(["pin", "pinFails"]); throw new Error(chrome.i18n.getMessage("pinGone")); }
-      await local.set({ pinFails: pinFails + 1 }); throw new Error(chrome.i18n.getMessage("pinWrong", [String(4 - pinFails)]));
-    }
-    await local.set({ pinFails: 0 });
+      if (pinFails >= 5) { await local.remove(["pin", "pinFails"]); throw new Error(chrome.i18n.getMessage("pinGone")); }
+      await local.set({ pinFails: pinFails + 1 });
+      userKey = await pinUnwrap(sealed, pin || "");
+      if (!userKey) {
+        if (pinFails + 1 >= 5) { await local.remove(["pin", "pinFails"]); throw new Error(chrome.i18n.getMessage("pinGone")); }
+        throw new Error(chrome.i18n.getMessage("pinWrong", [String(4 - pinFails)]));
+      }
+      await local.set({ pinFails: 0 });
+    } finally { done(); }
     const v = await newVault(); v.account = account; await v.resume(userKey); await store.saveUserKey(userKey);
     if (snap) await v.restore(snap); else await v.sync();
     vault = v; await touch(); v.sync().catch(() => {});
@@ -259,7 +272,11 @@ const handlers = {
     return generatePassword(c, { length, special });
   },
   async health() { const v = await openVault(); if (!v) throw new Error("locked"); return passwordHealth(v); },
-  async settings(patch) { if (patch) await local.set(patch); return local.get(["lockMinutes", "offerSave"]); },
+  async settings({ lockMinutes, offerSave } = {}) {
+    if (lockMinutes !== undefined) await local.set({ lockMinutes: Math.max(1, Math.min(1440, +lockMinutes || 15)) });
+    if (offerSave !== undefined) await local.set({ offerSave: !!offerSave });
+    return local.get(["lockMinutes", "offerSave"]);
+  },
   async sendText(o) { const v = await openVault(); if (!v) throw new Error("locked"); return v.sendText(o); },
   submitted,
   // One-time code boxes: which logins for the page that sent this (its own frame address, not one it claims) have codes.
@@ -273,9 +290,15 @@ const handlers = {
   declineOffer: () => session.remove("offer"),
 };
 
+// What a page's own script may ask for. Everything else (the list, a secret, sign-in, PIN, unlock, settings) is for the
+// extension's own pages only, so a compromised page process cannot reach it.
+const PAGE_OK = new Set(["submitted", "otpChoices", "otpCode", "passkeyPrepare", "passkeyComplete", "acceptOffer", "declineOffer"]);
 chrome.runtime.onMessage.addListener((msg, sender, reply) => {
   const h = handlers[msg?.type]; if (!h) return false;
-  Promise.resolve(h(msg, sender)).then((result) => { if (msg.type !== "state") touch(); reply({ ok: true, result }); },
+  const own = sender.id === chrome.runtime.id && (sender.url || "").startsWith(chrome.runtime.getURL(""));
+  if (!own && !PAGE_OK.has(msg.type)) return false;
+  // Only the person's own use of the popup keeps the vault open; a page cannot hold it open by sending messages.
+  Promise.resolve(h(msg, sender)).then((result) => { if (own && msg.type !== "state") touch(); reply({ ok: true, result }); },
     (e) => reply({ ok: false, error: e.twoFactor ? "twoFactor" : String(e.message || e) }));
   return true;
 });

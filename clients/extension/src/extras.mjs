@@ -72,7 +72,7 @@ export function maskedEmail(email, host, rand = crypto.getRandomValues(new Uint8
   return `${email.slice(0, at).split("+")[0]}+${site ? `${site}-` : ""}${tag}${email.slice(at)}`;
 }
 
-const base = (h) => h.split(".").slice(-2).join(".");
+import { siteOf as base } from "./vault-core.mjs";
 function distance(a, b) {
   const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
   for (let j = 1; j <= b.length; j++) d[0][j] = j;

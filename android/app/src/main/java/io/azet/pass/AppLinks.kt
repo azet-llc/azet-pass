@@ -40,7 +40,9 @@ object AppLinks {
         (json.parseToJsonElement(text).jsonObject["apps"] as? JsonArray).orEmpty().mapNotNull { a ->
             val info = a.jsonObject["info"]?.jsonObject ?: return@mapNotNull null
             val name = info["package_name"]?.jsonPrimitive?.contentOrNull ?: return@mapNotNull null
-            name to (info["signatures"] as? JsonArray).orEmpty().mapNotNull { it.jsonObject["cert_fingerprint_sha256"]?.jsonPrimitive?.contentOrNull?.uppercase() }.toSet()
+            // Test builds of a browser ("build": "userdebug") are trusted only on a test build of Android.
+            name to (info["signatures"] as? JsonArray).orEmpty().filter { it.jsonObject["build"]?.jsonPrimitive?.contentOrNull != "userdebug" || android.os.Build.TYPE == "userdebug" }
+                .mapNotNull { it.jsonObject["cert_fingerprint_sha256"]?.jsonPrimitive?.contentOrNull?.uppercase() }.toSet()
         }.toMap().also { browsers = it }
     }
 
@@ -52,12 +54,13 @@ object AppLinks {
     /** Sites whose assetlinks.json names this app with its certificate. Asked at most once in 30 days per app. */
     suspend fun linkedSites(ctx: Context, pkg: String): List<String> {
         val prefs = ctx.getSharedPreferences("applinks", Context.MODE_PRIVATE)
-        prefs.getString(pkg, null)?.split("|", limit = 2)?.let { (at, sites) ->
+        val print = cert(ctx, pkg) ?: return emptyList()
+        // Kept per app and certificate: another build under the same name asks again.
+        prefs.getString("$pkg|$print", null)?.split("|", limit = 2)?.let { (at, sites) ->
             if (System.currentTimeMillis() - (at.toLongOrNull() ?: 0) < KEEP_MS) return sites.split(",").filter { it.isNotEmpty() }
         }
-        val print = cert(ctx, pkg) ?: return emptyList()
         val found = withTimeoutOrNull(4000) { withContext(Dispatchers.IO) { declaredSites(ctx, pkg).take(3).filter { confirms(it, pkg, print) } } } ?: return emptyList()
-        prefs.edit().putString(pkg, "${System.currentTimeMillis()}|${found.joinToString(",")}").apply()
+        prefs.edit().putString("$pkg|$print", "${System.currentTimeMillis()}|${found.joinToString(",")}").apply()
         return found
     }
 
@@ -66,7 +69,7 @@ object AppLinks {
     suspend fun offered(ctx: Context, target: String, isWeb: Boolean): List<com.bitwarden.vault.CipherListView> {
         if (isWeb) return Session.matches(target)
         val print = cert(ctx, target)
-        return (Session.matches(target) + linkedSites(ctx, target).flatMap { Session.matches(it) }).distinctBy { it.id }.filter { m ->
+        return (Session.matches(target, web = false) + linkedSites(ctx, target).flatMap { Session.matches(it) }).distinctBy { it.id }.filter { m ->
             runCatching { Session.view(m.id!!) }.getOrNull()?.fields.orEmpty().none { it.name == CERT_FIELD && it.value != print }
         }
     }

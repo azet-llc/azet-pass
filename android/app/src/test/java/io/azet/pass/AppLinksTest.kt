@@ -30,6 +30,17 @@ class RootedTest {
     }
 }
 
+class SiteOfTest {
+    @Test fun `the registered part of a host, never a shared ending`() {
+        org.junit.Assert.assertEquals("bank.co.kr", siteOf("login.bank.co.kr"))
+        org.junit.Assert.assertNotEquals(siteOf("evil.co.kr"), siteOf("bank.co.kr"))
+        org.junit.Assert.assertNotEquals(siteOf("evil.github.io"), siteOf("victim.github.io"))
+        org.junit.Assert.assertNotEquals(siteOf("evil.com.br"), siteOf("bank.com.br"))
+        org.junit.Assert.assertEquals(siteOf("accounts.google.com"), siteOf("www.google.com"))
+        org.junit.Assert.assertEquals("naver.com", siteOf("nid.naver.com"))
+    }
+}
+
 class OtpLabelTest {
     @Test fun `issuer and account come from the link`() {
         org.junit.Assert.assertEquals("GitHub" to "me@x.com", otpLabel("otpauth://totp/GitHub:me%40x.com?secret=ABC&issuer=GitHub"))

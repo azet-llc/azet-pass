@@ -198,16 +198,16 @@
     "message": "Remove PIN"
   },
   "pinAsk": {
-    "message": "Choose a PIN of 4 to 12 digits. It unlocks AZET Pass in this browser only."
+    "message": "A PIN of 4 or more characters"
   },
   "pinRule": {
-    "message": "A PIN is 4 to 12 digits."
+    "message": "A PIN is at least 4 characters."
   },
   "pinWrong": {
     "message": "Wrong PIN. $1 tries left."
   },
   "pinGone": {
-    "message": "The PIN was removed. Unlock with your account password."
+    "message": "Too many wrong PINs. This browser was signed out: sign in with your account password."
   },
   "importCsv": {
     "message": "Import .csv"
@@ -247,5 +247,8 @@
   },
   "wrongLogin": {
     "message": "Email or account password is not right."
+  },
+  "pinEveryStart": {
+    "message": "Ask for the account password when the browser restarts"
   }
 }

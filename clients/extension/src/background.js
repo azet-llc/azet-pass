@@ -202,6 +202,7 @@ async function unlockWithDesktop() {
 }
 
 let pinTurn = Promise.resolve();
+const pinSealed = async () => (await session.get("pin")).pin ?? (await local.get("pin")).pin;
 const handlers = {
   desktopState, desktopOn, desktopOff, unlockWithDesktop,
   passkeyPrepare,
@@ -223,28 +224,32 @@ const handlers = {
     return state();
   },
   lock: async () => { await lock(); return state(); },
-  async signOut() { await desktopOff().catch(() => {}); await lock(); await local.remove(["account", "snap", "pin", "pinFails", "unlockFails", "desktopAsked"]); return state(); },
-  async pinState() { return { on: !!(await local.get("pin")).pin }; },
-  async pinOn({ pin }) {
+  async signOut() { await desktopOff().catch(() => {}); await lock(); await local.remove(["account", "snap", "pin", "pinFails", "unlockFails", "desktopAsked"]); await session.remove("pin"); return state(); },
+  async pinState() { return { on: !!(await pinSealed()) }; },
+  async pinOn({ pin, everyStart }) {
     const v = await openVault(); if (!v?.userKey) throw new Error("locked");
-    if (!/^\d{4,12}$/.test(pin || "")) throw new Error(chrome.i18n.getMessage("pinRule"));
-    await local.set({ pin: await pinWrap(v.userKey, pin), pinFails: 0 }); return { on: true };
+    if ((pin || "").length < 4 || pin.length > 64) throw new Error(chrome.i18n.getMessage("pinRule"));
+    // By default the PIN lives in the browser's memory: it opens the vault after a lock, and a restarted browser asks
+    // for the account password again, so nothing a PIN can open sits on disk. `everyStart: false` keeps it on disk.
+    await local.remove("pin"); await session.remove("pin");
+    await (everyStart === false ? local : session).set({ pin: await pinWrap(v.userKey, pin) });
+    await local.set({ pinFails: 0 }); return { on: true };
   },
-  async pinOff() { await local.remove(["pin", "pinFails"]); return { on: false }; },
+  async pinOff() { await local.remove(["pin", "pinFails"]); await session.remove("pin"); return { on: false }; },
   async unlockWithPin({ pin }) {
     // One try at a time, and the try is counted before the slow check: many tries sent together cannot share one count.
     const turn = pinTurn; let done; pinTurn = new Promise((r) => (done = r)); await turn;
     let userKey, account, snap;
     try {
-      const got = await local.get(["pin", "pinFails", "account", "snap"]); ({ account, snap } = got);
-      const sealed = got.pin, pinFails = got.pinFails || 0;
+      const got = await local.get(["pinFails", "account", "snap"]); ({ account, snap } = got);
+      const sealed = await pinSealed(), pinFails = got.pinFails || 0;
       if (!sealed || !account) throw new Error(chrome.i18n.getMessage("pinGone"));
-      // Five wrong PINs forget the PIN: the account password is needed again.
-      if (pinFails >= 5) { await local.remove(["pin", "pinFails"]); throw new Error(chrome.i18n.getMessage("pinGone")); }
+      // Five wrong PINs sign this browser out: the account password, and the second step if there is one, are needed again.
+      if (pinFails >= 5) { await handlers.signOut(); throw new Error(chrome.i18n.getMessage("pinGone")); }
       await local.set({ pinFails: pinFails + 1 });
       userKey = await pinUnwrap(sealed, pin || "");
       if (!userKey) {
-        if (pinFails + 1 >= 5) { await local.remove(["pin", "pinFails"]); throw new Error(chrome.i18n.getMessage("pinGone")); }
+        if (pinFails + 1 >= 5) { await handlers.signOut(); throw new Error(chrome.i18n.getMessage("pinGone")); }
         throw new Error(chrome.i18n.getMessage("pinWrong", [String(4 - pinFails)]));
       }
       await local.set({ pinFails: 0 });

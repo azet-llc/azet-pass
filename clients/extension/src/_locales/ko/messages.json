@@ -198,16 +198,16 @@
     "message": "PIN 제거"
   },
   "pinAsk": {
-    "message": "숫자 4~12자리 PIN을 정하세요. 이 브라우저에서만 AZET Pass를 엽니다."
+    "message": "4자 이상 PIN"
   },
   "pinRule": {
-    "message": "PIN은 숫자 4~12자리입니다."
+    "message": "PIN은 4자 이상이어야 합니다."
   },
   "pinWrong": {
     "message": "PIN이 틀렸습니다. $1번 남았습니다."
   },
   "pinGone": {
-    "message": "PIN이 제거되었습니다. 계정 비밀번호로 잠금 해제하세요."
+    "message": "PIN을 여러 번 틀려 이 브라우저에서 로그아웃했습니다. 계정 비밀번호로 로그인하세요."
   },
   "importCsv": {
     "message": ".csv 가져오기"
@@ -247,5 +247,8 @@
   },
   "wrongLogin": {
     "message": "이메일이나 계정 비밀번호가 맞지 않아요."
+  },
+  "pinEveryStart": {
+    "message": "브라우저를 다시 켜면 계정 비밀번호 묻기"
   }
 }

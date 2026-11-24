@@ -163,7 +163,7 @@ $("pinToggle").onclick = async (e) => {
 };
 $("pinSet").onsubmit = async (e) => {
   e.preventDefault();
-  try { await call("pinOn", { pin: $("pinNew").value }); $("pinNew").value = ""; $("pinSet").hidden = true; await showUnlocked(); } catch (err) { showErr(err); }
+  try { await call("pinOn", { pin: $("pinNew").value, everyStart: $("pinEveryStart").checked }); $("pinNew").value = ""; $("pinSet").hidden = true; await showUnlocked(); } catch (err) { showErr(err); }
 };
 // A file picker closes the toolbar popup in some browsers, so importing runs in a tab of its own.
 $("csvPick").onclick = (e) => {

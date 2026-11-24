@@ -160,12 +160,12 @@ class PassAutofillService : AutofillService() {
     private fun fillPersonal(form: Form, request: FillRequest, callback: FillCallback) {
         if (Session.phase != Phase.Unlocked) return callback.onSuccess(null)
         val wantCard = form.card.isNotEmpty()
-        // The security code goes only into the box the person is standing in: a form cannot collect it from a tap on another box.
-        val focused = request.fillContexts.lastOrNull()?.focusedId
-        val boxes = (if (wantCard) form.card else form.identity).filter { (k, id) -> k != "cc-csc" || id == focused }
+        val boxes = if (wantCard) form.card else form.identity
         scope.launch {
             val inline = inlineSpecs(request); val r = FillResponse.Builder(); var n = 0
-            Session.items.filter { it.kind() == (if (wantCard) Kind.Card else Kind.Identity) && it.deletedDate == null }.take(3).forEach { m ->
+            // One tap fills the whole card, security code included, on any payment form while the vault is open. An item marked
+            // "ask for the password again" is left out: it is opened in the app instead.
+            Session.items.filter { it.kind() == (if (wantCard) Kind.Card else Kind.Identity) && it.deletedDate == null && it.reprompt == com.bitwarden.vault.CipherRepromptType.NONE }.take(3).forEach { m ->
                 val v = runCatching { Session.view(m.id!!) }.getOrNull() ?: return@forEach
                 val values = (if (wantCard) cardValues(v.card) else identityValues(v.identity)).filterKeys { it in boxes }.filterValues { !it.isNullOrBlank() }
                 if (values.isEmpty()) return@forEach

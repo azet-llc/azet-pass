@@ -91,7 +91,7 @@ export async function signupGate(request, env, url, ctx) {
   // ponytail: the address is vouched for by the organizer, not proven by mail; add a mail check if squatting shows up.
   if (isRegister && body?.orgInviteToken && body?.organizationUserId) {
     const open = await env.vault1
-      .prepare("SELECT 1 FROM org_members WHERE id = ?1 AND invite_token = ?2 AND status = 0 AND email = ?3")
+      .prepare("SELECT 1 FROM org_members WHERE id = ?1 AND invite_token = ?2 AND status = 0 AND email = ?3 AND datetime(updated_at) > datetime('now', '-5 days')")
       .bind(String(body.organizationUserId), String(body.orgInviteToken), email)
       .first();
     return open ? null : error("This invite link has expired. Ask for a new one.");

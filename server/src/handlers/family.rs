@@ -356,7 +356,7 @@ pub async fn reinvite(claims: Claims, State(env): State<Arc<Env>>, Path((org_id,
 pub async fn invite_preview(State(env): State<Arc<Env>>, Path((member_id, tok)): Path<(String, String)>) -> Result<Json<Value>, AppError> {
     let db = db::get_db(&env)?;
     let row: Value = db
-        .prepare("SELECT m.org_id, m.email, m.display_name, m.type, o.name AS org_name, u.name AS inviter FROM org_members m JOIN organizations o ON o.id = m.org_id LEFT JOIN users u ON u.id = m.invited_by WHERE m.id = ?1 AND m.invite_token = ?2 AND m.status = 0")
+        .prepare("SELECT m.org_id, m.email, m.display_name, m.type, o.name AS org_name, u.name AS inviter FROM org_members m JOIN organizations o ON o.id = m.org_id LEFT JOIN users u ON u.id = m.invited_by WHERE m.id = ?1 AND m.invite_token = ?2 AND m.status = 0 AND datetime(m.updated_at) > datetime('now', '-5 days')")
         .bind(&[member_id.into(), tok.into()])?
         .first(None)
         .await?
@@ -371,7 +371,9 @@ pub async fn invite_preview(State(env): State<Arc<Env>>, Path((member_id, tok)):
 pub async fn accept(claims: Claims, State(env): State<Arc<Env>>, Path((org_id, member_id)): Path<(String, String)>, Json(p): Json<Value>) -> Result<Json<Value>, AppError> {
     let db = db::get_db(&env)?;
     let m = target(&db, &org_id, &member_id).await?;
-    if i(&m, "status") != INVITED || s(&m, "invite_token") != s(&p, "token") || s(&p, "token").is_none() {
+    // An invite lasts five days from when it was sent or sent again.
+    let fresh: Option<Value> = db.prepare("SELECT 1 FROM org_members m WHERE m.id = ?1 AND datetime(m.updated_at) > datetime('now', '-5 days')").bind(&[member_id.clone().into()])?.first(None).await?;
+    if fresh.is_none() || i(&m, "status") != INVITED || s(&m, "invite_token") != s(&p, "token") || s(&p, "token").is_none() {
         return Err(bad("This invite link has expired. Ask for a new one."));
     }
     if s(&m, "email").unwrap_or_default() != claims.email.to_lowercase() {

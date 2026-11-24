@@ -96,11 +96,11 @@ APNS_TOPIC = "io.azet.pass"
 # Attachment configuration (optional)
 # Maximum size for individual attachment files in bytes.
 # Defaults to no limit if not set.
-# ATTACHMENT_MAX_BYTES = "104857600"  # 100MB
+ATTACHMENT_MAX_BYTES = "524288000"  # 500MB a file
 
 # Maximum total attachment storage per user in KB.
 # Defaults to no limit if not set.
-# ATTACHMENT_TOTAL_LIMIT_KB = "1048576"  # 1GB
+ATTACHMENT_TOTAL_LIMIT_KB = "1048576"  # 1GB an account
 
 # Number of seconds to keep attachment upload and download URLs valid.
 # Defaults to 300 seconds (5 minutes) if not set.

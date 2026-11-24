@@ -2,51 +2,58 @@
 <html>
 <head><meta charset="utf-8"><link rel="stylesheet" href="popup.css"></head>
 <body>
-<header><img src="images/icon-48.png" alt=""><b>AZET Pass</b><span id="host"></span><button id="lockBtn" class="secondary" hidden data-i18n="lock"></button></header>
+<header><img src="images/icon-48.png" alt=""><b>AZET Pass</b><span id="host"></span><button id="lockBtn" class="icon" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></button></header>
 
 <section id="signedOut" hidden>
-  <p data-i18n="signInLead"></p>
-  <form id="signInForm" class="stack">
-    <input id="email" type="email" autocomplete="username" required data-i18n-placeholder="email">
-    <input id="password" type="password" autocomplete="current-password" required data-i18n-placeholder="accountPassword">
-    <input id="code" inputmode="numeric" autocomplete="one-time-code" hidden data-i18n-placeholder="twoFactorCode">
-    <button data-i18n="signIn"></button>
+  <form id="signInForm" class="step">
+    <h1 id="signInTitle"></h1>
+    <p class="lead" id="signInLead"></p>
+    <input id="email" class="field" type="email" autocomplete="username" data-i18n-placeholder="email">
+    <input id="password" class="field" type="password" autocomplete="current-password" hidden data-i18n-placeholder="accountPassword">
+    <input id="code" class="field" inputmode="numeric" autocomplete="one-time-code" hidden data-i18n-placeholder="twoFactorCode">
+    <p id="signInErr" class="err" hidden></p>
+    <button class="cta" id="signInGo"></button>
+    <button type="button" class="soft" id="signInBack" hidden data-i18n="back"></button>
   </form>
   <p class="note"><a href="https://pass.azet.io/#/register" target="_blank" data-i18n="createAccount"></a></p>
 </section>
 
 <section id="locked" hidden>
-  <p id="lockedAs"></p>
-  <form id="unlockForm"><input id="unlockPw" type="password" autocomplete="current-password" required data-i18n-placeholder="accountPassword"><button data-i18n="unlock"></button></form>
-  <form id="pinForm" hidden><input id="pinIn" type="password" inputmode="numeric" autocomplete="off" data-i18n-placeholder="pin"><button data-i18n="unlockPin"></button></form>
-  <button id="desktopUnlock" class="wide" hidden data-i18n="unlockDesktop"></button>
-  <p class="note"><a href="#" id="signOut" data-i18n="signOut"></a></p>
+  <form id="unlockForm" class="step">
+    <h1 data-i18n="lockedTitle"></h1>
+    <p class="lead" id="lockedAs"></p>
+    <input id="unlockPw" class="field" type="password" autocomplete="current-password" required data-i18n-placeholder="accountPassword">
+    <button class="cta" data-i18n="unlock"></button>
+  </form>
+  <form id="pinForm" class="step" hidden><input id="pinIn" class="field" type="password" inputmode="numeric" autocomplete="off" data-i18n-placeholder="pin"><button class="soft" data-i18n="unlockPin"></button></form>
+  <button id="desktopUnlock" class="soft" hidden data-i18n="unlockDesktop"></button>
+  <p class="note" style="margin-top:12px"><a href="#" id="signOut" data-i18n="signOut"></a></p>
 </section>
 
 <section id="unlocked" hidden>
   <nav><button data-tab="here" class="tab on" data-i18n="thisSite"></button><button data-tab="all" class="tab" data-i18n="allItems"></button><button data-tab="gen" class="tab" data-i18n="generator"></button><button data-tab="check" class="tab" data-i18n="check"></button><button data-tab="send" class="tab" data-i18n="send"></button></nav>
   <p id="warn" class="err" hidden></p>
-  <div id="here" class="pane"><ul id="hereList"></ul><p id="hereEmpty" class="note" hidden data-i18n="noneHere"></p></div>
-  <div id="all" class="pane" hidden><input id="q" type="search" data-i18n-placeholder="search"><ul id="allList"></ul></div>
+  <div id="here" class="pane"><ul id="hereList"></ul><p id="hereEmpty" class="note empty" hidden data-i18n="noneHere"></p></div>
+  <div id="all" class="pane" hidden><input id="q" class="field" type="search" data-i18n-placeholder="search"><ul id="allList"></ul></div>
   <div id="gen" class="pane" hidden>
     <output id="genOut"></output>
     <label><span data-i18n="length"></span> <input id="genLen" type="range" min="8" max="64" value="20"> <b id="genLenV">20</b></label>
     <label><input id="genSpecial" type="checkbox" checked> <span data-i18n="symbols"></span></label>
-    <div class="acts"><button id="genNew" class="secondary" data-i18n="newPassword"></button><button id="genCopy" data-i18n="copy"></button></div>
+    <div class="pair"><button id="genNew" class="soft" data-i18n="newPassword"></button><button id="genCopy" class="cta" data-i18n="copy"></button></div>
     <p class="note" data-i18n="maskedLead"></p>
     <output id="maskOut"></output>
-    <div class="acts"><button id="maskNew" class="secondary" data-i18n="maskedNew"></button><button id="maskCopy" data-i18n="copy"></button></div>
+    <div class="pair"><button id="maskNew" class="soft" data-i18n="maskedNew"></button><button id="maskCopy" class="cta" data-i18n="copy"></button></div>
   </div>
   <div id="send" class="pane" hidden>
     <p class="note" data-i18n="sendLead"></p>
     <textarea id="sendText" rows="5" data-i18n-placeholder="sendPlaceholder"></textarea>
     <label><span data-i18n="sendDays"></span> <select id="sendDays"><option value="0">1h</option><option value="1" selected>1</option><option value="7">7</option><option value="30">30</option></select></label>
     <label><input id="sendOnce" type="checkbox" checked> <span data-i18n="sendOnce"></span></label>
-    <button id="sendMake" data-i18n="sendMake"></button>
+    <button id="sendMake" class="cta" data-i18n="sendMake"></button>
     <output id="sendLink" hidden></output>
   </div>
   <div id="check" class="pane" hidden><p id="checkSum" class="note"></p><ul id="checkList"></ul></div>
-  <footer class="note"><a href="#" id="syncNow" data-i18n="syncNow"></a> · <a href="#" id="pinToggle"></a> · <a href="#" id="csvPick" data-i18n="importCsv"></a><input id="csvFile" type="file" accept=".csv,text/csv" hidden><form id="pinSet" hidden><input id="pinNew" type="password" inputmode="numeric" autocomplete="off" data-i18n-placeholder="pinAsk"><button data-i18n="pinOn"></button></form> · <a href="https://pass.azet.io" target="_blank" data-i18n="webVault"></a><span id="desktopToggleWrap" hidden> · <a href="#" id="desktopToggle"></a></span></footer>
+  <footer><a href="#" id="syncNow" data-i18n="syncNow"></a><a href="#" id="pinToggle"></a><a href="#" id="csvPick" data-i18n="importCsv"></a><input id="csvFile" type="file" accept=".csv,text/csv" hidden><form id="pinSet" hidden><input id="pinNew" class="field" type="password" inputmode="numeric" autocomplete="off" data-i18n-placeholder="pinAsk"><button class="soft" data-i18n="pinOn"></button></form><a href="https://pass.azet.io" target="_blank" data-i18n="webVault"></a><span id="desktopToggleWrap" hidden><a href="#" id="desktopToggle"></a></span></footer>
 </section>
 <p id="err" class="err" hidden></p>
 <script type="module" src="popup.js"></script>

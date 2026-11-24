@@ -17,18 +17,42 @@ async function copy(text) {
   setTimeout(async () => { try { if ((await navigator.clipboard.readText()) === text) await navigator.clipboard.writeText(""); } catch {} }, 30000);
 }
 
+// Lucide icons (ISC), inline.
+const svg = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+const ICON = {
+  copyUser: svg('<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'),
+  copyPassword: svg('<path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/>'),
+  copyCode: svg('<line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/>'),
+  card: svg('<rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/>'),
+  identity: svg('<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'),
+  note: svg('<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/>'),
+};
+
+// One row: a tile, the name and who it is for; pressing the row fills the page, the icons copy.
 function itemRow(item) {
   const li = document.createElement("li");
-  li.innerHTML = `<div class="who"><b></b><span></span></div><div class="acts"></div>`;
+  li.innerHTML = `<div class="tile"></div><div class="who"><b></b><span></span></div><div class="acts"></div>`;
+  const letter = (item.name.match(/[\p{L}\p{N}]/u) || ["•"])[0].toUpperCase();
+  if (ICON[item.kind]) li.querySelector(".tile").innerHTML = ICON[item.kind]; else li.querySelector(".tile").textContent = letter;
   li.querySelector("b").textContent = item.name;
   li.querySelector("span").textContent = item.sub || t(item.kind);
   const acts = li.querySelector(".acts");
-  const btn = (label, fn, cls = "secondary") => { const b = Object.assign(document.createElement("button"), { textContent: t(label), className: cls }); b.onclick = () => fn().catch(showErr); acts.append(b); };
-  if (item.kind === "login" || item.kind === "card" || item.kind === "identity") btn("fill", async () => {
-    const r = await call("fill", { tabId: tab.id, id: item.id });
-    if (r.totp) { await copy(r.totp); $("err").hidden = true; }
-    window.close();
-  }, "");
+  const btn = (label, fn) => {
+    const b = Object.assign(document.createElement("button"), { className: "icon", title: t(label), innerHTML: ICON[label] });
+    b.setAttribute("aria-label", t(label));
+    b.onclick = (e) => { e.stopPropagation(); fn().then(() => { b.style.color = "var(--brand)"; setTimeout(() => (b.style.color = ""), 900); }, showErr); };
+    acts.append(b);
+  };
+  if (item.kind === "login" || item.kind === "card" || item.kind === "identity") {
+    li.className = "row"; li.title = t("fill"); li.tabIndex = 0;
+    const fill = async () => {
+      const r = await call("fill", { tabId: tab.id, id: item.id });
+      if (r.totp) { await copy(r.totp); $("err").hidden = true; }
+      window.close();
+    };
+    li.onclick = () => fill().catch(showErr);
+    li.onkeydown = (e) => { if (e.key === "Enter") fill().catch(showErr); };
+  }
   if (item.kind === "login") {
     btn("copyUser", async () => copy((await call("secret", { id: item.id })).username || ""));
     btn("copyPassword", async () => copy((await call("secret", { id: item.id })).password || ""));
@@ -46,7 +70,7 @@ function renderAll() {
 async function showUnlocked() {
   $("lockBtn").hidden = false;
   const l = await call("list", { url: tab?.url || "" });
-  $("host").textContent = l.host;
+  $("host").textContent = /^https?:/.test(tab?.url || "") ? l.host : ""; // not the extension's own id on its own pages
   $("hereList").replaceChildren(...l.here.map(itemRow));
   $("hereEmpty").hidden = l.here.length > 0;
   $("warn").hidden = !l.warn; if (l.warn) $("warn").textContent = t("lookalike", l.host, l.warn);
@@ -83,22 +107,44 @@ async function render() {
   const s = await call("state");
   for (const id of ["signedOut", "locked", "unlocked"]) $(id).hidden = id !== s.phase;
   $("lockBtn").hidden = s.phase !== "unlocked";
-  if (s.phase === "locked") { $("lockedAs").textContent = t("lockedAs", s.email); $("unlockPw").focus(); }
+  if (s.phase === "locked") { $("lockedAs").textContent = s.email; $("unlockPw").focus(); }
   if (s.phase === "locked") call("pinState").then((p) => { $("pinForm").hidden = !p.on; if (p.on) $("pinIn").focus(); }).catch(() => {});
   if (s.phase !== "signedOut") call("desktopState").then((d) => {
     $("desktopUnlock").hidden = !(s.phase === "locked" && d.on);
+    // With AZET Desktop on this Mac the browser follows it: asked once as the popup opens (Touch ID, or at once in bypass mode).
+    if (s.phase === "locked" && d.on && !askedDesktop) { askedDesktop = true; call("unlockWithDesktop").then(render, () => {}); }
+    if (s.phase === "unlocked" && d.helper && !d.on) call("desktopOn").catch(() => {});
     $("desktopToggleWrap").hidden = !(s.phase === "unlocked" && d.helper);
     $("desktopToggle").textContent = t(d.on ? "desktopOff" : "desktopOn");
     $("desktopToggle").dataset.on = d.on ? "1" : "";
   }).catch(() => {});
-  if (s.phase === "signedOut") $("email").focus();
+  if (s.phase === "signedOut") signInStep(0);
   if (s.phase === "unlocked") await showUnlocked();
 }
 
+// Signing in asks one thing at a time: email, the account password, then the authenticator code when the account wants it.
+let step = 0, askedDesktop = false;
+function signInStep(n, err) {
+  step = n;
+  const box = [$("email"), $("password"), $("code")];
+  box.forEach((b, i) => (b.hidden = i !== n));
+  $("signInTitle").textContent = t(["stepEmail", "stepPassword", "stepCode"][n]);
+  $("signInLead").textContent = n ? $("email").value : t("signInLead");
+  $("signInGo").textContent = t(n ? "signIn" : "next");
+  $("signInBack").hidden = !n;
+  $("signInErr").textContent = err || ""; $("signInErr").hidden = !err;
+  const f = $("signInForm"); f.style.animation = "none"; void f.offsetWidth; f.style.animation = "";
+  box[n].focus();
+}
+$("signInBack").onclick = () => signInStep(step === 2 ? 1 : 0);
 $("signInForm").onsubmit = async (e) => {
   e.preventDefault();
-  try { await call("signIn", { email: $("email").value, password: $("password").value, code: $("code").value || undefined }); $("password").value = ""; await render(); }
-  catch (err) { if (err.code === "twoFactor") { $("code").hidden = false; $("code").focus(); showErr(new Error(t("enterCode"))); } else showErr(err); }
+  if (step === 0) return $("email").value.includes("@") ? signInStep(1) : signInStep(0, t("badEmail"));
+  if (!$("password").value) return;
+  $("signInGo").disabled = true;
+  try { await call("signIn", { email: $("email").value.trim(), password: $("password").value, code: $("code").value || undefined }); $("password").value = ""; await render(); }
+  catch (err) { if (err.code === "twoFactor") signInStep(2); else signInStep(step, err.message); }
+  $("signInGo").disabled = false;
 };
 $("unlockForm").onsubmit = async (e) => {
   e.preventDefault();

@@ -223,5 +223,26 @@
   },
   "lookalike": {
     "message": "주의: $1 은(는) 저장해 둔 $2 이(가) 아닙니다. 로그인하기 전에 주소를 확인하세요."
+  },
+  "back": {
+    "message": "뒤로"
+  },
+  "next": {
+    "message": "다음"
+  },
+  "lockedTitle": {
+    "message": "AZET Pass가 잠겨 있어요"
+  },
+  "stepEmail": {
+    "message": "이메일이 무엇인가요?"
+  },
+  "stepPassword": {
+    "message": "계정 비밀번호를 입력해 주세요"
+  },
+  "stepCode": {
+    "message": "6자리 코드"
+  },
+  "badEmail": {
+    "message": "이메일 주소가 맞는지 확인해 주세요."
   }
 }

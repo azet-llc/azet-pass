@@ -223,5 +223,26 @@
   },
   "lookalike": {
     "message": "Careful: $1 is not $2, the site you saved. Check the address before you sign in."
+  },
+  "back": {
+    "message": "Back"
+  },
+  "next": {
+    "message": "Next"
+  },
+  "lockedTitle": {
+    "message": "AZET Pass is locked"
+  },
+  "stepEmail": {
+    "message": "What is your email?"
+  },
+  "stepPassword": {
+    "message": "Your account password"
+  },
+  "stepCode": {
+    "message": "The 6-digit code"
+  },
+  "badEmail": {
+    "message": "That does not look like an email address."
   }
 }

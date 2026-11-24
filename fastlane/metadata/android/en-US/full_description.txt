@@ -1,4 +1,4 @@
-AZET Pass Lite keeps your passwords, passkeys, verification codes, cards and addresses in one vault and fills them in when you sign in.
+AZET Pass keeps your passwords, passkeys, verification codes, cards and addresses in one vault and fills them in when you sign in.
 
 Sign in faster
 • Fills user names and passwords in apps and in Chrome

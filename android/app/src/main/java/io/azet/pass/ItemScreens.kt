@@ -63,6 +63,28 @@ fun DetailScreen(id: String, onEdit: () -> Unit, onBack: () -> Unit) {
     val scope = rememberCoroutineScope()
     LaunchedEffect(id, Session.items) { v = runCatching { Session.view(id) }.getOrNull() }
     val item = v ?: return
+    // An item marked "ask for the password again" shows nothing until the account password is typed.
+    var asked by remember(id) { mutableStateOf(item.reprompt == com.bitwarden.vault.CipherRepromptType.NONE) }
+    if (!asked) {
+        var pw by remember { mutableStateOf("") }
+        var wrong by remember { mutableStateOf(false) }
+        var busy by remember { mutableStateOf(false) }
+        OnePage(item.name, onBack) {
+            Text(stringResource(R.string.reprompt_lead), Modifier.padding(horizontal = 28.dp, vertical = 12.dp), color = c().sub, fontSize = 15.sp)
+            Box(Modifier.padding(horizontal = OneDim.side).fillMaxWidth().clip(RoundedCornerShape(OneDim.radius)).background(c().card).padding(horizontal = 8.dp)) {
+                OneField(pw, { pw = it; wrong = false }, stringResource(R.string.account_password), secret = true)
+            }
+            if (wrong) Text(stringResource(R.string.wrong_password), Modifier.padding(horizontal = 28.dp, vertical = 10.dp), color = MaterialTheme.colorScheme.error, fontSize = 14.sp)
+            Spacer(Modifier.height(14.dp))
+            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                StepCta(stringResource(R.string.show_item), enabled = pw.isNotEmpty(), busy = busy, height = 56.dp) {
+                    busy = true
+                    scope.launch { if (Session.verifyPassword(pw)) asked = true else wrong = true; busy = false }
+                }
+            }
+        }
+        return
+    }
     OnePage(null, onBack, actions = {
         IconButton({ scope.launch { runCatching { Session.save(item.copy(favorite = !item.favorite)) } } }) {
             Icon(if (item.favorite) Icons.Filled.Star else Icons.Filled.StarBorder, stringResource(R.string.favorite), tint = if (item.favorite) c().primary else c().text, modifier = Modifier.size(26.dp)) }

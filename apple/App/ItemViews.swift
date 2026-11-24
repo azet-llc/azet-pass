@@ -67,10 +67,25 @@ struct ItemDetailView: View {
     @State private var history = false
     @State private var error: String?
     @State private var confirmDelete = false
+    @State private var asked = false
+    @State private var askPassword = ""
+    @State private var askWrong = false
 
     var body: some View {
         Group {
-            if let v = view {
+            if let v = view, v.reprompt != .none, !asked {
+                // An item marked "ask for the password again" shows nothing until the account password is typed.
+                Form {
+                    Section {
+                        SecureField("Account password", text: $askPassword)
+                        if askWrong { Text("That account password is not right.").foregroundStyle(.red) }
+                    } footer: { Text("This item asks for your account password before it is shown.") }
+                    Section {
+                        Button("Show") { Task { if await session.verifyPassword(askPassword) { asked = true; askPassword = "" } else { askWrong = true } } }
+                            .disabled(askPassword.isEmpty)
+                    }
+                }.azetList().navigationTitle(v.name)
+            } else if let v = view {
                 PageList {
                     Section {
                         HStack(spacing: 14) {

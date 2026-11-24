@@ -203,4 +203,6 @@
     <string name="items_tools">도구</string>
     <string name="wrong_password">계정 비밀번호가 맞지 않아요.</string>
     <string name="use_another">다른 계정 사용</string>
+    <string name="reprompt_lead">이 항목은 보기 전에 계정 비밀번호를 다시 묻습니다.</string>
+    <string name="show_item">보기</string>
 </resources>

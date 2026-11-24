@@ -203,4 +203,6 @@
     <string name="items_tools">Tools</string>
     <string name="wrong_password">That account password is not right.</string>
     <string name="use_another">Use another account</string>
+    <string name="reprompt_lead">This item asks for your account password before it is shown.</string>
+    <string name="show_item">Show</string>
 </resources>

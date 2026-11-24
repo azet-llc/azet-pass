@@ -90,6 +90,8 @@ async function listFor(url) {
 async function secret(id) {
   const v = await openVault(); if (!v) throw new Error("locked");
   const c = await v.view(id); const out = { name: c.name, kind: TYPES[c.type] || "other" };
+  // Marked "ask for the password again": nothing of it leaves the background here; it is opened in the app or the web vault.
+  if (c.reprompt) throw new Error(chrome.i18n.getMessage("repromptItem"));
   if (c.login) Object.assign(out, { username: c.login.username, password: c.login.password, uri: c.login.uris?.[0]?.uri,
     totp: c.login.totp ? v.totp(c.login.totp) : null });
   if (c.card) out.card = c.card;

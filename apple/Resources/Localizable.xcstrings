@@ -4333,6 +4333,16 @@
         }
       }
     },
+    "This item asks for your account password before it is shown.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 항목은 보기 전에 계정 비밀번호를 다시 묻습니다."
+          }
+        }
+      }
+    },
     "This item is gone. Pull to refresh.": {
       "localizations": {
         "ko": {

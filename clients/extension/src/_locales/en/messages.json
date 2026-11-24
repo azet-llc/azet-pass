@@ -250,5 +250,8 @@
   },
   "pinEveryStart": {
     "message": "Ask for the account password when the browser restarts"
+  },
+  "repromptItem": {
+    "message": "This item asks for your account password again. Open it in the app or the web vault."
   }
 }

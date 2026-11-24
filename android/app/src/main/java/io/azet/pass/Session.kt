@@ -124,6 +124,11 @@ object Session {
 
     suspend fun unlockWithKey(userKey: String) { initCrypto(InitUserCryptoMethod.DecryptedKey(userKey)); afterUnlock() }
     suspend fun userKey(): String = c().crypto().getUserEncryptionKey()
+    /** True when this is the account password (for items that ask for it again). */
+    suspend fun verifyPassword(password: String): Boolean {
+        val a = store.account ?: return false
+        return runCatching { c().auth().validatePasswordUserKey(password, a.key) }.isSuccess
+    }
 
     private suspend fun afterUnlock() {
         store.syncJson?.let { runCatching { apply(it) } }
@@ -314,6 +319,7 @@ object Session {
     fun matches(domainOrPackage: String, web: Boolean = true): List<CipherListView> {
         val target = domainOrPackage.lowercase()
         return items.filter { v ->
+            if (v.reprompt != CipherRepromptType.NONE) return@filter false // asks for the password again: opened in the app, never offered
             val l = (v.type as? CipherListViewType.Login)?.v1 ?: return@filter false
             l.uris.orEmpty().any { u ->
                 val s = u.uri ?: return@any false

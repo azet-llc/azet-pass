@@ -101,7 +101,7 @@ struct AutofillList: View {
         NavigationStack {
             Group {
                 if session.phase == .unlocked {
-                    let all = session.items.filter { $0.deletedDate == nil }
+                    let all = session.items.filter { $0.deletedDate == nil && $0.reprompt == .none } // items that ask for the password again are opened in the app
                     let match = LoginKind.matching(all, hosts: hosts)
                     let rest = query.isEmpty ? all : all.filter { $0.name.localizedCaseInsensitiveContains(query) || $0.subtitle.localizedCaseInsensitiveContains(query) }
                     List {

@@ -55,8 +55,7 @@ struct SettingsView: View {
                     NavigationLink { GeneratorView() } label: { Label("Password generator", systemImage: "wand.and.stars") }
                 }
                 Section {
-                    Link(destination: URL(string: "https://github.com/azet-llc/azet-pass")!) { Label("Source code (GPL-3.0)", systemImage: "chevron.left.forwardslash.chevron.right") }
-                    NavigationLink { LicensesView() } label: { Label("Open-source licences", systemImage: "doc.plaintext") }
+                    NavigationLink { AboutView() } label: { Label("About", systemImage: "info.circle") }
                     Link(destination: URL(string: "https://azet.io/privacy")!) { Label("Privacy", systemImage: "hand.raised") }
                     Link(destination: URL(string: "https://pass.azet.io/#/settings/account")!) { Label("Delete account", systemImage: "person.crop.circle.badge.xmark") }
                 }
@@ -398,6 +397,30 @@ struct GeneratorView: View {
         .onChange(of: words) { make() }.onChange(of: length) { make() }.onChange(of: symbols) { make() }
     }
     private func make() { value = session.generate(length: UInt8(length), symbols: symbols, words: words) }
+}
+
+/// Settings > About > Legal > Open-source licences: the licence text sits where the system's own does.
+struct AboutView: View {
+    var body: some View {
+        Form {
+            Section {
+                LabeledContent("Name", value: "AZET Pass")
+                LabeledContent("Version", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")
+            }
+            Section { NavigationLink("Legal") { LegalView() } }
+        }.azetList().navigationTitle("About")
+    }
+}
+
+struct LegalView: View {
+    var body: some View {
+        Form {
+            Section {
+                NavigationLink("Open-source licences") { LicensesView() }
+                Link("Source code", destination: URL(string: "https://github.com/azet-llc/azet-pass")!)
+            }
+        }.azetList().navigationTitle("Legal")
+    }
 }
 
 struct LicensesView: View {

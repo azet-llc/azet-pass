@@ -205,4 +205,9 @@
     <string name="use_another">다른 계정 사용</string>
     <string name="reprompt_lead">이 항목은 보기 전에 계정 비밀번호를 다시 묻습니다.</string>
     <string name="show_item">보기</string>
+    <string name="about">정보</string>
+    <string name="legal">법적 고지</string>
+    <string name="licences">오픈소스 라이선스</string>
+    <string name="source_code">소스 코드</string>
+    <string name="version">버전</string>
 </resources>

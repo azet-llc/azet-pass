@@ -205,4 +205,10 @@
     <string name="use_another">Use another account</string>
     <string name="reprompt_lead">This item asks for your account password before it is shown.</string>
     <string name="show_item">Show</string>
+    <string name="about">About</string>
+    <string name="legal">Legal</string>
+    <string name="licences">Open-source licences</string>
+    <string name="source_code">Source code</string>
+    <string name="version">Version</string>
+    <string name="licences_text">AZET Pass for Android. Copyright © 2026 AZET LLC. Licensed under the GNU General Public License v3.0. Source: https://github.com/azet-llc/azet-pass\n\nEncryption: Bitwarden SDK (sdk-internal), GNU GPL v3.0, Copyright © Bitwarden Inc. AZET Pass is not made or endorsed by Bitwarden Inc.\n\nSync server: warden-worker, MIT licence.\n\nThis program comes with ABSOLUTELY NO WARRANTY. You may redistribute it under the terms of the GPL v3.0: https://www.gnu.org/licenses/gpl-3.0.html</string>
 </resources>

@@ -164,6 +164,29 @@ fun SettingsScreen(act: FragmentActivity, onBack: () -> Unit, onDevices: () -> U
     val subtitle = stringResource(R.string.bio_subtitle)
     val autofillOn = remember { act.getSystemService(AutofillManager::class.java)?.hasEnabledAutofillServices() == true }
     val lockLabel = @Composable { m: Int -> if (m == 0) stringResource(R.string.never) else stringResource(R.string.minutes_n, m) }
+    // Settings > About > Legal > Open-source licences: the licence text sits where the phone's own does.
+    var about by remember { mutableIntStateOf(0) }
+    if (about > 0) {
+        androidx.activity.compose.BackHandler { about -= 1 }
+        OnePage(stringResource(when (about) { 1 -> R.string.about; 2 -> R.string.legal; else -> R.string.licences }), { about -= 1 }) {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
+                when (about) {
+                    1 -> {
+                        OneCard { OneRow(stringResource(R.string.app_name)); OneDivider(); OneRow(stringResource(R.string.version), value = CLIENT_VERSION) }
+                        Spacer(Modifier.height(OneDim.gap))
+                        OneCard { OneRow(stringResource(R.string.legal), onClick = { about = 2 }) }
+                    }
+                    2 -> OneCard {
+                        OneRow(stringResource(R.string.licences), onClick = { about = 3 })
+                        OneDivider()
+                        OneRow(stringResource(R.string.source_code), onClick = { openUrl("https://github.com/azet-llc/azet-pass") })
+                    }
+                    else -> Text(stringResource(R.string.licences_text), Modifier.padding(horizontal = 28.dp, vertical = 8.dp), color = c().sub, fontSize = 13.sp, lineHeight = 19.sp)
+                }
+            }
+        }
+        return
+    }
     OnePage(stringResource(R.string.settings_title), onBack) {
         Column(Modifier.verticalScroll(rememberScrollState())) {
             // Whose vault this is, then sync.
@@ -244,7 +267,9 @@ fun SettingsScreen(act: FragmentActivity, onBack: () -> Unit, onDevices: () -> U
                 OneDivider()
                 OneRow(stringResource(R.string.sign_out), icon = Icons.Filled.Logout, titleColor = MaterialTheme.colorScheme.error, onClick = { Session.signOut() })
             }
-            Text("AZET Pass $CLIENT_VERSION · GPL-3.0", Modifier.padding(28.dp), color = c().sub, fontSize = 12.sp)
+            Spacer(Modifier.height(OneDim.gap))
+            OneCard { OneRow(stringResource(R.string.about), icon = Icons.Filled.Info, onClick = { about = 1 }) }
+            Spacer(Modifier.height(28.dp))
         }
     }
     if (pickLock) AlertDialog({ pickLock = false }, confirmButton = {}, containerColor = c().card, shape = androidx.compose.foundation.shape.RoundedCornerShape(26.dp),

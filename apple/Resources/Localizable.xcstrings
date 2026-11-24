@@ -243,6 +243,16 @@
         }
       }
     },
+    "About": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "정보"
+          }
+        }
+      }
+    },
     "Access": {
       "localizations": {
         "ko": {
@@ -2133,6 +2143,16 @@
         }
       }
     },
+    "Legal": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "법적 고지"
+          }
+        }
+      }
+    },
     "Length %lld": {
       "localizations": {
         "ko": {
@@ -3983,12 +4003,12 @@
         }
       }
     },
-    "Source code (GPL-3.0)": {
+    "Source code": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "소스 코드 (GPL-3.0)"
+            "value": "소스 코드"
           }
         }
       }

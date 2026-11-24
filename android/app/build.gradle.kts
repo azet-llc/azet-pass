@@ -14,7 +14,7 @@ android {
         applicationId = (findProperty("appId") as String?) ?: "io.azet.pass" // the Play listing keeps its earlier id: -PappId=io.azet.pass.lite
         minSdk = 29
         targetSdk = 37
-        versionCode = 202611005
+        versionCode = 202611006
         versionName = "2026.11.5"
         ndk { abiFilters += "arm64-v8a" }
     }

@@ -312,7 +312,7 @@ pub async fn organization_details(
     build_cipher_list_response(
         &db,
         env.as_ref(),
-        "WHERE c.organization_id = ?2 AND EXISTS (SELECT 1 FROM org_members m WHERE m.org_id = ?2 AND m.user_id = ?1 AND m.status = 2 AND m.type <= 1)",
+        "WHERE c.organization_id = ?2 AND EXISTS (SELECT 1 FROM org_members m WHERE m.org_id = ?2 AND m.user_id = ?1 AND m.status = 2 AND m.type <= 1 AND (m.access_until IS NULL OR m.access_until > strftime('%Y-%m-%dT%H:%M:%fZ', 'now')))",
         &[claims.sub.clone().into(), org.into()],
         "ORDER BY c.updated_at DESC",
     )

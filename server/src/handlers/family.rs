@@ -709,6 +709,11 @@ pub async fn subscription(claims: Claims, State(env): State<Arc<Env>>, Path(org_
 }
 
 async fn write_collection(env: &Env, db: &db::Db, org_id: &str, cid: &str, p: &Value) -> Result<(), AppError> {
+    // The vault must be this family's: an organizer of one family cannot rewrite who sees another family's vault.
+    let own: Option<Value> = db.prepare("SELECT 1 FROM collections WHERE id = ?1 AND org_id = ?2").bind(&[cid.into(), org_id.into()])?.first(None).await?;
+    if own.is_none() {
+        return Err(bad("Vault not found"));
+    }
     if let Some(users) = p.get("users").and_then(|u| u.as_array()) {
         d1_query!(db, "DELETE FROM collection_members WHERE collection_id = ?1", cid).map_err(|_| AppError::Database)?.run().await?;
         for u in users {

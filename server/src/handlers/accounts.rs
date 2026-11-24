@@ -1293,6 +1293,8 @@ pub async fn change_email(
     Json(payload): Json<ChangeEmailData>,
 ) -> Result<Json<Value>, AppError> {
     let db = db::get_db(&env)?;
+    // The mailed code is six digits: without a limit it can be guessed, which would give an account an address it never proved.
+    super::enforce_rate_limit(env.as_ref(), "LOGIN_RATE_LIMITER", format!("email-change:{}", claims.sub), "Too many attempts. Please try again later.").await?;
     let email = payload.new_email.trim().to_lowercase();
     let user = checked_user(&db, &claims.sub, &payload.master_password_hash).await?;
     if !valid_email_code(

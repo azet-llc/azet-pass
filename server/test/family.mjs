@@ -217,6 +217,7 @@ console.log('8 organizer recovery: ok')
 
 // 9 travel mode
 await ok(a.tok, 'PUT', `/api/organizations/${org.id}/collections/${shared}`, { travelSafe: true })
+assert.equal((await api(a.tok, 'PUT', `/api/organizations/${org.id}/collections/00000000-not-this-family`, { users: [{ id: mid, readOnly: false, manage: true }] })).status, 400, 'a vault that is not this family\'s cannot be given members')
 await ok(b2.tok, 'POST', '/api/azet/travel-mode', { enabled: true, masterPasswordHash: b2.hash })
 const st = await sync(b2)
 assert.ok(st.ciphers.some((x) => x.id === item.id), 'travel-safe vault stays'); assert.ok(!st.ciphers.some((x) => x.id === bank.id), 'other vault leaves the device')

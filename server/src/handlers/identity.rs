@@ -721,8 +721,10 @@ pub async fn token(
 
             let twofactors: Vec<TwoFactor> = list_user_twofactors(&db, &user.id).await?;
             let twofactor_ids = vec![TwoFactorType::Authenticator as i32];
+            // The second step runs as one unit: if it fails on a device seen for the first time, the row made above goes
+            // again, so the retry with the code is still a new device and still waits for approval.
+            let second_step: Result<bool, AppError> = async {
             let mut should_issue_remember = false;
-
             if is_twofactor_enabled(&twofactors) {
                 let selected_id = payload.two_factor_provider.unwrap_or(twofactor_ids[0]);
                 let twofactor_code = payload.two_factor_token.as_deref().ok_or_else(|| {
@@ -812,6 +814,19 @@ pub async fn token(
                     }
                 }
             }
+            Ok(should_issue_remember)
+            }
+            .await;
+            let should_issue_remember = match second_step {
+                Ok(v) => v,
+                Err(e) => {
+                    if held {
+                        d1_query!(&db, "DELETE FROM devices WHERE user_id = ?1 AND identifier = ?2", &user.id, &device.identifier)
+                            .map_err(|_| AppError::Database)?.run().await.map_err(|_| AppError::Database)?;
+                    }
+                    return Err(e);
+                }
+            };
 
             if held {
                 crate::handlers::devices::approval_gate(&db, &user.id, &device.identifier, &device.name, device.r#type).await?;

@@ -193,7 +193,7 @@ const api = async (method, path, body) => {
   if (!r.ok) throw new Error(`${r.status}`)
   const t = await r.text(); return t ? JSON.parse(t) : null
 }
-const INV = location.hash.slice(1).split('.').length === 3 ? location.hash.slice(1).split('.') : null // /team#<vault>.<member>.<token>, the link an organizer sends
+const INV = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(location.hash.slice(1)) ? location.hash.slice(1).split('.') : null // ids only: the parts go into a request path // /team#<vault>.<member>.<token>, the link an organizer sends
 const masterKeys = async (email, password, iter) => { const mk = await pbkdf2(enc.encode(password), enc.encode(email), iter); return { hash: b64(await pbkdf2(mk, enc.encode(password), 1)), stretched: new Uint8Array([...await expand(mk, 'enc'), ...await expand(mk, 'mac')]) } }
 const rsaPair = async () => { const k = await c.subtle.generateKey({ name: 'RSA-OAEP', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-1' }, true, ['encrypt', 'decrypt']); return { pub: b64(await c.subtle.exportKey('spki', k.publicKey)), priv: new Uint8Array(await c.subtle.exportKey('pkcs8', k.privateKey)) } }
 const encB = async (key, bytes) => { const iv = c.getRandomValues(new Uint8Array(16)); const ct = new Uint8Array(await c.subtle.encrypt({ name: 'AES-CBC', iv }, await c.subtle.importKey('raw', key.slice(0, 32), 'AES-CBC', false, ['encrypt']), bytes)); return `2.${b64(iv)}|${b64(ct)}|${b64(await hmac(key.slice(32), new Uint8Array([...iv, ...ct])))}` }

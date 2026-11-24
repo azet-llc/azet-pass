@@ -215,7 +215,7 @@ pub async fn rotate(claims: Claims, State(env): State<Arc<Env>>, Path(org_id): P
         batch.push(
             d1_query!(
                 &db,
-                "UPDATE org_members SET akey = ?1, reset_password_key = ?2, status = CASE WHEN ?1 IS NULL AND status = 2 THEN 1 ELSE status END, updated_at = ?3 WHERE id = ?4 AND org_id = ?5",
+                "UPDATE org_members SET akey = ?1, reset_password_key = CASE WHEN reset_password_key IS NULL THEN NULL ELSE ?2 END, status = CASE WHEN ?1 IS NULL AND status = 2 THEN 1 ELSE status END, updated_at = ?3 WHERE id = ?4 AND org_id = ?5",
                 key, recovery, now, id, org_id
             )
             .map_err(|_| AppError::Database)?,

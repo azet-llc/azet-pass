@@ -5,7 +5,7 @@
   "name": "azet-pass-gw",
   "main": "worker.ts",
   // refuses the deploy when the web vault folder is empty, has no bundle or still has the old mark (tools/check-web-vault.py)
-  "build": { "command": "python3 ../tools/check-web-vault.py ../public/web-vault" },
+  "build": { "command": "cd \"$(git rev-parse --show-toplevel)/server\" && python3 tools/check-web-vault.py public/web-vault" },
   "compatibility_date": "2026-10-01",
   "rules": [{ "type": "Text", "globs": ["**/*.html"], "fallthrough": false }],
   "workers_dev": false,

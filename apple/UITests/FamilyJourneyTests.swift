@@ -201,7 +201,8 @@ final class FamilyJourneyTests: XCTestCase {
         wait(app.buttons["같은 단어예요, 들이기"])
         shot("organizer-five-words")
         tap(app.buttons["같은 단어예요, 들이기"])
-        app.navigationBars.buttons.element(boundBy: 0).tap()
+        // the check closes itself; then back from the member page to the family (again when the first tap lands mid-close)
+        for _ in 0..<3 where !app.staticTexts["가족 세팅"].waitForExistence(timeout: 3) { app.navigationBars.buttons.element(boundBy: 0).tap() }
         wait(app.staticTexts["가족 세팅"])
         shot("family-checklist-done")
         signOut()

@@ -329,4 +329,6 @@
     <string name="signup_mail_sent_title">메일을 확인해 주세요</string>
     <string name="signup_mail_sent_lead">%1$s 주소로 링크를 보냈어요. 이 휴대폰에서 열어 주세요.</string>
     <string name="join_invited_plain">%1$s 가족에 초대받았어요.</string>
+    <string name="home_two_title">이 휴대폰에 AZET Pass 앱이 두 개 있어요</string>
+    <string name="home_two_desc">Google Play에서 받은 앱만 남기세요. 저절로 업데이트돼요. 눌러서 다른 하나를 지우세요. 금고는 계정에 그대로 있어요.</string>
 </resources>

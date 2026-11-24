@@ -140,6 +140,24 @@ private fun TabBar(tab: Int, modifier: Modifier, pick: (Int) -> Unit) {
 private fun HomeTab(go: (Route) -> Unit) {
     val ctx = androidx.compose.ui.platform.LocalContext.current
     val filling = remember { ctx.getSystemService(android.view.autofill.AutofillManager::class.java)?.hasEnabledAutofillServices() == true }
+    // Two AZET Pass apps on one phone (the Play one, io.azet.pass.lite, and the downloaded one, io.azet.pass, which also
+    // replaced the earlier 2026.9 app): keep the Play one, it updates itself. The vault is on the account, nothing is lost.
+    val other = if (ctx.packageName == "io.azet.pass.lite") "io.azet.pass" else "io.azet.pass.lite"
+    val both = remember { runCatching { ctx.packageManager.getPackageInfo(other, 0); true }.getOrDefault(false) }
+    if (both) {
+        val remove = if (ctx.packageName == "io.azet.pass.lite") other else ctx.packageName
+        Row(Modifier.padding(horizontal = OneDim.side).fillMaxWidth().clip(RoundedCornerShape(OneDim.radius)).background(c().card)
+            .clickable { runCatching { ctx.startActivity(android.content.Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, android.net.Uri.parse("package:$remove"))) } }
+            .padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            OneWell { Icon(Icons.Filled.Key, null, tint = c().primary, modifier = Modifier.size(20.dp)) }
+            Spacer(Modifier.width(14.dp))
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.home_two_title), fontSize = 16.sp, fontWeight = FontWeight.Medium, color = c().text)
+                Text(stringResource(R.string.home_two_desc), fontSize = 14.sp, lineHeight = 19.sp, color = c().sub)
+            }
+        }
+        Spacer(Modifier.height(OneDim.gap))
+    }
     // The one thing left to set up, if any: without it nothing fills in other apps.
     if (!filling) {
         Row(Modifier.padding(horizontal = OneDim.side).fillMaxWidth().clip(RoundedCornerShape(OneDim.radius)).background(c().card)

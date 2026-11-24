@@ -330,4 +330,6 @@
     <string name="signup_mail_sent_title">Check your mail</string>
     <string name="signup_mail_sent_lead">We sent a link to %1$s. Open it on this phone to go on.</string>
     <string name="join_invited_plain">You are invited to the %1$s family.</string>
+    <string name="home_two_title">Two AZET Pass apps on this phone</string>
+    <string name="home_two_desc">Keep the one from Google Play, it updates itself. Tap to remove the other; your vault stays on your account.</string>
 </resources>

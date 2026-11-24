@@ -298,6 +298,7 @@ struct ConfirmMemberView: View {
     @Environment(\.dismiss) private var dismiss
     let family: Family
     let member: Member
+    var done: () -> Void = {}   // the member page shows the new state at once
     @State private var busy = false
     @State private var error: String?
 
@@ -325,7 +326,7 @@ struct ConfirmMemberView: View {
 
     private func confirm() async {
         busy = true; defer { busy = false }
-        do { try await session.confirm(member, in: family); dismiss() } catch { self.error = error.localizedDescription }
+        do { try await session.confirm(member, in: family); done(); dismiss() } catch { self.error = error.localizedDescription }
     }
 }
 
@@ -382,7 +383,7 @@ struct MemberView: View {
         }.azetList()
         .navigationTitle(member.name)
         .sheet(isPresented: $recover) { RecoverMemberView(family: family, member: member) }
-        .sheet(isPresented: $confirming, onDismiss: { Task { await onChange() } }) { ConfirmMemberView(family: family, member: member) }
+        .sheet(isPresented: $confirming, onDismiss: { Task { await onChange() } }) { ConfirmMemberView(family: family, member: member, done: { member.status = 2 }) }
         .confirmationDialog("Remove \(member.name)? Their private vault stays theirs; they lose the family vaults.", isPresented: $confirmRemove, titleVisibility: .visible) {
             Button("Remove", role: .destructive) { Task { try? await session.remove(member, from: family); await onChange(); dismiss() } }
         }

@@ -213,4 +213,42 @@ final class FamilyJourneyTests: XCTestCase {
         wait(app.staticTexts["네이버"], 30)
         shot("mom-sees-vault")
     }
+
+    /// Cross-device check, part 1: a person invited from the Android app opens the link on iPhone, signs up and reads
+    /// the five words. Input adds {crossLink, crossPassword}; every text on the five-word screen goes to cross-words.txt.
+    func testCrossJoin() throws {
+        launch(reset: true)
+        wait(app.buttons["가족 계정 만들기"])
+        let scheme = cfg["crossLink"]!.replacingOccurrences(of: "https://pass.azet.io/invite", with: "azetpass://invite")
+        XCUIDevice.shared.system.open(URL(string: scheme)!)
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        if springboard.buttons["열기"].waitForExistence(timeout: 5) { springboard.buttons["열기"].tap() }
+        else if springboard.buttons["Open"].waitForExistence(timeout: 2) { springboard.buttons["Open"].tap() }
+        wait(app.textFields["내 이름"], 40)
+        shot("cross-signup")
+        tap(app.buttons["다음"])
+        type(app.secureTextFields["계정 비밀번호"], cfg["crossPassword"]!)
+        tap(app.buttons["다음"])
+        type(app.secureTextFields["한 번 더 입력"], cfg["crossPassword"]!)
+        tap(app.buttons["다음"])
+        tap(app.buttons["계정 만들기"])
+        dismissSavePassword()
+        wait(app.staticTexts["들어왔어요. 마지막 한 단계"], 90)
+        shot("cross-five-words")
+        let words = app.staticTexts.allElementsBoundByIndex.map(\.label).joined(separator: " | ")
+        try words.write(toFile: (cfg["out"] ?? NSTemporaryDirectory()) + "/cross-words.txt", atomically: true, encoding: .utf8)
+    }
+
+    /// Part 2, after the Android organizer let them in: the same person signs in on iPhone and opens the items page.
+    /// Every text there goes to cross-items.txt (vault names and items made on Android).
+    func testCrossSee() throws {
+        launch(reset: true)
+        wait(app.buttons["가족 계정 만들기"])
+        signIn(cfg["crossEmail"]!, cfg["crossPassword"]!)
+        tap(app.tabBars.buttons["항목"])
+        sleep(3); shot("cross-items")
+        var all = app.staticTexts.allElementsBoundByIndex.map(\.label) + app.buttons.allElementsBoundByIndex.map(\.label)
+        if app.buttons["Dad"].firstMatch.exists { app.buttons["Dad"].firstMatch.tap(); sleep(3); shot("cross-vault"); all += ["--vault--"] + app.staticTexts.allElementsBoundByIndex.map(\.label) }
+        try all.joined(separator: " | ").write(toFile: (cfg["out"] ?? NSTemporaryDirectory()) + "/cross-items.txt", atomically: true, encoding: .utf8)
+    }
 }

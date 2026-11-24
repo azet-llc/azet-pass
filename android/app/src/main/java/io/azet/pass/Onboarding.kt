@@ -137,7 +137,7 @@ fun WelcomeScreen(onSignIn: () -> Unit) {
     }
     val words by animateFloatAsState(if (shown) 1f else 0f, tween(if (still) 0 else 500, easing = Settle), label = "words")
     val buttons by animateFloatAsState(if (shown) 1f else 0f, tween(if (still) 0 else 500, delayMillis = if (still) 0 else 120, easing = Settle), label = "buttons")
-    Column(Modifier.fillMaxSize().background(c().card).statusBarsPadding().navigationBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(Modifier.fillMaxSize().background(c().page).statusBarsPadding().navigationBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         Spacer(Modifier.weight(1f))
         Hero(still)
         Column(Modifier.padding(top = 26.dp).widthIn(max = 340.dp).padding(horizontal = 24.dp).graphicsLayer { alpha = words; val s = 0.96f + 0.04f * words; scaleX = s; scaleY = s },
@@ -155,7 +155,7 @@ fun WelcomeScreen(onSignIn: () -> Unit) {
         Column(Modifier.padding(bottom = 35.dp).graphicsLayer { alpha = buttons; val s = 0.98f + 0.02f * buttons; scaleX = s; scaleY = s }, horizontalAlignment = Alignment.CenterHorizontally) {
             StepCta(stringResource(R.string.welcome_create), width = 317.dp, height = 60.dp) { openUrl("$SERVER/#/register") }
             Spacer(Modifier.height(7.dp))
-            Box(Modifier.padding(horizontal = 24.dp).widthIn(max = 317.dp).fillMaxWidth().height(60.dp).clip(CircleShape).background(c().page).clickable(onClick = onSignIn), contentAlignment = Alignment.Center) {
+            Box(Modifier.padding(horizontal = 24.dp).widthIn(max = 317.dp).fillMaxWidth().height(60.dp).clip(CircleShape).background(c().card).clickable(onClick = onSignIn), contentAlignment = Alignment.Center) {
                 Text(stringResource(R.string.sign_in), color = c().text, fontSize = 18.sp, fontWeight = FontWeight.Medium, letterSpacing = (-0.18).sp)
             }
             val terms = stringResource(R.string.terms); val privacy = stringResource(R.string.privacy_policy)
@@ -201,7 +201,7 @@ fun SignInScreen(onBack: () -> Unit) {
         }
     }
     BackHandler { back() }
-    Column(Modifier.fillMaxSize().background(c().card).statusBarsPadding().navigationBarsPadding().imePadding(), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(Modifier.fillMaxSize().background(c().page).statusBarsPadding().navigationBarsPadding().imePadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         Row(Modifier.fillMaxWidth().padding(start = 8.dp, top = 4.dp)) {
             IconButton({ back() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back), tint = c().text) }
         }
@@ -241,6 +241,6 @@ private fun StepField(value: String, onChange: (String) -> Unit, label: String, 
         placeholder = { Text(label, fontSize = 18.sp, color = c().sub) }, singleLine = true, keyboardOptions = keyboard, keyboardActions = actions, shape = CircleShape,
         textStyle = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Medium),
         visualTransformation = if (secret) androidx.compose.ui.text.input.PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
-        colors = TextFieldDefaults.colors(focusedContainerColor = c().page, unfocusedContainerColor = c().page, focusedIndicatorColor = Color.Transparent,
+        colors = TextFieldDefaults.colors(focusedContainerColor = c().card, unfocusedContainerColor = c().card, focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent, cursorColor = c().primary))
 }

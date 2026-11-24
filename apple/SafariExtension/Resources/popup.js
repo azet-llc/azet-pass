@@ -47,7 +47,7 @@ function render(logins) {
 }
 
 async function fill(l) {
-  const results = await browser.scripting.executeScript({ target: { tabId: tab.id, allFrames: true }, func: fillPage, args: [l.username, l.password] });
+  const results = await browser.scripting.executeScript({ target: { tabId: tab.id, allFrames: false } /* the page itself, not frames of other sites inside it */, func: fillPage, args: [l.username, l.password] });
   if (results.some((r) => r.result)) window.close();
   else $("#note").textContent = t("noForm");
 }

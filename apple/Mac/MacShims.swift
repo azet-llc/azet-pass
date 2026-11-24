@@ -84,7 +84,7 @@ struct MacUpdate {
         guard let (data, _) = try? await URLSession.shared.data(from: URL(string: "https://azet.io/downloads/pass/latest-mac.json")!),
               let o = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let v = o["version"] as? String, let s = o["url"] as? String, let url = URL(string: s),
-              url.host == "github.com", url.path.hasPrefix("/azet-llc/azet-pass/"), newer(v, than: current) else { return nil }
+              url.scheme == "https", url.host == "github.com", url.standardized.path.hasPrefix("/azet-llc/azet-pass/"), newer(v, than: current) else { return nil }
         return MacUpdate(version: v, url: url)
     }
 }

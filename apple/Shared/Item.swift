@@ -287,7 +287,13 @@ enum Domain {
         let p = h.split(separator: ".")
         guard p.count >= 2 else { return h }
         let two = p.suffix(2).joined(separator: ".")
-        return ["co.kr", "or.kr", "go.kr", "ac.kr", "co.jp", "or.jp", "co.uk", "com.au"].contains(two) && p.count >= 3 ? p.suffix(3).joined(separator: ".") : two
+        // shortcut: no public-suffix list in the app. A two-letter country ending whose second label is short ("co.kr",
+        // "ac.uk", "com.br") or a host that hands out names to anyone takes three labels, which errs toward treating
+        // sites as different; ship the list if people report sign-ins missing on honest sub-sites.
+        let shared: Set = ["github.io", "gitlab.io", "vercel.app", "netlify.app", "pages.dev", "workers.dev", "web.app", "firebaseapp.com", "herokuapp.com",
+                           "cloudfront.net", "azurewebsites.net", "blogspot.com", "appspot.com", "amazonaws.com", "tistory.com", "cafe24.com", "myshopify.com", "wixsite.com", "glitch.me", "fly.dev", "onrender.com", "r2.dev"]
+        let wide = shared.contains(two) || (p.last!.count == 2 && p[p.count - 2].count <= 3)
+        return wide && p.count >= 3 ? p.suffix(3).joined(separator: ".") : two
     }
 }
 
@@ -299,7 +305,8 @@ enum LoginKind {
     static func matching(_ items: [CipherListView], hosts: [String]) -> [CipherListView] {
         items.filter { i in
             let saved = domains(i)
-            return !hosts.isEmpty && hosts.contains { saved.contains($0) || i.subtitle.localizedCaseInsensitiveContains($0) || i.name.localizedCaseInsensitiveContains($0.split(separator: ".").first.map(String.init) ?? $0) }
+            // Only a saved address counts. A name or user name that merely contains the word would offer "PayPal" on paypal.xyz.
+            return !hosts.isEmpty && hosts.contains { saved.contains($0) }
         }
     }
     static func domains(_ i: CipherListView) -> [String] {

@@ -20,6 +20,11 @@ struct RootView: View {
         .onChange(of: prefs.pendingURL) { _, url in handle(url) }
         .onAppear { handle(prefs.pendingURL) }
         .sheet(item: $invite) { JoinFamilyView(invite: $0) }
+#if os(macOS)
+        // A Mac window can stay open for days: the vault also locks when the screen sleeps or the session is switched away.
+        .onReceive(NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.screensDidSleepNotification)) { _ in if session.phase == .unlocked { session.lock() } }
+        .onReceive(NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.sessionDidResignActiveNotification)) { _ in if session.phase == .unlocked { session.lock() } }
+#endif
 #if DEBUG
         // Screen checks on a debug build: signs in with the account given in the environment (never in a release build).
         .task(id: session.phase) {

@@ -67,9 +67,11 @@ final class Session {
     private(set) var client: Client
 
     init() {
+        #if DEBUG // test builds only: in a shipped Mac app any program could pass this and sign the person out
         if ProcessInfo.processInfo.arguments.contains("-uitest-reset") {
             Keychain.set(nil, for: "account"); Keychain.set(nil, for: "userKey"); SharedFiles.remove("sync.json")
         }
+        #endif
         let stored = Keychain.get("account").flatMap { try? JSONDecoder().decode(Account.self, from: Data($0.utf8)) }
         let device = stored?.deviceId ?? UUID().uuidString.lowercased()
         api = API(deviceId: device)
@@ -408,7 +410,9 @@ final class Session {
     static func parseInvite(_ url: URL) -> Invite? {
         let frag = url.fragment ?? url.query ?? ""
         let p = frag.split(separator: ".").map(String.init)
-        guard p.count == 3, url.path.hasPrefix("/invite") || url.host == "invite" else { return nil }
+        // Each part goes into a request path, so it may only be an id: no "/", "?" or "..".
+        guard p.count == 3, url.path.hasPrefix("/invite") || url.host == "invite",
+              p.allSatisfy({ $0.range(of: "^[A-Za-z0-9_-]{1,128}$", options: .regularExpression) != nil }) else { return nil }
         return Invite(familyId: p[0], memberId: p[1], token: p[2])
     }
 
@@ -420,11 +424,12 @@ final class Session {
         return i
     }
 
-    /// Join: accept, then turn on family recovery (the user key wrapped to the family public key).
-    func accept(_ invite: Invite) async throws {
+    /// Join. With `recovery` the family organizer can later set a new password for this account (the user key is
+    /// wrapped to the family's public key), which also lets them open this vault: only when the person said yes.
+    func accept(_ invite: Invite, recovery: Bool) async throws {
         try await api.send("POST", "/api/organizations/\(invite.familyId)/users/\(invite.memberId)/accept", ["token": invite.token])
         let pub = try await api.get("/api/organizations/\(invite.familyId)/public-key")["publicKey"] as? String ?? ""
-        if let pw = lastPasswordForFamily, !pub.isEmpty {
+        if recovery, let pw = lastPasswordForFamily, !pub.isEmpty {
             let reset = try client.crypto().enrollAdminPasswordReset(publicKey: pub)
             let hash = try await client.auth().hashPassword(email: account?.email ?? "", password: pw, kdfParams: kdf, purpose: .serverAuthorization)
             try await api.send("PUT", "/api/organizations/\(invite.familyId)/users/\(account?.userId ?? "")/reset-password-enrollment",

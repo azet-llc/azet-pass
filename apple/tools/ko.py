@@ -513,4 +513,6 @@ KO = {
 "A hint, if you want one": "원하면 힌트를 남겨요",
 "Never the password itself. You can leave this empty.": "비밀번호 자체는 적지 마세요. 비워 둬도 돼요.",
 "The two passwords are different.": "두 비밀번호가 달라요.",
+"Let the family organizer reset my password if I forget it": "비밀번호를 잊으면 가족 관리자가 다시 정해 줄 수 있게 하기",
+"With this on, the organizer can set a new password for your account, and could then open your vault. Turn it on only for family you trust.": "켜 두면 관리자가 내 계정의 새 비밀번호를 정할 수 있고, 그러면 내 금고도 열 수 있어요. 믿는 가족일 때만 켜세요.",
 }

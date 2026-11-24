@@ -22,7 +22,7 @@ enum Keychain {
         var q = base(key)
         q[kSecValueData as String] = Data(value.utf8)
         if biometric {
-            q[kSecAttrAccessControl as String] = SecAccessControlCreateWithFlags(nil, kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly, .userPresence, nil)
+            q[kSecAttrAccessControl as String] = SecAccessControlCreateWithFlags(nil, kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly, .biometryCurrentSet, nil) // the enrolled face or finger only: not the device passcode, not one added later
         } else {
             q[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
         }

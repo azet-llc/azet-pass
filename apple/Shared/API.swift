@@ -44,7 +44,8 @@ final class API: @unchecked Sendable {
         r.setValue(Config.clientVersion, forHTTPHeaderField: "Bitwarden-Client-Version")
         r.setValue("mobile", forHTTPHeaderField: "Bitwarden-Client-Name")
         r.setValue("1", forHTTPHeaderField: "Device-Type")
-        if auth, let t = accessToken { r.setValue("Bearer \(t)", forHTTPHeaderField: "Authorization") }
+        // The sign-in token goes to our server only, never to another host a response points at (a file download address).
+        if auth, let t = accessToken, r.url?.host == Config.server.host { r.setValue("Bearer \(t)", forHTTPHeaderField: "Authorization") }
         if let json {
             r.setValue("application/json", forHTTPHeaderField: "Content-Type")
             r.httpBody = json as? Data ?? (try? JSONSerialization.data(withJSONObject: json))

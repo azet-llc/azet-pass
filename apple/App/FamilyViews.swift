@@ -535,6 +535,7 @@ struct JoinFamilyView: View {
     @State private var joined = false
     @State private var busy = false
     @State private var error: String?
+    @State private var recovery = false
 
     var body: some View {
         NavigationStack {
@@ -560,6 +561,11 @@ struct JoinFamilyView: View {
                             }
                         }
                         Section {
+                            Toggle("Let the family organizer reset my password if I forget it", isOn: $recovery)
+                            Text("With this on, the organizer can set a new password for your account, and could then open your vault. Turn it on only for family you trust.")
+                                .font(.footnote).foregroundStyle(.secondary)
+                        }
+                        Section {
                             Button { Task { await join() } } label: { HStack { Text("Join the family"); if busy { Spacer(); ProgressView() } } }
                                 .disabled(session.account?.email != invite.email || busy)
                         }
@@ -569,7 +575,8 @@ struct JoinFamilyView: View {
                 } else {
                     VStack(spacing: 0) {
                         Text("\(invite.invitedBy ?? "") invited you to the \(invite.familyName ?? "") family.").font(.headline).padding()
-                        SignUpView(invite: invite, onDone: { Task { await join() } })
+                        // An account made from this invite was told on the password step that an organizer can help it back in.
+                        SignUpView(invite: invite, onDone: { recovery = true; Task { await join() } })
                     }
                 }
             }
@@ -584,6 +591,6 @@ struct JoinFamilyView: View {
 
     private func join() async {
         busy = true; defer { busy = false }
-        do { try await session.accept(invite); joined = true } catch { self.error = error.localizedDescription }
+        do { try await session.accept(invite, recovery: recovery); joined = true } catch { self.error = error.localizedDescription }
     }
 }

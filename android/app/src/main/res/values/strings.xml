@@ -194,4 +194,5 @@
         <item>Tells you when a password has leaked</item>
         <item>The same vault on iPhone, Android and Mac</item>
     </string-array>
+    <string name="wrong_login">Email or account password is not right.</string>
 </resources>

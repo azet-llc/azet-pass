@@ -70,6 +70,39 @@ final class PassFeaturesTests: XCTestCase {
         shot("home")
     }
 
+    /// Every main screen, captured for a look: the steps of creating an account from a mailed link (nothing is created),
+    /// then signing in and the tabs, an item, settings and the new-item sheet.
+    func testScreens() throws {
+        app = XCUIApplication()
+        app.launchArguments = ["-AppleLanguages", "(ko)", "-AppleLocale", "ko_KR", "-uitest-reset"]
+        app.launchEnvironment["AZET_PASS_DEBUG_URL"] = "https://pass.azet.io/redirect-connector.html#finish-signup?token=preview&email=kim@azet.example"
+        app.launch()
+        wait(app.textFields["내 이름"], 15); shot("k1-signup-name")
+        type(app.textFields["내 이름"], "김에이젯"); tap(app.buttons["다음"])
+        wait(app.secureTextFields["계정 비밀번호"], 10)
+        type(app.secureTextFields["계정 비밀번호"], "Preview-only-2026!"); shot("k2-signup-password")
+        tap(app.buttons["다음"]); wait(app.secureTextFields["한 번 더 입력"], 10)
+        type(app.secureTextFields["한 번 더 입력"], "different"); tap(app.buttons["다음"]); shot("k3-signup-mismatch")
+        app.terminate()
+
+        app = XCUIApplication()
+        app.launchArguments = ["-AppleLanguages", "(ko)", "-AppleLocale", "ko_KR", "-uitest-reset"]
+        app.launch()
+        wait(app.buttons["가족 계정 만들기"], 10); sleep(2); shot("k0-welcome")
+        tap(app.buttons["로그인"].firstMatch)
+        wait(app.textFields["이메일"], 10); shot("k4-signin-email")
+        type(app.textFields["이메일"], cfg["email"]!); tap(app.buttons["다음"])
+        wait(app.secureTextFields["계정 비밀번호"], 10); shot("k5-signin-password")
+        type(app.secureTextFields["계정 비밀번호"], cfg["password"]!); tap(app.buttons["로그인"])
+        wait(app.tabBars.buttons["홈"], 60)
+        let sb = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        for b in [app.buttons["나중에"], sb.buttons["나중에"], app.buttons["Not Now"], sb.buttons["Not Now"]] where b.waitForExistence(timeout: 2) { b.tap(); break }
+        sleep(1); shot("k6-home")
+        for (i, name) in ["항목", "가족", "보안 점검"].enumerated() { tap(app.tabBars.buttons[name]); sleep(2); shot("k\(7 + i)-\(name)") }
+        tap(app.tabBars.buttons["홈"])
+        if app.staticTexts["demo-login"].waitForExistence(timeout: 5) { app.staticTexts["demo-login"].tap(); sleep(2); shot("k10-item") }
+    }
+
     func testGoogleImportAndSend() throws {
         app = XCUIApplication()
         app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US", "-uitest-reset"]

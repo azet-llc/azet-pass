@@ -24,9 +24,12 @@ struct RootView: View {
         // Screen checks on a debug build: signs in with the account given in the environment (never in a release build).
         .task(id: session.phase) {
             let env = ProcessInfo.processInfo.environment, s = session
-            guard let p = env["AZET_PASS_DEBUG_PASSWORD"] else { return }
-            if s.phase == .welcome, let e = env["AZET_PASS_DEBUG_EMAIL"] { Task { try? await s.signIn(email: e, password: p, code: nil) } }
-            if s.phase == .locked { Task { try? await s.unlock(password: p) } }
+            // AZET_PASS_DEBUG_URL hands the app a link (a mailed sign-up link, an invite) as if it had been opened.
+            if s.phase == .welcome, let u = env["AZET_PASS_DEBUG_URL"].flatMap(URL.init(string:)) { handle(u) }
+            if let p = env["AZET_PASS_DEBUG_PASSWORD"] {
+                if s.phase == .welcome, let e = env["AZET_PASS_DEBUG_EMAIL"] { Task { try? await s.signIn(email: e, password: p, code: nil) } }
+                if s.phase == .locked { Task { try? await s.unlock(password: p) } }
+            }
             // AZET_PASS_DEBUG_LINK=items|family|watchtower|settings|new opens that screen once the vault is open.
             if s.phase == .unlocked, let l = env["AZET_PASS_DEBUG_LINK"], let u = URL(string: "azetpass://\(l)") { prefs.deepLink = DeepLink(u) }
         }
@@ -99,8 +102,7 @@ struct UnlockView: View {
             Text(session.account?.name == nil ? "" : session.account?.email ?? "").font(.system(size: 15)).foregroundStyle(.secondary).padding(.bottom, 14)
             SecureField("Account password", text: $password).textContentType(.password).pillField()
                 .onSubmit { Task { await unlock() } }
-            Button { Task { await unlock() } } label: { if busy { ProgressView() } else { Text("Unlock") } }
-                .buttonStyle(.pill).disabled(password.isEmpty || busy)
+            StepCTA(title: "Unlock", busy: busy, disabled: password.isEmpty) { Task { await unlock() } }
             if session.biometricOn {
                 Button { Task { await bio() } } label: { Label(Biometry.unlockLabel, systemImage: Biometry.symbol) }.buttonStyle(.softPill)
             }

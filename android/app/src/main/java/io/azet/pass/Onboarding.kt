@@ -187,6 +187,7 @@ fun SignInScreen(onBack: () -> Unit) {
     val scope = rememberCoroutineScope()
     val still = stillMotion()
     val badEmail = stringResource(R.string.bad_email)
+    val wrongLogin = stringResource(R.string.wrong_login)
     fun back() { error = null; if (step == 0) onBack() else step = if (step == 2) 1 else 0 }
     fun next() {
         if (busy) return
@@ -196,7 +197,8 @@ fun SignInScreen(onBack: () -> Unit) {
         scope.launch {
             try { Session.signIn(email, password, code.ifBlank { null }); password = "" }
             catch (e: TwoFactorNeeded) { step = 2 }
-            catch (e: Exception) { error = e.message }
+            // The server answers a wrong pair with a code word, not a sentence.
+            catch (e: Exception) { error = if (e.message.orEmpty().contains("invalid_")) wrongLogin else e.message }
             busy = false
         }
     }

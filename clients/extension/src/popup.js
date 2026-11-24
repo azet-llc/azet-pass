@@ -143,7 +143,7 @@ $("signInForm").onsubmit = async (e) => {
   if (!$("password").value) return;
   $("signInGo").disabled = true;
   try { await call("signIn", { email: $("email").value.trim(), password: $("password").value, code: $("code").value || undefined }); $("password").value = ""; await render(); }
-  catch (err) { if (err.code === "twoFactor") signInStep(2); else signInStep(step, err.message); }
+  catch (err) { if (err.code === "twoFactor") signInStep(2); else signInStep(step, /invalid_/.test(err.message) ? t("wrongLogin") : err.message); }
   $("signInGo").disabled = false;
 };
 $("unlockForm").onsubmit = async (e) => {

@@ -194,4 +194,5 @@
         <item>비밀번호가 유출되면 알려 줘요</item>
         <item>아이폰·안드로이드·맥에서 같은 금고</item>
     </string-array>
+    <string name="wrong_login">이메일이나 계정 비밀번호가 맞지 않아요.</string>
 </resources>

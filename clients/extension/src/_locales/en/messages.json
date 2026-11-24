@@ -244,5 +244,8 @@
   },
   "badEmail": {
     "message": "That does not look like an email address."
+  },
+  "wrongLogin": {
+    "message": "Email or account password is not right."
   }
 }

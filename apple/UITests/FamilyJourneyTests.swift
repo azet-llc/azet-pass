@@ -251,4 +251,42 @@ final class FamilyJourneyTests: XCTestCase {
         if app.buttons["Dad"].firstMatch.exists { app.buttons["Dad"].firstMatch.tap(); sleep(3); shot("cross-vault"); all += ["--vault--"] + app.staticTexts.allElementsBoundByIndex.map(\.label) }
         try all.joined(separator: " | ").write(toFile: (cfg["out"] ?? NSTemporaryDirectory()) + "/cross-items.txt", atomically: true, encoding: .utf8)
     }
+
+    /// The other direction, part 1: the organizer makes the family and the invite on iPhone; the link goes to
+    /// cross-link.txt for a person who signs up on Android.
+    func testCrossInvite() throws {
+        launch(reset: true)
+        wait(app.buttons["가족 계정 만들기"])
+        signIn(cfg["orgEmail"]!, cfg["orgPassword"]!)
+        for _ in 0..<4 {
+            tap(app.tabBars.buttons["가족"])
+            if app.textFields["가족 이름 (예: 김씨네)"].waitForExistence(timeout: 6) || app.staticTexts["가족 세팅"].exists { break }
+        }
+        if app.textFields["가족 이름 (예: 김씨네)"].exists { type(app.textFields["가족 이름 (예: 김씨네)"], "김씨네"); tap(app.buttons["가족 만들기"]) }
+        wait(app.staticTexts["가족 세팅"], 40)
+        tap(app.buttons["가족 초대하기"])
+        type(app.textFields["이름 (예: 엄마)"], "엄마")
+        type(app.textFields["그분 이메일"], cfg["momEmail"]!)
+        tap(app.buttons["초대 링크 만들기"])
+        wait(app.staticTexts["초대 준비 완료"], 40)
+        let link = wait(app.buttons["링크 복사"]).value as? String ?? ""
+        XCTAssertTrue(link.contains("/invite#"))
+        try link.write(toFile: (cfg["out"] ?? NSTemporaryDirectory()) + "/cross-link.txt", atomically: true, encoding: .utf8)
+    }
+
+    /// Part 2, after the person signed up on Android: the iPhone organizer's five words go to cross-org-words.txt and
+    /// the person is let in.
+    func testCrossConfirm() throws {
+        launch(reset: true)
+        wait(app.buttons["가족 계정 만들기"])
+        signIn(cfg["orgEmail"]!, cfg["orgPassword"]!)
+        tap(app.tabBars.buttons["가족"])
+        tap(app.buttons.matching(NSPredicate(format: "label CONTAINS '확인 기다림'")).firstMatch, 40)
+        tap(app.buttons["다섯 단어 맞춰 보기"])
+        wait(app.buttons["같은 단어예요, 들이기"])
+        shot("cross-organizer-words")
+        try app.staticTexts.allElementsBoundByIndex.map(\.label).joined(separator: " | ").write(toFile: (cfg["out"] ?? NSTemporaryDirectory()) + "/cross-org-words.txt", atomically: true, encoding: .utf8)
+        tap(app.buttons["같은 단어예요, 들이기"])
+        sleep(5)
+    }
 }

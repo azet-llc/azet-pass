@@ -54,6 +54,7 @@ object NotebookParser {
     private val idLabels = listOf("아이디", "아뒤", "id", "i.d", "user", "username", "login", "로그인", "이메일", "email", "메일", "ユーザー", "ログイン")
     private val pwLabels = listOf("비밀번호", "비번", "암호", "패스워드", "pw", "p/w", "pwd", "pass", "password", "パスワード")
     private val extraLabels = listOf("보안카드", "이체", "인증서", "공인인증", "핀", "pin", "질문", "답", "전화", "생일")
+    private val unlabelled = Regex("^(\\S{1,6})\\s*[:：]\\s*(\\S.*)$")
     private val mail = Regex("^([A-Za-z0-9._\\-]+?)[a©®&Q]?((naver|gmail|daum|hanmail|kakao|nate|icloud|outlook|hotmail|yahoo)\\.(com|net|co\\.kr))$")
 
     fun parse(raw: List<String>, loginWord: String = "Login"): List<NotebookEntry> {
@@ -70,12 +71,23 @@ object NotebookParser {
                 }
                 pw != null -> cur = (cur ?: NotebookEntry(loginWord)).copy(password = pw)
                 cur != null && extraLabels.any { lower.startsWith(it) } -> cur = cur!!.copy(extra = listOf(cur!!.extra, line).filter { it.isNotEmpty() }.joinToString("\n"))
+                // "?? : value" with a label that was misread: the first such line of a block is the user name, the next the password
+                unlabelled.matchEntire(line)?.takeIf { Presets.match(it.groupValues[1]) == null && Presets.near(it.groupValues[1]) == null } != null -> {
+                    val v = unlabelled.matchEntire(line)!!.groupValues[2]
+                    val c = cur
+                    cur = when {
+                        c == null -> NotebookEntry(loginWord, username = email(v))
+                        c.username.isEmpty() -> c.copy(username = email(v))
+                        c.password.isEmpty() -> c.copy(password = v)
+                        else -> { flush(); NotebookEntry(loginWord, username = email(v)) }
+                    }
+                }
                 else -> {
                     val one = oneLine(line)
                     flush()
                     if (one != null) out.add(one)
                     else { // a heading: the next site
-                        val p = Presets.match(line)
+                        val p = Presets.match(line) ?: Presets.near(line)
                         cur = NotebookEntry(p?.name ?: line.trim(' ', '-', '•', '·', '*', ':', '[', ']', '(', ')', '#'),
                             url = p?.url ?: line.takeIf { "." in it && " " !in it }?.let { if (it.startsWith("http")) it else "https://$it" })
                     }
@@ -95,9 +107,11 @@ object NotebookParser {
 
     /** "네이버 kim1234 / abcd!234" or "naver: kim / pw" on one line. */
     fun oneLine(line: String): NotebookEntry? {
-        val p = Presets.match(line) ?: return null
-        val rest = line.replace(p.name, "").split('/', '|', ',', ' ', '\t').map { it.trim(':', '：') }.filter { it.isNotEmpty() }
-        return if (rest.size >= 2) NotebookEntry(p.name, email(rest[0]), rest[1], p.url) else null
+        // the site is the first word only: "쿠팡 soonja@naver.com / pw" is Coupang, not Naver
+        val head = line.trim().substringBefore(' ').trim(':', '：')
+        val p = Presets.match(head) ?: Presets.near(head)
+        val rest = line.trim().removePrefix(line.trim().substringBefore(' ')).split('/', '|', ',', ' ', '\t').map { it.trim(':', '：') }.filter { it.isNotEmpty() }
+        return if (rest.size >= 2 && (p != null || '/' in line)) NotebookEntry(p?.name ?: head, email(rest[0]), rest[1], p?.url) else null
     }
 
     /** Handwritten "@" is often read as "a", "©" or "&": "soonjaanaver.com" → "soonja@naver.com" for the usual mail domains. */

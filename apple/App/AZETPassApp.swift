@@ -19,6 +19,7 @@ struct AZETPassApp: App {
 #endif
                 .dynamicTypeSize(prefs.parentMode ? DynamicTypeSize.accessibility2 ... .accessibility2 : DynamicTypeSize.xSmall ... .accessibility3)
                 .modifier(PrivacyCover())
+                .onChange(of: session.phase) { _, p in if p == .welcome { prefs.parentMode = false } } // the next person to sign in gets the full app
                 .onOpenURL { url in prefs.pendingURL = url }
                 .onContinueUserActivity(credentialExchangeActivity) { a in prefs.importToken = a.userInfo?[credentialImportTokenKey] as? UUID }
                 .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { a in if let u = a.webpageURL { prefs.pendingURL = u } }

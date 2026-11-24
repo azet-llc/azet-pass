@@ -96,6 +96,25 @@ object Presets {
         } ?: aliases.entries.firstOrNull { t.contains(it.key) }?.let { a -> all.firstOrNull { it.url == a.value } }
     }
 
+    private fun jamo(s: String) = buildString {
+        for (ch in s) if (ch in '\uAC00'..'\uD7A3') { val i = ch - '\uAC00'; append((0x1100 + i / 588).toChar()); append((0x1161 + i % 588 / 28).toChar()); append((0x11A7 + i % 28).toChar()) } else append(ch.lowercaseChar())
+    }
+    private fun distance(a: String, b: String): Int {
+        var prev = IntArray(b.length + 1) { it }
+        for (i in 1..a.length) { val cur = IntArray(b.length + 1); cur[0] = i
+            for (j in 1..b.length) cur[j] = minOf(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + if (a[i - 1] == b[j - 1]) 0 else 1)
+            prev = cur }
+        return prev[b.length]
+    }
+    /** A handwritten Korean site name read one stroke wrong ("쿠땅" for "쿠팡"): the single preset one letter-part away.
+     *  Two or more equally close names give nothing, so a misread never picks a site by chance. */
+    fun near(text: String): Preset? {
+        val t = text.replace(" ", ""); if (t.length < 2 || t.none { it in '\uAC00'..'\uD7A3' }) return null
+        val j = jamo(t)
+        val hits = all.filter { p -> p.name.any { it in '\uAC00'..'\uD7A3' } && p.name.replace(" ", "").length == t.length && distance(j, jamo(p.name.replace(" ", ""))) == 1 }.distinctBy { it.url }
+        return hits.singleOrNull()
+    }
+
     /** Other names people write for the same site. */
     val aliases = mapOf(
         "국민은행" to "https://www.kbstar.com",

@@ -194,7 +194,7 @@ object Session {
         families = emptyList(); vaults = emptyList(); orgKeys = emptyMap(); lastPassword = null
         if (store.account != null) phase = Phase.Locked
     }
-    fun signOut() { lock(); store.signOut(); publicKey = null; madeFromInvite = false; phase = Phase.SignedOut }
+    fun signOut() { lock(); store.signOut(); publicKey = null; madeFromInvite = false; parentMode = false; store.parentMode = false /* the next person to sign in gets the full app */; phase = Phase.SignedOut }
 
     suspend fun sync() {
         val text = api.raw("GET", "/api/sync?excludeDomains=true")

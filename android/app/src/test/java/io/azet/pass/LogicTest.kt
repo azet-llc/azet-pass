@@ -37,4 +37,15 @@ class LogicTest {
     @Test fun base32() {
         assertEquals("Hello!", String(Hotp.base32("JBSWY3DPEE======")!!))
     }
+
+    /** Lines exactly as the phone read a handwritten page (labels and one site name misread). */
+    @Test fun notebookMisreadLabels() {
+        val lines = listOf("네이어", "아이기 : kimsoon52", "dl번 : Sun1952!!", "아이 : Soon1952", "d필번호 : kb5252#", "보안카드 뒷면 런차H", "컴그4", "아이디 : kimsoonja", "4년 : gov2024soon", "쿠땅 soonja@naver.com / cp77happy")
+        val e = NotebookParser.parse(lines)
+        assertEquals(listOf("네이버", "Login", "컴그4", "쿠팡"), e.map { it.site })
+        assertEquals(listOf("kimsoon52", "Soon1952", "kimsoonja", "soonja@naver.com"), e.map { it.username })
+        assertEquals(listOf("Sun1952!!", "kb5252#", "gov2024soon", "cp77happy"), e.map { it.password })
+        assertEquals("https://login.coupang.com", e[3].url)
+        assertEquals(null, Presets.near("김씨")); assertEquals(null, Presets.near("naver"))
+    }
 }

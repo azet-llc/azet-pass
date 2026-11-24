@@ -43,6 +43,12 @@ sealed interface Route {
     data object Send : Route
     data object Devices : Route
     data object GoogleOtp : Route
+    data class Confirm(val family: Family, val member: Member) : Route
+    data class Invite(val family: Family) : Route
+    data class Vault(val id: String) : Route
+    data class AddLogin(val vaultId: String) : Route
+    data class Scan(val vaultId: String?) : Route
+    data object FamilyHelp : Route
 }
 
 @Composable
@@ -59,7 +65,8 @@ fun MainScreen(act: FragmentActivity, link: String?) {
     }
     BackHandler(stack.size > 1) { back() }
     when (val r = stack.last()) {
-        Route.Home -> HomeScreen(::go)
+        // A family invite opened by link comes first; parent mode replaces the tabs with four big buttons.
+        Route.Home -> Session.pendingInvite?.let { JoinScreen(it) } ?: if (Session.parentMode) ParentHome(::go) else HomeScreen(::go)
         is Route.List -> ListScreen(r.kind, ::back, ::go)
         Route.Search -> SearchScreen(::back, ::go)
         is Route.Detail -> DetailScreen(r.id, onEdit = { go(Route.Edit(r.id)) }, onBack = ::back)
@@ -70,6 +77,12 @@ fun MainScreen(act: FragmentActivity, link: String?) {
         Route.Generator -> GeneratorScreen(::back)
         Route.Check -> CheckScreen(::back) { go(Route.Detail(it)) }
         Route.Send -> SendScreen(::back)
+        is Route.Confirm -> ConfirmScreen(r.family, r.member, ::back)
+        is Route.Invite -> InviteScreen(r.family, ::back)
+        is Route.Vault -> VaultScreen(r.id, ::back, ::go)
+        is Route.AddLogin -> Session.vaults.firstOrNull { it.id?.toString() == r.vaultId }?.let { AddLoginScreen(it, ::back) } ?: back()
+        is Route.Scan -> ScanScreen(Session.vaults.firstOrNull { it.id?.toString() == r.vaultId }, ::back)
+        Route.FamilyHelp -> FamilyHelpScreen(::back)
     }
 }
 
@@ -81,6 +94,7 @@ fun HomeScreen(go: (Route) -> Unit) {
         when (tab) {
             0 -> TabPage(stringResource(R.string.tab_home), go) { HomeTab(go) }
             1 -> TabPage(stringResource(R.string.tab_items), go) { ItemsTab(go) }
+            2 -> TabPage(stringResource(R.string.tab_family), go) { FamilyTab(go) }
             else -> CheckScreen({ tab = 0 }) { go(Route.Detail(it)) }
         }
         TabBar(tab, Modifier.align(Alignment.BottomCenter)) { tab = it }
@@ -109,12 +123,12 @@ private fun TabPage(title: String, go: (Route) -> Unit, content: @Composable Col
 
 @Composable
 private fun TabBar(tab: Int, modifier: Modifier, pick: (Int) -> Unit) {
-    val tabs = listOf(Icons.Filled.Home to R.string.tab_home, Icons.Filled.Description to R.string.tab_items, Icons.Filled.Shield to R.string.tab_check)
+    val tabs = listOf(Icons.Filled.Home to R.string.tab_home, Icons.Filled.Description to R.string.tab_items, Icons.Filled.Group to R.string.tab_family, Icons.Filled.Shield to R.string.tab_check)
     Row(modifier.navigationBarsPadding().padding(bottom = 14.dp).shadow(10.dp, CircleShape, ambientColor = Color.Black.copy(alpha = 0.12f), spotColor = Color.Black.copy(alpha = 0.12f))
         .clip(CircleShape).background(c().card).padding(5.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
         tabs.forEachIndexed { i, (icon, label) ->
             val on = i == tab
-            Column(Modifier.clip(CircleShape).background(if (on) c().page else Color.Transparent).clickable { pick(i) }.width(92.dp).padding(vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(Modifier.clip(CircleShape).background(if (on) c().page else Color.Transparent).clickable { pick(i) }.width(76.dp).padding(vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Icon(icon, null, tint = if (on) c().primary else c().text, modifier = Modifier.size(24.dp))
                 Text(stringResource(label), fontSize = 11.sp, fontWeight = FontWeight.Medium, color = if (on) c().primary else c().text)
             }

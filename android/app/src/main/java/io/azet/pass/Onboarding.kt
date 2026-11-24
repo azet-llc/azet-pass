@@ -125,7 +125,7 @@ private fun Hero(still: Boolean) {
 }
 
 @Composable
-fun WelcomeScreen(onSignIn: () -> Unit) {
+fun WelcomeScreen(onCreate: () -> Unit, onSignIn: () -> Unit) {
     val still = stillMotion()
     var shown by remember { mutableStateOf(still) }
     var line by remember { mutableIntStateOf(0) }
@@ -153,7 +153,7 @@ fun WelcomeScreen(onSignIn: () -> Unit) {
         }
         Spacer(Modifier.weight(1f))
         Column(Modifier.padding(bottom = 35.dp).graphicsLayer { alpha = buttons; val s = 0.98f + 0.02f * buttons; scaleX = s; scaleY = s }, horizontalAlignment = Alignment.CenterHorizontally) {
-            StepCta(stringResource(R.string.welcome_create), width = 317.dp, height = 60.dp) { openUrl("$SERVER/#/register") }
+            StepCta(stringResource(R.string.welcome_create), width = 317.dp, height = 60.dp) { onCreate() }
             Spacer(Modifier.height(7.dp))
             Box(Modifier.padding(horizontal = 24.dp).widthIn(max = 317.dp).fillMaxWidth().height(60.dp).clip(CircleShape).background(c().card).clickable(onClick = onSignIn), contentAlignment = Alignment.Center) {
                 Text(stringResource(R.string.sign_in), color = c().text, fontSize = 18.sp, fontWeight = FontWeight.Medium, letterSpacing = (-0.18).sp)
@@ -238,7 +238,7 @@ fun SignInScreen(onBack: () -> Unit) {
 }
 
 @Composable
-private fun StepField(value: String, onChange: (String) -> Unit, label: String, focus: FocusRequester, keyboard: KeyboardOptions, actions: KeyboardActions, secret: Boolean = false) {
+internal fun StepField(value: String, onChange: (String) -> Unit, label: String, focus: FocusRequester, keyboard: KeyboardOptions, actions: KeyboardActions, secret: Boolean = false) {
     TextField(value, onChange, Modifier.padding(horizontal = 24.dp).widthIn(max = 328.dp).fillMaxWidth().heightIn(min = 56.dp).focusRequester(focus),
         placeholder = { Text(label, fontSize = 18.sp, color = c().sub) }, singleLine = true, keyboardOptions = keyboard, keyboardActions = actions, shape = CircleShape,
         textStyle = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Medium),

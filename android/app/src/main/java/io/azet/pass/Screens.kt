@@ -263,6 +263,9 @@ fun SettingsScreen(act: FragmentActivity, onBack: () -> Unit, onDevices: () -> U
             }
             OneHeader(stringResource(R.string.account))
             OneCard {
+                OneRow(stringResource(R.string.parent_mode), summary = stringResource(R.string.parent_mode_sub), icon = Icons.Filled.Elderly,
+                    trailing = { OneSwitch(Session.parentMode) { Session.parentMode = it; Session.store.parentMode = it } })
+                OneDivider()
                 OneRow(stringResource(R.string.lock_now), icon = Icons.Filled.Lock, onClick = { Session.lockedByHand = true; Session.lock() })
                 OneDivider()
                 OneRow(stringResource(R.string.sign_out), icon = Icons.Filled.Logout, titleColor = MaterialTheme.colorScheme.error, onClick = { Session.signOut() })

@@ -31,6 +31,20 @@ import com.bitwarden.sdk.Fido2UserInterface
 import com.bitwarden.sdk.UiHint
 import com.bitwarden.sdk.azetCipherRequestJson
 import com.bitwarden.sdk.azetCiphersFromJson
+import com.bitwarden.sdk.azetCollectionsFromJson
+import com.bitwarden.sdk.azetFamilyEncrypt
+import com.bitwarden.sdk.azetFamilyMake
+import com.bitwarden.sdk.azetFamilyUnwrap
+import com.bitwarden.sdk.azetFamilyWrap
+import com.bitwarden.collections.CollectionView
+import com.bitwarden.core.FingerprintRequest
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.buildJsonArray
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonArray
+import kotlinx.serialization.json.putJsonObject
 import com.bitwarden.sdk.azetSendFromJson
 import com.bitwarden.send.AuthType
 import com.bitwarden.send.SendTextView
@@ -75,6 +89,21 @@ object Session {
     var lastSync by mutableStateOf<Instant?>(null); private set
     var syncError by mutableStateOf<String?>(null); private set
     private var ciphers: Map<String, Cipher> = emptyMap()
+    var families by mutableStateOf<List<Family>>(emptyList()); private set
+    /** Shared vaults (collections) this account can see, names decrypted. */
+    var vaults by mutableStateOf<List<CollectionView>>(emptyList()); private set
+    private var orgKeys: Map<String, String> = emptyMap()
+    private var publicKey: String? = null
+    /** Kept in memory while unlocked by typing: joining a family with recovery on needs a proof of it. */
+    private var lastPassword: String? = null
+    val typedPassword get() = lastPassword != null
+    /** An invite link the app was opened with; it waits through sign-up, sign-in and unlock. */
+    var pendingInvite by mutableStateOf<Invite?>(null)
+    /** True when this account was just made from the pending invite (it was told an organizer can help it back in). */
+    var madeFromInvite = false
+    /** The sign-up mail link the app was opened with. */
+    var pendingSignup by mutableStateOf<SignupProof?>(null)
+    var parentMode by mutableStateOf(false)
 
     fun init(ctx: Context) {
         if (::store.isInitialized) return
@@ -82,6 +111,7 @@ object Session {
         api = Api(store.deviceId)
         api.onTokens = { a, r -> store.account = store.account?.copy(access = a, refresh = r ?: store.account?.refresh) }
         store.account?.let { api.access = it.access; api.refresh = it.refresh; phase = Phase.Locked }
+        parentMode = store.parentMode
     }
 
     val email get() = store.account?.email
@@ -119,6 +149,7 @@ object Session {
         val a = store.account ?: return
         try { initCrypto(InitUserCryptoMethod.MasterPasswordUnlock(password, MasterPasswordUnlockData(kdf(a), a.key, a.email))) }
         catch (e: Exception) { client = null; throw ApiError(0, "That account password is not right.") }
+        lastPassword = password
         afterUnlock()
     }
 
@@ -158,8 +189,12 @@ object Session {
     /** An otpauth:// link the app was opened with, waiting for the new-item screen. */
     var pendingOtp: String? = null
 
-    fun lock() { lockJob?.cancel(); client?.close(); client = null; items = emptyList(); ciphers = emptyMap(); if (store.account != null) phase = Phase.Locked }
-    fun signOut() { lock(); store.signOut(); phase = Phase.SignedOut }
+    fun lock() {
+        lockJob?.cancel(); client?.close(); client = null; items = emptyList(); ciphers = emptyMap()
+        families = emptyList(); vaults = emptyList(); orgKeys = emptyMap(); lastPassword = null
+        if (store.account != null) phase = Phase.Locked
+    }
+    fun signOut() { lock(); store.signOut(); publicKey = null; madeFromInvite = false; phase = Phase.SignedOut }
 
     suspend fun sync() {
         val text = api.raw("GET", "/api/sync?excludeDomains=true")
@@ -177,11 +212,19 @@ object Session {
             a.name = profile?.get("name")?.jsonPrimitive?.contentOrNull
             store.account = a
         }
-        val orgs = (profile?.get("organizations") as? JsonArray)?.mapNotNull { o ->
-            val m = o.jsonObject; val id = m["id"]?.jsonPrimitive?.contentOrNull; val k = m["key"]?.jsonPrimitive?.contentOrNull
-            if (id != null && k != null) id to k else null
-        }?.toMap().orEmpty()
-        if (orgs.isNotEmpty()) runCatching { c().crypto().initializeOrgCrypto(InitOrgCryptoRequest(orgs)) }
+        publicKey = profile?.get("accountKeys").obj()?.get("publicKeyEncryptionKeyPair").obj()?.str("publicKey") ?: publicKey
+        families = (profile?.get("organizations") as? JsonArray).orEmpty().mapNotNull { it.obj() }.map { m ->
+            Family(m.str("id").orEmpty(), m.str("name").orEmpty(), m.int("azetRole") ?: m.int("type") ?: 2, m.int("status") ?: 0,
+                m.str("organizationUserId").orEmpty(), m.str("key"), m["resetPasswordEnrolled"]?.let { runCatching { it.jsonPrimitive.booleanOrNull }.getOrNull() } ?: false)
+        }
+        // The family key arrives only after the organizer lets this account in.
+        val open = families.filter { it.status == 2 && it.key != null }
+        if (open.isNotEmpty()) {
+            runCatching { c().crypto().initializeOrgCrypto(InitOrgCryptoRequest(open.associate { it.id to it.key!! })) }
+            val uk = c().crypto().getUserEncryptionKey(); val pk = store.account?.privateKey.orEmpty()
+            orgKeys = open.mapNotNull { f -> runCatching { f.id to azetFamilyUnwrap(uk, pk, f.key!!) }.getOrNull() }.toMap()
+        } else orgKeys = emptyMap()
+        vaults = runCatching { c().vault().collections().decryptList(azetCollectionsFromJson(text)) }.getOrDefault(emptyList())
         val list = azetCiphersFromJson(text)
         ciphers = list.mapNotNull { x -> x.id?.let { it to x } }.toMap()
         items = c().vault().ciphers().decryptList(list.filter { it.deletedDate == null })
@@ -189,12 +232,123 @@ object Session {
 
     suspend fun view(id: String): CipherView = c().vault().ciphers().decrypt(ciphers[id] ?: error("missing"))
 
-    /** Creates or updates an item; returns its id. */
+    /** Creates or updates an item; returns its id. A new item with a family and shared vaults set goes into those
+     *  vaults (the SDK encrypts it with the family key). */
     suspend fun save(view: CipherView): String {
         val ctx = c().vault().ciphers().encrypt(view)
         val body = azetCipherRequestJson(ctx)
-        val r = if (view.id != null) api.obj("PUT", "/api/ciphers/${view.id}", body) else api.obj("POST", "/api/ciphers", body)
+        val r = when {
+            view.id != null -> api.obj("PUT", "/api/ciphers/${view.id}", body)
+            view.organizationId != null -> api.obj("POST", "/api/ciphers/create",
+                """{"cipher":$body,"collectionIds":${buildJsonArray { view.collectionIds.forEach { add(kotlinx.serialization.json.JsonPrimitive(it)) } }}}""")
+            else -> api.obj("POST", "/api/ciphers", body)
+        }
         sync(); return r["id"]?.jsonPrimitive?.contentOrNull ?: view.id ?: ""
+    }
+
+    // Sign-up
+
+    /** Asks the server to mail the sign-up link to this address. */
+    suspend fun requestSignupMail(email: String) {
+        api.raw("POST", "/identity/accounts/register/send-verification-email",
+            buildJsonObject { put("email", email.trim().lowercase()); put("name", null as String?); put("receiveMarketingEmails", false) }.toString(), auth = false)
+    }
+
+    /** A new account. Proof of the address is the mailed link's token, or a family invite for that exact address. */
+    suspend fun signUp(rawEmail: String, name: String, password: String, mailToken: String?, invite: Invite?) {
+        val email = rawEmail.trim().lowercase()
+        val k = newClient().auth().makeRegisterKeys(email, password, Kdf.Pbkdf2(600_000u))
+        api.raw("POST", "/identity/accounts/register", buildJsonObject {
+            put("email", email); put("name", name.trim()); put("masterPasswordHash", k.masterPasswordHash); put("masterPasswordHint", null as String?)
+            put("key", k.encryptedUserKey); put("kdf", 0); put("kdfIterations", 600_000)
+            putJsonObject("userAsymmetricKeys") { put("publicKey", k.keys.public); put("encryptedPrivateKey", k.keys.private) }
+            if (invite != null) { put("orgInviteToken", invite.token); put("organizationUserId", invite.memberId) }
+            if (mailToken != null) put("emailVerificationToken", mailToken)
+        }.toString(), auth = false)
+        signIn(email, password, null)
+    }
+
+    // Family
+
+    private suspend fun myPublicKey(): String = publicKey ?: api.obj("GET", "/api/users/${store.account?.userId}/public-key").str("publicKey").orEmpty().also { publicKey = it }
+
+    /** A new family with its first shared vault; this account is its organizer. */
+    suspend fun createFamily(name: String, firstVault: String) {
+        val k = azetFamilyMake(myPublicKey(), firstVault)
+        api.raw("POST", "/api/organizations", buildJsonObject {
+            put("name", name.trim()); put("billingEmail", email.orEmpty()); put("planType", 11); put("key", k.ownerKey)
+            putJsonObject("keys") { put("publicKey", k.publicKey); put("encryptedPrivateKey", k.encryptedPrivateKey) }
+            put("collectionName", k.encryptedVaultName)
+        }.toString())
+        sync()
+    }
+
+    suspend fun members(f: Family): List<Member> = (api.obj("GET", "/api/organizations/${f.id}/users")["data"] as? JsonArray).orEmpty().mapNotNull { it.obj() }.map { m ->
+        Member(m.str("id").orEmpty(), m.str("userId"), m.str("email").orEmpty(), m.str("displayName") ?: m.str("name") ?: m.str("email").orEmpty(),
+            m.int("azetRole") ?: 2, m.int("status") ?: 0, m.str("publicKey"), m["resetPasswordEnrolled"]?.let { runCatching { it.jsonPrimitive.booleanOrNull }.getOrNull() } ?: false,
+            (m["collections"] as? JsonArray).orEmpty().mapNotNull { it.obj() }.associate { it.str("id").orEmpty() to (runCatching { it["readOnly"]?.jsonPrimitive?.booleanOrNull }.getOrNull() ?: false) })
+    }
+
+    private fun access(vaults: Map<String, Boolean>) = buildJsonArray { vaults.forEach { (id, ro) -> add(buildJsonObject { put("id", id); put("readOnly", ro) }) } }
+
+    /** Returns the link to send (KakaoTalk, text). The token is after the "#", so it never reaches web logs. */
+    suspend fun invite(f: Family, email: String, name: String, role: Int, vaults: Map<String, Boolean>): String {
+        val r = api.obj("POST", "/api/organizations/${f.id}/users/invite", buildJsonObject {
+            putJsonArray("emails") { add(kotlinx.serialization.json.JsonPrimitive(email.trim().lowercase())) }
+            put("type", role); put("displayName", name.trim()); put("collections", access(vaults))
+        }.toString())
+        val d = (r["data"] as? JsonArray)?.firstOrNull().obj()
+        return inviteLink(f.id, d?.str("id").orEmpty(), d?.str("token").orEmpty())
+    }
+
+    suspend fun reinvite(f: Family, m: Member): String =
+        inviteLink(f.id, m.id, api.obj("POST", "/api/organizations/${f.id}/users/${m.id}/reinvite").str("token").orEmpty())
+
+    /** Who invited, which family and which address, read with the link alone. */
+    suspend fun preview(i: Invite): Invite {
+        val r = api.obj("GET", "/api/azet/invites/${i.memberId}/${i.token}", auth = false)
+        return i.copy(email = r.str("email"), displayName = r.str("displayName"), familyName = r.str("organizationName"), invitedBy = r.str("invitedBy"))
+    }
+
+    /** Joins. With `recovery` the family organizer can later set a new password for this account (the user key is
+     *  wrapped to the family's public key), which also lets them open this vault: only when the person said yes.
+     *  Returns false when recovery was asked for but the account password was not typed in this session. */
+    suspend fun accept(i: Invite, recovery: Boolean): Boolean {
+        api.raw("POST", "/api/organizations/${i.familyId}/users/${i.memberId}/accept", buildJsonObject { put("token", i.token) }.toString())
+        var enrolled = !recovery
+        val pw = lastPassword; val a = store.account
+        if (recovery && pw != null && a != null) {
+            val pub = api.obj("GET", "/api/organizations/${i.familyId}/public-key").str("publicKey").orEmpty()
+            if (pub.isNotEmpty()) {
+                val reset = c().crypto().enrollAdminPasswordReset(pub)
+                val hash = c().auth().hashPassword(a.email, pw, kdf(a), HashPurpose.SERVER_AUTHORIZATION)
+                api.raw("PUT", "/api/organizations/${i.familyId}/users/${a.userId}/reset-password-enrollment",
+                    buildJsonObject { put("resetPasswordKey", reset); put("masterPasswordHash", hash) }.toString())
+                enrolled = true
+            }
+        }
+        sync(); return enrolled
+    }
+
+    /** The five words both people read out loud before the organizer hands over the family key. */
+    fun fingerprint(m: Member): String = runCatching { c().platform().fingerprint(FingerprintRequest(m.userId.orEmpty(), m.publicKey.orEmpty())) }.getOrDefault("")
+    fun myFingerprint(): String = runCatching { c().platform().userFingerprint(store.account?.userId.orEmpty()) }.getOrDefault("")
+
+    /** Lets a member in: the family key wrapped to their public key. */
+    suspend fun confirm(f: Family, m: Member) {
+        val key = orgKeys[f.id] ?: error("no family key"); val pub = m.publicKey ?: error("no public key")
+        api.raw("POST", "/api/organizations/${f.id}/users/${m.id}/confirm", buildJsonObject { put("key", azetFamilyWrap(key, pub)) }.toString())
+    }
+
+    suspend fun removeMember(f: Family, m: Member) { api.raw("DELETE", "/api/organizations/${f.id}/users/${m.id}") }
+
+    /** A new shared vault; `access` is member id → read only. */
+    suspend fun createVault(f: Family, name: String, access: Map<String, Boolean>) {
+        val key = orgKeys[f.id] ?: error("no family key")
+        api.raw("POST", "/api/organizations/${f.id}/collections", buildJsonObject {
+            put("name", azetFamilyEncrypt(key, name.trim())); put("travelSafe", false); put("users", access(access))
+        }.toString())
+        sync()
     }
 
     /** A sign-in another app or site just submitted: updates the password of the same username there, else adds a login. */
@@ -336,6 +490,10 @@ object Session {
         favorite = false, reprompt = CipherRepromptType.NONE, organizationUseTotp = true, edit = true, permissions = null, viewPassword = true,
         localData = null, attachments = null, attachmentDecryptionFailures = null, fields = null, passwordHistory = null,
         creationDate = Instant.now(), deletedDate = null, revisionDate = Instant.now(), archivedDate = null)
+
+    private fun kotlinx.serialization.json.JsonElement?.obj(): JsonObject? = this as? JsonObject
+    private fun JsonObject.str(k: String): String? = runCatching { this[k]?.jsonPrimitive?.contentOrNull }.getOrNull()
+    private fun JsonObject.int(k: String): Int? = runCatching { this[k]?.jsonPrimitive?.intOrNull }.getOrNull()
 
     private fun jwtSubject(jwt: String?): String? = runCatching {
         val part = jwt!!.split(".")[1]

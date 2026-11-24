@@ -46,9 +46,18 @@ class MainActivity : FragmentActivity() {
         Session.init(this)
         if (Session.store.blockScreenshots) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         enableEdgeToEdge()
-        val link = intent?.data?.takeIf { it.scheme == "azetpass" || it.scheme == "otpauth" }?.toString()
+        val link = take(intent)
         setContent { OneTheme { Box(Modifier.fillMaxSize().background(c().page)) { Root(this@MainActivity, link) } } }
     }
+    /** A family invite or a sign-up link is kept in the session, so it survives being signed out or locked; other
+     *  links go to the unlocked app as before. */
+    private fun take(i: android.content.Intent?): String? {
+        val s = i?.data?.toString() ?: return null
+        parseInvite(s)?.let { Session.pendingInvite = it; return null }
+        parseSignup(s)?.let { Session.pendingSignup = it; return null }
+        return s.takeIf { i.data?.scheme == "azetpass" || i.data?.scheme == "otpauth" }
+    }
+    override fun onNewIntent(intent: android.content.Intent) { super.onNewIntent(intent); take(intent) }
     override fun onUserInteraction() { super.onUserInteraction(); Session.touch() }
     override fun onStop() { super.onStop(); Session.lockedByHand = false }
 }
@@ -72,8 +81,18 @@ fun FragmentActivity.canUseBiometrics() = BiometricManager.from(this).canAuthent
 @Composable
 fun Root(act: FragmentActivity, link: String?) {
     var signingIn by remember { mutableStateOf(false) }
+    var asking by remember { mutableStateOf(false) }
     when (Session.phase) {
-        Phase.SignedOut -> if (signingIn) SignInScreen { signingIn = false } else WelcomeScreen { signingIn = true }
+        Phase.SignedOut -> {
+            val invite = Session.pendingInvite; val proof = Session.pendingSignup
+            when {
+                signingIn -> SignInScreen { signingIn = false }
+                // opened from an invite or from the mailed sign-up link: the account is made here, in the app
+                invite != null || proof != null -> SignUpScreen(invite, proof, onBack = { Session.pendingInvite = null; Session.pendingSignup = null }, onHaveAccount = { signingIn = true })
+                asking -> SignupMailScreen { asking = false }
+                else -> WelcomeScreen(onCreate = { asking = true }, onSignIn = { signingIn = true })
+            }
+        }
         Phase.Locked -> LockScreen(act)
         Phase.Unlocked -> MainScreen(act, link)
     }

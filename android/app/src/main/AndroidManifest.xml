@@ -27,6 +27,14 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="azetpass" />
             </intent-filter>
+            <!-- family invites and the mailed sign-up link, opened from a message or the browser -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="pass.azet.io" android:pathPrefix="/invite" />
+                <data android:scheme="https" android:host="pass.azet.io" android:path="/redirect-connector.html" />
+            </intent-filter>
             <!-- "Add to authenticator" links and QR codes opened from the camera or a browser -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

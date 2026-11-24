@@ -54,6 +54,11 @@ class Store(private val ctx: Context) {
         get() = prefs.getBoolean("closedOnRooted", false)
         set(v) { prefs.edit().putBoolean("closedOnRooted", v).apply() }
 
+    /** Large type and four big buttons instead of the full app. */
+    var parentMode: Boolean
+        get() = prefs.getBoolean("parentMode", false)
+        set(v) { prefs.edit().putBoolean("parentMode", v).apply() }
+
     var blockScreenshots: Boolean
         get() = prefs.getBoolean("blockScreenshots", true)
         set(v) { prefs.edit().putBoolean("blockScreenshots", v).apply() }

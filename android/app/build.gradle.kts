@@ -11,11 +11,11 @@ android {
     compileSdk = 37
     ndkVersion = "27.1.12297006" // lets the build strip debug symbols from the SDK .so
     defaultConfig {
-        applicationId = "io.azet.pass"
+        applicationId = (findProperty("appId") as String?) ?: "io.azet.pass" // the Play listing keeps its earlier id: -PappId=io.azet.pass.lite
         minSdk = 29
         targetSdk = 37
-        versionCode = 202611004
-        versionName = "2026.11.4"
+        versionCode = 202611005
+        versionName = "2026.11.5"
         ndk { abiFilters += "arm64-v8a" }
     }
     signingConfigs {

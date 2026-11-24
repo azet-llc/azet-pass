@@ -388,7 +388,9 @@ fun JoinScreen(invite: Invite) {
     fun close() { Session.pendingInvite = null; Session.madeFromInvite = false }
     suspend fun join(withRecovery: Boolean) {
         busy = true; error = null
-        runCatching { Session.accept(invite, withRecovery) }.onSuccess { joined = true }.onFailure { error = friendly(it) }
+        runCatching { Session.accept(invite, withRecovery) }.onSuccess { joined = true }
+            // a second accept of the same invite (the screen shown twice right after sign-up): they are in, show the words
+            .onFailure { if (it.message.orEmpty().contains("already", ignoreCase = true)) joined = true else error = friendly(it) }
         busy = false
     }
     LaunchedEffect(invite.token) {
@@ -510,7 +512,7 @@ private fun BigButton(title: String, icon: ImageVector, color: Color, onClick: (
 /** Parent mode: a greeting and four big buttons instead of the full app. */
 @Composable
 fun ParentHome(go: (Route) -> Unit) {
-    val name = Session.store.account?.name.orEmpty().trim()
+    val name = Session.accountName.orEmpty().trim()
     Column(Modifier.fillMaxSize().background(c().page).statusBarsPadding().navigationBarsPadding().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text(if (name.isEmpty()) stringResource(R.string.parent_hello) else stringResource(R.string.parent_hello_name, name),
             Modifier.padding(start = 22.dp, end = 22.dp, top = 28.dp, bottom = 6.dp), fontSize = 34.sp, lineHeight = 42.sp, fontWeight = FontWeight.Bold, color = c().text)

@@ -43,7 +43,7 @@ const emailVerificationToken = await makeSignupToken(secret, email)
 const res = await fetch(`${base}/identity/accounts/register`, {
   method: 'POST',
   headers: { 'content-type': 'application/json' },
-  body: JSON.stringify({ email, name: null, masterPasswordHash, masterPasswordHint: process.env.HINT || null, key, kdf: 0, kdfIterations: ITER, userAsymmetricKeys: { publicKey, encryptedPrivateKey }, emailVerificationToken }),
+  body: JSON.stringify({ email, name: process.env.NAME || null, masterPasswordHash, masterPasswordHint: process.env.HINT || null, key, kdf: 0, kdfIterations: ITER, userAsymmetricKeys: { publicKey, encryptedPrivateKey }, emailVerificationToken }),
 })
 console.error('register', res.status, (await res.text()).slice(0, 200))
 if (!res.ok) process.exit(1)

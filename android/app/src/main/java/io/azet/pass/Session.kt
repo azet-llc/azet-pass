@@ -112,11 +112,14 @@ object Session {
         api.onTokens = { a, r -> store.account = store.account?.copy(access = a, refresh = r ?: store.account?.refresh) }
         store.account?.let { api.access = it.access; api.refresh = it.refresh; phase = Phase.Locked }
         parentMode = store.parentMode
+        accountName = store.account?.name
     }
 
     val email get() = store.account?.email
     /** The name on the blue card: the account name, else the part of the email before @. */
-    val displayName get() = store.account?.name?.takeIf { it.isNotBlank() } ?: email?.substringBefore("@").orEmpty()
+    /** Held as screen state: the name arrives with the first sync, after the home screen is already drawn. */
+    var accountName by mutableStateOf<String?>(null)
+    val displayName get() = accountName?.takeIf { it.isNotBlank() } ?: email?.substringBefore("@").orEmpty()
     private fun kdf(a: Account) = Kdf.Pbkdf2(a.kdfIterations.toUInt())
 
     private fun newClient() = Client(object : ClientManagedTokens { override suspend fun getAccessToken() = api.access },
@@ -194,7 +197,7 @@ object Session {
         families = emptyList(); vaults = emptyList(); orgKeys = emptyMap(); lastPassword = null
         if (store.account != null) phase = Phase.Locked
     }
-    fun signOut() { lock(); store.signOut(); publicKey = null; madeFromInvite = false; parentMode = false; store.parentMode = false /* the next person to sign in gets the full app */; phase = Phase.SignedOut }
+    fun signOut() { lock(); store.signOut(); publicKey = null; madeFromInvite = false; accountName = null; parentMode = false; store.parentMode = false /* the next person to sign in gets the full app */; phase = Phase.SignedOut }
 
     suspend fun sync() {
         val text = api.raw("GET", "/api/sync?excludeDomains=true")
@@ -206,11 +209,12 @@ object Session {
     private suspend fun apply(text: String) {
         val obj = json.parseToJsonElement(text).jsonObject
         val profile = obj["profile"]?.jsonObject
+        // a new object: the same one changed in place is "equal" to itself, so the screens showing the name never update
         store.account?.let { a ->
-            profile?.get("key")?.jsonPrimitive?.contentOrNull?.let { a.key = it }
-            profile?.get("privateKey")?.jsonPrimitive?.contentOrNull?.let { a.privateKey = it }
-            a.name = profile?.get("name")?.jsonPrimitive?.contentOrNull
-            store.account = a
+            store.account = a.copy(key = profile?.get("key")?.jsonPrimitive?.contentOrNull ?: a.key,
+                privateKey = profile?.get("privateKey")?.jsonPrimitive?.contentOrNull ?: a.privateKey,
+                name = profile?.get("name")?.jsonPrimitive?.contentOrNull)
+            accountName = store.account?.name
         }
         publicKey = profile?.get("accountKeys").obj()?.get("publicKeyEncryptionKeyPair").obj()?.str("publicKey") ?: publicKey
         families = (profile?.get("organizations") as? JsonArray).orEmpty().mapNotNull { it.obj() }.map { m ->

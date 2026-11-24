@@ -46,7 +46,8 @@ class MainActivity : FragmentActivity() {
         Session.init(this)
         if (Session.store.blockScreenshots) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         enableEdgeToEdge()
-        val link = take(intent)
+        // recreated (rotation, a language change): the link that started the app was already handled
+        val link = if (savedInstanceState == null) take(intent) else null
         setContent { OneTheme { Box(Modifier.fillMaxSize().background(c().page)) { Root(this@MainActivity, link) } } }
     }
     /** A family invite or a sign-up link is kept in the session, so it survives being signed out or locked; other

@@ -214,7 +214,8 @@ fun SignInScreen(onBack: () -> Unit) {
                 else (fadeIn(tween(400, 180, Settle)) + scaleIn(tween(400, 180, Settle), initialScale = 0.98f)) togetherWith fadeOut(tween(160, easing = Leave))
             }, label = "step") { s ->
                 val focus = remember { FocusRequester() }
-                LaunchedEffect(Unit) { delay(350); runCatching { focus.requestFocus() } }
+                // not on the first step: an open keyboard takes the first back press, and back there should go straight to the welcome
+                LaunchedEffect(Unit) { if (s > 0) { delay(350); runCatching { focus.requestFocus() } } }
                 Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(stringResource(listOf(R.string.step_email, R.string.step_password, R.string.step_code)[s]), Modifier.padding(horizontal = 24.dp),
                         fontSize = 22.sp, fontWeight = FontWeight.Medium, letterSpacing = (-0.4).sp, color = c().text, textAlign = TextAlign.Center)

@@ -66,7 +66,7 @@ final class PassFeaturesTests: XCTestCase {
         tap(app.buttons["Back"])
         tap(app.buttons["Sign in"].firstMatch)
         signInByTyping()
-        wait(app.tabBars.buttons["Home"], 60)
+        wait(app.staticTexts["Home"].firstMatch, 60) // the page title: an iPad has no bottom tab bar
         shot("home")
     }
 
@@ -76,7 +76,7 @@ final class PassFeaturesTests: XCTestCase {
         app.launch()
         tap(app.buttons["Sign in"].firstMatch)
         signInByTyping()
-        wait(app.tabBars.buttons["Home"], 60)
+        wait(app.staticTexts["Home"].firstMatch, 60) // the page title: an iPad has no bottom tab bar
         let sb = XCUIApplication(bundleIdentifier: "com.apple.springboard")
         for b in [app.buttons["Not Now"], sb.buttons["Not Now"]] where b.waitForExistence(timeout: 3) { b.tap(); break }
 

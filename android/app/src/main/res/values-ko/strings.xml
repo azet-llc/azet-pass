@@ -173,4 +173,25 @@
     <string name="never_empty">없습니다. 로그인 저장을 물을 때 「안 함」을 고르면 여기에 들어갑니다.</string>
     <string name="never_remove">지우기</string>
     <string name="never_saved">%1$s 에서는 저장을 묻지 않습니다.</string>
+    <string name="welcome_headline">온 가족의 비밀번호 수첩</string>
+    <string name="welcome_create">가족 계정 만들기</string>
+    <string name="welcome_legal">계속하면 %1$s과 %2$s에 동의하는 것으로 봅니다.</string>
+    <string name="terms">이용약관</string>
+    <string name="bad_email">이메일 주소가 맞는지 확인해 주세요.</string>
+    <string name="step_email">이메일이 무엇인가요?</string>
+    <string name="step_password">계정 비밀번호를 입력해 주세요</string>
+    <string name="step_code">6자리 코드</string>
+    <string name="step_code_lead">인증 앱에 나온 숫자예요</string>
+    <string name="step_password_note">계정 비밀번호는 이 기기를 떠나지 않아요. 한 방향으로 만든 증명만 보냅니다.</string>
+    <string name="next">다음</string>
+    <string-array name="welcome_lines">
+        <item>다섯 명까지, 각자 개인 금고도 따로</item>
+        <item>메모장을 찍으면 로그인이 저절로 채워져요</item>
+        <item>앱과 브라우저에서 바로 채워요</item>
+        <item>보내기 전에 내 휴대폰에서 먼저 잠가요</item>
+        <item>패스키·카드·인증 코드를 한곳에</item>
+        <item>카드를 폰에 대면 번호를 읽어요</item>
+        <item>비밀번호가 유출되면 알려 줘요</item>
+        <item>아이폰·안드로이드·맥에서 같은 금고</item>
+    </string-array>
 </resources>

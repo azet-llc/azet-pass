@@ -12,6 +12,7 @@ png 0 1 1024 apple/Resources/Assets.xcassets/AppIcon.appiconset/icon-1024.png   
 # The App Store refuses an icon with an alpha channel: flatten it.
 python3 -c "from PIL import Image; p='apple/Resources/Assets.xcassets/AppIcon.appiconset/icon-1024.png'; Image.open(p).convert('RGB').save(p)"
 png 230 1 512 apple/Resources/Assets.xcassets/Mark.imageset/mark.png
+mkdir -p android/app/src/main/res/drawable-nodpi && png 230 1 384 android/app/src/main/res/drawable-nodpi/mark.png # welcome screen
 for s in 16 32 128 256 512; do
   png 230 .805 $s apple/Mac/MacAssets.xcassets/MacAppIcon.appiconset/mac-$s@1x.png
   png 230 .805 $((s * 2)) apple/Mac/MacAssets.xcassets/MacAppIcon.appiconset/mac-$s@2x.png

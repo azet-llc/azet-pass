@@ -173,4 +173,25 @@
     <string name="never_empty">No sites or apps. Choosing Never when asked to save a sign-in adds one here.</string>
     <string name="never_remove">Remove</string>
     <string name="never_saved">AZET Pass will not ask to save for %1$s.</string>
+    <string name="welcome_headline">The password notebook for the whole family</string>
+    <string name="welcome_create">Create a family account</string>
+    <string name="welcome_legal">By continuing you agree to the %1$s and the %2$s.</string>
+    <string name="terms">Terms</string>
+    <string name="bad_email">That does not look like an email address.</string>
+    <string name="step_email">What is your email?</string>
+    <string name="step_password">Your account password</string>
+    <string name="step_code">The 6-digit code</string>
+    <string name="step_code_lead">From your authenticator app</string>
+    <string name="step_password_note">Your account password never leaves this device. Only a one-way proof of it is sent.</string>
+    <string name="next">Next</string>
+    <string-array name="welcome_lines">
+        <item>Up to five people, each with a private vault</item>
+        <item>Photograph the notebook and the logins fill themselves in</item>
+        <item>Fills in apps and in the browser</item>
+        <item>Locked on your phone before anything is sent</item>
+        <item>Passkeys, cards and one-time codes in one place</item>
+        <item>Tap a card to the phone to read its number</item>
+        <item>Tells you when a password has leaked</item>
+        <item>The same vault on iPhone, Android and Mac</item>
+    </string-array>
 </resources>

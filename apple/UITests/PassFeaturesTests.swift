@@ -94,12 +94,12 @@ final class PassFeaturesTests: XCTestCase {
         type(app.textFields["이메일"], cfg["email"]!); tap(app.buttons["다음"])
         wait(app.secureTextFields["계정 비밀번호"], 10); shot("k5-signin-password")
         type(app.secureTextFields["계정 비밀번호"], cfg["password"]!); tap(app.buttons["로그인"])
-        wait(app.tabBars.buttons["홈"], 60)
+        wait(app.buttons["홈"].firstMatch, 60)
         let sb = XCUIApplication(bundleIdentifier: "com.apple.springboard")
         for b in [app.buttons["나중에"], sb.buttons["나중에"], app.buttons["Not Now"], sb.buttons["Not Now"]] where b.waitForExistence(timeout: 2) { b.tap(); break }
         sleep(1); shot("k6-home")
-        for (i, name) in ["항목", "가족", "보안 점검"].enumerated() { tap(app.tabBars.buttons[name]); sleep(2); shot("k\(7 + i)-\(name)") }
-        tap(app.tabBars.buttons["홈"])
+        for (i, name) in ["항목", "가족", "보안 점검"].enumerated() { tap(app.buttons[name].firstMatch); sleep(2); shot("k\(7 + i)-\(name)") }
+        tap(app.buttons["홈"].firstMatch)
         if app.staticTexts["demo-login"].waitForExistence(timeout: 5) { app.staticTexts["demo-login"].tap(); sleep(2); shot("k10-item") }
     }
 

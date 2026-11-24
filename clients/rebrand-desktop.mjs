@@ -207,6 +207,14 @@ swap(up, [
       }, 60 * 1000);`],
   ['"https://github.com/bitwarden/clients/releases"', '"https://azet.io/pass"'],
 ])
+// The app's link scheme is ours (azetpass://), not upstream's: the system hands bitwarden:// links to whatever
+// registered it, and our own pages and mails only send azetpass://.
+for (const f of ['apps/desktop/src/main.ts', 'apps/desktop/src/app/app.component.ts', 'apps/desktop/src/auth/login/desktop-login-component.service.ts',
+  'libs/auth/src/common/services/sso-redirect/sso-url.service.ts', 'libs/importer/src/components/lastpass/lastpass-direct-import.service.ts']) {
+  const s = fs.readFileSync(p(f), 'utf8')
+  fs.writeFileSync(p(f), s.replaceAll('bitwarden://', 'azetpass://').replaceAll('ProtocolClient("bitwarden"', 'ProtocolClient("azetpass"'))
+}
+swap('apps/desktop/electron-builder.json', [['"name": "Bitwarden",\n      "schemes": [\n        "bitwarden"\n      ]', '"name": "AZET Pass",\n      "schemes": [\n        "azetpass"\n      ]']])
 if (version) {
   if (!/^\d+\.\d+\.\d+$/.test(version)) throw new Error(`rebrand-desktop: bad version ${version}`)
   for (const f of ['apps/desktop/package.json', 'apps/desktop/src/package.json'])

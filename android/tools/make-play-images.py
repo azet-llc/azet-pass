@@ -5,11 +5,13 @@ usage: make-play-images.py <chrome-headless-shell> <raw dir>   (writes fastlane/
 import os, subprocess, sys, tempfile
 chrome, raw = sys.argv[1], os.path.abspath(sys.argv[2])
 root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../..")
-HEAD = {"ko": {"1-home": "비밀번호를 한 금고에", "3-logins": "앱과 사이트 로그인을 자동으로 채웁니다", "4-item": "아이디·비밀번호·인증 코드를 한곳에",
-               "5-generator": "강한 비밀번호를 바로 만듭니다", "6-check": "약한 비밀번호를 찾아 줍니다", "2-items": "카드·주소·메모도 함께"},
-        "en": {"1-home": "Every password in one vault", "3-logins": "Fills sign-ins in apps and sites", "4-item": "User name, password and code together",
-               "5-generator": "Strong passwords in a tap", "6-check": "Finds weak passwords", "2-items": "Cards, addresses and notes too"}}
-ORDER = ["1-home", "3-logins", "4-item", "6-check", "5-generator", "2-items"]
+HEAD = {"ko": {"1-home": "비밀번호를 한 금고에", "2-family": "온 가족이 함께 쓰는 비밀번호 수첩", "3-vault": "부모님 금고를 미리 채워 둡니다",
+               "4-parent": "부모님 모드: 큰 글씨, 큰 버튼", "5-item": "아이디·비밀번호·인증 코드를 한곳에", "6-check": "약한 비밀번호를 찾아 줍니다",
+               "7-items": "카드·주소·메모도 함께", "8-generator": "강한 비밀번호를 바로 만듭니다"},
+        "en": {"1-home": "Every password in one vault", "2-family": "One password notebook for the whole family", "3-vault": "Fill a parent's vault for them",
+               "4-parent": "Parent mode: large text, big buttons", "5-item": "User name, password and code together", "6-check": "Finds weak passwords",
+               "7-items": "Cards, addresses and notes too", "8-generator": "Strong passwords in a tap"}}
+ORDER = ["1-home", "2-family", "3-vault", "4-parent", "5-item", "6-check", "7-items", "8-generator"]
 LOCALE = {"ko": ["ko-KR"], "en": ["en-US", "ja-JP"]}  # the Japanese listing shows the English pictures
 PAGE = """<!doctype html><meta charset="utf-8"><style>
 html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#f2f3f5;font-family:-apple-system,"Apple SD Gothic Neo",sans-serif}

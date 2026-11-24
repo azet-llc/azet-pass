@@ -3,8 +3,15 @@ AZET Pass keeps your passwords, passkeys, verification codes, cards and addresse
 Sign in faster
 • Fills user names and passwords in apps and in Chrome
 • Keeps authenticator (TOTP) codes next to each login and puts the code into the code box
-• Saves and uses passkeys (Android 14 or newer)
+• Saves and uses passkeys (passkeys need Android 14)
 • Fills your card number and address at checkout in one tap
+
+For the whole family
+• Make a family and invite people with one link. They open it and choose a password, nothing else
+• Fill a parent's vault for them: pick from a list of banks, government and shopping sites, or photograph a page of their password notebook and it is read on the phone
+• On the first visit you both read five words off your screens before they are let in
+• Parent mode: large text and four big buttons (find a password, save a new one, scan the notebook, ask the family for help)
+• Forgot the password? Family members who agreed can be helped back in by the organizer
 
 Easy to move in
 • Scan Google Authenticator's export QR and your accounts arrive with live codes
@@ -22,7 +29,7 @@ Kept safe
 The same vault everywhere
 Use the same account on iPhone, iPad, Mac, the browser extension and the web (pass.azet.io).
 
-Free, with no ads. The source is open (GPL-3.0): github.com/azet-llc/azet-pass
+Installs on Android 10 or newer. Free, with no ads. The source is open (GPL-3.0): github.com/azet-llc/azet-pass
 
 Support: hello@azet.io
 Privacy: https://azet.io/privacy#pass

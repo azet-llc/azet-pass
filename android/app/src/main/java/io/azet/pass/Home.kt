@@ -1,5 +1,12 @@
 package io.azet.pass
 
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Key
+import androidx.compose.material.icons.filled.Password
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -66,57 +73,108 @@ fun MainScreen(act: FragmentActivity, link: String?) {
     }
 }
 
-/** Home: whose vault it is with the check-up beside it, then sign-ins and personal items as two panels with counts. */
+/** The three tabs under one floating bar: Home (what changed lately), Items (by kind, and the tools), Check. */
 @Composable
 fun HomeScreen(go: (Route) -> Unit) {
-    val items = Session.items
-    val logins = items.filter { it.kind() == Kind.Login }
-    var menu by remember { mutableStateOf(false) }
-    OnePage(stringResource(R.string.app_name), actions = {
-        IconButton({ go(Route.Search) }) { Icon(Icons.Filled.Search, stringResource(R.string.search), tint = c().text, modifier = Modifier.size(28.dp)) }
-        Box {
-            IconButton({ menu = true }) { Icon(Icons.Filled.MoreVert, stringResource(R.string.more), tint = c().text, modifier = Modifier.size(28.dp)) }
-            DropdownMenu(menu, { menu = false }, shape = RoundedCornerShape(26.dp), containerColor = c().card) {
-                listOf(R.string.tab_generator to Route.Generator, R.string.tab_send to Route.Send, R.string.tab_check to Route.Check, R.string.tab_settings to Route.Settings)
-                    .forEach { (l, r) -> DropdownMenuItem({ Text(stringResource(l), fontSize = 16.sp) }, { menu = false; go(r) }) }
+    var tab by rememberSaveable { mutableIntStateOf(0) }
+    Box(Modifier.fillMaxSize().background(c().page)) {
+        when (tab) {
+            0 -> TabPage(stringResource(R.string.tab_home), go) { HomeTab(go) }
+            1 -> TabPage(stringResource(R.string.tab_items), go) { ItemsTab(go) }
+            else -> CheckScreen({ tab = 0 }) { go(Route.Detail(it)) }
+        }
+        TabBar(tab, Modifier.align(Alignment.BottomCenter)) { tab = it }
+    }
+}
+
+/** A tab's page: the account (opens settings) on the left, search and the blue plus on the right, a large title, the content. */
+@Composable
+private fun TabPage(title: String, go: (Route) -> Unit, content: @Composable ColumnScope.() -> Unit) {
+    Column(Modifier.fillMaxSize().statusBarsPadding().verticalScroll(rememberScrollState())) {
+        Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 12.dp, top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(44.dp).clip(CircleShape).background(c().card).clickable(onClickLabel = stringResource(R.string.tab_settings)) { go(Route.Settings) }, contentAlignment = Alignment.Center) {
+                Text(Session.displayName.take(1).uppercase(), color = c().primary, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+            }
+            Spacer(Modifier.weight(1f))
+            IconButton({ go(Route.Search) }) { Icon(Icons.Filled.Search, stringResource(R.string.search), tint = c().text, modifier = Modifier.size(26.dp)) }
+            Box(Modifier.padding(start = 4.dp).size(40.dp).clip(CircleShape).background(c().primary).clickable(onClickLabel = stringResource(R.string.new_item)) { go(Route.Edit("new:login")) }, contentAlignment = Alignment.Center) {
+                Icon(Icons.Filled.Add, stringResource(R.string.new_item), tint = c().onPrimary, modifier = Modifier.size(24.dp))
             }
         }
-    }) {
-        Column(Modifier.verticalScroll(rememberScrollState())) {
-            Spacer(Modifier.height(4.dp))
-            // Whose vault, and the check-up on the right.
-            Row(Modifier.padding(horizontal = OneDim.side).fillMaxWidth().clip(RoundedCornerShape(OneDim.radius)).background(c().card).clickable { go(Route.Check) }
-                .padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-                OneWell { Text(Session.displayName.take(1).uppercase(), color = c().text, fontWeight = FontWeight.Medium, fontSize = 17.sp) }
-                Spacer(Modifier.width(14.dp))
-                Text(Session.displayName, Modifier.weight(1f), color = c().text, fontSize = 16.sp, fontWeight = FontWeight.Medium, maxLines = 1)
-                Text(stringResource(R.string.tab_check), color = c().primary, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+        Text(title, Modifier.padding(start = 20.dp, top = 14.dp, bottom = 14.dp), fontSize = 32.sp, fontWeight = FontWeight.Bold, letterSpacing = (-0.5).sp, color = c().text)
+        content()
+        Spacer(Modifier.height(120.dp)) // room for the floating bar
+    }
+}
+
+@Composable
+private fun TabBar(tab: Int, modifier: Modifier, pick: (Int) -> Unit) {
+    val tabs = listOf(Icons.Filled.Home to R.string.tab_home, Icons.Filled.Description to R.string.tab_items, Icons.Filled.Shield to R.string.tab_check)
+    Row(modifier.navigationBarsPadding().padding(bottom = 14.dp).shadow(10.dp, CircleShape, ambientColor = Color.Black.copy(alpha = 0.12f), spotColor = Color.Black.copy(alpha = 0.12f))
+        .clip(CircleShape).background(c().card).padding(5.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+        tabs.forEachIndexed { i, (icon, label) ->
+            val on = i == tab
+            Column(Modifier.clip(CircleShape).background(if (on) c().page else Color.Transparent).clickable { pick(i) }.width(92.dp).padding(vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(icon, null, tint = if (on) c().primary else c().text, modifier = Modifier.size(24.dp))
+                Text(stringResource(label), fontSize = 11.sp, fontWeight = FontWeight.Medium, color = if (on) c().primary else c().text)
             }
-            Spacer(Modifier.height(OneDim.gap))
-            DashCard(stringResource(R.string.home_signin_title), stringResource(R.string.home_signin_desc)) {
-                OneRow(stringResource(R.string.home_apps_sites), summary = stringResource(R.string.home_apps_sites_counts, logins.size, logins.count { it.hasPasskey() }),
-                    icon = Icons.Filled.Shield, onClick = { go(Route.List(Kind.Login)) })
-                if (logins.any { it.hasCode() }) OneRow(stringResource(R.string.kind_code), summary = "${logins.count { it.hasCode() }}", icon = Icons.Filled.Pin, onClick = { go(Route.List(Kind.Code)) })
-            }
-            Spacer(Modifier.height(OneDim.gap))
-            DashCard(stringResource(R.string.home_private_title), stringResource(R.string.home_private_desc)) {
-                OneRow(stringResource(R.string.home_count, stringResource(R.string.kind_card), items.count { it.kind() == Kind.Card }), icon = Icons.Filled.CreditCard, onClick = { go(Route.List(Kind.Card)) })
-                OneRow(stringResource(R.string.home_count, stringResource(R.string.home_address), items.count { it.kind() == Kind.Identity }), icon = Icons.Filled.LocationOn, onClick = { go(Route.List(Kind.Identity)) })
-                OneRow(stringResource(R.string.home_count, stringResource(R.string.kind_note), items.count { it.kind() == Kind.Note }), icon = Icons.Filled.Description, onClick = { go(Route.List(Kind.Note)) })
-            }
-            Session.syncError?.let { Text(it, Modifier.padding(24.dp), color = MaterialTheme.colorScheme.error, fontSize = 13.sp) }
-            Text("Secured by AZET", Modifier.fillMaxWidth().padding(top = 14.dp, end = 34.dp, bottom = 24.dp), textAlign = androidx.compose.ui.text.style.TextAlign.End,
-                color = c().faint, fontSize = 13.sp, fontWeight = FontWeight.Medium)
         }
     }
 }
 
 @Composable
-private fun DashCard(title: String, desc: String, rows: @Composable ColumnScope.() -> Unit) {
+private fun HomeTab(go: (Route) -> Unit) {
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    val filling = remember { ctx.getSystemService(android.view.autofill.AutofillManager::class.java)?.hasEnabledAutofillServices() == true }
+    // The one thing left to set up, if any: without it nothing fills in other apps.
+    if (!filling) {
+        Row(Modifier.padding(horizontal = OneDim.side).fillMaxWidth().clip(RoundedCornerShape(OneDim.radius)).background(c().card)
+            .clickable { runCatching { ctx.startActivity(android.content.Intent(android.provider.Settings.ACTION_REQUEST_SET_AUTOFILL_SERVICE, android.net.Uri.parse("package:${ctx.packageName}"))) } }
+            .padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            OneWell { Icon(Icons.Filled.Key, null, tint = c().primary, modifier = Modifier.size(20.dp)) }
+            Spacer(Modifier.width(14.dp))
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.home_fill_title), fontSize = 16.sp, fontWeight = FontWeight.Medium, color = c().text)
+                Text(stringResource(R.string.home_fill_desc), fontSize = 14.sp, lineHeight = 19.sp, color = c().sub)
+            }
+        }
+        Spacer(Modifier.height(OneDim.gap))
+    }
+    val recent = Session.items.sortedByDescending { it.revisionDate }.take(6)
+    Text(stringResource(R.string.home_recent), Modifier.padding(start = 26.dp, top = 6.dp, bottom = 8.dp), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = c().sub)
+    if (recent.isEmpty()) Text(stringResource(R.string.nothing_here), Modifier.padding(horizontal = 26.dp, vertical = 12.dp), color = c().sub)
+    else OneCard {
+        recent.forEachIndexed { i, v ->
+            Row(Modifier.fillMaxWidth().clickable { v.id?.let { go(Route.Detail(it)) } }.heightIn(min = 64.dp).padding(horizontal = OneDim.rowPad, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                OneWell { Text(v.name.take(1).uppercase(), color = c().text, fontWeight = FontWeight.Medium, fontSize = 17.sp) }
+                Spacer(Modifier.width(14.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(v.name, fontSize = 16.sp, fontWeight = FontWeight.Medium, color = c().text, maxLines = 1)
+                    if (v.subtitle.isNotBlank()) Text(v.subtitle, fontSize = 14.sp, color = c().sub, maxLines = 1)
+                }
+            }
+            if (i != recent.lastIndex) OneDivider()
+        }
+    }
+    Session.syncError?.let { Text(it, Modifier.padding(24.dp), color = MaterialTheme.colorScheme.error, fontSize = 13.sp) }
+}
+
+@Composable
+private fun ItemsTab(go: (Route) -> Unit) {
+    val items = Session.items
+    val logins = items.filter { it.kind() == Kind.Login }
+    Text(stringResource(R.string.items_kinds), Modifier.padding(start = 26.dp, top = 2.dp, bottom = 8.dp), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = c().sub)
     OneCard {
-        Text(title, Modifier.padding(start = OneDim.cardPad, end = OneDim.cardPad, top = 20.dp), fontSize = 18.sp, fontWeight = FontWeight.Medium, color = c().text)
-        Text(desc, Modifier.padding(start = OneDim.cardPad, end = OneDim.cardPad, top = 4.dp, bottom = 8.dp), fontSize = 14.sp, lineHeight = 18.sp, color = c().sub)
-        Column(Modifier.padding(bottom = 8.dp), content = rows)
+        OneRow(stringResource(R.string.kind_login), value = "${logins.size}", icon = Icons.Filled.Key, onClick = { go(Route.List(Kind.Login)) })
+        if (logins.any { it.hasCode() }) { OneDivider(); OneRow(stringResource(R.string.kind_code), value = "${logins.count { it.hasCode() }}", icon = Icons.Filled.Pin, onClick = { go(Route.List(Kind.Code)) }) }
+        OneDivider(); OneRow(stringResource(R.string.kind_card), value = "${items.count { it.kind() == Kind.Card }}", icon = Icons.Filled.CreditCard, onClick = { go(Route.List(Kind.Card)) })
+        OneDivider(); OneRow(stringResource(R.string.home_address), value = "${items.count { it.kind() == Kind.Identity }}", icon = Icons.Filled.LocationOn, onClick = { go(Route.List(Kind.Identity)) })
+        OneDivider(); OneRow(stringResource(R.string.kind_note), value = "${items.count { it.kind() == Kind.Note }}", icon = Icons.Filled.Description, onClick = { go(Route.List(Kind.Note)) })
+    }
+    Text(stringResource(R.string.items_tools), Modifier.padding(start = 26.dp, top = 22.dp, bottom = 8.dp), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = c().sub)
+    OneCard {
+        OneRow(stringResource(R.string.tab_generator), icon = Icons.Filled.Password, onClick = { go(Route.Generator) })
+        OneDivider(); OneRow(stringResource(R.string.tab_send), icon = Icons.AutoMirrored.Filled.Send, onClick = { go(Route.Send) })
     }
 }
 

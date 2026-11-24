@@ -195,4 +195,12 @@
         <item>The same vault on iPhone, Android and Mac</item>
     </string-array>
     <string name="wrong_login">Email or account password is not right.</string>
+    <string name="tab_home">Home</string>
+    <string name="home_recent">Recently changed</string>
+    <string name="home_fill_title">Fill in apps and browsers</string>
+    <string name="home_fill_desc">Choose AZET Pass as the autofill service so sign-ins fill themselves in.</string>
+    <string name="items_kinds">Kinds</string>
+    <string name="items_tools">Tools</string>
+    <string name="wrong_password">That account password is not right.</string>
+    <string name="use_another">Use another account</string>
 </resources>

@@ -166,11 +166,25 @@ fun SettingsScreen(act: FragmentActivity, onBack: () -> Unit, onDevices: () -> U
     val lockLabel = @Composable { m: Int -> if (m == 0) stringResource(R.string.never) else stringResource(R.string.minutes_n, m) }
     OnePage(stringResource(R.string.settings_title), onBack) {
         Column(Modifier.verticalScroll(rememberScrollState())) {
-            OneCard { OneRow(stringResource(R.string.account_sync), onClick = { scope.launch { runCatching { Session.sync() } } }) }
+            // Whose vault this is, then sync.
+            OneCard {
+                Row(Modifier.fillMaxWidth().padding(horizontal = OneDim.rowPad, vertical = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(52.dp).clip(androidx.compose.foundation.shape.CircleShape).background(c().page), contentAlignment = Alignment.Center) {
+                        Text(Session.displayName.take(1).uppercase(), color = c().primary, fontWeight = FontWeight.SemiBold, fontSize = 20.sp)
+                    }
+                    Spacer(Modifier.width(14.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(Session.displayName, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = c().text, maxLines = 1)
+                        Text(Session.email ?: "", fontSize = 14.sp, color = c().sub, maxLines = 1)
+                    }
+                }
+                OneDivider()
+                OneRow(stringResource(R.string.account_sync), icon = Icons.Filled.Sync, onClick = { scope.launch { runCatching { Session.sync() } } })
+            }
             OneHeader(stringResource(R.string.auth_methods))
             OneCard {
                 if (act.hasBiometricHardware()) {
-                    OneRow(stringResource(R.string.fingerprint_face), trailing = {
+                    OneRow(stringResource(R.string.fingerprint_face), icon = Icons.Filled.Fingerprint, trailing = {
                         OneSwitch(bio) { on ->
                             if (!on) { store.turnOffBiometrics(); bio = false }
                             else if (!act.canUseBiometrics()) act.startActivity(Intent(Settings.ACTION_BIOMETRIC_ENROLL))
@@ -183,32 +197,32 @@ fun SettingsScreen(act: FragmentActivity, onBack: () -> Unit, onDevices: () -> U
                     })
                     OneDivider()
                 }
-                OneRow(stringResource(R.string.account_password), trailing = { OneSwitch(true) {} })
+                OneRow(stringResource(R.string.account_password), icon = Icons.Filled.Password, trailing = { OneSwitch(true) {} })
             }
             OneHeader(stringResource(R.string.privacy))
             OneCard {
-                OneRow(stringResource(R.string.privacy_policy), onClick = { openUrl("https://azet.io/privacy-ko#pass") })
+                OneRow(stringResource(R.string.privacy_policy), icon = Icons.Filled.Policy, onClick = { openUrl("https://azet.io/privacy-ko#pass") })
                 OneDivider()
-                OneRow(stringResource(R.string.import_data), summary = stringResource(R.string.import_data_sub), onClick = { importer.launch(arrayOf("application/json", "text/*", "text/csv", "application/vnd.ms-excel", "*/*")) })
+                OneRow(stringResource(R.string.import_data), icon = Icons.Filled.FileDownload, summary = stringResource(R.string.import_data_sub), onClick = { importer.launch(arrayOf("application/json", "text/*", "text/csv", "application/vnd.ms-excel", "*/*")) })
                 OneDivider()
-                OneRow(stringResource(R.string.google_otp_import), summary = stringResource(R.string.google_otp_import_sub), onClick = onGoogleOtp)
+                OneRow(stringResource(R.string.google_otp_import), icon = Icons.Filled.QrCodeScanner, summary = stringResource(R.string.google_otp_import_sub), onClick = onGoogleOtp)
                 OneDivider()
-                OneRow(stringResource(R.string.export_data), summary = stringResource(R.string.export_data_sub), onClick = { exportAsk = true })
+                OneRow(stringResource(R.string.export_data), icon = Icons.Filled.FileUpload, summary = stringResource(R.string.export_data_sub), onClick = { exportAsk = true })
                 OneDivider()
-                OneRow(stringResource(R.string.devices_using), onClick = onDevices)
+                OneRow(stringResource(R.string.devices_using), icon = Icons.Filled.Devices, onClick = onDevices)
                 OneDivider()
-                OneRow(stringResource(R.string.autofill_position), value = stringResource(if (inline) R.string.above_keyboard else R.string.below_field), onClick = { pickPos = true })
+                OneRow(stringResource(R.string.autofill_position), icon = Icons.Filled.Keyboard, value = stringResource(if (inline) R.string.above_keyboard else R.string.below_field), onClick = { pickPos = true })
                 OneDivider()
-                OneRow(stringResource(R.string.use_in_chrome), onClick = { chromeHelp = true })
+                OneRow(stringResource(R.string.use_in_chrome), icon = Icons.Filled.Public, onClick = { chromeHelp = true })
                 OneDivider()
-                OneRow(stringResource(R.string.never_list), value = never.size.toString(), onClick = { neverOpen = true })
+                OneRow(stringResource(R.string.never_list), icon = Icons.Filled.Block, value = never.size.toString(), onClick = { neverOpen = true })
                 OneDivider()
-                OneRow(stringResource(R.string.autofill), value = stringResource(if (autofillOn) R.string.autofill_on else R.string.autofill_off),
+                OneRow(stringResource(R.string.autofill), icon = Icons.Filled.Key, value = stringResource(if (autofillOn) R.string.autofill_on else R.string.autofill_off),
                     onClick = { act.startActivity(Intent(Settings.ACTION_REQUEST_SET_AUTOFILL_SERVICE).setData(android.net.Uri.parse("package:" + act.packageName))) })
                 if (android.os.Build.VERSION.SDK_INT >= 34) {
                     OneDivider()
                     // Android 14+: the system screen where AZET Pass is turned on as a passkey and password provider.
-                    OneRow(stringResource(R.string.passkey_provider), summary = stringResource(R.string.passkey_provider_sub), onClick = {
+                    OneRow(stringResource(R.string.passkey_provider), icon = Icons.Filled.VpnKey, summary = stringResource(R.string.passkey_provider_sub), onClick = {
                         runCatching { act.startActivity(Intent("android.settings.CREDENTIAL_PROVIDER").setData(android.net.Uri.parse("package:" + act.packageName))) }
                             .onFailure { act.startActivity(Intent(Settings.ACTION_SETTINGS)) }
                     })
@@ -216,19 +230,19 @@ fun SettingsScreen(act: FragmentActivity, onBack: () -> Unit, onDevices: () -> U
             }
             OneHeader(stringResource(R.string.security))
             OneCard {
-                OneRow(stringResource(R.string.auto_lock), value = lockLabel(minutes), onClick = { pickLock = true })
+                OneRow(stringResource(R.string.auto_lock), icon = Icons.Filled.Timer, value = lockLabel(minutes), onClick = { pickLock = true })
                 OneDivider()
-                OneRow(stringResource(R.string.block_screenshots), trailing = { OneSwitch(shots) { shots = it; store.blockScreenshots = it } })
+                OneRow(stringResource(R.string.block_screenshots), icon = Icons.Filled.ScreenshotMonitor, trailing = { OneSwitch(shots) { shots = it; store.blockScreenshots = it } })
                 OneDivider()
-                OneRow(stringResource(R.string.closed_on_rooted), summary = stringResource(R.string.closed_on_rooted_sub), trailing = { OneSwitch(rooted) { rooted = it; store.closedOnRooted = it } })
+                OneRow(stringResource(R.string.closed_on_rooted), icon = Icons.Filled.Security, summary = stringResource(R.string.closed_on_rooted_sub), trailing = { OneSwitch(rooted) { rooted = it; store.closedOnRooted = it } })
                 OneDivider()
-                OneRow(stringResource(R.string.web_vault), summary = stringResource(R.string.web_vault_sub), onClick = { openUrl(SERVER) })
+                OneRow(stringResource(R.string.web_vault), icon = Icons.Filled.Language, summary = stringResource(R.string.web_vault_sub), onClick = { openUrl(SERVER) })
             }
             OneHeader(stringResource(R.string.account))
             OneCard {
-                OneRow(stringResource(R.string.lock_now), onClick = { Session.lockedByHand = true; Session.lock() })
+                OneRow(stringResource(R.string.lock_now), icon = Icons.Filled.Lock, onClick = { Session.lockedByHand = true; Session.lock() })
                 OneDivider()
-                OneRow(stringResource(R.string.sign_out), titleColor = MaterialTheme.colorScheme.error, onClick = { Session.signOut() })
+                OneRow(stringResource(R.string.sign_out), icon = Icons.Filled.Logout, titleColor = MaterialTheme.colorScheme.error, onClick = { Session.signOut() })
             }
             Text("AZET Pass $CLIENT_VERSION · GPL-3.0", Modifier.padding(28.dp), color = c().sub, fontSize = 12.sp)
         }

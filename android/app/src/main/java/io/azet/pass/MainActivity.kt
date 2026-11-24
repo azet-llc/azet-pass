@@ -19,6 +19,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -102,25 +103,36 @@ fun LockScreen(act: FragmentActivity) {
         return
     }
     LaunchedEffect(Unit) { if (Session.store.biometricOn && act.canUseBiometrics() && !Session.lockedByHand) bio() }
-    Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding().imePadding()) {
-        Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-            Spacer(Modifier.height(96.dp))
-            Text(stringResource(R.string.app_name), Modifier.fillMaxWidth(), fontSize = 28.sp, fontWeight = FontWeight.SemiBold, color = c().text, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-            Text(stringResource(R.string.locked_as, Session.email ?: ""), Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 36.dp), fontSize = 15.sp, color = c().sub, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                OnePillField(password, { password = it }, stringResource(R.string.account_password), secret = true, keyboard = KeyboardOptions(keyboardType = KeyboardType.Password))
-            }
-            error?.let { Text(it, Modifier.padding(horizontal = 28.dp, vertical = 12.dp), color = MaterialTheme.colorScheme.error, fontSize = 14.sp) }
-            Row(Modifier.padding(start = 18.dp, top = 8.dp)) {
-                if (Session.store.biometricOn) TextButton({ bio() }) { Text(stringResource(R.string.unlock_biometric), color = c().primary, fontSize = 15.sp) }
-                TextButton({ Session.signOut() }) { Text(stringResource(R.string.sign_out), color = c().sub, fontSize = 15.sp) }
+    val wrong = stringResource(R.string.wrong_password)
+    fun open() {
+        if (busy || password.isBlank()) return
+        busy = true; error = null
+        scope.launch { runCatching { Session.unlock(password); password = "" }.onFailure { error = if (it.message.orEmpty().contains("invalid_") || it.message.orEmpty().contains("not right")) wrong else it.message }; busy = false }
+    }
+    // The mark, whose vault it is, one box, one button: the same form as the first-start steps.
+    Column(Modifier.fillMaxSize().background(c().page).statusBarsPadding().navigationBarsPadding().imePadding(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), horizontalAlignment = Alignment.CenterHorizontally) {
+            Spacer(Modifier.height(84.dp))
+            androidx.compose.foundation.Image(androidx.compose.ui.res.painterResource(R.drawable.mark), null, Modifier.size(72.dp))
+            Text(Session.email ?: "", Modifier.padding(top = 18.dp, bottom = 30.dp, start = 24.dp, end = 24.dp), fontSize = 22.sp, fontWeight = FontWeight.Medium, color = c().text, maxLines = 1)
+            TextField(password, { password = it; error = null }, Modifier.padding(horizontal = 24.dp).widthIn(max = 328.dp).fillMaxWidth().heightIn(min = 56.dp),
+                placeholder = { Text(stringResource(R.string.account_password), fontSize = 18.sp, color = c().sub) }, singleLine = true, shape = androidx.compose.foundation.shape.CircleShape,
+                textStyle = androidx.compose.ui.text.TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Medium),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = androidx.compose.ui.text.input.ImeAction.Done),
+                keyboardActions = androidx.compose.foundation.text.KeyboardActions(onDone = { open() }),
+                visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                colors = TextFieldDefaults.colors(focusedContainerColor = c().card, unfocusedContainerColor = c().card, focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+                    unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent, cursorColor = c().primary))
+            error?.let { Text(it, Modifier.padding(horizontal = 28.dp, vertical = 12.dp), color = MaterialTheme.colorScheme.error, fontSize = 14.sp, textAlign = androidx.compose.ui.text.style.TextAlign.Center) }
+            Spacer(Modifier.height(10.dp))
+            StepCta(stringResource(R.string.unlock), enabled = password.isNotBlank(), busy = busy, height = 56.dp) { open() }
+            if (Session.store.biometricOn) {
+                Spacer(Modifier.height(8.dp))
+                Box(Modifier.padding(horizontal = 24.dp).widthIn(max = 328.dp).fillMaxWidth().height(56.dp).clip(androidx.compose.foundation.shape.CircleShape).background(c().card).clickable { bio() }, contentAlignment = Alignment.Center) {
+                    Text(stringResource(R.string.unlock_biometric), color = c().text, fontSize = 17.sp, fontWeight = FontWeight.Medium)
+                }
             }
         }
-        Box(Modifier.fillMaxWidth().padding(top = 14.dp, bottom = 28.dp), contentAlignment = Alignment.Center) {
-            OnePill(stringResource(R.string.unlock), enabled = !busy && password.isNotBlank()) {
-                busy = true; error = null
-                scope.launch { runCatching { Session.unlock(password); password = "" }.onFailure { error = it.message }; busy = false }
-            }
-        }
+        TextButton({ Session.signOut() }, Modifier.padding(bottom = 16.dp)) { Text(stringResource(R.string.use_another), color = c().sub, fontSize = 14.sp) }
     }
 }

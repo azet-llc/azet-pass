@@ -519,4 +519,5 @@ KO = {
 "About": "정보",
 "Legal": "법적 고지",
 "Source code": "소스 코드",
+"Hello": "안녕하세요",
 }

@@ -457,7 +457,7 @@ struct ParentHomeView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 18) {
-                    Text("Hello, \(session.account?.name ?? "")").font(.largeTitle.bold()).frame(maxWidth: .infinity, alignment: .leading)
+                    Text((session.account?.name ?? "").isEmpty ? "Hello" : "Hello, \(session.account?.name ?? "")").font(.largeTitle.bold()).frame(maxWidth: .infinity, alignment: .leading)
                     BigButton(title: String(localized: "Find a password"), symbol: "magnifyingglass", color: Theme.brand) { find = true }
                     BigButton(title: String(localized: "Save a new password"), symbol: "plus", color: .blue) { add = true }
                     BigButton(title: String(localized: "Scan my notebook"), symbol: "camera.fill", color: Theme.warm) { scan = true }

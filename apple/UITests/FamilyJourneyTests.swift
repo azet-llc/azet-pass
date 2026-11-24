@@ -142,8 +142,13 @@ final class FamilyJourneyTests: XCTestCase {
         tap(app.buttons["사진 고르기"])
         // the photo picker runs out of process: tap the newest photo (top-left, the notebook page) by position
         sleep(4)
-        app.coordinate(withNormalizedOffset: CGVector(dx: 0.17, dy: 0.24)).tap()
-        wait(app.textFields.matching(NSPredicate(format: "value == 'KB국민은행'")).firstMatch, 60)
+        // a first-run note about private access can sit above the photos and push them down: try both places
+        let found = app.textFields.matching(NSPredicate(format: "value == 'KB국민은행'")).firstMatch
+        for dy in [0.40, 0.24] where !found.exists {
+            app.coordinate(withNormalizedOffset: CGVector(dx: 0.17, dy: dy)).tap()
+            _ = found.waitForExistence(timeout: 30)
+        }
+        wait(found, 30)
         shot("scan-found-4")
         let save4 = app.buttons.matching(NSPredicate(format: "label BEGINSWITH '4개 저장'")).firstMatch
         for _ in 0..<8 where !(save4.exists && save4.isHittable) { app.swipeUp() }

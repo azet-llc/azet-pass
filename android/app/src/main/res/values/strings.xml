@@ -329,4 +329,5 @@
     <string name="signup_mail_lead">We send a link to this address. Open it on this phone to make your account.</string>
     <string name="signup_mail_sent_title">Check your mail</string>
     <string name="signup_mail_sent_lead">We sent a link to %1$s. Open it on this phone to go on.</string>
+    <string name="join_invited_plain">You are invited to the %1$s family.</string>
 </resources>

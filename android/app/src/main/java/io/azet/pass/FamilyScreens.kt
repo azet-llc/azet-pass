@@ -328,8 +328,8 @@ fun AddLoginScreen(vault: CollectionView, onBack: () -> Unit) {
                 Presets.groups.forEach { g ->
                     val rows = hits.filter { it.group == g }
                     if (rows.isNotEmpty()) {
-                        item(key = g) { OneHeader(stringResource(groupTitle(g))) }
-                        items(rows, key = { it.url }) { p ->
+                        item { OneHeader(stringResource(groupTitle(g))) }
+                        items(rows.distinctBy { it.name + it.url }) { p -> // the list carries one site twice
                             Row(Modifier.padding(horizontal = OneDim.side).fillMaxWidth().background(c().card).clickable { name = p.name; site = p }.heightIn(min = 54.dp).padding(horizontal = OneDim.rowPad),
                                 verticalAlignment = Alignment.CenterVertically) {
                                 OneWell(34.dp) { Text(p.name.take(1), color = c().text, fontWeight = FontWeight.Medium, fontSize = 15.sp) }
@@ -409,7 +409,7 @@ fun JoinScreen(invite: Invite) {
                 }
                 !loaded || (busy && Session.madeFromInvite) -> Box(Modifier.fillMaxWidth().padding(60.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = c().primary) }
                 i != null -> {
-                    Text(stringResource(R.string.join_invited, i.invitedBy.orEmpty(), i.familyName.orEmpty()), Modifier.padding(horizontal = 26.dp).padding(bottom = 14.dp),
+                    Text(if (i.invitedBy.isNullOrBlank()) stringResource(R.string.join_invited_plain, i.familyName.orEmpty()) else stringResource(R.string.join_invited, i.invitedBy.orEmpty(), i.familyName.orEmpty()), Modifier.padding(horizontal = 26.dp).padding(bottom = 14.dp),
                         fontSize = 20.sp, lineHeight = 27.sp, fontWeight = FontWeight.Medium, color = c().text)
                     if (i.email != mine) Text(stringResource(R.string.join_wrong_account, i.email.orEmpty(), mine), Modifier.padding(horizontal = 26.dp).padding(bottom = 14.dp),
                         fontSize = 15.sp, lineHeight = 21.sp, color = MaterialTheme.colorScheme.error)
@@ -471,7 +471,7 @@ fun SignUpScreen(invite: Invite?, proof: SignupProof?, onBack: () -> Unit, onHav
         }
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(top = 12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             val i = info
-            if (invite != null && i?.familyName != null && step == 0) Text(stringResource(R.string.join_invited, i.invitedBy.orEmpty(), i.familyName),
+            if (invite != null && i?.familyName != null && step == 0) Text(if (i.invitedBy.isNullOrBlank()) stringResource(R.string.join_invited_plain, i.familyName) else stringResource(R.string.join_invited, i.invitedBy.orEmpty(), i.familyName),
                 Modifier.padding(horizontal = 28.dp).padding(bottom = 22.dp), fontSize = 15.sp, color = c().primary, fontWeight = FontWeight.Medium, textAlign = TextAlign.Center)
             Text(stringResource(listOf(R.string.signup_name, R.string.signup_password, R.string.signup_again)[step]), Modifier.padding(horizontal = 24.dp),
                 fontSize = 22.sp, fontWeight = FontWeight.Medium, letterSpacing = (-0.4).sp, color = c().text, textAlign = TextAlign.Center)

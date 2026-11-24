@@ -328,4 +328,5 @@
     <string name="signup_mail_lead">이 주소로 링크를 보내 드려요. 이 휴대폰에서 열면 계정을 만들 수 있어요.</string>
     <string name="signup_mail_sent_title">메일을 확인해 주세요</string>
     <string name="signup_mail_sent_lead">%1$s 주소로 링크를 보냈어요. 이 휴대폰에서 열어 주세요.</string>
+    <string name="join_invited_plain">%1$s 가족에 초대받았어요.</string>
 </resources>

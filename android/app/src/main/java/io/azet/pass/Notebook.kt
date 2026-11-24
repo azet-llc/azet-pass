@@ -113,7 +113,7 @@ suspend fun notebookLines(image: InputImage): List<String> = suspendCoroutine { 
     val rec = TextRecognition.getClient(KoreanTextRecognizerOptions.Builder().build())
     rec.process(image)
         .addOnSuccessListener { t -> k.resume(t.textBlocks.flatMap { it.lines }.sortedBy { it.boundingBox?.top ?: 0 }.map { it.text }); rec.close() }
-        .addOnFailureListener { k.resume(emptyList()); rec.close() }
+        .addOnFailureListener { android.util.Log.w("azet-scan", it); k.resume(emptyList()); rec.close() }
 }
 
 /** The camera with one shutter button. The picture stays in memory: it is read and dropped, never written to storage. */
@@ -164,7 +164,7 @@ fun ScanScreen(vault: CollectionView?, onBack: () -> Unit) {
         busy = true
         scope.launch { rows = NotebookParser.parse(notebookLines(image), loginWord); busy = false }
     }
-    val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri -> if (uri != null) read(runCatching { InputImage.fromFilePath(ctx, uri) }.getOrNull()) }
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri -> if (uri != null) runCatching { InputImage.fromFilePath(ctx, uri) }.onSuccess { read(it) }.onFailure { android.util.Log.w("azet-scan", it); rows = emptyList() } }
     if (camera) { BackHandler { camera = false }; PageCamera(::read); return }
     OnePage(vault?.name ?: stringResource(R.string.scan_title), onBack) {
         val list = rows

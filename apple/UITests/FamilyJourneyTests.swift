@@ -62,8 +62,9 @@ final class FamilyJourneyTests: XCTestCase {
     func signIn(_ email: String, _ password: String) {
         tap(app.buttons["로그인"].firstMatch)
         type(app.textFields["이메일"], email)
+        tap(app.buttons["다음"])
         type(app.secureTextFields["계정 비밀번호"], password)
-        app.buttons.matching(NSPredicate(format: "label == '로그인'")).element(boundBy: app.buttons.matching(NSPredicate(format: "label == '로그인'")).count - 1).tap()
+        tap(app.buttons["로그인"])
         wait(app.tabBars.buttons["홈"], 60)
         dismissSavePassword()
     }
@@ -173,10 +174,13 @@ final class FamilyJourneyTests: XCTestCase {
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
         if springboard.buttons["열기"].waitForExistence(timeout: 5) { springboard.buttons["열기"].tap() }
         else if springboard.buttons["Open"].waitForExistence(timeout: 2) { springboard.buttons["Open"].tap() }
-        wait(app.secureTextFields["계정 비밀번호"], 40)
+        wait(app.textFields["내 이름"], 40)
         shot("mom-invite-signup")
+        tap(app.buttons["다음"])
         type(app.secureTextFields["계정 비밀번호"], momPw)
+        tap(app.buttons["다음"])
         type(app.secureTextFields["한 번 더 입력"], momPw)
+        tap(app.buttons["다음"])
         tap(app.buttons["계정 만들기"])
         dismissSavePassword()
         wait(app.staticTexts["들어왔어요. 마지막 한 단계"], 90)

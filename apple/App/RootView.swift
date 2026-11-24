@@ -9,7 +9,7 @@ struct RootView: View {
     var body: some View {
         Group {
             switch session.phase {
-            case .loading: ProgressView()
+            case .loading: OrbitDots()
             case .welcome: WelcomeView(mailToken: $mailToken)
             case .locked: UnlockView()
             case .unlocked:
@@ -48,66 +48,6 @@ struct RootView: View {
 
 extension Session.Invite: Identifiable { var id: String { memberId } }
 
-// MARK: welcome
-
-struct WelcomeView: View {
-    @Binding var mailToken: (token: String, email: String)?
-    @State private var route: Route?
-    enum Route: Hashable, Identifiable { case signIn, signUp, joinHelp; var id: Self { self } }
-
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                Spacer(minLength: 24)
-                Image("Mark").resizable().scaledToFit().frame(width: 72, height: 72)
-                Text("AZET Pass").font(.system(size: 28, weight: .semibold)).padding(.top, 14)
-                Text("The notebook of passwords, for the whole family.").font(.system(size: 17)).multilineTextAlignment(.center)
-                    .foregroundStyle(.secondary).padding(.top, 6)
-                VStack(alignment: .leading, spacing: 14) {
-                    Feature(symbol: "person.3.fill", text: String(localized: "Up to 5 people share one family, each with a private vault"))
-                    Feature(symbol: "camera.viewfinder", text: String(localized: "Take a photo of the notebook, the logins fill themselves in"))
-                    Feature(symbol: "hand.raised.fill", text: String(localized: "Set up a parent's phone from yours, then compare five words"))
-                    Feature(symbol: "lock.shield.fill", text: String(localized: "Locked on your phone first: the server only ever sees scrambled data"))
-                }
-                .frame(maxWidth: .infinity, alignment: .leading).padding(18)
-                .background(Theme.raised, in: RoundedRectangle(cornerRadius: Layout.cardRadius)).padding(.top, 28)
-                Spacer(minLength: 24)
-                VStack(spacing: 8) {
-                    NavigationLink(value: Route.signUp) { Text("Create a family account") }.buttonStyle(.pill)
-                    NavigationLink(value: Route.signIn) { Text("Sign in") }.buttonStyle(.softPill)
-                    NavigationLink(value: Route.joinHelp) { Text("I got an invite from my family").font(.system(size: 15, weight: .medium)) }
-                        .buttonStyle(.plain).foregroundStyle(Theme.brand).padding(.top, 10)
-                }
-                .padding(.bottom, 28)
-            }
-            .frame(maxWidth: 390).padding(.horizontal, 24).frame(maxWidth: .infinity)
-            .background(Theme.screen)
-            .navigationDestination(for: Route.self) { r in
-                switch r {
-                case .signIn: SignInView()
-                case .signUp: SignUpView(mailToken: mailToken)
-                case .joinHelp: JoinHelpView()
-                }
-            }
-            .onChange(of: mailToken?.token) { _, t in if t != nil { route = .signUp } }
-            .navigationDestination(item: $route) { r in
-                if r == .signUp { SignUpView(mailToken: mailToken) }
-            }
-        }
-    }
-}
-
-struct Feature: View {
-    let symbol: String
-    let text: String
-    var body: some View {
-        HStack(spacing: 12) {
-            IconWell(symbol: symbol, size: 34)
-            Text(text).font(.system(size: 15)).fixedSize(horizontal: false, vertical: true)
-        }
-    }
-}
-
 struct JoinHelpView: View {
     @Environment(Prefs.self) private var prefs
     @State private var link = ""
@@ -121,109 +61,6 @@ struct JoinHelpView: View {
             }
         }.azetList()
         .navigationTitle("Family invite")
-    }
-}
-
-// MARK: sign in
-
-struct SignInView: View {
-    @Environment(Session.self) private var session
-    @State private var email = ""
-    @State private var password = ""
-    @State private var code = ""
-    @State private var needCode = false
-    @State private var busy = false
-    @State private var error: String?
-
-    var body: some View {
-        StepScreen(title: "Sign in") {
-            TextField("Email", text: $email).keyboardType(.emailAddress).textContentType(.username)
-                .textInputAutocapitalization(.never).autocorrectionDisabled().pillField()
-            SecureField("Account password", text: $password).textContentType(.password).pillField()
-                .onSubmit { Task { await go() } }
-            if needCode {
-                TextField("6-digit code from your authenticator app", text: $code).keyboardType(.numberPad).textContentType(.oneTimeCode).pillField()
-                    .onSubmit { Task { await go() } }
-            }
-            StepNote("Your account password never leaves this device. Only a one-way proof of it is sent.")
-        } action: {
-            Button { Task { await go() } } label: { if busy { ProgressView() } else { Text("Sign in") } }
-                .buttonStyle(.pill).disabled(email.isEmpty || password.isEmpty || busy)
-        }
-        .navigationTitle("Sign in")
-        .errorAlert($error)
-    }
-
-    private func go() async {
-        busy = true; defer { busy = false }
-        do { try await session.signIn(email: email, password: password, code: needCode ? code : nil) }
-        catch is TwoFactorNeeded { needCode = true }
-        catch { self.error = error.localizedDescription }
-    }
-}
-
-// MARK: sign up
-
-struct SignUpView: View {
-    @Environment(Session.self) private var session
-    var mailToken: (token: String, email: String)?
-    var invite: Session.Invite?
-    var onDone: (() -> Void)?
-    @State private var email = ""
-    @State private var name = ""
-    @State private var password = ""
-    @State private var again = ""
-    @State private var hint = ""
-    @State private var mailSent = false
-    @State private var busy = false
-    @State private var error: String?
-
-    private var hasProof: Bool { mailToken != nil || invite != nil }
-    private var strength: UInt8 { password.isEmpty ? 0 : session.strength(password) }
-
-    var body: some View {
-        StepScreen(title: invite == nil ? "Create account" : "Join your family") {
-            TextField("Email", text: $email).keyboardType(.emailAddress).textContentType(.username)
-                .textInputAutocapitalization(.never).autocorrectionDisabled().disabled(hasProof).pillField()
-            TextField("Your name", text: $name).textContentType(.name).pillField()
-            if invite != nil { StepNote("This is the address your family invited.") }
-            if hasProof {
-                SecureField("Account password", text: $password).textContentType(.newPassword).pillField().padding(.top, 14)
-                StrengthBar(score: strength).padding(.horizontal, 24)
-                SecureField("Type it again", text: $again).textContentType(.newPassword).pillField()
-                TextField("Hint (optional, never the password)", text: $hint).pillField()
-                StepNote("This is the one password you remember. Write it on paper and keep it at home. If you forget it, a family organizer can help you back in.")
-            } else {
-                StepNote(mailSent ? "Check your mail on this device and open the link. It opens AZET Pass to finish." : "We mail you a link to make sure the address is yours.")
-            }
-        } action: {
-            if hasProof {
-                Button { Task { await create() } } label: { if busy { ProgressView() } else { Text("Create account") } }
-                    .buttonStyle(.pill).disabled(password.count < 8 || password != again || busy || name.isEmpty)
-            } else {
-                Button { Task { await sendMail() } } label: { if busy { ProgressView() } else { Text(mailSent ? "Send again" : "Send me the link") } }
-                    .buttonStyle(.pill).disabled(!email.contains("@") || busy)
-            }
-        }
-        .navigationTitle(invite == nil ? "Create account" : "Join your family")
-        .onAppear {
-            if let m = mailToken { email = m.email }
-            if let i = invite { email = i.email ?? ""; name = i.displayName ?? "" }
-        }
-        .errorAlert($error)
-    }
-
-    private func sendMail() async {
-        busy = true; defer { busy = false }
-        do { try await session.requestSignupMail(email: email); mailSent = true } catch { self.error = error.localizedDescription }
-    }
-
-    private func create() async {
-        busy = true; defer { busy = false }
-        do {
-            try await session.signUp(email: email, name: name, password: password, hint: hint.isEmpty ? nil : hint, mailToken: mailToken?.token, invite: invite)
-            onDone?()
-        } catch { self.error = error.localizedDescription }
     }
 }
 

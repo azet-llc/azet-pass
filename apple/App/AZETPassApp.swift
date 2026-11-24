@@ -77,6 +77,8 @@ enum Theme {
     /// Icon wells, soft buttons, chips.
     static let raised = Color(light: 0xf4f4f5, dark: 0xffffff, darkAlpha: 0.09)
     static let input = Color(light: 0xf3f3f4, dark: 0xffffff, darkAlpha: 0.09)
+    /// The one button at the bottom of a first-start step.
+    static let cta = Color(light: 0x000000, dark: 0x2b2c31)
     static let hairline = Color(light: 0x000000, dark: 0xffffff, lightAlpha: 0.1, darkAlpha: 0.14)
 
     static func color(for name: String) -> Color {

@@ -39,15 +39,43 @@ final class PassFeaturesTests: XCTestCase {
         field.typeText(text)
     }
 
+    /// From the email step: a wrong address is refused under the box, then email, Next, password, Sign in.
+    func signInByTyping() {
+        type(app.textFields["Email"], "not-an-address")
+        tap(app.buttons["Next"])
+        wait(app.staticTexts["That does not look like an email address."], 5)
+        shot("step-email-error")
+        app.textFields["Email"].typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 20) + cfg["email"]!)
+        tap(app.buttons["Next"])
+        wait(app.secureTextFields["Account password"], 10)
+        shot("step-password")
+        type(app.secureTextFields["Account password"], cfg["password"]!)
+        tap(app.buttons["Sign in"])
+    }
+
+    /// The first-start screens as a person meets them: welcome, the email step, the password step, home.
+    func testFirstStart() throws {
+        app = XCUIApplication()
+        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US", "-uitest-reset"]
+        app.launch()
+        wait(app.buttons["Create a family account"], 10)
+        shot("welcome")
+        tap(app.buttons["Create a family account"])
+        wait(app.staticTexts["What is your email?"], 10)
+        shot("signup-email")
+        tap(app.buttons["Back"])
+        tap(app.buttons["Sign in"].firstMatch)
+        signInByTyping()
+        wait(app.tabBars.buttons["Home"], 60)
+        shot("home")
+    }
+
     func testGoogleImportAndSend() throws {
         app = XCUIApplication()
         app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US", "-uitest-reset"]
         app.launch()
         tap(app.buttons["Sign in"].firstMatch)
-        type(app.textFields["Email"], cfg["email"]!)
-        type(app.secureTextFields["Account password"], cfg["password"]!)
-        let signIns = app.buttons.matching(NSPredicate(format: "label == 'Sign in'"))
-        signIns.element(boundBy: signIns.count - 1).tap()
+        signInByTyping()
         wait(app.tabBars.buttons["Home"], 60)
         let sb = XCUIApplication(bundleIdentifier: "com.apple.springboard")
         for b in [app.buttons["Not Now"], sb.buttons["Not Now"]] where b.waitForExistence(timeout: 3) { b.tap(); break }

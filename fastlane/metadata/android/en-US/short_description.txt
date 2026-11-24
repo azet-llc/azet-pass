@@ -1,1 +1,1 @@
-Free password manager with autofill, 2FA codes and end-to-end encryption.
+Passwords, passkeys and codes in one vault, filled in for you in any app.

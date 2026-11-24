@@ -1,22 +1,28 @@
-AZET Pass Lite is a free, open-source password manager: it stores your logins, cards and notes end to end encrypted, fills them in apps and browsers, and shows two-factor codes, with every feature included.
+AZET Pass Lite keeps your passwords, passkeys, verification codes, cards and addresses in one vault and fills them in when you sign in.
 
-HOW IT DIFFERS
-• From the browser's built-in password list: your vault works in every app and browser on the phone, and on your other devices through pass.azet.io.
-• From managers that keep two-factor codes for paying users: authenticator (TOTP) codes are included for everyone.
-• Open source: built on the Bitwarden code (GPL-3.0); the source is on github.com/neulketing/azet-pass.
+Sign in faster
+• Fills user names and passwords in apps and in Chrome
+• Keeps authenticator (TOTP) codes next to each login and puts the code into the code box
+• Saves and uses passkeys (Android 14 or newer)
+• Fills your card number and address at checkout in one tap
 
-WHAT IT DOES
-• Unlimited logins, cards, identities, secure notes and SSH keys
-• Autofill in apps and browsers through Android's autofill service
-• Built-in authenticator: two-factor (TOTP) codes next to each login
-• Password, passphrase and username generator
-• Send: share text or files with an expiry date
-• Passkeys, biometric unlock and an auto-lock timer
-• Folders, search and favourites
+Easy to move in
+• Scan Google Authenticator's export QR and your accounts arrive with live codes
+• Import a .csv file from another app
+• Hold a contactless card to the back of the phone to read its number (NFC)
 
-SECURITY
-• Zero-knowledge, end-to-end encryption: your master password never leaves the device, and AZET cannot read your vault
-• Account and vault are stored on pass.azet.io (AZET LLC); you can also connect a self-hosted server
+Kept safe
+• Your vault is encrypted on the phone before it syncs to pass.azet.io. Your account password never reaches the server, and AZET cannot open your vault
+• Unlock with fingerprint or face, auto-lock, screenshot blocking
+• Check: finds weak passwords, reused passwords and passwords over a year old
+• Password generator
+• Send: pass text along through a link that expires
+• Export to a file locked with a password
 
-AZET Pass Lite is free.
-Privacy policy: https://azet.io/privacy
+The same vault everywhere
+Use the same account on iPhone, iPad, Mac, the browser extension and the web (pass.azet.io).
+
+Free, with no ads. The source is open (GPL-3.0): github.com/azet-llc/azet-pass
+
+Support: hello@azet.io
+Privacy: https://azet.io/privacy#pass

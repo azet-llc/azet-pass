@@ -12,7 +12,7 @@ png 0 1 1024 apple/Resources/Assets.xcassets/AppIcon.appiconset/icon-1024.png   
 # The App Store refuses an icon with an alpha channel: flatten it.
 python3 -c "from PIL import Image; p='apple/Resources/Assets.xcassets/AppIcon.appiconset/icon-1024.png'; Image.open(p).convert('RGB').save(p)"
 png 230 1 512 apple/Resources/Assets.xcassets/Mark.imageset/mark.png
-mkdir -p android/app/src/main/res/drawable-nodpi && png 230 1 384 android/app/src/main/res/drawable-nodpi/mark.png # welcome screen
+# android/app/src/main/res/drawable-nodpi/mark.png (welcome screen) is drawn larger by hand since 7cdab5b: not made here
 for s in 16 32 128 256 512; do
   png 230 .805 $s apple/Mac/MacAssets.xcassets/MacAppIcon.appiconset/mac-$s@1x.png
   png 230 .805 $((s * 2)) apple/Mac/MacAssets.xcassets/MacAppIcon.appiconset/mac-$s@2x.png
@@ -20,6 +20,11 @@ done
 for s in 48 96 128 256 512; do
   png 230 .8 $s apple/SafariExtension/Resources/images/icon-$s.png
   png 230 .8 $s clients/extension/src/images/icon-$s.png
+done
+# toolbar buttons (Chrome, Edge, Firefox, Safari): the same tile, a little larger in its square so it reads at 16px
+for s in 16 19 32 38; do
+  png 230 .92 $s apple/SafariExtension/Resources/images/toolbar-$s.png
+  png 230 .92 $s clients/extension/src/images/toolbar-$s.png
 done
 for d in mdpi:48 hdpi:72 xhdpi:96 xxhdpi:144 xxxhdpi:192; do
   png 230 .8 ${d#*:} android/app/src/main/res/mipmap-${d%:*}/ic_launcher.png
@@ -42,4 +47,10 @@ magick $G/blue-16.png $G/blue-32.png $G/blue-48.png $G/blue-64.png $G/blue-128.p
 magick $G/blue-16.png $G/blue-32.png $G/blue-48.png $G/web/favicon.ico
 for t in android-chrome-192x192:192 android-chrome-512x512:512 apple-touch-icon:180 favicon-16x16:16 favicon-32x32:32 mstile-150x150:150; do
   slot '#0d0d0d' "$GLYPH" '' ${t#*:} $G/web/${t%:*}.png
+done
+# Windows Store (Appx) tiles: the whole tile on transparent (the manifest's background shows around it)
+for t in Square44x44Logo:44:44 Square150x150Logo:150:150 StoreLogo:50:50 Wide310x150Logo:310:150 SplashScreen:620:300; do
+  IFS=: read -r n w h <<<"$t"; m=$(( (w < h ? w : h) * 3 / 4 ))
+  png 230 1 $m /tmp/azp-tile.png
+  magick -size "${w}x${h}" xc:none /tmp/azp-tile.png -gravity center -composite $G/appx/$n.png
 done

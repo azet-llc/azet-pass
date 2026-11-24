@@ -3,7 +3,7 @@
   "default_locale": "en",
   "name": "__MSG_extName__",
   "description": "__MSG_extDescription__",
-  "version": "2026.11.4",
+  "version": "2026.11.6",
   "homepage_url": "https://azet.io/products/pass",
   "icons": {
     "48": "images/icon-48.png",

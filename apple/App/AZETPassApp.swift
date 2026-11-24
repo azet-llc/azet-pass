@@ -142,6 +142,7 @@ func copyToClipboard(_ s: String) {
     #else
     let pb = NSPasteboard.general
     pb.clearContents(); pb.setString(s, forType: .string)
+    pb.setString("", forType: NSPasteboard.PasteboardType("org.nspasteboard.ConcealedType")) // clipboard managers skip entries marked this way
     let n = pb.changeCount
     DispatchQueue.main.asyncAfter(deadline: .now() + 90) { if pb.changeCount == n { pb.clearContents() } }
     #endif

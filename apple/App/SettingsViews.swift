@@ -318,6 +318,8 @@ struct ExportView: View {
         }.azetList()
         .navigationTitle("Export")
         .errorAlert($error)
+        // The export sits in the temporary folder only while this page is open.
+        .onDisappear { if let file { try? FileManager.default.removeItem(at: file) }; file = nil }
     }
     private func export() async {
         do {

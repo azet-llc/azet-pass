@@ -13,6 +13,7 @@ node "$here/rebrand-desktop.mjs" "$src" "${DESKTOP_VERSION:-}"
 d="$src/apps/desktop"
 (cd "$d/desktop_native" && node build.js)
 (cd "$d" && npm run build)
+python3 "$here/../server/tools/rebrand-web-vault.py" "$d/build" # the current mark in the built screens (stops if the old one is left)
 (cd "$d" && npx electron-builder --linux AppImage deb --x64 -p never)
 cp "$d"/dist/*.AppImage "$W/dist/azet-pass-linux-x64.AppImage"
 cp "$d"/dist/*.deb "$W/dist/azet-pass-linux-x64.deb"

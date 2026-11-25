@@ -45,7 +45,8 @@ async function openVault() {
     try {
       const { account, snap } = await local.get(["account", "snap"]);
       const { userKey } = await session.get("userKey");
-      if (!account || !userKey) return null;
+      if (!account) return null;
+      if (!userKey) return await openedWithDesktop();
       const v = await newVault(); v.account = account; await v.resume(userKey);
       if (snap) await v.restore(snap); else await v.sync();
       vault = v; return v;
@@ -190,17 +191,32 @@ async function desktopOff() {
   await local.remove("desktopUnlock"); await local.set({ desktopAsked: true });
   return desktopState();
 }
+// One lock (11-25): while AZET Desktop's vault is open, a page that needs the vault opens it without the popup.
+// Only with a helper that answers ifOpen (it never prompts); a locked desktop gets nothing, tried at most every 30 s.
+let desktopTriedAt = 0;
+async function openedWithDesktop() {
+  const { desktopUnlock } = await local.get("desktopUnlock");
+  if (!desktopUnlock || Date.now() - desktopTriedAt < 30_000) return null;
+  desktopTriedAt = Date.now();
+  const ping = await native({ op: "ping" });
+  if (!ping?.ifOpen) return null;
+  try { return await desktopVault(true); } catch { return null; }
+}
 async function unlockWithDesktop() {
+  await desktopVault(false);
+  return state();
+}
+async function desktopVault(ifOpen) {
   const { desktopUnlock: d, account } = await local.get(["desktopUnlock", "account"]);
   if (!d || !account) throw new Error("Touch ID unlock is off");
-  const r = await native({ op: "release", id: d.id, reason: "unlock AZET Pass in this browser" });
+  const r = await native({ op: "release", id: d.id, reason: "unlock AZET Pass in this browser", ...(ifOpen ? { ifOpen: true } : {}) });
   if (!r?.ok) throw new Error(r?.error || "AZET Desktop did not answer");
   const key = await crypto.subtle.importKey("raw", unb64(r.key), "AES-GCM", false, ["decrypt"]);
   const userKey = new TextDecoder().decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: unb64(d.iv) }, key, unb64(d.ct)));
   const v = await newVault(); v.account = account; await v.resume(userKey); await store.saveUserKey(userKey);
   const { snap } = await local.get("snap"); if (snap) await v.restore(snap); else await v.sync();
   vault = v; await touch(); v.sync().catch(() => {});
-  return state();
+  return v;
 }
 
 let pinTurn = Promise.resolve();

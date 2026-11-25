@@ -30,8 +30,15 @@ curl -sf -m 30 "https://login.microsoftonline.com/$(tkt get AZET_SIGN_AZURE_TENA
 [ -s "$TOKEN" ] || stop "no signing token"
 sign() { jsign --storetype TRUSTEDSIGNING --keystore eus.codesigning.azure.net --storepass "file:$TOKEN" \
   --alias azet-signing/azet-public --tsaurl http://timestamp.acs.microsoft.com --tsmode RFC3161 "$@" >/dev/null; }
-# our own programs inside the app (the ones not already signed by someone else)
-for f in "$d"/dist/win-unpacked/*.exe; do osslsigncode verify -in "$f" 2>/dev/null | grep -q "Signature verification: ok" || sign "$f"; done
+# Every program and library inside the app that nobody signed: Windows App Control (Smart App Control) refuses to load an
+# unsigned one, and the app died at launch on the native module (11-26, desktop_napi.win32-x64-msvc.node). jsign reads the
+# file type from the extension, so a .node is signed under a .dll name.
+signed() { osslsigncode verify -in "$1" 2>&1 | grep -q "CN=AZET LLC\|CN=Microsoft Corporation"; }
+find "$d/dist/win-unpacked" -type f \( -iname '*.exe' -o -iname '*.dll' -o -iname '*.node' \) | while read -r f; do
+  signed "$f" && continue
+  if [[ "$f" == *.node ]]; then cp "$f" "$f.dll" && sign "$f.dll" && mv "$f.dll" "$f"; else sign "$f"; fi
+  signed "$f" || stop "could not sign ${f#$d/dist/win-unpacked/}"
+done
 # NSIS with Homebrew's arm64 makensis (electron-builder's bundled one is x86)
 N="$W/nsis-local"; rm -rf "${N:?}"; cp -R "$(brew --prefix makensis)/share/nsis" "$N"; mkdir -p "$N/mac"; cp "$(brew --prefix makensis)/bin/makensis" "$N/mac/"
 # elevate.exe (MIT) comes from electron-builder's NSIS bundle

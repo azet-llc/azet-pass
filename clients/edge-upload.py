@@ -45,7 +45,7 @@ state, text = wait(f"{API}/draft/package/operations/{headers['Location'].rsplit(
 print("package check:", state, text)
 if state != "succeeded":
     sys.exit(1)
-notes = f"AZET Pass {VERSION}: rebuilt on the upstream {VERSION.rsplit('.', 1)[0]} release (bug and security fixes). No new permissions."
+notes = os.environ.get("EDGE_NOTES") or f"AZET Pass {VERSION}. No new permissions."
 status, headers, text = call("POST", API, json.dumps({"notes": notes}).encode(), "application/json")
 print("publish:", status, text[:200])
 if status != 202:

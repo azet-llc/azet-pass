@@ -206,6 +206,8 @@ swap(up, [
         }
       }, 60 * 1000);`],
   ['"https://github.com/bitwarden/clients/releases"', '"https://azet.io/pass"'],
+  // AZET: the AppImage updates itself from pass.azet.io/desktop (latest-linux.yml); a .deb cannot replace itself.
+  ['    const linuxCanUpdate = false;', '    const linuxCanUpdate = process.platform === "linux" && !!process.env.APPIMAGE;'],
 ])
 // The app's link scheme is ours (azetpass://), not upstream's: the system hands bitwarden:// links to whatever
 // registered it, and our own pages and mails only send azetpass://.

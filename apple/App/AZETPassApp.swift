@@ -7,6 +7,10 @@ struct AZETPassApp: App {
     @State private var prefs = Prefs()
     @Environment(\.scenePhase) private var scenePhase
 
+#if DIRECT_DOWNLOAD
+    init() { _ = DirectUpdates.controller }
+#endif
+
     var body: some Scene {
         WindowGroup {
             RootView()

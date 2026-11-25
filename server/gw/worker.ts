@@ -39,7 +39,10 @@ $('open').href='azetpass://invite'+location.hash;$('web').href='/team'+location.
 // feed names the installer, whose version gives its release (v<version>-mac1 / -win1). Publishing is all it takes.
 const FEED_RELEASE = "desktop-feed";
 const DESKTOP_FALLBACK: { mac: string; win: string } = { mac: "v2026.10.4-mac1", win: "v2026.10.4-win1" };
-function desktopTag(file: string): string {
+export function desktopTag(file: string): string {
+  // Linux: azet-pass-<version>-linux-x64.AppImage lives on the v<version>-linux release.
+  const linux = /^azet-pass-(\d+\.\d+\.\d+)-linux-/.exec(file);
+  if (linux) return `v${linux[1]}-linux`;
   const kind = /mac/.test(file) ? "mac" : "win", v = /(\d+\.\d+\.\d+)\.(zip|dmg|exe|blockmap)/.exec(file);
   return v ? `v${v[1]}-${kind}1` : DESKTOP_FALLBACK[kind];
 }

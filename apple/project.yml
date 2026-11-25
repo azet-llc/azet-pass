@@ -9,8 +9,8 @@ options:
 settings:
   base:
     DEVELOPMENT_TEAM: 95P4H2RG24
-    MARKETING_VERSION: "2026.11.6"
-    CURRENT_PROJECT_VERSION: "2026112404"
+    MARKETING_VERSION: "2026.11.7"
+    CURRENT_PROJECT_VERSION: "2026112501"
     SWIFT_VERSION: "5.10"
     SWIFT_STRICT_CONCURRENCY: minimal
     ENABLE_USER_SCRIPT_SANDBOXING: NO
@@ -19,6 +19,56 @@ settings:
 packages:
   BitwardenSdk:
     path: Vendor/BitwardenSdk
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    exactVersion: 2.6.4
+targetTemplates:
+  # AZET Pass on the Mac: the macOS edition of the AZET Pass app record (io.azet.pass, universal purchase with the iPhone app;
+  # 11-23: the separate io.azet.pass.safari record was rejected under 4.3) — the same SwiftUI app + a Safari web
+  # extension written for it (popup + page fill, no Bitwarden extension code). Mac/MacShims.swift maps the iOS-only names.
+  MacApp:
+    type: application
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: App
+        excludes: [Info.plist, "*.entitlements"]   # the iPhone app's own
+      - Shared
+      - Resources
+      - Mac
+    dependencies:
+      - package: BitwardenSdk
+      - target: AZETPassSafariExt
+    info:
+      path: Mac/Info.plist
+      properties:
+        CFBundleDisplayName: AZET Pass
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
+        LSApplicationCategoryType: public.app-category.productivity
+        ITSAppUsesNonExemptEncryption: false
+        NSPhotoLibraryUsageDescription: Pick a photo of a notebook page so AZET Pass can read the logins on it. The photo stays on this Mac.
+        CFBundleURLTypes:
+          - CFBundleURLName: io.azet.pass
+            CFBundleURLSchemes: [azetpass]
+        CFBundleLocalizations: [en, ko]
+    entitlements:
+      path: Mac/AZETPassMac.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
+        com.apple.security.files.user-selected.read-write: true
+        com.apple.security.application-groups: [95P4H2RG24.io.azet.pass]
+        keychain-access-groups: [$(AppIdentifierPrefix)io.azet.pass.shared]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.azet.pass
+        PRODUCT_NAME: AZET Pass
+        PRODUCT_MODULE_NAME: AZETPass
+        ASSETCATALOG_COMPILER_APPICON_NAME: MacAppIcon
+        ARCHS: arm64   # shortcut: Apple silicon only (the SDK has no x86_64-apple-darwin slice), add it if Intel Macs matter
+        ENABLE_HARDENED_RUNTIME: YES
 targets:
   AZETPass:
     type: application
@@ -100,57 +150,39 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: io.azet.pass.autofill
         TARGETED_DEVICE_FAMILY: "1,2"
         APPLICATION_EXTENSION_API_ONLY: YES
-  # AZET Pass on the Mac: the macOS edition of the AZET Pass app record (io.azet.pass, universal purchase with the iPhone app;
-  # 11-23: the separate io.azet.pass.safari record was rejected under 4.3) — the same SwiftUI app + a Safari web
-  # extension written for it (popup + page fill, no Bitwarden extension code). Mac/MacShims.swift maps the iOS-only names.
   AZETPassMac:
-    type: application
-    platform: macOS
-    deploymentTarget: "14.0"
-    sources:
-      - path: App
-        excludes: [Info.plist, "*.entitlements"]   # the iPhone app's own
-      - Shared
-      - Resources
-      - Mac
-    dependencies:
-      - package: BitwardenSdk
-      - target: AZETPassSafariExt
-    info:
-      path: Mac/Info.plist
-      properties:
-        CFBundleDisplayName: AZET Pass
-        CFBundleShortVersionString: $(MARKETING_VERSION)
-        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
-        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
-        LSApplicationCategoryType: public.app-category.productivity
-        ITSAppUsesNonExemptEncryption: false
-        NSPhotoLibraryUsageDescription: Pick a photo of a notebook page so AZET Pass can read the logins on it. The photo stays on this Mac.
-        CFBundleURLTypes:
-          - CFBundleURLName: io.azet.pass
-            CFBundleURLSchemes: [azetpass]
-        CFBundleLocalizations: [en, ko]
-    entitlements:
-      path: Mac/AZETPassMac.entitlements
-      properties:
-        com.apple.security.app-sandbox: true
-        com.apple.security.network.client: true
-        com.apple.security.files.user-selected.read-write: true
-        com.apple.security.application-groups: [95P4H2RG24.io.azet.pass]
-        keychain-access-groups: [$(AppIdentifierPrefix)io.azet.pass.shared]
+    templates: [MacApp]
     settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: io.azet.pass
-        PRODUCT_NAME: AZET Pass
-        PRODUCT_MODULE_NAME: AZETPass
-        ASSETCATALOG_COMPILER_APPICON_NAME: MacAppIcon
-        ARCHS: arm64   # shortcut: Apple silicon only (the SDK has no x86_64-apple-darwin slice), add it if Intel Macs matter
-        ENABLE_HARDENED_RUNTIME: YES
       configs:
         Release:
           CODE_SIGN_STYLE: Manual
           CODE_SIGN_IDENTITY: Apple Distribution
           PROVISIONING_PROFILE_SPECIFIER: io.azet.pass mac
+  # The same app as a direct download (ship-mac-direct.sh): Sparkle checks the feed every 4 hours, downloads quietly and
+  # installs when the app quits. Only here: the App Store edition updates through the App Store and may not carry an updater.
+  AZETPassMacDirect:
+    templates: [MacApp]
+    sources: [MacDirect]
+    dependencies:
+      - package: Sparkle
+    info:
+      path: MacDirect/Info.plist
+      properties:
+        SUFeedURL: https://github.com/azet-llc/azet-pass/releases/download/desktop-feed/appcast-mac.xml
+        SUPublicEDKey: JdEdCHF2fngRxPuPV8pan1acLtNcBi5SjT/NgOwzJho=
+        SUEnableInstallerLauncherService: true
+        SUEnableAutomaticChecks: true
+        SUAutomaticallyUpdate: true
+        SUScheduledCheckInterval: 14400
+    entitlements:
+      path: MacDirect/AZETPassMacDirect.entitlements
+      properties:
+        com.apple.security.temporary-exception.mach-lookup.global-name:
+          - $(PRODUCT_BUNDLE_IDENTIFIER)-spks
+          - $(PRODUCT_BUNDLE_IDENTIFIER)-spki
+    settings:
+      base:
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) DIRECT_DOWNLOAD
   AZETPassSafariExt:
     type: app-extension
     platform: macOS
@@ -225,3 +257,7 @@ schemes:
     build:
       targets:
         AZETPassMac: all
+  AZETPassMacDirect:
+    build:
+      targets:
+        AZETPassMacDirect: all

@@ -15,7 +15,9 @@ d="$src/apps/desktop"
 (cd "$d" && npm run build)
 python3 "$here/../server/tools/rebrand-web-vault.py" "$d/build" # the current mark in the built screens (stops if the old one is left)
 rm -rf "$d/dist" # an older version left there makes the copies below ambiguous
-(cd "$d" && npx electron-builder --linux AppImage deb --x64 -p never)
+# The AppImage's name is the one latest-linux.yml names and the v<version>-linux release carries (pass.azet.io/desktop).
+(cd "$d" && npx electron-builder --linux AppImage deb --x64 -p never -c.appImage.artifactName='azet-pass-${version}-linux-x64.${ext}')
+cp "$d"/dist/*.AppImage "$W/dist/" && cp "$d"/dist/latest-linux.yml "$W/dist/"
 cp "$d"/dist/*.AppImage "$W/dist/azet-pass-linux-x64.AppImage"
 cp "$d"/dist/*.deb "$W/dist/azet-pass-linux-x64.deb"
 ls -la "$W/dist"

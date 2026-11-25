@@ -13,7 +13,7 @@ OUT=${OUT:-$HOME/Library/Caches/azet-pass-mac-direct-$V}
 rm -rf $OUT/export $OUT/AZETPassMac.xcarchive; mkdir -p $OUT
 xcodegen -q
 # The Release settings name the App Store profiles; a direct download is signed with Developer ID profiles Xcode makes.
-xcodebuild -project AZETPass.xcodeproj -scheme AZETPassMac -configuration Release -destination generic/platform=macOS \
+xcodebuild -project AZETPass.xcodeproj -scheme AZETPassMacDirect -configuration Release -destination generic/platform=macOS \
   -archivePath $OUT/AZETPassMac.xcarchive -derivedDataPath $OUT/dd -allowProvisioningUpdates -allowProvisioningDeviceRegistration $AUTH \
   CODE_SIGN_STYLE=Automatic PROVISIONING_PROFILE_SPECIFIER= CODE_SIGN_IDENTITY="Apple Development" archive | grep -E "error:|ARCHIVE" || true
 [ -d $OUT/AZETPassMac.xcarchive ] || { echo "SHIP STOPPED: no archive"; exit 1; }
@@ -55,9 +55,14 @@ xcrun notarytool submit $DMG --key $KEY --key-id $KID --issuer $ISS --wait | gre
 xcrun stapler staple $DMG >/dev/null
 spctl -a -t open --context context:primary-signature -v $DMG 2>&1 | tail -1
 echo "$DMG"; shasum -a 256 $DMG | cut -d' ' -f1; stat -f %z $DMG
+# The update feed installed copies read (Info.plist SUFeedURL): this dmg, signed with the Sparkle key from the vault.
+BUILD=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$APP/Contents/Info.plist")
+tkt get AZET_PASS_SPARKLE_ED_KEY | python3 "${0:A:h}/sparkle-appcast.py" "$DMG" "$V" "$BUILD" \
+  "https://github.com/azet-llc/azet-pass/releases/download/v$V-mac/AZET-Pass-$V-mac.dmg" > $OUT/appcast-mac.xml || { echo "SHIP STOPPED: appcast"; exit 1; }
 [ "${1:-}" = "--publish" ] || exit 0
 TAG=v$V-mac
 gh release view $TAG -R azet-llc/azet-pass >/dev/null 2>&1 && { echo "SHIP STOPPED: $TAG is already published"; exit 1; }
 gh release create $TAG -R azet-llc/azet-pass --title "AZET Pass $V for Mac" \
   --notes "AZET Pass for Mac $V, for Apple silicon Macs on macOS 14 or later. Signed with AZET LLC's Developer ID and notarized by Apple." $DMG
+gh release upload desktop-feed $OUT/appcast-mac.xml --clobber -R azet-llc/azet-pass # what installed copies check
 echo "published $TAG"

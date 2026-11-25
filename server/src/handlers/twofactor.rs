@@ -6,7 +6,7 @@ use worker::Env;
 use crate::d1_query;
 use crate::{
     auth::AuthUser,
-    crypto::{base32_decode, ct_eq, generate_recovery_code, generate_totp_secret, validate_totp},
+    crypto::{base32_decode, ct_eq, generate_recovery_code, generate_totp_secret, hmac_sha1, validate_totp},
     db,
     error::AppError,
     handlers::allow_totp_drift,
@@ -59,6 +59,34 @@ pub async fn get_twofactor(
     })))
 }
 
+// Why: web vaults from 2026 verify the master password once, at get-authenticator, and then send the userVerificationToken
+// it answered with (not the password) to turn the authenticator on or off; without one they stop at "User verification
+// token is missing". The token is signed with JWT_SECRET for this user and this secret, and lasts 15 minutes.
+const UV_TOKEN_SECONDS: i64 = 15 * 60;
+
+async fn uv_sign(env: &Env, user_id: &str, key: &str, exp: i64) -> Result<String, AppError> {
+    let secret = env.secret("JWT_SECRET").map_err(|_| AppError::Internal)?.to_string();
+    let mac = hmac_sha1(secret.as_bytes(), format!("two-factor-uv|{user_id}|{}|{exp}", key.to_uppercase()).as_bytes()).await?;
+    Ok(format!("{exp}.{}", mac.iter().map(|b| format!("{b:02x}")).collect::<String>()))
+}
+
+async fn uv_token(env: &Env, user_id: &str, key: &str) -> Result<String, AppError> {
+    uv_sign(env, user_id, key, chrono::Utc::now().timestamp() + UV_TOKEN_SECONDS).await
+}
+
+/// True when `token` came from get-authenticator for this user and secret and has not expired.
+async fn uv_token_ok(env: &Env, user_id: &str, key: &str, token: Option<&str>) -> bool {
+    let Some((exp, _)) = token.and_then(|t| t.split_once('.')) else { return false };
+    let Ok(exp) = exp.parse::<i64>() else { return false };
+    if exp < chrono::Utc::now().timestamp() {
+        return false;
+    }
+    match uv_sign(env, user_id, key, exp).await {
+        Ok(want) => ct_eq(&want, token.unwrap_or("")),
+        Err(_) => false,
+    }
+}
+
 /// POST /api/two-factor/get-authenticator - Get or generate TOTP secret
 #[worker::send]
 pub async fn get_authenticator(
@@ -99,9 +127,13 @@ pub async fn get_authenticator(
         None => (false, generate_totp_secret()?),
     };
 
+    let user_verification_token = uv_token(&env, &user_id, &key).await?;
     Ok(Json(serde_json::json!({
         "enabled": enabled,
         "key": key,
+        // 2026 web vaults read the setup from here (older apps read the two fields above)
+        "authenticator": { "enabled": enabled, "key": key },
+        "userVerificationToken": user_verification_token,
         "object": "twoFactorAuthenticator"
     })))
 }
@@ -125,14 +157,16 @@ pub async fn activate_authenticator(
         .ok_or_else(|| AppError::Unauthorized("User not found".to_string()))?;
     let user: User = serde_json::from_value(user_value).map_err(|_| AppError::Internal)?;
 
-    validate_password_or_otp(
-        &user,
-        &PasswordOrOtpData {
-            master_password_hash: data.master_password_hash,
-            otp: data.otp,
-        },
-    )
-    .await?;
+    if !uv_token_ok(&env, &user_id, &data.key, data.user_verification_token.as_deref()).await {
+        validate_password_or_otp(
+            &user,
+            &PasswordOrOtpData {
+                master_password_hash: data.master_password_hash,
+                otp: data.otp,
+            },
+        )
+        .await?;
+    }
 
     let key = data.key.to_uppercase();
 
@@ -200,6 +234,7 @@ pub async fn activate_authenticator(
     Ok(Json(serde_json::json!({
         "enabled": true,
         "key": key,
+        "authenticator": { "enabled": true, "key": key },
         "object": "twoFactorAuthenticator"
     })))
 }
@@ -290,14 +325,16 @@ pub async fn disable_authenticator(
         .ok_or_else(|| AppError::Unauthorized("User not found".to_string()))?;
     let user: User = serde_json::from_value(user_value).map_err(|_| AppError::Internal)?;
 
-    validate_password_or_otp(
-        &user,
-        &PasswordOrOtpData {
-            master_password_hash: data.master_password_hash,
-            otp: data.otp,
-        },
-    )
-    .await?;
+    if !uv_token_ok(&env, &user_id, &data.key, data.user_verification_token.as_deref()).await {
+        validate_password_or_otp(
+            &user,
+            &PasswordOrOtpData {
+                master_password_hash: data.master_password_hash,
+                otp: data.otp,
+            },
+        )
+        .await?;
+    }
 
     // Fetch existing TOTP and verify key matches before deleting
     let existing: Option<TwoFactor> = db

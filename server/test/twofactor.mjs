@@ -29,12 +29,19 @@ const first = await signIn()
 assert.equal(first.status, 200, 'an account without two-step sign-in signs in with the password alone')
 const tok = first.body.access_token
 assert.equal((await api(tok, 'POST', '/api/two-factor/get-authenticator', { masterPasswordHash: 'wrong' })).status >= 400, true, 'the secret is not shown without the master password')
-const { key } = (await api(tok, 'POST', '/api/two-factor/get-authenticator', { masterPasswordHash: hash })).body
+const { key, userVerificationToken: uvt } = (await api(tok, 'POST', '/api/two-factor/get-authenticator', { masterPasswordHash: hash })).body
+assert.ok(/^\d+\.[0-9a-f]{40}$/.test(uvt || ''), 'get-authenticator answers a user verification token (web vaults send it instead of the password)')
+const setup = (await api(tok, 'POST', '/api/two-factor/get-authenticator', { masterPasswordHash: hash })).body
+assert.deepEqual(setup.authenticator, { enabled: false, key: setup.key }, 'the web vault reads the secret from authenticator.key')
 assert.ok(key && key.length >= 16, 'a secret for the authenticator app')
 assert.equal((await api(tok, 'POST', '/api/two-factor/authenticator', { key, token: '000000', masterPasswordHash: hash })).status >= 400, true, 'a wrong code does not turn it on')
-const on = await api(tok, 'POST', '/api/two-factor/authenticator', { key, token: totp(key, -1), masterPasswordHash: hash })
-assert.equal(on.status, 200, `turning it on with a right code: ${JSON.stringify(on.body)}`)
-console.log('1 two-step sign-in turned on with the master password and a code from the app: ok')
+const forged = uvt.replace(/.$/, (ch) => (ch === '0' ? '1' : '0'))
+assert.equal((await api(tok, 'PUT', '/api/two-factor/authenticator', { key, token: totp(key, -1), userVerificationToken: forged })).status >= 400, true, 'a changed token without the password does not turn it on')
+assert.equal((await api(tok, 'PUT', '/api/two-factor/authenticator', { key: 'A'.repeat(32), token: totp('A'.repeat(32), -1), userVerificationToken: uvt })).status >= 400, true, 'the token works only for the secret it was given with')
+const on = await api(tok, 'PUT', '/api/two-factor/authenticator', { key, token: totp(key, -1), userVerificationToken: uvt })
+assert.equal(on.status, 200, `turning it on with a right code and the token: ${JSON.stringify(on.body)}`)
+assert.equal(on.body.authenticator?.enabled, true, 'the answer says it is on where the web vault reads it')
+console.log('1 two-step sign-in turned on with the verification token (as the web vault does) and a code from the app: ok')
 
 const none = await signIn()
 assert.equal(none.status, 400); assert.ok(JSON.stringify(none.body).includes('TwoFactorProviders'), 'the password alone is answered "second step needed"')

@@ -100,6 +100,7 @@ pub struct EnableAuthenticatorData {
     pub token: String,
     pub master_password_hash: Option<String>,
     pub otp: Option<String>,
+    pub user_verification_token: Option<String>,
 }
 
 /// POST /api/two-factor/disable - Disable a 2FA method
@@ -119,6 +120,7 @@ pub struct DisableAuthenticatorData {
     pub key: String,
     pub master_password_hash: Option<String>,
     pub otp: Option<String>,
+    pub user_verification_token: Option<String>,
     #[serde(rename = "type")]
     pub r#type: i32,
 }

@@ -33,10 +33,11 @@ sign() { jsign --storetype TRUSTEDSIGNING --keystore eus.codesigning.azure.net -
 # Every program and library inside the app that nobody signed: Windows App Control (Smart App Control) refuses to load an
 # unsigned one, and the app died at launch on the native module (11-26, desktop_napi.win32-x64-msvc.node). jsign reads the
 # file type from the extension, so a .node is signed under a .dll name.
-signed() { osslsigncode verify -in "$1" 2>&1 | grep -q "CN=AZET LLC\|CN=Microsoft Corporation"; }
+# (verify exits non-zero here: this Mac has no Microsoft root to judge the chain; only the signer's name is read)
+signed() { local o; o=$(osslsigncode verify -in "$1" 2>&1 || true); [[ "$o" =~ 'Subject: CN=(AZET LLC|Microsoft Corporation),' ]]; }
 find "$d/dist/win-unpacked" -type f \( -iname '*.exe' -o -iname '*.dll' -o -iname '*.node' \) | while read -r f; do
   signed "$f" && continue
-  if [[ "$f" == *.node ]]; then cp "$f" "$f.dll" && sign "$f.dll" && mv "$f.dll" "$f"; else sign "$f"; fi
+  if [[ "$f" == *.node ]]; then cp "$f" "$f.dll" && sign "$f.dll" < /dev/null && mv "$f.dll" "$f"; else sign "$f" < /dev/null; fi
   signed "$f" || stop "could not sign ${f#$d/dist/win-unpacked/}"
 done
 # NSIS with Homebrew's arm64 makensis (electron-builder's bundled one is x86)
@@ -44,7 +45,7 @@ N="$W/nsis-local"; rm -rf "${N:?}"; cp -R "$(brew --prefix makensis)/share/nsis"
 # elevate.exe (MIT) comes from electron-builder's NSIS bundle
 E=~/Library/Caches/electron-builder/nsis/nsis-3.0.4.1-nsis-3.0.4.1
 [ -f "$E/elevate.exe" ] || { mkdir -p "$E" && curl -sfL -m 300 -o "$W/nsis-3.0.4.1.7z" https://github.com/electron-userland/electron-builder-binaries/releases/download/nsis-3.0.4.1/nsis-3.0.4.1.7z && 7zz x -y -o"$E" "$W/nsis-3.0.4.1.7z" >/dev/null; }
-cp "$E/elevate.exe" "$N/"
+cp "$E/elevate.exe" "$N/"; signed "$N/elevate.exe" || sign "$N/elevate.exe" < /dev/null # packed into resources/ after the loop above
 (cd "$d" && ELECTRON_BUILDER_NSIS_DIR="$N" npx electron-builder --win nsis --x64 -p never -c.win.signAndEditExecutable=false --prepackaged dist/win-unpacked)
 SETUP="$d/dist/AZET Pass Setup $V.exe"; sign "$SETUP"
 

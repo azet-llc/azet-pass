@@ -25,9 +25,11 @@ def swap(m):
 changed = 0
 for f in glob.glob(os.path.join(W, "**", "*.js"), recursive=True):
     s = open(f, encoding="utf-8").read()
-    if KEY not in s: continue
+    if KEY not in s and 'issuer=Bitwarden' not in s: continue
     n = re.sub(r'<path((?:\s+[a-z-]+="[^"]*")*?)\s+d="' + re.escape(KEY) + r'"\s*/>', swap, s)
     n = n.replace('<rect class="tw-fill-bw-blue" width="20" height="20" rx="3"/>', '<rect fill="#0d0d0d" width="20" height="20" rx="4.5"/>')
+    # the name an authenticator app shows for the two-step entry it scans from the setup QR code
+    n = n.replace('"otpauth://totp/Bitwarden:"', '"otpauth://totp/AZET%20Pass:"').replace('"&issuer=Bitwarden"', '"&issuer=AZET%20Pass"')
     if n != s:
         open(f, "w", encoding="utf-8").write(n); changed += 1; print("mark", os.path.relpath(f, W), s.count(KEY), "->", n.count(KEY))
 

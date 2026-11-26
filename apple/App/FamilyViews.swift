@@ -146,7 +146,7 @@ struct MemberRow: View {
             Avatar(name: member.name)
             VStack(alignment: .leading) {
                 Text(member.name).font(.body)
-                Text(member.email).font(.caption).foregroundStyle(.secondary)
+                Text(member.email).font(.caption).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle)
             }
             Spacer()
             Text(member.statusText).font(.caption.weight(.semibold))
@@ -185,7 +185,7 @@ struct SetupChecklist: View {
         let others = members.filter { $0.userId != session.account?.userId && $0.role != 5 }
         let steps: [(String, Bool)] = [
             (String(localized: "Family made"), true),
-            (String(localized: "Everyone invited (\(others.count)/4)"), others.count >= 1),
+            (String(localized: "Family invited (\(others.count))"), others.count >= 1),
             (String(localized: "Their vaults filled in for them"), session.vaults.contains { v in v.organizationId == family.id && session.items.contains { $0.collectionIds.contains(v.id ?? "") } }),
             (String(localized: "Everyone opened the link"), !others.isEmpty && others.allSatisfy { $0.status >= 1 }),
             (String(localized: "Everyone let in after the five words"), !others.isEmpty && others.allSatisfy { $0.status == 2 }),

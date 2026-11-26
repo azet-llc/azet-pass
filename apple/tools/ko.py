@@ -125,7 +125,7 @@ KO = {
 "Email or account password is not right.": "이메일이나 계정 비밀번호가 맞지 않아요.",
 "Emergency Kit": "비상 키트",
 "Encrypted (.json, with a password)": "암호화 (.json, 비밀번호 필요)",
-"Everyone invited (%lld/4)": "가족 모두 초대 (%lld/4)",
+"Family invited (%lld)": "가족 초대 (%lld명)",
 "Everyone let in after the five words": "다섯 단어 확인 후 모두 입장",
 "Everyone opened the link": "모두 링크를 열었어요",
 "Everyone with access to that vault will see this item.": "그 금고를 볼 수 있는 가족 모두에게 보여요.",

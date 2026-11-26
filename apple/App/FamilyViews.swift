@@ -111,7 +111,7 @@ struct FamilyHome: View {
                 if family.isOrganizer, members.filter({ $0.role != 5 }).count < 5 {
                     Button { invite = true } label: { Label("Invite someone", systemImage: "person.badge.plus") }
                 }
-            } header: { Text("\(family.name) · \(members.filter { $0.role != 5 }.count)/5") }
+            } header: { Text("\(family.name) · \(members.filter { $0.role != 5 }.count) of 5 people") }
             Section("Shared vaults") {
                 ForEach(session.vaults.filter { $0.organizationId == family.id }, id: \.id) { v in
                     NavigationLink { VaultView(family: family, vault: v, members: members) } label: {

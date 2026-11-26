@@ -52,12 +52,12 @@
         }
       }
     },
-    "%@ · %lld/5": {
+    "%@ · %lld of 5 people": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ · %2$lld/5"
+            "value": "%1$@ · %2$lld명 (최대 5명)"
           }
         }
       }
@@ -953,16 +953,6 @@
         }
       }
     },
-    "Create a family account": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "가족 계정 만들기"
-          }
-        }
-      }
-    },
     "Create account": {
       "localizations": {
         "ko": {
@@ -1318,7 +1308,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "다섯 단어 확인 후 모두 입장"
+            "value": "단어 5개 맞춰 보고 들어오기"
           }
         }
       }
@@ -1328,7 +1318,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "모두 링크를 열었어요"
+            "value": "모두 초대 링크를 열었어요"
           }
         }
       }
@@ -1703,6 +1693,16 @@
         }
       }
     },
+    "Get started free": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "무료로 시작하기"
+          }
+        }
+      }
+    },
     "Given name": {
       "localizations": {
         "ko": {
@@ -1789,6 +1789,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "게스트는 고른 금고 하나만 봐요. 와이파이·현관 비밀번호를 아이 돌보미에게 줄 때처럼요."
+          }
+        }
+      }
+    },
+    "Hello": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "안녕하세요"
           }
         }
       }
@@ -2998,7 +3008,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "패스키를 쓸 수 있는 사이트"
+            "value": "지문·얼굴 로그인(패스키) 사이트"
           }
         }
       }
@@ -4248,7 +4258,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "그분들 금고 대신 채우기"
+            "value": "가족 금고 대신 채워 주기"
           }
         }
       }
@@ -4488,7 +4498,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "2단계 로그인을 켤 수 있는 사이트"
+            "value": "인증 코드를 켤 수 있는 사이트"
           }
         }
       }

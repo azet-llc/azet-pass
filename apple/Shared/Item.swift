@@ -4,9 +4,10 @@ import Foundation
 /// 1Password's item categories, on top of the SDK's eight cipher types. Categories the SDK has no type for are
 /// secure notes with a fixed field set and a hidden `azet.category` field naming the category.
 enum ItemCategory: String, CaseIterable, Identifiable, Codable {
-    case login, password, secureNote, card, identity, document, bankAccount, driversLicense, passport, sshKey
-    case wifi, membership, softwareLicense, emailAccount, server, database, apiCredential, cryptoWallet
-    case medicalRecord, socialSecurity, rewardProgram, outdoorLicense
+    // picker order: everyday things first, developer types (SSH key, server, database, API) last — the persona panel found 「SSH 키」 among passports confusing
+    case login, password, secureNote, card, identity, document, bankAccount, driversLicense, passport, wifi
+    case membership, emailAccount, rewardProgram, medicalRecord, socialSecurity, outdoorLicense, cryptoWallet
+    case softwareLicense, sshKey, server, database, apiCredential
     var id: String { rawValue }
 
     var title: String {

@@ -188,7 +188,7 @@ struct WelcomeView: View {
                 .animation(Ease.settle(0.5), value: shown)
                 Spacer(minLength: 20)
                 VStack(spacing: 7) {
-                    StepCTA(title: "Create a family account", height: 60, width: 317) { route = .signUp }
+                    StepCTA(title: "Get started free", height: 60, width: 317) { route = .signUp }
                     Button { route = .signIn } label: {
                         Text("Sign in").font(.system(size: 18, weight: .medium)).tracking(-0.18).foregroundStyle(Color.primary)
                             .frame(maxWidth: 317, minHeight: 60).background(Theme.raised, in: Capsule()).contentShape(Capsule())

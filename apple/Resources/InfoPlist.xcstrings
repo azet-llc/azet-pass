@@ -9,6 +9,12 @@
             "state": "translated",
             "value": "AZET Pass"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AZET Pass"
+          }
         }
       }
     },
@@ -18,6 +24,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "계정 비밀번호를 입력하는 대신 Face ID로 AZET Pass를 엽니다."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アカウントのパスワードを入力する代わりに、Face IDでAZET Passを開きます。"
           }
         }
       }
@@ -29,6 +41,12 @@
             "state": "translated",
             "value": "메모장 한 쪽을 찍으면 AZET Pass가 적힌 로그인을 읽어요. 사진은 이 iPhone 밖으로 나가지 않아요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ノートのページやカードを撮影すると、AZET Passがそこに書かれたログイン情報やカード番号を読み取ります。写真はこのiPhoneの外には送られません。"
+          }
         }
       }
     },
@@ -38,6 +56,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "메모장 사진을 고르면 AZET Pass가 적힌 로그인을 읽어요. 사진은 이 iPhone 밖으로 나가지 않아요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ノートのページの写真を選ぶと、AZET Passがそこに書かれたログイン情報を読み取ります。写真はこのiPhoneの外には送られません。"
           }
         }
       }

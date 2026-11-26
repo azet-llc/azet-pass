@@ -9,6 +9,12 @@
             "state": "translated",
             "value": " 또는 한 번 열면"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "、または1回開いたら"
+          }
         }
       }
     },
@@ -18,6 +24,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ 님이 이제 로그인할 수 있어요"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@さんがログインできるようになりました"
           }
         }
       }
@@ -29,6 +41,12 @@
             "state": "translated",
             "value": "%@ 님이 계정 비밀번호를 잊었어요. 임시 비밀번호를 정해 주세요. 저장된 항목은 그대로 남아요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@さんがアカウントのパスワードを忘れました。仮のパスワードを設定してください。保存した項目はそのまま残ります。"
+          }
         }
       }
     },
@@ -38,6 +56,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%1$@ 님이 AZET Pass의 %2$@ 가족에 초대했어요. 휴대폰에서 이 링크를 열어 주세요:"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@さんがAZET Passの「%2$@」ファミリーに招待しています。スマホでこのリンクを開いてください:"
           }
         }
       }
@@ -49,6 +73,12 @@
             "state": "translated",
             "value": "%1$@ 님이 %2$@ 가족에 초대했어요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@さんが「%2$@」ファミリーに招待しています。"
+          }
         }
       }
     },
@@ -59,12 +89,24 @@
             "state": "translated",
             "value": "%1$@ · %2$lld명 (최대 5명)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$lld人（最大5人）"
+          }
         }
       }
     },
     "%lld": {
       "localizations": {
         "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld"
+          }
+        },
+        "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "%lld"
@@ -79,6 +121,12 @@
             "state": "translated",
             "value": "%lld개 찾음"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld件見つかりました"
+          }
         }
       }
     },
@@ -88,6 +136,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld개 가져왔어요"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld件を読み込みました"
           }
         }
       }
@@ -99,12 +153,24 @@
             "state": "translated",
             "value": "%lld개 저장했어요"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld件を保存しました"
+          }
         }
       }
     },
     "%lld/%lld": {
       "localizations": {
         "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld/%2$lld"
+          }
+        },
+        "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "%1$lld/%2$lld"
@@ -119,6 +185,12 @@
             "state": "translated",
             "value": "1. Safari 설정 → 확장 프로그램을 여세요\n2. AZET Pass를 켜세요\n3. 로그인하는 사이트에서 허용하세요"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1. Safariの設定 → 機能拡張を開く\n2. AZET Passをオンにする\n3. ログインするサイトで許可する"
+          }
         }
       }
     },
@@ -128,6 +200,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1. 설정 앱을 엽니다\n2. 일반 → 자동 완성 및 암호\n3. AZET Pass를 켭니다"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1. 設定アプリを開く\n2. 一般 → 自動入力とパスワード\n3. AZET Passをオンにする"
           }
         }
       }
@@ -139,6 +217,12 @@
             "state": "translated",
             "value": "1Password: 파일 → 내보내기 → CSV. Chrome: 설정 → 비밀번호 → 비밀번호 내보내기. Apple 암호, Bitwarden 등 대부분의 앱도 CSV로 내보낼 수 있어요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1Password: ファイル → エクスポート → CSV。Chrome: 設定 → パスワード → パスワードをエクスポート。Appleのパスワード、Bitwardenなど、ほとんどのアプリもCSVで書き出せます。"
+          }
         }
       }
     },
@@ -148,6 +232,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "6자리 코드"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6桁のコード"
           }
         }
       }
@@ -159,6 +249,12 @@
             "state": "translated",
             "value": "인증 앱에 나온 6자리 코드"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "認証アプリに表示された6桁のコード"
+          }
         }
       }
     },
@@ -168,6 +264,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "CSV에는 모든 비밀번호가 그대로 적혀 있어요. 옮긴 뒤에는 꼭 지워 주세요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CSVにはすべてのパスワードがそのまま書かれています。移したあとは必ず削除してください。"
           }
         }
       }
@@ -179,6 +281,12 @@
             "state": "translated",
             "value": "원하면 힌트를 남겨요"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ヒント（任意）"
+          }
         }
       }
     },
@@ -188,6 +296,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "새 AZET Pass가 나왔어요"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しいAZET Passがあります"
           }
         }
       }
@@ -199,6 +313,12 @@
             "state": "translated",
             "value": "「%@」 금고가 준비됐어요. 지금 로그인을 넣어 두면 들어오는 순간 모두 보여요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「%@」の保管庫ができました。今ログイン情報を入れておけば、参加したときにすぐ使えます。"
+          }
         }
       }
     },
@@ -208,6 +328,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "API 자격 증명"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "APIの認証情報"
           }
         }
       }
@@ -219,16 +345,37 @@
             "state": "translated",
             "value": "AZET Pass"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AZET Pass"
+          }
         }
       }
     },
-    "AZET Pass for iPhone — Copyright © 2026 AZET LLC. Licensed under the GNU General Public License v3.0. Source: https://github.com/azet-llc/azet-pass\n\nEncryption: Bitwarden SDK (sdk-internal), GNU GPL v3.0, Copyright © Bitwarden Inc. Built from source without the Bitwarden-licensed parts. AZET Pass is not made or endorsed by Bitwarden.\n\nSync server: warden-worker, MIT licence.\n\nPassword breach checks: Have I Been Pwned (Troy Hunt), range API, CC BY 4.0.\n\nThis program comes with ABSOLUTELY NO WARRANTY. You may redistribute it under the terms of the GPL v3.0: https://www.gnu.org/licenses/gpl-3.0.html": {},
+    "AZET Pass for iPhone — Copyright © 2026 AZET LLC. Licensed under the GNU General Public License v3.0. Source: https://github.com/azet-llc/azet-pass\n\nEncryption: Bitwarden SDK (sdk-internal), GNU GPL v3.0, Copyright © Bitwarden Inc. Built from source without the Bitwarden-licensed parts. AZET Pass is not made or endorsed by Bitwarden.\n\nSync server: warden-worker, MIT licence.\n\nPassword breach checks: Have I Been Pwned (Troy Hunt), range API, CC BY 4.0.\n\nThis program comes with ABSOLUTELY NO WARRANTY. You may redistribute it under the terms of the GPL v3.0: https://www.gnu.org/licenses/gpl-3.0.html": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AZET Pass for iPhone — Copyright © 2026 AZET LLC. GNU General Public License v3.0 のもとで提供しています。ソース: https://github.com/azet-llc/azet-pass\n\n暗号化: Bitwarden SDK (sdk-internal)、GNU GPL v3.0、Copyright © Bitwarden Inc. Bitwardenライセンスの部分を除いてソースからビルドしています。AZET PassはBitwardenが作ったものではなく、Bitwardenが推奨するものでもありません。\n\n同期サーバー: warden-worker、MITライセンス。\n\nパスワード流出チェック: Have I Been Pwned (Troy Hunt)、range API、CC BY 4.0。\n\nこのプログラムには一切の保証がありません。GPL v3.0 の条件に従って再配布できます: https://www.gnu.org/licenses/gpl-3.0.html"
+          }
+        }
+      }
+    },
     "AZET Pass is off on this device": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "이 기기에서는 AZET Pass가 꺼져 있어요"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この端末ではAZET Passがオフです"
           }
         }
       }
@@ -240,6 +387,12 @@
             "state": "translated",
             "value": "AZET Pass가 비밀번호를 채울 준비가 됐어요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AZET Passでパスワードを自動入力できるようになりました。"
+          }
         }
       }
     },
@@ -249,6 +402,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "정보"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このアプリについて"
           }
         }
       }
@@ -260,6 +419,12 @@
             "state": "translated",
             "value": "접근 권한"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アクセス権"
+          }
         }
       }
     },
@@ -269,6 +434,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "예금주"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "口座名義"
           }
         }
       }
@@ -280,6 +451,12 @@
             "state": "translated",
             "value": "계좌번호"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "口座番号"
+          }
         }
       }
     },
@@ -289,6 +466,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "계정 비밀번호"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アカウントのパスワード"
           }
         }
       }
@@ -300,6 +483,12 @@
             "state": "translated",
             "value": "계정 비밀번호 (손으로 적기)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アカウントのパスワード（手書きで記入）"
+          }
         }
       }
     },
@@ -309,6 +498,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "계정 복구"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アカウントの復旧"
           }
         }
       }
@@ -320,6 +515,12 @@
             "state": "translated",
             "value": "계좌 종류"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "口座の種類"
+          }
         }
       }
     },
@@ -329,6 +530,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "이 금고에 로그인 추가"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この保管庫にログイン情報を追加"
           }
         }
       }
@@ -340,6 +547,12 @@
             "state": "translated",
             "value": "로그인을 추가하면 점수가 나와요"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ログイン情報を追加するとスコアが表示されます"
+          }
         }
       }
     },
@@ -349,6 +562,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "항목 더 추가"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "さらに追加"
           }
         }
       }
@@ -360,6 +579,12 @@
             "state": "translated",
             "value": "이 키를 인증 앱(AZET Pass 말고 다른 앱)에 넣고, 나오는 6자리 코드를 입력하세요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このキーを認証アプリ（AZET Pass以外）に登録して、表示された6桁のコードを入力してください。"
+          }
         }
       }
     },
@@ -369,6 +594,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "웹사이트 추가"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Webサイトを追加"
           }
         }
       }
@@ -380,6 +611,12 @@
             "state": "translated",
             "value": "첫 항목 추가하기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最初の項目を追加"
+          }
         }
       }
     },
@@ -389,6 +626,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "주소"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "住所"
           }
         }
       }
@@ -400,6 +643,12 @@
             "state": "translated",
             "value": "관리 화면"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "管理画面"
+          }
         }
       }
     },
@@ -409,6 +658,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1일 뒤"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1日後"
           }
         }
       }
@@ -420,6 +675,12 @@
             "state": "translated",
             "value": "1시간 뒤"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1時間後"
+          }
         }
       }
     },
@@ -429,6 +690,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1분 뒤"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1分後"
           }
         }
       }
@@ -440,6 +707,12 @@
             "state": "translated",
             "value": "30일 뒤"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30日後"
+          }
         }
       }
     },
@@ -449,6 +722,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "5분 뒤"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5分後"
           }
         }
       }
@@ -460,6 +739,12 @@
             "state": "translated",
             "value": "7일 뒤"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "7日後"
+          }
         }
       }
     },
@@ -469,6 +754,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "모든 항목"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すべての項目"
           }
         }
       }
@@ -480,6 +771,12 @@
             "state": "translated",
             "value": "모든 로그인"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すべてのログイン情報"
+          }
         }
       }
     },
@@ -489,6 +786,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ 가족에 거의 다 왔어요"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「%@」ファミリーへの参加まであと少し"
           }
         }
       }
@@ -500,6 +803,12 @@
             "state": "translated",
             "value": "다른 사진"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "別の写真"
+          }
         }
       }
     },
@@ -509,6 +818,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "허가 대상"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "許可された対象"
           }
         }
       }
@@ -520,6 +835,12 @@
             "state": "translated",
             "value": "가족에게 도움 요청"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族に手伝ってもらう"
+          }
         }
       }
     },
@@ -529,6 +850,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "파일 첨부"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ファイルを添付"
           }
         }
       }
@@ -540,6 +867,12 @@
             "state": "translated",
             "value": "사진 첨부"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "写真を添付"
+          }
         }
       }
     },
@@ -549,6 +882,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "자동 완성"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動入力"
           }
         }
       }
@@ -560,6 +899,12 @@
             "state": "translated",
             "value": "뒤로"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "戻る"
+          }
         }
       }
     },
@@ -569,6 +914,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "은행"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "銀行"
           }
         }
       }
@@ -580,6 +931,12 @@
             "state": "translated",
             "value": "은행 계좌"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "銀行口座"
+          }
         }
       }
     },
@@ -589,6 +946,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "은행 전화번호"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "銀行の電話番号"
           }
         }
       }
@@ -600,6 +963,12 @@
             "state": "translated",
             "value": "은행"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "銀行"
+          }
         }
       }
     },
@@ -609,6 +978,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "큰 글씨와 버튼 세 개뿐이에요: 비밀번호 찾기, 새로 저장, 가족에게 도움 요청."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "大きな文字で、ボタンは3つだけ。パスワードを探す、新しく保存する、家族に手伝ってもらう。"
           }
         }
       }
@@ -620,6 +995,12 @@
             "state": "translated",
             "value": "카드사"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カードブランド"
+          }
         }
       }
     },
@@ -629,6 +1010,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "계속하면 [이용약관](https://azet.io/terms)과 [개인정보 처리방침](https://azet.io/privacy)에 동의하는 것으로 봅니다."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "続けると、[利用規約](https://azet.io/terms)と[プライバシーポリシー](https://azet.io/privacy)に同意したことになります。"
           }
         }
       }
@@ -640,6 +1027,12 @@
             "state": "translated",
             "value": "CSV (암호화 안 됨)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CSV（暗号化なし）"
+          }
         }
       }
     },
@@ -649,6 +1042,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ 님께 전화해서 화면의 다섯 단어를 읽어 달라고 하세요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@さんに電話して、画面に出ている5つの単語を読んでもらってください。"
           }
         }
       }
@@ -660,6 +1059,12 @@
             "state": "translated",
             "value": "카메라를 쓸 수 없어요. 설정 키를 붙여 넣어 주세요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カメラが使えません。代わりにセットアップキーを貼り付けてください。"
+          }
         }
       }
     },
@@ -669,6 +1074,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "AZET Pass 좀 도와줄 수 있니?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AZET Passのこと、ちょっと手伝ってくれる？"
           }
         }
       }
@@ -680,6 +1091,12 @@
             "state": "translated",
             "value": "취소"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キャンセル"
+          }
         }
       }
     },
@@ -689,6 +1106,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "카드사"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カード会社"
           }
         }
       }
@@ -700,6 +1123,12 @@
             "state": "translated",
             "value": "카드 번호"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カード番号"
+          }
         }
       }
     },
@@ -709,6 +1138,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "카드 소유자"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カード名義"
           }
         }
       }
@@ -720,6 +1155,12 @@
             "state": "translated",
             "value": "카드 소유자 이름"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カード名義人"
+          }
         }
       }
     },
@@ -729,6 +1170,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "카테고리"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カテゴリ"
           }
         }
       }
@@ -740,6 +1187,12 @@
             "state": "translated",
             "value": "다시 확인"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "もう一度確認"
+          }
         }
       }
     },
@@ -749,6 +1202,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "하나씩 확인하고 잘못 읽힌 곳을 고친 뒤 저장하세요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1つずつ確認し、読み取りが違うところを直してから保存してください。"
           }
         }
       }
@@ -760,6 +1219,12 @@
             "state": "translated",
             "value": "유출된 비밀번호인지 확인"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスワードの流出をチェック"
+          }
         }
       }
     },
@@ -769,6 +1234,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "메일을 확인해 주세요"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メールを確認してください"
           }
         }
       }
@@ -780,6 +1251,12 @@
             "state": "translated",
             "value": "이 기기에서 메일을 확인하고 링크를 여세요. AZET Pass가 열리며 마무리돼요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この端末でメールを確認し、リンクを開いてください。AZET Pass が開いて手続きが完了します。"
+          }
         }
       }
     },
@@ -789,6 +1266,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "설정에서 유출 비밀번호 확인이 꺼져 있어요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定で「パスワードの流出チェック」がオフになっています。"
           }
         }
       }
@@ -800,6 +1283,12 @@
             "state": "translated",
             "value": "사진 고르기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "写真を選ぶ"
+          }
         }
       }
     },
@@ -809,6 +1298,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "내보낸 파일 고르기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "書き出したファイルを選ぶ"
           }
         }
       }
@@ -820,6 +1315,12 @@
             "state": "translated",
             "value": "계정 비밀번호를 정해 주세요"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アカウントのパスワードを決めてください"
+          }
         }
       }
     },
@@ -829,6 +1330,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "도시"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "市区町村"
           }
         }
       }
@@ -840,6 +1347,12 @@
             "state": "translated",
             "value": "종류"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "種類"
+          }
         }
       }
     },
@@ -849,6 +1362,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "닫기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "閉じる"
           }
         }
       }
@@ -860,6 +1379,12 @@
             "state": "translated",
             "value": "회사"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会社"
+          }
         }
       }
     },
@@ -869,6 +1394,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "다섯 단어 맞춰 보기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5つの単語を照らし合わせる"
           }
         }
       }
@@ -880,6 +1411,12 @@
             "state": "translated",
             "value": "유출된 비밀번호"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "流出したパスワード"
+          }
         }
       }
     },
@@ -889,6 +1426,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "복사"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コピー"
           }
         }
       }
@@ -900,6 +1443,12 @@
             "state": "translated",
             "value": "%@ 복사"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@をコピー"
+          }
         }
       }
     },
@@ -909,6 +1458,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "링크 복사"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リンクをコピー"
           }
         }
       }
@@ -920,6 +1475,12 @@
             "state": "translated",
             "value": "일회용 비밀번호 복사"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワンタイムパスワードをコピー"
+          }
         }
       }
     },
@@ -929,6 +1490,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "끝내지 못했어요"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完了できませんでした"
           }
         }
       }
@@ -940,6 +1507,12 @@
             "state": "translated",
             "value": "항목을 옮기지 못했어요"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "項目を移動できませんでした"
+          }
         }
       }
     },
@@ -949,6 +1522,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "국가"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "国"
           }
         }
       }
@@ -960,6 +1539,12 @@
             "state": "translated",
             "value": "계정 만들기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アカウントを作成"
+          }
         }
       }
     },
@@ -969,6 +1554,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "초대 링크 만들기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "招待リンクを作成"
           }
         }
       }
@@ -980,6 +1571,12 @@
             "state": "translated",
             "value": "링크 만들기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リンクを作成"
+          }
         }
       }
     },
@@ -989,6 +1586,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "만든 날"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "作成日"
           }
         }
       }
@@ -1000,6 +1603,12 @@
             "state": "translated",
             "value": "사용자"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "利用者"
+          }
         }
       }
     },
@@ -1009,6 +1618,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "자격 증명"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "認証情報"
           }
         }
       }
@@ -1020,6 +1635,12 @@
             "state": "translated",
             "value": "신용카드"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "クレジットカード"
+          }
         }
       }
     },
@@ -1029,6 +1650,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "암호화폐 지갑"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暗号資産ウォレット"
           }
         }
       }
@@ -1040,6 +1667,12 @@
             "state": "translated",
             "value": "데이터베이스"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "データベース"
+          }
         }
       }
     },
@@ -1049,6 +1682,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "날짜"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日付"
           }
         }
       }
@@ -1060,6 +1699,12 @@
             "state": "translated",
             "value": "만든 날짜"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "作成日"
+          }
         }
       }
     },
@@ -1069,6 +1714,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "고친 날짜"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新日"
           }
         }
       }
@@ -1080,6 +1731,12 @@
             "state": "translated",
             "value": "생년월일"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "生年月日"
+          }
         }
       }
     },
@@ -1089,6 +1746,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "삭제"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "削除"
           }
         }
       }
@@ -1100,6 +1763,12 @@
             "state": "translated",
             "value": "%@ 금고를 지울까요? 안의 항목이 모두에게서 지워져요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保管庫「%@」を削除しますか？中の項目は全員の画面から削除されます。"
+          }
         }
       }
     },
@@ -1109,6 +1778,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "계정 삭제"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アカウントを削除"
           }
         }
       }
@@ -1120,6 +1795,12 @@
             "state": "translated",
             "value": "완전히 삭제"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完全に削除"
+          }
         }
       }
     },
@@ -1129,6 +1810,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "이 항목을 지울까요?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この項目を削除しますか？"
           }
         }
       }
@@ -1140,6 +1827,12 @@
             "state": "translated",
             "value": "금고와 항목 삭제"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保管庫と中の項目を削除"
+          }
         }
       }
     },
@@ -1149,6 +1842,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "지운 항목은 30일 뒤 사라져요"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "削除した項目は30日後に完全に消去されます"
           }
         }
       }
@@ -1160,6 +1859,12 @@
             "state": "translated",
             "value": "배달·교통"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配達・交通"
+          }
         }
       }
     },
@@ -1169,6 +1874,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "담당 의사"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "かかりつけ医"
           }
         }
       }
@@ -1180,6 +1891,12 @@
             "state": "translated",
             "value": "문서"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "書類"
+          }
         }
       }
     },
@@ -1189,6 +1906,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "완료"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完了"
           }
         }
       }
@@ -1200,6 +1923,12 @@
             "state": "translated",
             "value": "운전면허증"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "運転免許証"
+          }
         }
       }
     },
@@ -1209,6 +1938,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "쉽게 맞힐 수 있어요"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "推測されやすい"
           }
         }
       }
@@ -1220,6 +1955,12 @@
             "state": "translated",
             "value": "입력하기 쉬운 단어 조합"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "入力しやすい（単語の組み合わせ）"
+          }
         }
       }
     },
@@ -1229,6 +1970,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "편집"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "編集"
           }
         }
       }
@@ -1240,6 +1987,12 @@
             "state": "translated",
             "value": "금고 편집"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保管庫を編集"
+          }
         }
       }
     },
@@ -1249,6 +2002,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "이메일"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メール"
           }
         }
       }
@@ -1260,6 +2019,12 @@
             "state": "translated",
             "value": "이메일 계정"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メールアカウント"
+          }
         }
       }
     },
@@ -1269,6 +2034,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "이메일 주소"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メールアドレス"
           }
         }
       }
@@ -1280,6 +2051,12 @@
             "state": "translated",
             "value": "이메일이나 계정 비밀번호가 맞지 않아요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メールアドレスかアカウントのパスワードが正しくありません。"
+          }
         }
       }
     },
@@ -1289,6 +2066,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "비상 키트"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "緊急キット"
           }
         }
       }
@@ -1300,6 +2083,12 @@
             "state": "translated",
             "value": "암호화 (.json, 비밀번호 필요)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暗号化（.json、パスワード付き）"
+          }
         }
       }
     },
@@ -1309,6 +2098,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "단어 5개 맞춰 보고 들어오기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5つの単語を確認して全員が参加しました"
           }
         }
       }
@@ -1320,6 +2115,12 @@
             "state": "translated",
             "value": "모두 초대 링크를 열었어요"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全員が招待リンクを開きました"
+          }
         }
       }
     },
@@ -1329,6 +2130,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "그 금고를 볼 수 있는 가족 모두에게 보여요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "その保管庫を見られる家族全員に、この項目が表示されます。"
           }
         }
       }
@@ -1340,6 +2147,12 @@
             "state": "translated",
             "value": "만료됨"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "期限切れ"
+          }
         }
       }
     },
@@ -1349,6 +2162,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "만료일"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有効期限"
           }
         }
       }
@@ -1360,6 +2179,12 @@
             "state": "translated",
             "value": "곧 만료"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "まもなく期限切れ"
+          }
         }
       }
     },
@@ -1369,6 +2194,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "만료 예정"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "期限が近い"
           }
         }
       }
@@ -1380,6 +2211,12 @@
             "state": "translated",
             "value": "내보내기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "書き出し"
+          }
         }
       }
     },
@@ -1389,6 +2226,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "보통"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "普通"
           }
         }
       }
@@ -1400,6 +2243,12 @@
             "state": "translated",
             "value": "아주 좋아요"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "とても良い"
+          }
         }
       }
     },
@@ -1409,6 +2258,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Face ID로 열지 못했어요. 계정 비밀번호를 입력하세요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Face IDで開けませんでした。アカウントのパスワードを入力してください。"
           }
         }
       }
@@ -1420,6 +2275,12 @@
             "state": "translated",
             "value": "보통"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ふつう"
+          }
         }
       }
     },
@@ -1429,6 +2290,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "가족"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族"
           }
         }
       }
@@ -1440,6 +2307,12 @@
             "state": "translated",
             "value": "가족 도움"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族のサポート"
+          }
         }
       }
     },
@@ -1449,6 +2322,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "가족 초대"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族の招待"
           }
         }
       }
@@ -1460,6 +2339,12 @@
             "state": "translated",
             "value": "가족 초대 (%lld명)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "招待した家族（%lld人）"
+          }
         }
       }
     },
@@ -1469,6 +2354,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "가족 만들기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族を作成"
           }
         }
       }
@@ -1480,6 +2371,12 @@
             "state": "translated",
             "value": "가족 이름 (예: 김씨네)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族の名前（例：山田家）"
+          }
         }
       }
     },
@@ -1489,6 +2386,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "가족 관리자"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族の管理者"
           }
         }
       }
@@ -1500,6 +2403,12 @@
             "state": "translated",
             "value": "가족 관리자"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族の管理者"
+          }
         }
       }
     },
@@ -1509,6 +2418,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "가족 관리자는 모든 공유 금고를 볼 수 있어요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族の管理者は、共有しているすべての保管庫を見られます。"
           }
         }
       }
@@ -1520,6 +2435,12 @@
             "state": "translated",
             "value": "가족 세팅"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族の設定"
+          }
         }
       }
     },
@@ -1529,6 +2450,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "즐겨찾기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "お気に入り"
           }
         }
       }
@@ -1540,6 +2467,12 @@
             "state": "translated",
             "value": "즐겨찾기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "お気に入り"
+          }
         }
       }
     },
@@ -1549,6 +2482,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "파일"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ファイル"
           }
         }
       }
@@ -1560,6 +2499,12 @@
             "state": "translated",
             "value": "파일은 이 기기에서 암호화된 뒤 저장돼요. 파일 하나에 25MB까지."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ファイルはこの端末で暗号化してから保存されます。1ファイル25MBまでです。"
+          }
         }
       }
     },
@@ -1569,6 +2514,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "파일은 25MB까지 넣을 수 있어요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ファイルは25MBまで追加できます。"
           }
         }
       }
@@ -1580,6 +2531,12 @@
             "state": "translated",
             "value": "앱과 Safari에서 비밀번호 채우기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アプリとSafariでパスワードを自動入力"
+          }
         }
       }
     },
@@ -1589,6 +2546,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "앱과 브라우저에서 바로 채워요"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アプリやブラウザですぐに入力できます"
           }
         }
       }
@@ -1600,6 +2563,12 @@
             "state": "translated",
             "value": "비밀번호 찾기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスワードを探す"
+          }
         }
       }
     },
@@ -1609,6 +2578,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "지문(핑거프린트)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "指紋"
           }
         }
       }
@@ -1620,6 +2595,12 @@
             "state": "translated",
             "value": "이름"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名"
+          }
         }
       }
     },
@@ -1629,6 +2610,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "폴더"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フォルダ"
           }
         }
       }
@@ -1640,6 +2627,12 @@
             "state": "translated",
             "value": "형식"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "形式"
+          }
         }
       }
     },
@@ -1649,6 +2642,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "유출 사고 %@건에서 발견"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@件の情報漏えいで見つかりました"
           }
         }
       }
@@ -1660,6 +2659,12 @@
             "state": "translated",
             "value": "인증 앱에 나온 숫자예요"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "認証アプリに表示された数字です"
+          }
         }
       }
     },
@@ -1669,6 +2674,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "이름"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "氏名"
           }
         }
       }
@@ -1680,6 +2691,12 @@
             "state": "translated",
             "value": "좋아요"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "良い"
+          }
         }
       }
     },
@@ -1689,6 +2706,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "가족 계정을 위험하게 만드는 것을 알려 드려요. 표시된 항목을 고치면 점수가 올라가요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族のアカウントに危険があるとお知らせします。表示された項目を直すとスコアが上がります。"
           }
         }
       }
@@ -1700,6 +2723,12 @@
             "state": "translated",
             "value": "무료로 시작하기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無料ではじめる"
+          }
         }
       }
     },
@@ -1709,6 +2738,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "이름"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名"
           }
         }
       }
@@ -1720,6 +2755,12 @@
             "state": "translated",
             "value": "좋음"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "良い"
+          }
         }
       }
     },
@@ -1729,6 +2770,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Google OTP"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google 認証システム"
           }
         }
       }
@@ -1740,6 +2787,12 @@
             "state": "translated",
             "value": "초대를 받으셨나요? 가족이 보낸 링크를 열어 주세요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "招待を受け取った方は、家族から届いたリンクを開いてください。"
+          }
         }
       }
     },
@@ -1749,6 +2802,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "정부·공공"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "行政・公共"
           }
         }
       }
@@ -1760,6 +2819,12 @@
             "state": "translated",
             "value": "단체"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "グループ"
+          }
         }
       }
     },
@@ -1769,6 +2834,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "게스트"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ゲスト"
           }
         }
       }
@@ -1780,6 +2851,12 @@
             "state": "translated",
             "value": "게스트 (금고 1개만)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ゲスト（保管庫1つのみ）"
+          }
         }
       }
     },
@@ -1789,6 +2866,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "게스트는 고른 금고 하나만 봐요. 와이파이·현관 비밀번호를 아이 돌보미에게 줄 때처럼요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ゲストは選んだ保管庫1つだけを見られます。ベビーシッターにWi-Fiや玄関の暗証番号を伝えるときなどに便利です。"
           }
         }
       }
@@ -1800,6 +2883,12 @@
             "state": "translated",
             "value": "안녕하세요"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "こんにちは"
+          }
         }
       }
     },
@@ -1809,6 +2898,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ 님, 안녕하세요"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@さん、こんにちは"
           }
         }
       }
@@ -1820,6 +2915,12 @@
             "state": "translated",
             "value": "잊어버린 비밀번호 도와주기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "忘れたパスワードの手助け"
+          }
         }
       }
     },
@@ -1829,6 +2930,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "화면을 녹화하거나 공유하는 동안에는 가려져요"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "画面の録画中や共有中は隠れます"
           }
         }
       }
@@ -1840,6 +2947,12 @@
             "state": "translated",
             "value": "숨기기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隠す"
+          }
         }
       }
     },
@@ -1849,6 +2962,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "힌트 (선택, 비밀번호 자체는 적지 마세요)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ヒント（任意・パスワードそのものは書かないでください）"
           }
         }
       }
@@ -1860,6 +2979,12 @@
             "state": "translated",
             "value": "홈"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ホーム"
+          }
         }
       }
     },
@@ -1869,6 +2994,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "호스트"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ホスト"
           }
         }
       }
@@ -1880,12 +3011,24 @@
             "state": "translated",
             "value": "가족에게 초대를 받았어요"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族から招待が届きました"
+          }
         }
       }
     },
     "IBAN": {
       "localizations": {
         "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IBAN"
+          }
+        },
+        "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "IBAN"
@@ -1900,6 +3043,12 @@
             "state": "translated",
             "value": "아이디"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ID"
+          }
         }
       }
     },
@@ -1909,6 +3058,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "신분증 번호"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "身分証の番号"
           }
         }
       }
@@ -1920,6 +3075,12 @@
             "state": "translated",
             "value": "주민등록번호·신분증 번호"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "マイナンバー・身分証の番号"
+          }
         }
       }
     },
@@ -1929,6 +3090,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "아이디: %@"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ID：%@"
           }
         }
       }
@@ -1940,6 +3107,12 @@
             "state": "translated",
             "value": "신원 정보"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本人情報"
+          }
         }
       }
     },
@@ -1949,6 +3122,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "바로"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すぐに"
           }
         }
       }
@@ -1960,6 +3139,12 @@
             "state": "translated",
             "value": "가져오기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "読み込む"
+          }
         }
       }
     },
@@ -1969,6 +3154,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld개 가져오기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld件を読み込む"
           }
         }
       }
@@ -1980,6 +3171,12 @@
             "state": "translated",
             "value": "1Password·Chrome·CSV에서 가져오기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1Password・Chrome・CSVから読み込む"
+          }
         }
       }
     },
@@ -1989,6 +3186,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Google OTP에서 가져오기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google 認証システムから読み込む"
           }
         }
       }
@@ -2000,6 +3203,12 @@
             "state": "translated",
             "value": "Google OTP 앱에서 메뉴 → 계정 이전 → 계정 내보내기로 계정을 고른 뒤 나온 QR 코드를 여기서 찍으세요. QR 코드가 여러 장이면 한 장씩 찍으면 돼요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google 認証システムでメニュー → アカウントを移行 → アカウントをエクスポートの順に開き、アカウントを選んで表示されたQRコードをここで読み取ってください。QRコードが複数ある場合は、1つずつ読み取ってください。"
+          }
         }
       }
     },
@@ -2009,6 +3218,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "비밀번호도 보내기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスワードも送る"
           }
         }
       }
@@ -2020,6 +3235,12 @@
             "state": "translated",
             "value": "받는 서버"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "受信サーバ"
+          }
         }
       }
     },
@@ -2029,6 +3250,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "초대"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "招待"
           }
         }
       }
@@ -2040,6 +3267,12 @@
             "state": "translated",
             "value": "초대 준비 완료"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "招待の準備ができました"
+          }
         }
       }
     },
@@ -2049,6 +3282,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "가족 초대하기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族を招待する"
           }
         }
       }
@@ -2060,6 +3299,12 @@
             "state": "translated",
             "value": "초대함"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "招待済み"
+          }
         }
       }
     },
@@ -2069,6 +3314,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%1$@%2$@ 링크가 더는 열리지 않아요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このリンクは%@%@に使えなくなります。"
           }
         }
       }
@@ -2080,6 +3331,12 @@
             "state": "translated",
             "value": "항목"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "項目"
+          }
         }
       }
     },
@@ -2089,6 +3346,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "가족에 들어가기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族に参加する"
           }
         }
       }
@@ -2100,6 +3363,12 @@
             "state": "translated",
             "value": "이 종이는 집 안 안전한 곳에 두세요. 이 종이와 비밀번호가 있으면 누구나 금고를 열 수 있어요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この用紙は自宅の安全な場所に保管してください。この用紙とパスワードがあれば、だれでも保管庫を開けられます。"
+          }
         }
       }
     },
@@ -2109,6 +3378,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "이름표"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ラベル"
           }
         }
       }
@@ -2120,6 +3395,12 @@
             "state": "translated",
             "value": "성"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "姓"
+          }
         }
       }
     },
@@ -2129,6 +3410,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "나중에"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "あとで"
           }
         }
       }
@@ -2140,6 +3427,12 @@
             "state": "translated",
             "value": "밝은 곳에 종이를 펴 놓고 찍으세요. 손글씨도 읽어요. 사진은 이 기기 안에서만 읽고, 저장하거나 보내지 않아요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "明るい場所で用紙を平らに置いて撮影してください。手書きでも読み取れます。写真はこの端末の中だけで読み取り、保存も送信もしません。"
+          }
         }
       }
     },
@@ -2149,6 +3442,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "가족에서 나가기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この家族グループから抜ける"
           }
         }
       }
@@ -2160,6 +3459,12 @@
             "state": "translated",
             "value": "법적 고지"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "法的情報"
+          }
         }
       }
     },
@@ -2169,6 +3474,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "길이 %lld"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "長さ %lld"
           }
         }
       }
@@ -2180,6 +3491,12 @@
             "state": "translated",
             "value": "들이기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "参加を許可"
+          }
         }
       }
     },
@@ -2189,6 +3506,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "비밀번호를 잊으면 가족 관리자가 다시 정해 줄 수 있게 하기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスワードを忘れたとき、家族の管理者が再設定できるようにする"
           }
         }
       }
@@ -2200,6 +3523,12 @@
             "state": "translated",
             "value": "라이선스"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ライセンス"
+          }
         }
       }
     },
@@ -2209,6 +3538,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "라이선스 키"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ライセンスキー"
           }
         }
       }
@@ -2220,6 +3555,12 @@
             "state": "translated",
             "value": "면허 번호"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "免許証番号"
+          }
         }
       }
     },
@@ -2229,6 +3570,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "사용자"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用者"
           }
         }
       }
@@ -2240,6 +3587,12 @@
             "state": "translated",
             "value": "링크 유효 기간"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リンクの有効期限"
+          }
         }
       }
     },
@@ -2249,6 +3602,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "링크 준비 완료"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リンクを作成しました"
           }
         }
       }
@@ -2260,6 +3619,12 @@
             "state": "translated",
             "value": "불러오는 중"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "読み込み中"
+          }
         }
       }
     },
@@ -2269,6 +3634,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "잠금"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ロック"
           }
         }
       }
@@ -2280,6 +3651,12 @@
             "state": "translated",
             "value": "지금 잠그기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今すぐロック"
+          }
         }
       }
     },
@@ -2289,6 +3666,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "보내기 전에 내 휴대폰에서 먼저 잠가요"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "送信する前に、まずお使いのスマホで鍵をかけます"
           }
         }
       }
@@ -2300,6 +3683,12 @@
             "state": "translated",
             "value": "로그인"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ログイン"
+          }
         }
       }
     },
@@ -2309,6 +3698,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "월"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "月"
           }
         }
       }
@@ -2320,6 +3715,12 @@
             "state": "translated",
             "value": "가족을 만들고 4명까지 초대한 뒤 그분들 금고를 대신 채워 주세요. 대부분 한나절이면 끝나요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族グループを作って4人まで招待し、代わりに保管庫を準備してあげましょう。たいていの家族は半日ほどで終わります。"
+          }
         }
       }
     },
@@ -2329,6 +3730,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "새 Ed25519 키 만들기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しいEd25519キーを作成"
           }
         }
       }
@@ -2340,6 +3747,12 @@
             "state": "translated",
             "value": "새 초대 링크 만들기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しい招待リンクを作成"
+          }
         }
       }
     },
@@ -2349,6 +3762,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "비밀번호 만들기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスワードを作成"
           }
         }
       }
@@ -2360,6 +3779,12 @@
             "state": "translated",
             "value": "대신 채워 줄 금고 만들기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "代わりに入力する保管庫を作成"
+          }
         }
       }
     },
@@ -2369,6 +3794,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "비상 키트 만들기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "緊急キットを作成"
           }
         }
       }
@@ -2380,6 +3811,12 @@
             "state": "translated",
             "value": "가족 만들기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族グループを作成"
+          }
         }
       }
     },
@@ -2389,6 +3826,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "가족 만들기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族グループを作成"
           }
         }
       }
@@ -2400,6 +3843,12 @@
             "state": "translated",
             "value": "진료 기록"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "診療記録"
+          }
         }
       }
     },
@@ -2409,6 +3858,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "복용 약"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "服用中の薬"
           }
         }
       }
@@ -2420,6 +3875,12 @@
             "state": "translated",
             "value": "구성원"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メンバー"
+          }
         }
       }
     },
@@ -2429,6 +3890,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "회원 번호"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会員番号"
           }
         }
       }
@@ -2440,6 +3907,12 @@
             "state": "translated",
             "value": "회원 이름"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会員名"
+          }
         }
       }
     },
@@ -2449,6 +3922,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "구성원은 개인 금고와 가족 공유 금고를 써요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メンバーは個人用の保管庫と家族の共有保管庫を使えます。"
           }
         }
       }
@@ -2460,6 +3939,12 @@
             "state": "translated",
             "value": "멤버십"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メンバーシップ"
+          }
         }
       }
     },
@@ -2469,6 +3954,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "고친 날"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新日"
           }
         }
       }
@@ -2480,6 +3971,12 @@
             "state": "translated",
             "value": "비밀번호와 패스키를 다른 앱으로 옮기기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスワードとパスキーをほかのアプリに移す"
+          }
         }
       }
     },
@@ -2489,6 +3986,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "최근 삭제로 옮기기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「最近削除した項目」に移動"
           }
         }
       }
@@ -2500,6 +4003,12 @@
             "state": "translated",
             "value": "가족 금고로 옮기기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族の保管庫に移動"
+          }
         }
       }
     },
@@ -2509,6 +4018,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld개 항목을 AZET Pass로 옮겼어요"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld件の項目をAZET Passに移しました"
           }
         }
       }
@@ -2520,6 +4035,12 @@
             "state": "translated",
             "value": "손볼 곳이 있어요"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要見直し"
+          }
         }
       }
     },
@@ -2529,6 +4050,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "이름"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名前"
           }
         }
       }
@@ -2540,6 +4067,12 @@
             "state": "translated",
             "value": "이름 (예: 엄마)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名前（例：お母さん）"
+          }
         }
       }
     },
@@ -2549,6 +4082,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "국적"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "国籍"
           }
         }
       }
@@ -2560,6 +4099,12 @@
             "state": "translated",
             "value": "네트워크 이름"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ネットワーク名"
+          }
         }
       }
     },
@@ -2569,6 +4114,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "비밀번호 자체는 적지 마세요. 비워 둬도 돼요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスワードそのものは書かないでください。空欄のままでもかまいません。"
           }
         }
       }
@@ -2580,6 +4131,12 @@
             "state": "translated",
             "value": "새로"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新規"
+          }
         }
       }
     },
@@ -2589,6 +4146,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "새 %@"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しい%@"
           }
         }
       }
@@ -2600,6 +4163,12 @@
             "state": "translated",
             "value": "새 항목"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しい項目"
+          }
         }
       }
     },
@@ -2609,6 +4178,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "「%@」 새 로그인"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「%@」の新しいログイン"
           }
         }
       }
@@ -2620,6 +4195,12 @@
             "state": "translated",
             "value": "새 공유 금고"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しい共有保管庫"
+          }
         }
       }
     },
@@ -2629,6 +4210,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "다음"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次へ"
           }
         }
       }
@@ -2640,6 +4227,12 @@
             "state": "translated",
             "value": "다음 코드"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次のコード"
+          }
         }
       }
     },
@@ -2649,6 +4242,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "다음: 전화해서 다섯 단어를 맞춰 본 뒤 「들이기」를 누르세요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次に、電話で5つの単語が同じか確かめてから「参加を許可」をタップしてください。"
           }
         }
       }
@@ -2660,6 +4259,12 @@
             "state": "translated",
             "value": "다음: 그분 금고를 열고 로그인을 넣거나 메모장 사진을 찍으세요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次に、その人の保管庫を開いてログインを追加するか、メモ帳のページを撮影してください。"
+          }
         }
       }
     },
@@ -2669,6 +4274,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "다음: 한 분씩 링크를 보내세요(카카오톡·문자). 누르고 비밀번호만 정하면 돼요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次に、一人ずつリンクを送ってください（KakaoTalkやメッセージで）。相手はタップしてパスワードを決めるだけです。"
           }
         }
       }
@@ -2680,6 +4291,12 @@
             "state": "translated",
             "value": "다음: 「가족 초대하기」를 누르세요. 부모님이 앱을 깔기 전에 로그인을 미리 넣어 둘 수 있어요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次に「家族を招待」をタップしてください。親御さんがアプリを入れる前でも、ログインを代わりに追加しておけます。"
+          }
         }
       }
     },
@@ -2689,6 +4306,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "그 사진에는 QR 코드가 없어요"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この写真にQRコードが見つかりません"
           }
         }
       }
@@ -2700,6 +4323,12 @@
             "state": "translated",
             "value": "볼 수 없음"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アクセス権なし"
+          }
         }
       }
     },
@@ -2709,6 +4338,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "그 파일에서 로그인을 찾지 못했어요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このファイルにログインが見つかりませんでした。"
           }
         }
       }
@@ -2720,6 +4355,12 @@
             "state": "translated",
             "value": "이 사진에서 로그인을 찾지 못했어요. 더 가까이, 더 밝게 찍어 보세요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この写真からログインを読み取れませんでした。もっと近づいて、明るい場所で撮ってください。"
+          }
         }
       }
     },
@@ -2729,6 +4370,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "이 사이트에 저장된 패스키가 없어요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このサイトのパスキーはありません。"
           }
         }
       }
@@ -2740,6 +4387,12 @@
             "state": "translated",
             "value": "다른 단어예요"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一致しない"
+          }
         }
       }
     },
@@ -2749,6 +4402,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "메모"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メモ"
           }
         }
       }
@@ -2760,6 +4419,12 @@
             "state": "translated",
             "value": "아직 아무것도 없어요"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "まだ何もありません"
+          }
         }
       }
     },
@@ -2769,6 +4434,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "번호"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "番号"
           }
         }
       }
@@ -2780,6 +4451,12 @@
             "state": "translated",
             "value": "숫자만 (PIN)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "数字のみ（PIN）"
+          }
         }
       }
     },
@@ -2789,6 +4466,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "확인"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
           }
         }
       }
@@ -2800,6 +4483,12 @@
             "state": "translated",
             "value": "일회용 비밀번호"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワンタイムパスワード"
+          }
         }
       }
     },
@@ -2809,6 +4498,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "일회용 비밀번호 (카운터 %llu)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワンタイムパスワード（カウンター %llu）"
           }
         }
       }
@@ -2820,6 +4515,12 @@
             "state": "translated",
             "value": "일회용 비밀번호 설정 키"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワンタイムパスワードの設定キー"
+          }
         }
       }
     },
@@ -2829,6 +4530,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "한 번만 열기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1回だけ表示"
           }
         }
       }
@@ -2840,6 +4547,12 @@
             "state": "translated",
             "value": "개인 금고만 내보내요. 가족 금고는 가족 모두의 것이에요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "書き出すのは自分の保管庫だけです。家族の保管庫は家族みんなのものです。"
+          }
         }
       }
     },
@@ -2849,6 +4562,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Safari 설정 열기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safariの設定を開く"
           }
         }
       }
@@ -2860,6 +4579,12 @@
             "state": "translated",
             "value": "설정 열기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定を開く"
+          }
         }
       }
     },
@@ -2869,6 +4594,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "초대 열기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "招待を開く"
           }
         }
       }
@@ -2880,6 +4611,12 @@
             "state": "translated",
             "value": "가족이 보낸 링크(카카오톡·문자)를 여세요. AZET Pass가 열리면서 필요한 것을 다 채워 줘요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族から届いたリンク（KakaoTalkやメッセージ）を開いてください。AZET Passが開いて、必要なことをすべて入力します。"
+          }
         }
       }
     },
@@ -2889,6 +4626,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "오픈소스 라이선스"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オープンソースライセンス"
           }
         }
       }
@@ -2900,6 +4643,12 @@
             "state": "translated",
             "value": "또는 QR 코드 스크린샷"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "またはQRコードのスクリーンショット"
+          }
         }
       }
     },
@@ -2909,6 +4658,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "또는 링크를 여기에 붙여 넣기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "またはリンクをここに貼り付け"
           }
         }
       }
@@ -2920,6 +4675,12 @@
             "state": "translated",
             "value": "관리자"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "管理者"
+          }
         }
       }
     },
@@ -2929,6 +4690,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "관리자는 가족을 초대하고, 비밀번호를 잊은 가족이 다시 들어오도록 도울 수 있어요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "管理者は家族を招待できます。パスワードを忘れた家族が、もう一度入れるように手伝うこともできます。"
           }
         }
       }
@@ -2940,6 +4707,12 @@
             "state": "translated",
             "value": "레저 면허"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "レジャー免許"
+          }
         }
       }
     },
@@ -2949,6 +4722,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "보내는 서버"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "送信サーバー"
           }
         }
       }
@@ -2960,12 +4739,24 @@
             "state": "translated",
             "value": "전체 비밀번호 강도"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスワード全体の強さ"
+          }
         }
       }
     },
     "PIN": {
       "localizations": {
         "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PIN"
+          }
+        },
+        "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "PIN"
@@ -2980,6 +4771,12 @@
             "state": "translated",
             "value": "부모님 모드"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "シニアモード"
+          }
         }
       }
     },
@@ -2989,6 +4786,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "패스키"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスキー"
           }
         }
       }
@@ -3000,6 +4803,12 @@
             "state": "translated",
             "value": "이 사이트의 패스키가 저장돼 있어요"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このサイトのパスキーは保存済みです"
+          }
         }
       }
     },
@@ -3009,6 +4818,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "지문·얼굴 로그인(패스키) 사이트"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスキー（指紋・顔でログイン）対応サイト"
           }
         }
       }
@@ -3020,6 +4835,12 @@
             "state": "translated",
             "value": "패스키·카드·인증 코드를 한곳에"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスキー・カード・確認コードをひとまとめに"
+          }
         }
       }
     },
@@ -3029,6 +4850,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "여권"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスポート"
           }
         }
       }
@@ -3040,6 +4867,12 @@
             "state": "translated",
             "value": "여권 번호"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスポート番号"
+          }
         }
       }
     },
@@ -3049,6 +4882,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "비밀번호"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスワード"
           }
         }
       }
@@ -3060,6 +4899,12 @@
             "state": "translated",
             "value": "파일 비밀번호"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ファイルのパスワード"
+          }
         }
       }
     },
@@ -3069,6 +4914,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "비밀번호 생성기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスワード作成"
           }
         }
       }
@@ -3080,6 +4931,12 @@
             "state": "translated",
             "value": "이전 비밀번호"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "以前のパスワード"
+          }
         }
       }
     },
@@ -3089,6 +4946,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "이전 비밀번호 (%lld)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "以前のパスワード（%lld）"
           }
         }
       }
@@ -3100,6 +4963,12 @@
             "state": "translated",
             "value": "비밀번호: %@"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスワード：%@"
+          }
         }
       }
     },
@@ -3109,6 +4978,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "환자"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "患者"
           }
         }
       }
@@ -3120,6 +4995,12 @@
             "state": "translated",
             "value": "사람"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メンバー"
+          }
         }
       }
     },
@@ -3129,6 +5010,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "전화번호"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "電話番号"
           }
         }
       }
@@ -3140,6 +5027,12 @@
             "state": "translated",
             "value": "통신사"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "携帯会社"
+          }
         }
       }
     },
@@ -3149,6 +5042,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "메모장 한 쪽을 찍어 주세요"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メモ帳を1ページずつ撮影してください"
           }
         }
       }
@@ -3160,6 +5059,12 @@
             "state": "translated",
             "value": "메모장을 찍으면 로그인이 저절로 채워져요"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メモ帳を撮影するだけで、ログイン情報が自動で入ります"
+          }
         }
       }
     },
@@ -3169,6 +5074,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "병원"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "病院"
           }
         }
       }
@@ -3180,6 +5091,12 @@
             "state": "translated",
             "value": "자주 쓰는 사이트와 카테고리"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "よく使うサイトとカテゴリ"
+          }
         }
       }
     },
@@ -3189,6 +5106,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "포트"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ポート"
           }
         }
       }
@@ -3200,6 +5123,12 @@
             "state": "translated",
             "value": "포털·메일"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ポータル・メール"
+          }
         }
       }
     },
@@ -3209,6 +5138,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "우편번호"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "郵便番号"
           }
         }
       }
@@ -3220,6 +5155,12 @@
             "state": "translated",
             "value": "인쇄해서 계정 비밀번호를 손으로 적고, 중요한 서류와 함께 보관하세요. 가족 관리자도 다시 들어오도록 도울 수 있어요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "印刷して、アカウントのパスワードを手書きで書き込み、大切な書類と一緒に保管してください。家族の管理者に手伝ってもらって、もう一度入ることもできます。"
+          }
         }
       }
     },
@@ -3229,6 +5170,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "인쇄 또는 저장"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "印刷・保存"
           }
         }
       }
@@ -3240,6 +5187,12 @@
             "state": "translated",
             "value": "개인정보 처리방침"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プライバシーポリシー"
+          }
         }
       }
     },
@@ -3249,6 +5202,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "개인"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "個人"
           }
         }
       }
@@ -3260,6 +5219,12 @@
             "state": "translated",
             "value": "개인 키"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "秘密鍵"
+          }
         }
       }
     },
@@ -3269,6 +5234,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "개인 금고"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自分の保管庫"
           }
         }
       }
@@ -3280,6 +5251,12 @@
             "state": "translated",
             "value": "공개 키"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "公開鍵"
+          }
         }
       }
     },
@@ -3289,6 +5266,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "구입일"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "購入日"
           }
         }
       }
@@ -3300,6 +5283,12 @@
             "state": "translated",
             "value": "무작위"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ランダム"
+          }
         }
       }
     },
@@ -3309,6 +5298,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "사진에서 QR 코드 읽기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "写真からQRコードを読み取る"
           }
         }
       }
@@ -3320,6 +5315,12 @@
             "state": "translated",
             "value": "%@ 님께 이 다섯 단어를 읽어 주세요. 같은 단어가 보이면 들여보내 줘요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@さんに、この5つの言葉を読み上げてください。相手の画面に同じ言葉が出ていれば、参加を許可してもらえます。"
+          }
         }
       }
     },
@@ -3329,6 +5330,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "초대한 가족에게 이 단어를 읽어 주세요. 같은 단어가 보이면 들여보내 주고, 가족 항목이 여기 나타나요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "招待してくれた家族に、この言葉を読み上げてください。同じ言葉が出ていれば参加を許可してもらえて、家族の項目がここに表示されます。"
           }
         }
       }
@@ -3340,6 +5347,12 @@
             "state": "translated",
             "value": "읽는 중…"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "読み取り中…"
+          }
         }
       }
     },
@@ -3349,6 +5362,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "진료 내용"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "受診内容"
           }
         }
       }
@@ -3360,6 +5379,12 @@
             "state": "translated",
             "value": "최근 삭제"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近削除した項目"
+          }
         }
       }
     },
@@ -3369,6 +5394,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "최근 수정"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近の変更"
           }
         }
       }
@@ -3380,6 +5411,12 @@
             "state": "translated",
             "value": "복구 문구"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "復元フレーズ"
+          }
         }
       }
     },
@@ -3389,6 +5426,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "이 앱으로 들어오면 복구가 켜져요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このアプリから参加すると、復元がオンになります。"
           }
         }
       }
@@ -3400,6 +5443,12 @@
             "state": "translated",
             "value": "빼기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外す"
+          }
         }
       }
     },
@@ -3409,6 +5458,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ 님을 가족에서 뺄까요? 개인 금고는 그대로 두고 가족 금고만 볼 수 없게 돼요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@さんを家族から外しますか？自分の保管庫はそのまま残りますが、家族の保管庫は見られなくなります。"
           }
         }
       }
@@ -3420,6 +5475,12 @@
             "state": "translated",
             "value": "가족에서 빼기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族から外す"
+          }
         }
       }
     },
@@ -3429,6 +5490,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "되살리기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "元に戻す"
           }
         }
       }
@@ -3440,6 +5507,12 @@
             "state": "translated",
             "value": "다시 허용"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再び許可する"
+          }
         }
       }
     },
@@ -3449,6 +5522,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "다시 쓴 비밀번호"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使い回しのパスワード"
           }
         }
       }
@@ -3460,6 +5539,12 @@
             "state": "translated",
             "value": "포인트·적립"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ポイントカード"
+          }
         }
       }
     },
@@ -3469,6 +5554,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "역할"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "役割"
           }
         }
       }
@@ -3480,12 +5571,24 @@
             "state": "translated",
             "value": "SSH 키"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSH鍵"
+          }
         }
       }
     },
     "SWIFT": {
       "localizations": {
         "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SWIFT"
+          }
+        },
+        "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "SWIFT"
@@ -3500,6 +5603,12 @@
             "state": "translated",
             "value": "여행 중에도 보관"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "旅行中も表示する"
+          }
         }
       }
     },
@@ -3509,6 +5618,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld개 사이트에서 같은 비밀번호"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld件のサイトで同じパスワード"
           }
         }
       }
@@ -3520,6 +5635,12 @@
             "state": "translated",
             "value": "같은 단어예요, 들이기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同じ言葉なので参加させる"
+          }
         }
       }
     },
@@ -3529,6 +5650,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "같은 단어면 들여보내세요. 다르면 다른 사람이 링크를 가졌을 수 있어요. 「다른 단어예요」를 누르고 새로 초대하세요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "言葉が同じなら参加させてください。違う場合は、ほかの人がリンクを持っているかもしれません。「違う」をタップして、新しく招待し直してください。"
           }
         }
       }
@@ -3540,6 +5667,12 @@
             "state": "translated",
             "value": "저장"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保存"
+          }
         }
       }
     },
@@ -3549,6 +5682,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%1$lld개 저장%2$@"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld件を保存%@"
           }
         }
       }
@@ -3560,6 +5699,12 @@
             "state": "translated",
             "value": "새 비밀번호 저장"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しいパスワードを保存"
+          }
         }
       }
     },
@@ -3569,6 +5714,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ 패스키 저장"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@のパスキーを保存"
           }
         }
       }
@@ -3580,6 +5731,12 @@
             "state": "translated",
             "value": "파일 저장 또는 보내기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ファイルを保存・送信"
+          }
         }
       }
     },
@@ -3589,6 +5746,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "QR 코드 스캔"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QRコードを読み取る"
           }
         }
       }
@@ -3600,6 +5763,12 @@
             "state": "translated",
             "value": "메모장 사진 찍기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メモ帳を撮影"
+          }
         }
       }
     },
@@ -3609,6 +5778,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "메모장 사진을 이 금고로"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メモ帳を撮影してこの保管庫へ"
           }
         }
       }
@@ -3620,6 +5795,12 @@
             "state": "translated",
             "value": "비밀번호 메모장 찍기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスワードのメモ帳を撮影"
+          }
         }
       }
     },
@@ -3629,6 +5810,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "다음 QR 찍기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "続けて読み取る"
           }
         }
       }
@@ -3640,6 +5827,12 @@
             "state": "translated",
             "value": "카메라로 카드 스캔"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カメラでカードを読み取る"
+          }
         }
       }
     },
@@ -3649,6 +5842,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "메모장 찍기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メモ帳を撮影"
           }
         }
       }
@@ -3660,6 +5859,12 @@
             "state": "translated",
             "value": "메모장 찍기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メモ帳を撮影"
+          }
         }
       }
     },
@@ -3669,6 +5874,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "항목·사이트·금고 검색"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "項目・サイト・保管庫を検索"
           }
         }
       }
@@ -3680,6 +5891,12 @@
             "state": "translated",
             "value": "보안 메모"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セキュアメモ"
+          }
         }
       }
     },
@@ -3689,6 +5906,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "보안"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セキュリティ"
           }
         }
       }
@@ -3700,6 +5923,12 @@
             "state": "translated",
             "value": "보안 코드(CVC)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セキュリティコード（CVC）"
+          }
         }
       }
     },
@@ -3709,6 +5938,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "다시 보내기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再送信"
           }
         }
       }
@@ -3720,6 +5955,12 @@
             "state": "translated",
             "value": "가입 링크 받기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登録用リンクを受け取る"
+          }
         }
       }
     },
@@ -3729,6 +5970,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "링크 보내기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リンクを送る"
           }
         }
       }
@@ -3740,6 +5987,12 @@
             "state": "translated",
             "value": "%@ 님께 이 링크를 보내세요. 휴대폰에서 열면 AZET Pass가 설치되고, 이메일이 채워진 채 비밀번호만 정하면 돼요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@さんにこのリンクを送ってください。スマホで開くとAZET Passがインストールされ、メールアドレスも入力済みなので、パスワードを決めるだけで使えます。"
+          }
         }
       }
     },
@@ -3749,6 +6002,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "서버"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サーバー"
           }
         }
       }
@@ -3760,6 +6019,12 @@
             "state": "translated",
             "value": "임시 비밀번호 정하기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仮パスワードを設定"
+          }
         }
       }
     },
@@ -3769,6 +6034,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "설정하기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定する"
           }
         }
       }
@@ -3780,6 +6051,12 @@
             "state": "translated",
             "value": "부모님 휴대폰을 내 폰에서 세팅"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "親のスマホを自分のスマホから設定"
+          }
         }
       }
     },
@@ -3789,6 +6066,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "오늘 가족 모두 세팅하기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今日、家族みんなの設定をする"
           }
         }
       }
@@ -3800,6 +6083,12 @@
             "state": "translated",
             "value": "설정"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定"
+          }
         }
       }
     },
@@ -3809,6 +6098,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "설정 키"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セットアップキー"
           }
         }
       }
@@ -3820,6 +6115,12 @@
             "state": "translated",
             "value": "%@ 공유"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@を共有"
+          }
         }
       }
     },
@@ -3829,6 +6130,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "링크로 사본 보내기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リンクでコピーを共有"
           }
         }
       }
@@ -3840,6 +6147,12 @@
             "state": "translated",
             "value": "가족 공유"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族で共有"
+          }
         }
       }
     },
@@ -3849,6 +6162,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "공유 금고"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "共有保管庫"
           }
         }
       }
@@ -3860,6 +6179,12 @@
             "state": "translated",
             "value": "쇼핑"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ショッピング"
+          }
         }
       }
     },
@@ -3869,6 +6194,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "보기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "表示"
           }
         }
       }
@@ -3880,6 +6211,12 @@
             "state": "translated",
             "value": "크게 보기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "大きく表示"
+          }
         }
       }
     },
@@ -3889,6 +6226,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "전체 앱 보기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すべての機能を表示"
           }
         }
       }
@@ -3900,6 +6243,12 @@
             "state": "translated",
             "value": "로그인"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ログイン"
+          }
         }
       }
     },
@@ -3909,6 +6258,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "다시 로그인하세요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "もう一度ログインしてください。"
           }
         }
       }
@@ -3920,6 +6275,12 @@
             "state": "translated",
             "value": "패스키로 로그인"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスキーでログイン"
+          }
         }
       }
     },
@@ -3929,6 +6290,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "로그아웃"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ログアウト"
           }
         }
       }
@@ -3940,6 +6307,12 @@
             "state": "translated",
             "value": "이 기기에서 이 계정을 로그아웃할까요?"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデバイスでこのアカウントからログアウトしますか？"
+          }
         }
       }
     },
@@ -3949,6 +6322,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "로그인 주소"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ログイン用アドレス"
           }
         }
       }
@@ -3960,6 +6339,12 @@
             "state": "translated",
             "value": "새 기기에서 로그인할 때 인증 앱의 코드도 물어봐요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しいデバイスでログインするときは、認証アプリのコードも入力が必要です。"
+          }
         }
       }
     },
@@ -3970,12 +6355,24 @@
             "state": "translated",
             "value": "사이트"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サイト"
+          }
         }
       }
     },
     "Social": {
       "localizations": {
         "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SNS"
+          }
+        },
+        "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "SNS"
@@ -3990,6 +6387,12 @@
             "state": "translated",
             "value": "소프트웨어 라이선스"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ソフトウェアライセンス"
+          }
         }
       }
     },
@@ -3999,6 +6402,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "문제가 생겼어요. 다시 해 주세요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "問題が発生しました。もう一度お試しください。"
           }
         }
       }
@@ -4010,6 +6419,12 @@
             "state": "translated",
             "value": "정렬"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "並べ替え"
+          }
         }
       }
     },
@@ -4019,6 +6434,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "소스 코드"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ソースコード"
           }
         }
       }
@@ -4030,6 +6451,12 @@
             "state": "translated",
             "value": "탈옥된 iPhone에서는 열지 않기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "脱獄したiPhoneでは開かない"
+          }
         }
       }
     },
@@ -4039,6 +6466,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "튼튼해요"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "強い"
           }
         }
       }
@@ -4050,6 +6483,12 @@
             "state": "translated",
             "value": "튼튼한 비밀번호"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "強いパスワード"
+          }
         }
       }
     },
@@ -4059,6 +6498,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "추천"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "おすすめ"
           }
         }
       }
@@ -4070,6 +6515,12 @@
             "state": "translated",
             "value": "성"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "姓"
+          }
         }
       }
     },
@@ -4079,6 +6530,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "잠시 멈추기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一時停止"
           }
         }
       }
@@ -4090,6 +6547,12 @@
             "state": "translated",
             "value": "멈춤"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停止中"
+          }
         }
       }
     },
@@ -4099,6 +6562,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "특수문자"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "記号"
           }
         }
       }
@@ -4110,6 +6579,12 @@
             "state": "translated",
             "value": "사진 찍기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "写真を撮る"
+          }
         }
       }
     },
@@ -4119,6 +6594,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "한 쪽을 찍으면 AZET Pass가 이 기기 안에서 사이트·아이디·비밀번호를 읽고, 하나씩 확인하게 해 줘요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページを1枚撮影してください。AZET Passがこのデバイスの中でサイト・ID・パスワードを読み取り、1件ずつ確認できます。"
           }
         }
       }
@@ -4130,6 +6611,12 @@
             "state": "translated",
             "value": "이 임시 비밀번호를 직접 또는 전화로 알려 주세요. 로그인한 뒤 설정에서 바꾸라고 해 주세요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この仮パスワードは、直接会うか電話で伝えてください。ログインしたら設定から変更するよう伝えてください。"
+          }
         }
       }
     },
@@ -4139,6 +6626,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "비밀번호가 유출되면 알려 줘요"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスワードが漏れたらお知らせします"
           }
         }
       }
@@ -4150,6 +6643,12 @@
             "state": "translated",
             "value": "임시 비밀번호"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仮パスワード"
+          }
         }
       }
     },
@@ -4159,6 +6658,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "글"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "テキスト"
           }
         }
       }
@@ -4170,6 +6675,12 @@
             "state": "translated",
             "value": "계정 비밀번호가 맞지 않아요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アカウントのパスワードが違います。"
+          }
         }
       }
     },
@@ -4179,6 +6690,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "이메일 주소가 맞는지 확인해 주세요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メールアドレスが正しいか確認してください。"
           }
         }
       }
@@ -4190,6 +6707,12 @@
             "state": "translated",
             "value": "6자리 코드"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6桁のコード"
+          }
         }
       }
     },
@@ -4200,15 +6723,27 @@
             "state": "translated",
             "value": "파일은 이 기기 안에서만 읽어요. 비밀번호가 그대로 적혀 있으니 가져온 뒤 지워 주세요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ファイルはこの端末の中だけで読み込みます。パスワードがそのまま書かれているので、読み込んだあとは削除してください。"
+          }
         }
       }
     },
-    "The password notebook for the whole family": {
+    "The password notebook for you and your family": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "온 가족의 비밀번호 수첩"
+            "value": "나와 가족의 비밀번호 수첩"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "あなたと家族のパスワード手帳"
           }
         }
       }
@@ -4220,6 +6755,12 @@
             "state": "translated",
             "value": "받는 사람은 사본을 봐요. 나중에 항목을 고쳐도 보낸 내용은 바뀌지 않아요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相手にはコピーが届きます。あとで項目を変えても、送った内容は変わりません。"
+          }
         }
       }
     },
@@ -4229,6 +6770,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "아이폰·안드로이드·맥에서 같은 금고"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPhone・Android・Macで同じ保管庫"
           }
         }
       }
@@ -4240,6 +6787,12 @@
             "state": "translated",
             "value": "두 비밀번호가 달라요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2つのパスワードが一致しません。"
+          }
         }
       }
     },
@@ -4249,6 +6802,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "그분 이메일"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相手のメールアドレス"
           }
         }
       }
@@ -4260,6 +6819,12 @@
             "state": "translated",
             "value": "가족 금고 대신 채워 주기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族の保管庫を代わりに準備"
+          }
         }
       }
     },
@@ -4269,6 +6834,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "그다음 로그인 페이지에서 Safari 도구 막대의 AZET Pass 버튼을 누르세요. 그 사이트의 로그인을 보여 주고 채워 줘요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次に、ログイン画面でSafariのツールバーにあるAZET Passボタンをクリックしてください。そのサイトのログイン情報が表示され、自動で入力されます。"
           }
         }
       }
@@ -4280,6 +6851,12 @@
             "state": "translated",
             "value": "그러면 모든 앱과 Safari의 키보드에 로그인·패스키·일회용 비밀번호가 떠요. 컴퓨터에는 Chrome·Safari·Edge·Firefox용 AZET Pass를 설치하세요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "これで、すべてのアプリとSafariのキーボードにログイン情報・パスキー・ワンタイムパスワードが表示されます。パソコンでは、Chrome・Safari・Edge・Firefox用のAZET Passをインストールしてください。"
+          }
         }
       }
     },
@@ -4289,6 +6866,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "아직 링크를 열지 않았어요. 새 링크를 만들면 예전 링크는 열리지 않아요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "まだリンクが開かれていません。新しいリンクを作ると、前のリンクは使えなくなります。"
           }
         }
       }
@@ -4300,6 +6883,12 @@
             "state": "translated",
             "value": "모든 기기에서 로그아웃돼요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すべての端末でログアウトされます。"
+          }
         }
       }
     },
@@ -4309,6 +6898,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "이 계정은 Argon2id를 써요. 웹 금고에서 PBKDF2로 바꾼 뒤 여기서 로그인하세요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このアカウントはArgon2idを使っています。Web保管庫でPBKDF2に変更してから、ここでログインしてください。"
           }
         }
       }
@@ -4320,6 +6915,12 @@
             "state": "translated",
             "value": "이 iPhone은 탈옥된 것으로 보여요. 설정에서 이런 기기에서는 항목을 열지 않도록 해 두셨어요. 항목은 다른 기기에 안전하게 있어요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このiPhoneは脱獄されているようです。設定で、このような端末では項目を開かないようにしています。項目はほかの端末で安全に保管されています。"
+          }
         }
       }
     },
@@ -4329,6 +6930,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "이 초대는 %1$@ 님 것이에요. 지금 %2$@(으)로 로그인돼 있어요. 로그아웃한 뒤 열어 주세요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この招待は%@さん宛てです。いまは%@でログインしています。ログアウトしてから開いてください。"
           }
         }
       }
@@ -4340,6 +6947,12 @@
             "state": "translated",
             "value": "Google OTP 계정 내보내기 QR 코드가 아니에요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google Authenticatorのエクスポート用QRコードではありません。"
+          }
         }
       }
     },
@@ -4349,6 +6962,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "가족이 초대한 주소예요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族が招待したアドレスです。"
           }
         }
       }
@@ -4360,6 +6979,12 @@
             "state": "translated",
             "value": "이제 외울 비밀번호는 이것 하나예요. 종이에 적어 집에 두세요. 잊어도 가족 관리자가 다시 들어오게 도와줄 수 있어요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "覚えるパスワードはこれ1つだけです。紙に書いて家で保管してください。忘れても、家族の管理者がログインし直せるよう手伝えます。"
+          }
         }
       }
     },
@@ -4369,6 +6994,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "이 항목은 보기 전에 계정 비밀번호를 다시 묻습니다."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この項目は、表示する前にアカウントのパスワードを確認します。"
           }
         }
       }
@@ -4380,6 +7011,12 @@
             "state": "translated",
             "value": "이 항목이 없어졌어요. 당겨서 새로 고치세요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この項目は見つかりません。下に引っぱって更新してください。"
+          }
         }
       }
     },
@@ -4389,6 +7026,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "이 사이트는 2단계 로그인을 지원해요"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このサイトは2段階認証に対応しています"
           }
         }
       }
@@ -4400,6 +7043,12 @@
             "state": "translated",
             "value": "이 사이트는 패스키를 지원해요"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このサイトはパスキーに対応しています"
+          }
         }
       }
     },
@@ -4409,6 +7058,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "제목"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "タイトル"
           }
         }
       }
@@ -4420,6 +7075,12 @@
             "state": "translated",
             "value": "너무 쉬워요"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "簡単すぎます"
+          }
         }
       }
     },
@@ -4429,6 +7090,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "여행 모드"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "旅行モード"
           }
         }
       }
@@ -4440,6 +7107,12 @@
             "state": "translated",
             "value": "여행 모드 켜짐: 여행용 항목만 이 기기에 있어요"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "旅行モード中：この端末には旅行用の項目だけがあります"
+          }
         }
       }
     },
@@ -4449,6 +7122,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "끄기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オフにする"
           }
         }
       }
@@ -4460,6 +7139,12 @@
             "state": "translated",
             "value": "여행 모드 끄기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "旅行モードをオフにする"
+          }
         }
       }
     },
@@ -4469,6 +7154,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "켜기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンにする"
           }
         }
       }
@@ -4480,6 +7171,12 @@
             "state": "translated",
             "value": "여행 모드 켜기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "旅行モードをオンにする"
+          }
         }
       }
     },
@@ -4489,6 +7186,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "2단계 로그인"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2段階認証"
           }
         }
       }
@@ -4500,6 +7203,12 @@
             "state": "translated",
             "value": "인증 코드를 켤 수 있는 사이트"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2段階認証を使えるサイト"
+          }
         }
       }
     },
@@ -4509,6 +7218,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "2단계 로그인 코드예요. 사이트의 QR 코드를 찍거나 설정 키를 붙여 넣으세요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2段階認証のコードです。サイトに表示されたQRコードを読み取るか、設定キーを貼り付けてください。"
           }
         }
       }
@@ -4520,6 +7235,12 @@
             "state": "translated",
             "value": "이 계정의 2단계 로그인"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このアカウントの2段階認証"
+          }
         }
       }
     },
@@ -4529,6 +7250,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "2단계 로그인이 켜져 있어요"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2段階認証はオンです"
           }
         }
       }
@@ -4540,6 +7267,12 @@
             "state": "translated",
             "value": "종류"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "種類"
+          }
         }
       }
     },
@@ -4549,6 +7282,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "한 번 더 입력"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "もう一度入力"
           }
         }
       }
@@ -4560,12 +7299,24 @@
             "state": "translated",
             "value": "한 번 더 입력해 주세요"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "もう一度入力してください"
+          }
         }
       }
     },
     "URL": {
       "localizations": {
         "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URL"
+          }
+        },
+        "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "URL"
@@ -4580,6 +7331,12 @@
             "state": "translated",
             "value": "열기"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ロック解除"
+          }
         }
       }
     },
@@ -4589,6 +7346,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "AZET Pass 열기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AZET Passのロックを解除"
           }
         }
       }
@@ -4600,6 +7363,12 @@
             "state": "translated",
             "value": "먼저 AZET Pass를 연 다음 링크를 다시 눌러 주세요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "先にAZET Passのロックを解除してから、もう一度リンクを開いてください。"
+          }
         }
       }
     },
@@ -4609,6 +7378,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Face ID로 열기"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Face IDでロック解除"
           }
         }
       }
@@ -4620,6 +7395,12 @@
             "state": "translated",
             "value": "Touch ID로 잠금 해제"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touch IDでロック解除"
+          }
         }
       }
     },
@@ -4629,6 +7410,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "보안 연결이 아닌 사이트"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安全でない接続のサイト"
           }
         }
       }
@@ -4640,6 +7427,12 @@
             "state": "translated",
             "value": "5명까지, 각자 개인 금고가 있고 와이파이·넷플릭스처럼 함께 쓰는 것은 가족 공유 금고에 둬요. 가족 관리자는 비밀번호를 잊은 가족을 도와줄 수 있어요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5人まで使えて、一人ひとりに専用の保管庫があります。Wi-FiやNetflixなど家族みんなで使うものは共有保管庫に入れておけます。家族の管理者は、パスワードを忘れた家族を手助けできます。"
+          }
         }
       }
     },
@@ -4649,6 +7442,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "다섯 명까지, 각자 개인 금고도 따로"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5人まで、一人ひとりに専用の保管庫"
           }
         }
       }
@@ -4660,6 +7459,12 @@
             "state": "translated",
             "value": "다른 계정 사용"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "別のアカウントを使う"
+          }
         }
       }
     },
@@ -4669,6 +7474,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "아이디"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ユーザー名"
           }
         }
       }
@@ -4680,6 +7491,12 @@
             "state": "translated",
             "value": "https가 아닌 http를 써요"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "httpsではなくhttpを使っています"
+          }
         }
       }
     },
@@ -4689,6 +7506,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "시작일"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "開始日"
           }
         }
       }
@@ -4700,6 +7523,12 @@
             "state": "translated",
             "value": "값"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "値"
+          }
         }
       }
     },
@@ -4709,6 +7538,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "금고"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保管庫"
           }
         }
       }
@@ -4720,6 +7555,12 @@
             "state": "translated",
             "value": "금고 이름"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保管庫の名前"
+          }
         }
       }
     },
@@ -4729,6 +7570,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "금고"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保管庫"
           }
         }
       }
@@ -4740,6 +7587,12 @@
             "state": "translated",
             "value": "버전"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バージョン"
+          }
         }
       }
     },
@@ -4749,6 +7602,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "버전 %@. 내려받아 이 앱을 바꿔 주세요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バージョン%@。ダウンロードして、このアプリと入れ替えてください。"
           }
         }
       }
@@ -4760,6 +7619,12 @@
             "state": "translated",
             "value": "영상·음악"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "動画・音楽"
+          }
         }
       }
     },
@@ -4769,6 +7634,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "보기·편집"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "表示・編集"
           }
         }
       }
@@ -4780,6 +7651,12 @@
             "state": "translated",
             "value": "보기만"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "表示のみ"
+          }
         }
       }
     },
@@ -4789,6 +7666,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "확인 기다림"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確認待ち"
           }
         }
       }
@@ -4800,6 +7683,12 @@
             "state": "translated",
             "value": "지갑 주소"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ウォレットアドレス"
+          }
         }
       }
     },
@@ -4809,6 +7698,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "보안 점검"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セキュリティチェック"
           }
         }
       }
@@ -4820,6 +7715,12 @@
             "state": "translated",
             "value": "보안 점수 %lld"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セキュリティスコア %lld"
+          }
         }
       }
     },
@@ -4829,6 +7730,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "주소가 맞는지 확인하려고 링크를 메일로 보내 드려요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ご本人のアドレスか確認するため、リンクをメールでお送りします。"
           }
         }
       }
@@ -4840,6 +7747,12 @@
             "state": "translated",
             "value": "약해요"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "弱い"
+          }
         }
       }
     },
@@ -4849,6 +7762,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "약한 비밀번호"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "弱いパスワード"
           }
         }
       }
@@ -4860,6 +7779,12 @@
             "state": "translated",
             "value": "웹사이트"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Webサイト"
+          }
         }
       }
     },
@@ -4869,6 +7794,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "웹사이트"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Webサイト"
           }
         }
       }
@@ -4880,6 +7811,12 @@
             "state": "translated",
             "value": "이메일이 무엇인가요?"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メールアドレスを教えてください"
+          }
         }
       }
     },
@@ -4889,6 +7826,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "가족이 뭐라고 부르면 될까요?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族からの呼び名を教えてください"
           }
         }
       }
@@ -4900,6 +7843,12 @@
             "state": "translated",
             "value": "여행 모드를 켜면 여행용으로 표시한 금고만 휴대폰에 남아요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "トラベルモードをオンにすると、旅行用に設定した保管庫だけがスマホに残ります。"
+          }
         }
       }
     },
@@ -4909,6 +7858,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "보관 장소"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保管場所"
           }
         }
       }
@@ -4920,6 +7875,12 @@
             "state": "translated",
             "value": "켜 두는 동안 여행용으로 표시한 항목과 금고만 기기에 남아요. 끄면 나머지가 모두 돌아와요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンの間は、旅行用に設定した項目と保管庫だけが端末に残ります。オフにすると、ほかのものもすべて元に戻ります。"
+          }
         }
       }
     },
@@ -4929,6 +7890,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "볼 수 있는 가족"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "見られる家族"
           }
         }
       }
@@ -4940,6 +7907,12 @@
             "state": "translated",
             "value": "와이파이"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wi-Fi"
+          }
         }
       }
     },
@@ -4949,6 +7922,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "와이파이 비밀번호"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wi-Fiのパスワード"
           }
         }
       }
@@ -4960,6 +7939,12 @@
             "state": "translated",
             "value": "켜 두면 관리자가 내 계정의 새 비밀번호를 정할 수 있고, 그러면 내 금고도 열 수 있어요. 믿는 가족일 때만 켜세요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンにすると、管理者があなたのアカウントに新しいパスワードを設定できるため、あなたの保管庫も開けるようになります。信頼できる家族の場合だけオンにしてください。"
+          }
         }
       }
     },
@@ -4969,6 +7954,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "단어"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "単語"
           }
         }
       }
@@ -4980,6 +7971,12 @@
             "state": "translated",
             "value": "생활·학교"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仕事・学校"
+          }
         }
       }
     },
@@ -4989,6 +7986,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "연도"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "年"
           }
         }
       }
@@ -5000,6 +8003,12 @@
             "state": "translated",
             "value": "나와 그분 둘 다 봐요. 들어오기 전에 은행·정부·쇼핑 로그인을 넣어 두면 그분은 링크만 열면 돼요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "あなたとその方の両方が見られます。参加する前に銀行・行政・ショッピングのログイン情報を入れておけば、その方はリンクを開くだけで使えます。"
+          }
         }
       }
     },
@@ -5009,6 +8018,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "이제 그 쪽은 찢어 버리거나 안전한 곳에 두세요. 앞으로는 로그인이 저절로 채워져요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このページは破いて捨てるか、ノートごと安全な場所に保管してください。これからはログイン情報が自動で入力されます。"
           }
         }
       }
@@ -5020,6 +8035,12 @@
             "state": "translated",
             "value": "들어왔어요. 마지막 한 단계"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ログインできました。あと1ステップです"
+          }
         }
       }
     },
@@ -5029,6 +8050,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "계정 비밀번호를 입력해 주세요"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アカウントのパスワードを入力してください"
           }
         }
       }
@@ -5040,6 +8067,12 @@
             "state": "translated",
             "value": "계정 비밀번호는 이 기기 밖으로 나가지 않아요. 되돌릴 수 없는 확인 값만 보내요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アカウントのパスワードがこの端末の外に送られることはありません。送られるのは、元に戻せない確認用の値だけです。"
+          }
         }
       }
     },
@@ -5049,6 +8082,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "내 데이터"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "あなたのデータ"
           }
         }
       }
@@ -5060,6 +8099,12 @@
             "state": "translated",
             "value": "가족 관리자가 로그인을 대신 넣어 주고, 비밀번호를 고쳐 주고, 계정 비밀번호를 잊으면 다시 들어오게 도와줘요."
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族の管理者は、ログイン情報を代わりに追加したり、パスワードを直したりできます。アカウントのパスワードを忘れたときも、再びログインできるよう手伝ってくれます。"
+          }
         }
       }
     },
@@ -5069,6 +8114,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "내 이름"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "あなたの名前"
           }
         }
       }
@@ -5080,6 +8131,12 @@
             "state": "translated",
             "value": "가족 관리자가 다시 들어오도록 도와줄 수 있어요"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家族の管理者が再ログインを手伝ってくれます"
+          }
         }
       }
     },
@@ -5089,6 +8146,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "그 밖에 %lld개"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ほか%lld件"
           }
         }
       }
@@ -5100,6 +8163,12 @@
             "state": "translated",
             "value": "%lld일 뒤"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld日後"
+          }
         }
       }
     },
@@ -5110,6 +8179,12 @@
             "state": "translated",
             "value": "초대한 가족"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "招待してくれた家族"
+          }
         }
       }
     },
@@ -5119,6 +8194,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "내일"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "明日"
           }
         }
       }

@@ -498,7 +498,7 @@ KO = {
 "Fills in apps and in the browser": "앱과 브라우저에서 바로 채워요",
 "Tells you when a password has leaked": "비밀번호가 유출되면 알려 줘요",
 "The same vault on iPhone, Android and Mac": "아이폰·안드로이드·맥에서 같은 금고",
-"The password notebook for the whole family": "온 가족의 비밀번호 수첩",
+"The password notebook for you and your family": "나와 가족의 비밀번호 수첩",
 "By continuing you agree to the [Terms](https://azet.io/terms) and the [Privacy Policy](https://azet.io/privacy).": "계속하면 [이용약관](https://azet.io/terms)과 [개인정보 처리방침](https://azet.io/privacy)에 동의하는 것으로 봅니다.",
 "Loading": "불러오는 중",
 "Back": "뒤로",

@@ -173,7 +173,7 @@
     <string name="never_empty">없습니다. 로그인 저장을 물을 때 「안 함」을 고르면 여기에 들어갑니다.</string>
     <string name="never_remove">지우기</string>
     <string name="never_saved">%1$s 에서는 저장을 묻지 않습니다.</string>
-    <string name="welcome_headline">온 가족의 비밀번호 수첩</string>
+    <string name="welcome_headline">나와 가족의 비밀번호 수첩</string>
     <string name="welcome_create">무료로 시작하기</string>
     <string name="welcome_legal">계속하면 %1$s과 %2$s에 동의하는 것으로 봅니다.</string>
     <string name="terms">이용약관</string>

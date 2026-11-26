@@ -4,6 +4,7 @@ usage: tools/make-strings.py <derived-data-dir>   (build once first). Prints key
 import glob, json, os, sys
 sys.path.insert(0, os.path.dirname(__file__))
 from ko import KO
+from ja import JA
 keys = set()
 for f in glob.glob(os.path.join(sys.argv[1], 'Build/Intermediates.noindex/**/*.stringsdata'), recursive=True):
     for ents in json.load(open(f)).get('tables', {}).values():
@@ -13,6 +14,7 @@ missing = []
 for k in sorted(keys):
     if k in KO:
         out["strings"][k] = {"localizations": {"ko": {"stringUnit": {"state": "translated", "value": KO[k]}}}}
+        if k in JA: out["strings"][k]["localizations"]["ja"] = {"stringUnit": {"state": "translated", "value": JA[k]}}
     else:
         out["strings"][k] = {}
         missing.append(k)

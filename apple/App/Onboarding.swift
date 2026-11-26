@@ -174,7 +174,7 @@ struct WelcomeView: View {
                 Spacer(minLength: 20)
                 Hero(shown: shown)
                 VStack(spacing: 6) {
-                    Text("The password notebook for the whole family")
+                    Text("The password notebook for you and your family")
                         .font(.system(size: 22, weight: .medium)).tracking(-0.22).lineSpacing(4).multilineTextAlignment(.center)
                     ZStack {
                         Text(lines[line % lines.count]).id(line).transition(still ? .opacity : .lineSwap)

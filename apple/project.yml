@@ -52,7 +52,7 @@ targetTemplates:
         CFBundleURLTypes:
           - CFBundleURLName: io.azet.pass
             CFBundleURLSchemes: [azetpass]
-        CFBundleLocalizations: [en, ko]
+        CFBundleLocalizations: [en, ko, ja]
     entitlements:
       path: Mac/AZETPassMac.entitlements
       properties:
@@ -98,7 +98,7 @@ targets:
         CFBundleURLTypes:
           - CFBundleURLName: io.azet.pass
             CFBundleURLSchemes: [azetpass]
-        CFBundleLocalizations: [en, ko]
+        CFBundleLocalizations: [en, ko, ja]
     entitlements:
       path: App/AZETPass.entitlements
       properties:

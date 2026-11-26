@@ -173,7 +173,7 @@
     <string name="never_empty">No sites or apps. Choosing Never when asked to save a sign-in adds one here.</string>
     <string name="never_remove">Remove</string>
     <string name="never_saved">AZET Pass will not ask to save for %1$s.</string>
-    <string name="welcome_headline">The password notebook for the whole family</string>
+    <string name="welcome_headline">The password notebook for you and your family</string>
     <string name="welcome_create">Get started free</string>
     <string name="welcome_legal">By continuing you agree to the %1$s and the %2$s.</string>
     <string name="terms">Terms</string>

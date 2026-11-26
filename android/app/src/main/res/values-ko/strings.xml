@@ -174,7 +174,7 @@
     <string name="never_remove">지우기</string>
     <string name="never_saved">%1$s 에서는 저장을 묻지 않습니다.</string>
     <string name="welcome_headline">온 가족의 비밀번호 수첩</string>
-    <string name="welcome_create">가족 계정 만들기</string>
+    <string name="welcome_create">무료로 시작하기</string>
     <string name="welcome_legal">계속하면 %1$s과 %2$s에 동의하는 것으로 봅니다.</string>
     <string name="terms">이용약관</string>
     <string name="bad_email">이메일 주소가 맞는지 확인해 주세요.</string>
@@ -222,10 +222,10 @@
     <string name="check_again">다시 확인</string>
     <string name="fam_setup">가족 세팅</string>
     <string name="fam_step_made">가족 만들기</string>
-    <string name="fam_step_invited">가족 모두 초대 (%1$d/4)</string>
-    <string name="fam_step_filled">그분들 금고 대신 채우기</string>
-    <string name="fam_step_opened">모두 링크를 열었어요</string>
-    <string name="fam_step_in">다섯 단어 확인 후 모두 입장</string>
+    <string name="fam_step_invited">가족 초대 (%1$d명)</string>
+    <string name="fam_step_filled">가족 금고 대신 채워 주기</string>
+    <string name="fam_step_opened">모두 초대 링크를 열었어요</string>
+    <string name="fam_step_in">단어 5개 맞춰 보고 들어오기</string>
     <string name="fam_next_invite">다음: 「가족 초대하기」를 누르세요. 부모님이 앱을 깔기 전에 로그인을 미리 넣어 둘 수 있어요.</string>
     <string name="fam_next_fill">다음: 그분 금고를 열고 로그인을 넣거나 메모장 사진을 찍으세요.</string>
     <string name="fam_next_send">다음: 한 분씩 링크를 보내세요(카카오톡·문자). 누르고 비밀번호만 정하면 돼요.</string>

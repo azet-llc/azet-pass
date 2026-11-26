@@ -174,7 +174,7 @@
     <string name="never_remove">Remove</string>
     <string name="never_saved">AZET Pass will not ask to save for %1$s.</string>
     <string name="welcome_headline">The password notebook for the whole family</string>
-    <string name="welcome_create">Create a family account</string>
+    <string name="welcome_create">Get started free</string>
     <string name="welcome_legal">By continuing you agree to the %1$s and the %2$s.</string>
     <string name="terms">Terms</string>
     <string name="bad_email">That does not look like an email address.</string>
@@ -223,7 +223,7 @@
     <string name="check_again">Check again</string>
     <string name="fam_setup">Family setup</string>
     <string name="fam_step_made">Family made</string>
-    <string name="fam_step_invited">Everyone invited (%1$d/4)</string>
+    <string name="fam_step_invited">Family invited (%1$d)</string>
     <string name="fam_step_filled">Their vaults filled in for them</string>
     <string name="fam_step_opened">Everyone opened the link</string>
     <string name="fam_step_in">Everyone let in after the five words</string>

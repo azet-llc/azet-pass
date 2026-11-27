@@ -1,6 +1,7 @@
 #!/bin/zsh
 # Builds libbitwarden_uniffi.so (arm64) from ~/Code/sdk-internal-android with the NDK clang, then the Kotlin bindings.
 set -e
+APP=$(cd "$(dirname "$0")/.." && pwd)/app
 export PATH=$HOME/.cargo/bin:$PATH
 NDK=~/Library/Android/sdk/ndk/27.1.12297006; TC=$NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin
 export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=$TC/aarch64-linux-android29-clang
@@ -14,5 +15,5 @@ $TB/cargo build -p bitwarden-uniffi --release --target aarch64-linux-android
 K=crates/bitwarden-uniffi/kotlin; mkdir -p $K/sdk/src/main/jniLibs/arm64-v8a
 cp target/aarch64-linux-android/release/libbitwarden_uniffi.so $K/sdk/src/main/jniLibs/arm64-v8a/
 $TB/cargo run -p uniffi-bindgen generate $K/sdk/src/main/jniLibs/arm64-v8a/libbitwarden_uniffi.so --language kotlin --no-format --out-dir $K/sdk/src/main/java
-G=$(cd "$(dirname "$0")/.." && pwd)/app/sdk-gen; rm -rf "$G"; mkdir -p "$G"; cp -R $K/sdk/src/main/java $K/sdk/src/main/jniLibs "$G"/
+G=$APP/sdk-gen; rm -rf "$G"; mkdir -p "$G"; cp -R $K/sdk/src/main/java $K/sdk/src/main/jniLibs "$G"/
 echo "SDK bindings and .so in $G"

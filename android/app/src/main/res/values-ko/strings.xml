@@ -218,18 +218,16 @@
     <string name="fam_got_invite">초대를 받으셨나요? 가족이 보낸 링크를 열어 주세요.</string>
     <string name="shared_vault">가족 공유</string>
     <string name="fam_almost">%1$s 가족에 거의 다 왔어요</string>
-    <string name="fam_read_words">초대한 가족에게 이 단어를 읽어 주세요. 같은 단어가 보이면 들여보내 주고, 가족 항목이 여기 나타나요.</string>
+    <string name="fam_read_words">초대한 가족이 「들이기」만 누르면 돼요. 그러면 가족 항목이 바로 여기 나타나요.</string>
     <string name="check_again">다시 확인</string>
     <string name="fam_setup">가족 세팅</string>
     <string name="fam_step_made">가족 만들기</string>
     <string name="fam_step_invited">가족 초대 (%1$d명)</string>
-    <string name="fam_step_filled">가족 금고 대신 채워 주기</string>
     <string name="fam_step_opened">모두 초대 링크를 열었어요</string>
-    <string name="fam_step_in">단어 5개 맞춰 보고 들어오기</string>
+    <string name="fam_step_in">모두 들어오기</string>
     <string name="fam_next_invite">다음: 「가족 초대하기」를 누르세요. 부모님이 앱을 깔기 전에 로그인을 미리 넣어 둘 수 있어요.</string>
-    <string name="fam_next_fill">다음: 그분 금고를 열고 로그인을 넣거나 메모장 사진을 찍으세요.</string>
     <string name="fam_next_send">다음: 한 분씩 링크를 보내세요(카카오톡·문자). 누르고 비밀번호만 정하면 돼요.</string>
-    <string name="fam_next_words">다음: 전화해서 다섯 단어를 맞춰 본 뒤 이름을 눌러 들여보내세요.</string>
+    <string name="fam_next_words">다음: 이름 옆 「들이기」를 누르세요.</string>
     <string name="fam_invite_someone">가족 초대하기</string>
     <string name="fam_shared_vaults">공유 금고</string>
     <string name="fam_invited">초대함</string>
@@ -255,10 +253,6 @@
     <string name="invite_share_text">%1$s 님이 AZET Pass의 %2$s 가족에 초대했어요. 휴대폰에서 이 링크를 열어 주세요:</string>
     <string name="invite_vault_ready">「%1$s」 금고가 준비됐어요. 지금 로그인을 넣어 두면 들어오는 순간 모두 보여요.</string>
     <string name="invite_expired">이 초대 링크는 기한이 지났어요. 가족에게 새 링크를 부탁하세요.</string>
-    <string name="confirm_call">%1$s 님께 전화해서 화면의 다섯 단어를 읽어 달라고 하세요.</string>
-    <string name="confirm_note">같은 단어면 들여보내세요. 다르면 다른 사람이 링크를 가졌을 수 있어요. 「다른 단어예요」를 누르고 새로 초대하세요.</string>
-    <string name="confirm_same">같은 단어예요, 들이기</string>
-    <string name="confirm_different">다른 단어예요</string>
     <string name="join_title">가족 초대</string>
     <string name="join_invited">%1$s 님이 %2$s 가족에 초대했어요.</string>
     <string name="join_wrong_account">이 초대는 %1$s 님 것이에요. 지금 %2$s(으)로 로그인돼 있어요. 로그아웃한 뒤 열어 주세요.</string>
@@ -267,7 +261,7 @@
     <string name="join_recovery_needs_password">이 기능을 켜려면 계정 비밀번호가 필요해요. AZET Pass를 잠근 뒤 계정 비밀번호로 열고 링크를 다시 열어 주세요.</string>
     <string name="join_go">가족에 들어가기</string>
     <string name="join_in">들어왔어요. 마지막 한 단계</string>
-    <string name="join_read_to">%1$s 님께 이 다섯 단어를 읽어 주세요. 같은 단어가 보이면 들여보내 줘요.</string>
+    <string name="join_read_to">%1$s 님이 「들이기」만 누르면 돼요. 그러면 가족 항목이 바로 보여요.</string>
     <string name="join_have_account">이미 계정이 있어요</string>
     <string name="join_inviter_fallback">초대한 가족</string>
     <string name="done">완료</string>
@@ -331,4 +325,5 @@
     <string name="join_invited_plain">%1$s 가족에 초대받았어요.</string>
     <string name="home_two_title">이 휴대폰에 AZET Pass 앱이 두 개 있어요</string>
     <string name="home_two_desc">Google Play에서 받은 앱만 남기세요. 저절로 업데이트돼요. 눌러서 다른 하나를 지우세요. 금고는 계정에 그대로 있어요.</string>
+    <string name="let_in">들이기</string>
 </resources>

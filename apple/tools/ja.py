@@ -513,4 +513,9 @@ JA = {
 "That account password is not right.": "アカウントのパスワードが違います。",
 "That does not look like an email address.": "メールアドレスが正しいか確認してください。",
 "The 6-digit code": "6桁のコード"
+"The person who invited you just has to tap Let in. The family's items appear here right after.": "招待してくれた家族が「参加を許可」をタップするだけです。そのあとすぐ家族の項目がここに表示されます。",
+"Everyone let in": "全員の参加を許可",
+"Next: tap Let in next to their name.": "次は、名前の横の「参加を許可」をタップします。",
+"%@ just has to tap Let in. Your family's items appear right after.": "%@さんが「参加を許可」をタップするだけです。そのあとすぐ家族の項目が表示されます。",
+"The person who invited you": "招待してくれた家族",
 }

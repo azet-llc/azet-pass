@@ -210,18 +210,16 @@
     <string name="fam_got_invite">招待を受けた方は、家族から届いたリンクを開いてください。</string>
     <string name="shared_vault">家族で共有</string>
     <string name="fam_almost">%1$s にもうすぐ参加できます</string>
-    <string name="fam_read_words">招待してくれた家族に、この言葉を読み上げてください。同じ言葉が表示されていれば参加を許可してもらえ、家族の項目がここに表示されます。</string>
+    <string name="fam_read_words">招待してくれた家族が「参加を許可」をタップするだけです。そのあとすぐ家族の項目がここに表示されます。</string>
     <string name="check_again">もう一度確認</string>
     <string name="fam_setup">家族の設定</string>
     <string name="fam_step_made">家族をつくる</string>
     <string name="fam_step_invited">家族を招待（%1$d人）</string>
-    <string name="fam_step_filled">家族の保管庫を代わりに入力</string>
     <string name="fam_step_opened">全員が招待リンクを開く</string>
-    <string name="fam_step_in">5つの言葉を確かめて参加を許可</string>
+    <string name="fam_step_in">全員の参加を許可</string>
     <string name="fam_next_invite">次は「家族を招待」をタップします。親がアプリを入れる前に、ログイン情報を代わりに入れておけます。</string>
-    <string name="fam_next_fill">次は、家族の保管庫を開いてログイン情報を入れるか、メモ帳のページを撮影します。</string>
     <string name="fam_next_send">次は、一人ずつリンクを送ります（LINE やメッセージなど）。タップしてパスワードを決めるだけで完了です。</string>
-    <string name="fam_next_words">次は、電話で5つの言葉を確かめ合い、名前をタップして参加を許可します。</string>
+    <string name="fam_next_words">次は、名前の横の「参加を許可」をタップします。</string>
     <string name="fam_invite_someone">家族を招待</string>
     <string name="fam_shared_vaults">共有の保管庫</string>
     <string name="fam_invited">招待済み</string>
@@ -247,10 +245,6 @@
     <string name="invite_share_text">%1$s さんから AZET Pass の「%2$s」に招待が届いています。スマホでこのリンクを開いてください：</string>
     <string name="invite_vault_ready">「%1$s」保管庫ができました。今ログイン情報を入れておけば、参加したその時からすべて使えます。</string>
     <string name="invite_expired">この招待リンクは有効期限が切れています。家族に新しいリンクを送ってもらってください。</string>
-    <string name="confirm_call">%1$s さんに電話して、画面の5つの言葉を読み上げてもらってください。</string>
-    <string name="confirm_note">同じ言葉なら参加を許可してください。違う場合は、ほかの人がリンクを持っているかもしれません。「違う言葉です」をタップして、もう一度招待してください。</string>
-    <string name="confirm_same">同じ言葉なので許可する</string>
-    <string name="confirm_different">違う言葉です</string>
     <string name="join_title">家族への招待</string>
     <string name="join_invited">%1$s さんから「%2$s」に招待されました。</string>
     <string name="join_wrong_account">この招待は %1$s さん宛てです。現在 %2$s でログインしています。使うには先にログアウトしてください。</string>
@@ -259,7 +253,7 @@
     <string name="join_recovery_needs_password">この機能をオンにするには、アカウントのパスワードが必要です。AZET Pass をロックしてアカウントのパスワードで開き直してから、もう一度リンクを開いてください。</string>
     <string name="join_go">家族に参加する</string>
     <string name="join_in">参加できました。あと1ステップです</string>
-    <string name="join_read_to">この5つの言葉を%1$sさんに読み上げてください。相手の画面に同じ言葉が出ていれば、参加を許可してもらえます。</string>
+    <string name="join_read_to">%1$sさんが「参加を許可」をタップするだけです。そのあとすぐ家族の項目が表示されます。</string>
     <string name="join_have_account">アカウントを持っています</string>
     <string name="join_inviter_fallback">招待したご家族</string>
     <string name="done">完了</string>
@@ -333,4 +327,5 @@
         <item>パスワードが漏れたらお知らせ</item>
         <item>iPhone・Android・Macで同じ保管庫</item>
     </string-array>
+    <string name="let_in">参加を許可</string>
 </resources>

@@ -219,18 +219,16 @@
     <string name="fam_got_invite">Got an invite instead? Open the link your family sent you.</string>
     <string name="shared_vault">Shared</string>
     <string name="fam_almost">Almost in %1$s</string>
-    <string name="fam_read_words">Read these words to the person who invited you. When they see the same words, they let you in and the family\'s items appear here.</string>
+    <string name="fam_read_words">The person who invited you just has to tap Let in. The family\'s items appear here right after.</string>
     <string name="check_again">Check again</string>
     <string name="fam_setup">Family setup</string>
     <string name="fam_step_made">Family made</string>
     <string name="fam_step_invited">Family invited (%1$d)</string>
-    <string name="fam_step_filled">Their vaults filled in for them</string>
     <string name="fam_step_opened">Everyone opened the link</string>
-    <string name="fam_step_in">Everyone let in after the five words</string>
+    <string name="fam_step_in">Everyone let in</string>
     <string name="fam_next_invite">Next: tap Invite someone. You can add a parent\'s logins for them before they even install the app.</string>
-    <string name="fam_next_fill">Next: open a person\'s vault and add their logins, or scan their notebook page.</string>
     <string name="fam_next_send">Next: send each person their link (KakaoTalk or text). They tap it and make their password.</string>
-    <string name="fam_next_words">Next: call them and compare the five words, then tap their name to let them in.</string>
+    <string name="fam_next_words">Next: tap Let in next to their name.</string>
     <string name="fam_invite_someone">Invite someone</string>
     <string name="fam_shared_vaults">Shared vaults</string>
     <string name="fam_invited">Invited</string>
@@ -256,10 +254,6 @@
     <string name="invite_share_text">%1$s invited you to the %2$s family on AZET Pass. Open this link on your phone:</string>
     <string name="invite_vault_ready">A vault called \"%1$s\" is ready. Add their logins now, so everything is there the moment they join.</string>
     <string name="invite_expired">This invite link has expired. Ask your family for a new one.</string>
-    <string name="confirm_call">Call %1$s and ask them to read their five words.</string>
-    <string name="confirm_note">Same words? Let them in. Different words? Someone else may have the link: tap Not the same and send a new invite.</string>
-    <string name="confirm_same">Same words, let them in</string>
-    <string name="confirm_different">Not the same</string>
     <string name="join_title">Family invite</string>
     <string name="join_invited">%1$s invited you to the %2$s family.</string>
     <string name="join_wrong_account">This invite is for %1$s. You\'re signed in as %2$s. Sign out first to use it.</string>
@@ -268,7 +262,7 @@
     <string name="join_recovery_needs_password">Lock AZET Pass and unlock it with your account password first, then open the link again: turning this on needs the password.</string>
     <string name="join_go">Join the family</string>
     <string name="join_in">You\'re in. One last step</string>
-    <string name="join_read_to">Read these five words to %1$s. When their screen shows the same words, they let you in.</string>
+    <string name="join_read_to">%1$s just has to tap Let in. Your family\'s items appear right after.</string>
     <string name="join_have_account">I already have an account</string>
     <string name="join_inviter_fallback">the person who invited you</string>
     <string name="done">Done</string>
@@ -332,4 +326,5 @@
     <string name="join_invited_plain">You are invited to the %1$s family.</string>
     <string name="home_two_title">Two AZET Pass apps on this phone</string>
     <string name="home_two_desc">Keep the one from Google Play, it updates itself. Tap to remove the other; your vault stays on your account.</string>
+    <string name="let_in">Let in</string>
 </resources>

@@ -82,6 +82,22 @@
         }
       }
     },
+    "%@ just has to tap Let in. Your family's items appear right after.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 님이 「들이기」만 누르면 돼요. 그러면 가족 항목이 바로 보여요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@さんが「参加を許可」をタップするだけです。そのあとすぐ家族の項目が表示されます。"
+          }
+        }
+      }
+    },
     "%@ · %lld of 5 people": {
       "localizations": {
         "ko": {
@@ -354,16 +370,7 @@
         }
       }
     },
-    "AZET Pass for iPhone — Copyright © 2026 AZET LLC. Licensed under the GNU General Public License v3.0. Source: https://github.com/azet-llc/azet-pass\n\nEncryption: Bitwarden SDK (sdk-internal), GNU GPL v3.0, Copyright © Bitwarden Inc. Built from source without the Bitwarden-licensed parts. AZET Pass is not made or endorsed by Bitwarden.\n\nSync server: warden-worker, MIT licence.\n\nPassword breach checks: Have I Been Pwned (Troy Hunt), range API, CC BY 4.0.\n\nThis program comes with ABSOLUTELY NO WARRANTY. You may redistribute it under the terms of the GPL v3.0: https://www.gnu.org/licenses/gpl-3.0.html": {
-      "localizations": {
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "AZET Pass for iPhone — Copyright © 2026 AZET LLC. GNU General Public License v3.0 のもとで提供しています。ソース: https://github.com/azet-llc/azet-pass\n\n暗号化: Bitwarden SDK (sdk-internal)、GNU GPL v3.0、Copyright © Bitwarden Inc. Bitwardenライセンスの部分を除いてソースからビルドしています。AZET PassはBitwardenが作ったものではなく、Bitwardenが推奨するものでもありません。\n\n同期サーバー: warden-worker、MITライセンス。\n\nパスワード流出チェック: Have I Been Pwned (Troy Hunt)、range API、CC BY 4.0。\n\nこのプログラムには一切の保証がありません。GPL v3.0 の条件に従って再配布できます: https://www.gnu.org/licenses/gpl-3.0.html"
-          }
-        }
-      }
-    },
+    "AZET Pass for iPhone — Copyright © 2026 AZET LLC. Licensed under the GNU General Public License v3.0. Source: https://github.com/azet-llc/azet-pass\n\nEncryption: Bitwarden SDK (sdk-internal), GNU GPL v3.0, Copyright © Bitwarden Inc. Built from source without the Bitwarden-licensed parts. AZET Pass is not made or endorsed by Bitwarden.\n\nSync server: warden-worker, MIT licence.\n\nPassword breach checks: Have I Been Pwned (Troy Hunt), range API, CC BY 4.0.\n\nThis program comes with ABSOLUTELY NO WARRANTY. You may redistribute it under the terms of the GPL v3.0: https://www.gnu.org/licenses/gpl-3.0.html": {},
     "AZET Pass is off on this device": {
       "localizations": {
         "ko": {
@@ -1036,22 +1043,6 @@
         }
       }
     },
-    "Call %@ and ask them to read their five words.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ 님께 전화해서 화면의 다섯 단어를 읽어 달라고 하세요."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@さんに電話して、画面に出ている5つの単語を読んでもらってください。"
-          }
-        }
-      }
-    },
     "Camera not available. Paste the setup key instead.": {
       "localizations": {
         "ko": {
@@ -1384,22 +1375,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "会社"
-          }
-        }
-      }
-    },
-    "Compare the five words": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "다섯 단어 맞춰 보기"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "5つの単語を照らし合わせる"
           }
         }
       }
@@ -2092,18 +2067,18 @@
         }
       }
     },
-    "Everyone let in after the five words": {
+    "Everyone let in": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "단어 5개 맞춰 보고 들어오기"
+            "value": "모두 들어오기"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "5つの単語を確認して全員が参加しました"
+            "value": "全員の参加を許可"
           }
         }
       }
@@ -4236,38 +4211,6 @@
         }
       }
     },
-    "Next: call them and compare the five words, then tap Let in.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "다음: 전화해서 다섯 단어를 맞춰 본 뒤 「들이기」를 누르세요."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "次に、電話で5つの単語が同じか確かめてから「参加を許可」をタップしてください。"
-          }
-        }
-      }
-    },
-    "Next: open a person's vault and add their logins, or scan their notebook page.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "다음: 그분 금고를 열고 로그인을 넣거나 메모장 사진을 찍으세요."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "次に、その人の保管庫を開いてログインを追加するか、メモ帳のページを撮影してください。"
-          }
-        }
-      }
-    },
     "Next: send each person their link (KakaoTalk or text). They tap it and make their password.": {
       "localizations": {
         "ko": {
@@ -4296,6 +4239,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "次に「家族を招待」をタップしてください。親御さんがアプリを入れる前でも、ログインを代わりに追加しておけます。"
+          }
+        }
+      }
+    },
+    "Next: tap Let in next to their name.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음: 이름 옆 「들이기」를 누르세요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次は、名前の横の「参加を許可」をタップします。"
           }
         }
       }
@@ -4376,22 +4335,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "このサイトのパスキーはありません。"
-          }
-        }
-      }
-    },
-    "Not the same": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "다른 단어예요"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "一致しない"
           }
         }
       }
@@ -5308,38 +5251,6 @@
         }
       }
     },
-    "Read these five words to %@. When their screen shows the same words, they let you in.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ 님께 이 다섯 단어를 읽어 주세요. 같은 단어가 보이면 들여보내 줘요."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@さんに、この5つの言葉を読み上げてください。相手の画面に同じ言葉が出ていれば、参加を許可してもらえます。"
-          }
-        }
-      }
-    },
-    "Read these words to the person who invited you. When they see the same words, they let you in and the family's items appear here.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "초대한 가족에게 이 단어를 읽어 주세요. 같은 단어가 보이면 들여보내 주고, 가족 항목이 여기 나타나요."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "招待してくれた家族に、この言葉を読み上げてください。同じ言葉が出ていれば参加を許可してもらえて、家族の項目がここに表示されます。"
-          }
-        }
-      }
-    },
     "Reading the page…": {
       "localizations": {
         "ko": {
@@ -5624,38 +5535,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld件のサイトで同じパスワード"
-          }
-        }
-      }
-    },
-    "Same words, let them in": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "같은 단어예요, 들이기"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "同じ言葉なので参加させる"
-          }
-        }
-      }
-    },
-    "Same words? Let them in. Different words? Someone else may have the link: tap Not the same and send a new invite.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "같은 단어면 들여보내세요. 다르면 다른 사람이 링크를 가졌을 수 있어요. 「다른 단어예요」를 누르고 새로 초대하세요."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "言葉が同じなら参加させてください。違う場合は、ほかの人がリンクを持っているかもしれません。「違う」をタップして、新しく招待し直してください。"
           }
         }
       }
@@ -6764,6 +6643,38 @@
         }
       }
     },
+    "The person who invited you": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "초대한 가족"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "招待してくれた家族"
+          }
+        }
+      }
+    },
+    "The person who invited you just has to tap Let in. The family's items appear here right after.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "초대한 가족이 「들이기」만 누르면 돼요. 그러면 가족 항목이 바로 여기 나타나요."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "招待してくれた家族が「参加を許可」をタップするだけです。そのあとすぐ家族の項目がここに表示されます。"
+          }
+        }
+      }
+    },
     "The same vault on iPhone, Android and Mac": {
       "localizations": {
         "ko": {
@@ -6808,22 +6719,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "相手のメールアドレス"
-          }
-        }
-      }
-    },
-    "Their vaults filled in for them": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "가족 금고 대신 채워 주기"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "家族の保管庫を代わりに準備"
           }
         }
       }
@@ -8168,22 +8063,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld日後"
-          }
-        }
-      }
-    },
-    "the person who invited you": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "초대한 가족"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "招待してくれた家族"
           }
         }
       }

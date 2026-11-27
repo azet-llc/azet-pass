@@ -43,7 +43,6 @@ sealed interface Route {
     data object Send : Route
     data object Devices : Route
     data object GoogleOtp : Route
-    data class Confirm(val family: Family, val member: Member) : Route
     data class Invite(val family: Family) : Route
     data class Vault(val id: String) : Route
     data class AddLogin(val vaultId: String) : Route
@@ -77,7 +76,6 @@ fun MainScreen(act: FragmentActivity, link: String?) {
         Route.Generator -> GeneratorScreen(::back)
         Route.Check -> CheckScreen(::back) { go(Route.Detail(it)) }
         Route.Send -> SendScreen(::back)
-        is Route.Confirm -> ConfirmScreen(r.family, r.member, ::back)
         is Route.Invite -> InviteScreen(r.family, ::back)
         is Route.Vault -> VaultScreen(r.id, ::back, ::go)
         is Route.AddLogin -> Session.vaults.firstOrNull { it.id?.toString() == r.vaultId }?.let { AddLoginScreen(it, ::back) } ?: back()

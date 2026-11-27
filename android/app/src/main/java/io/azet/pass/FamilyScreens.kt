@@ -50,25 +50,6 @@ private fun inviteError(): (Throwable) -> String {
     return { e -> if (e.message.orEmpty().contains("expired", ignoreCase = true)) expired else e.message ?: e.toString() }
 }
 
-/** The five words both people read out loud, numbered. */
-@Composable
-fun FiveWords(phrase: String) {
-    val words = phrase.split("-").filter { it.isNotEmpty() }
-    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        words.chunked(3).forEachIndexed { r, row ->
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                row.forEachIndexed { i, w ->
-                    Column(Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).background(c().primary.copy(alpha = 0.10f)).padding(vertical = 10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("${r * 3 + i + 1}", fontSize = 11.sp, color = c().sub)
-                        Text(w, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, fontFamily = FontFamily.Monospace, color = c().text, maxLines = 1)
-                    }
-                }
-                repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
-            }
-        }
-    }
-}
-
 @Composable
 private fun Chip(text: String, color: Color) {
     Text(text, Modifier.clip(CircleShape).background(color.copy(alpha = 0.16f)).padding(horizontal = 10.dp, vertical = 4.dp), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = c().text)
@@ -114,7 +95,6 @@ private fun CreateFamily() {
 private fun Waiting(f: Family) {
     val scope = rememberCoroutineScope()
     Lead(stringResource(R.string.fam_almost, f.name), stringResource(R.string.fam_read_words))
-    Box(Modifier.padding(horizontal = OneDim.side)) { FiveWords(Session.myFingerprint()) }
     TextButton({ scope.launch { runCatching { Session.sync() } } }, Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) { Text(stringResource(R.string.check_again), color = c().primary, fontSize = 15.sp) }
 }
 
@@ -127,13 +107,18 @@ private fun Member.statusText() = stringResource(when {
 private fun FamilyHome(f: Family, go: (Route) -> Unit) {
     var members by remember { mutableStateOf<List<Member>>(emptyList()) }
     var error by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
     LaunchedEffect(f.id) { runCatching { members = Session.members(f); Session.sync() }.onFailure { error = it.message } }
+    // like 1Password's Confirm: one tap beside the name, no call and no words to compare
+    fun letIn(m: Member) = scope.launch {
+        runCatching { Session.confirm(f, m) }.onFailure { error = it.message }
+        runCatching { members = Session.members(f); Session.sync() }
+    }
     val vaults = Session.vaults.filter { it.organizationId == f.id }
     val others = members.filter { it.userId != Session.store.account?.userId && it.role != 5 }
     val steps = listOf(
         stringResource(R.string.fam_step_made) to true,
         stringResource(R.string.fam_step_invited, others.size) to others.isNotEmpty(),
-        stringResource(R.string.fam_step_filled) to vaults.any { v -> Session.items.any { v.id in it.collectionIds } },
         stringResource(R.string.fam_step_opened) to (others.isNotEmpty() && others.all { it.status >= 1 }),
         stringResource(R.string.fam_step_in) to (others.isNotEmpty() && others.all { it.status == 2 }))
     val done = steps.count { it.second }
@@ -150,8 +135,8 @@ private fun FamilyHome(f: Family, go: (Route) -> Unit) {
                     Text(text, Modifier.padding(start = 10.dp), fontSize = 15.sp, color = if (ok) c().text else c().sub)
                 }
             }
-            if (done < steps.size) Text(stringResource(when { !steps[1].second -> R.string.fam_next_invite; !steps[2].second -> R.string.fam_next_fill
-                !steps[3].second -> R.string.fam_next_send; else -> R.string.fam_next_words }), Modifier.padding(top = 10.dp), fontSize = 14.sp, lineHeight = 19.sp, color = c().sub)
+            if (done < steps.size) Text(stringResource(when { !steps[1].second -> R.string.fam_next_invite
+                !steps[2].second -> R.string.fam_next_send; else -> R.string.fam_next_words }), Modifier.padding(top = 10.dp), fontSize = 14.sp, lineHeight = 19.sp, color = c().sub)
         }
     }
     error?.let { Text(it, Modifier.padding(horizontal = 26.dp, vertical = 8.dp), color = MaterialTheme.colorScheme.error, fontSize = 13.sp) }
@@ -160,8 +145,12 @@ private fun FamilyHome(f: Family, go: (Route) -> Unit) {
     OneCard {
         members.forEachIndexed { i, m ->
             if (i > 0) OneDivider()
-            OneRow(m.name, summary = m.email, onClick = if (f.isOrganizer && m.status == 1) ({ go(Route.Confirm(f, m)) }) else null,
-                trailing = { Chip(m.statusText(), when (m.status) { 2 -> Color(0xFF2E9E5B); 1 -> Color(0xFFE8912F); else -> Color.Gray }) })
+            OneRow(m.name, summary = m.email, onClick = null,
+                trailing = {
+                    if (f.isOrganizer && m.status == 1) Button({ letIn(m) }, shape = CircleShape, contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
+                        modifier = Modifier.height(34.dp), colors = ButtonDefaults.buttonColors(containerColor = c().primary)) { Text(stringResource(R.string.let_in), fontSize = 14.sp) }
+                    else Chip(m.statusText(), when (m.status) { 2 -> Color(0xFF2E9E5B); 1 -> Color(0xFFE8912F); else -> Color.Gray })
+                })
         }
         if (f.isOrganizer && count < 5) {
             if (members.isNotEmpty()) OneDivider()
@@ -249,31 +238,6 @@ fun InviteScreen(f: Family, onBack: () -> Unit) {
         Box(Modifier.fillMaxWidth().padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
             if (link == null) StepCta(stringResource(R.string.invite_make), enabled = name.isNotBlank() && "@" in email, busy = busy, height = 56.dp) { make() }
             else StepCta(stringResource(R.string.done), height = 56.dp) { onBack() }
-        }
-    }
-}
-
-/** Organizer side of the five words. The family key goes to the member only after the words match. */
-@Composable
-fun ConfirmScreen(f: Family, m: Member, onBack: () -> Unit) {
-    var busy by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
-    val scope = rememberCoroutineScope()
-    OnePage(m.name, onBack) {
-        Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-            Text(stringResource(R.string.confirm_call, m.name), Modifier.padding(horizontal = 26.dp).padding(bottom = 16.dp), fontSize = 18.sp, lineHeight = 25.sp, fontWeight = FontWeight.Medium, color = c().text)
-            Box(Modifier.padding(horizontal = OneDim.side)) { FiveWords(Session.fingerprint(m)) }
-            Text(stringResource(R.string.confirm_note), Modifier.padding(horizontal = 26.dp, vertical = 16.dp), fontSize = 14.sp, lineHeight = 20.sp, color = c().sub)
-            error?.let { Text(it, Modifier.padding(horizontal = 26.dp), color = MaterialTheme.colorScheme.error, fontSize = 14.sp) }
-        }
-        Column(Modifier.fillMaxWidth().padding(vertical = 12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            StepCta(stringResource(R.string.confirm_same), busy = busy, height = 56.dp) {
-                busy = true
-                scope.launch { runCatching { Session.confirm(f, m) }.onSuccess { onBack() }.onFailure { error = it.message }; busy = false }
-            }
-            TextButton({ scope.launch { runCatching { Session.removeMember(f, m) }.onSuccess { onBack() }.onFailure { error = it.message } } }) {
-                Text(stringResource(R.string.confirm_different), color = MaterialTheme.colorScheme.error, fontSize = 15.sp)
-            }
         }
     }
 }
@@ -407,7 +371,6 @@ fun JoinScreen(invite: Invite) {
             when {
                 joined -> {
                     Lead(stringResource(R.string.join_in), stringResource(R.string.join_read_to, i?.invitedBy?.takeIf { it.isNotBlank() } ?: stringResource(R.string.join_inviter_fallback)))
-                    Box(Modifier.padding(horizontal = OneDim.side)) { FiveWords(Session.myFingerprint()) }
                 }
                 !loaded || (busy && Session.madeFromInvite) -> Box(Modifier.fillMaxWidth().padding(60.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = c().primary) }
                 i != null -> {

@@ -52,6 +52,16 @@
         }
       }
     },
+    "%@ just has to tap Let in. Your family's items appear right after.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 님이 「들이기」만 누르면 돼요. 그러면 가족 항목이 바로 보여요."
+          }
+        }
+      }
+    },
     "%@ · %lld/5": {
       "localizations": {
         "ko": {
@@ -573,16 +583,6 @@
         }
       }
     },
-    "Call %@ and ask them to read their 6-digit code.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ 님께 전화해서 화면의 6자리 번호를 읽어 달라고 하세요."
-          }
-        }
-      }
-    },
     "Camera not available. Paste the setup key instead.": {
       "localizations": {
         "ko": {
@@ -769,16 +769,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "회사"
-          }
-        }
-      }
-    },
-    "Compare the 6-digit code": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "6자리 번호 맞춰 보기"
           }
         }
       }
@@ -1223,12 +1213,12 @@
         }
       }
     },
-    "Everyone let in after the code check": {
+    "Everyone let in": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "번호 확인 후 모두 입장"
+            "value": "모두 들이기 끝"
           }
         }
       }
@@ -2403,26 +2393,6 @@
         }
       }
     },
-    "Next: call them and compare the 6-digit code, then tap Let in.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "다음: 전화해서 6자리 번호를 맞춰 본 뒤 「들이기」를 누르세요."
-          }
-        }
-      }
-    },
-    "Next: open a person's vault and add their logins, or scan their notebook page.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "다음: 그분 금고를 열고 로그인을 넣거나 메모장 사진을 찍으세요."
-          }
-        }
-      }
-    },
     "Next: send each person their link (KakaoTalk or text). They tap it and make their password.": {
       "localizations": {
         "ko": {
@@ -2439,6 +2409,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "다음: 「가족 초대하기」를 누르세요. 부모님이 앱을 깔기 전에 로그인을 미리 넣어 둘 수 있어요."
+          }
+        }
+      }
+    },
+    "Next: tap Let in next to their name.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음: 이름 옆 「들이기」를 누르세요."
           }
         }
       }
@@ -2479,16 +2459,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "이 사이트에 저장된 패스키가 없어요."
-          }
-        }
-      }
-    },
-    "Not the same": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "다른 번호예요"
           }
         }
       }
@@ -3003,26 +2973,6 @@
         }
       }
     },
-    "Read this 6-digit code to %@. When their screen shows the same code, they let you in.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ 님께 이 6자리 번호를 읽어 주세요. 같은 번호가 보이면 들여보내 줘요."
-          }
-        }
-      }
-    },
-    "Read this 6-digit code to the person who invited you. When they see the same code, they let you in and the family's items appear here.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "초대한 가족에게 이 6자리 번호를 읽어 주세요. 같은 번호가 보이면 들여보내 주고, 가족 항목이 여기 나타나요."
-          }
-        }
-      }
-    },
     "Reading the page…": {
       "localizations": {
         "ko": {
@@ -3189,26 +3139,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "여행 중에도 보관"
-          }
-        }
-      }
-    },
-    "Same code, let them in": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "같은 번호예요, 들이기"
-          }
-        }
-      }
-    },
-    "Same code? Let them in. Different code? Someone else may have the link: tap Not the same and send a new invite.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "같은 번호면 들여보내세요. 다르면 다른 사람이 링크를 가졌을 수 있어요. 「다른 번호예요」를 누르고 새로 초대하세요."
           }
         }
       }
@@ -3443,12 +3373,12 @@
         }
       }
     },
-    "Set up a parent's phone from yours, then compare a 6-digit code": {
+    "Set up a parent's phone from yours, before they even install the app": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "부모님 휴대폰을 내 폰에서 세팅하고, 6자리 번호로 확인"
+            "value": "부모님이 앱을 깔기 전에 내 폰에서 미리 세팅"
           }
         }
       }
@@ -3863,22 +3793,32 @@
         }
       }
     },
+    "The person who invited you": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "초대한 가족"
+          }
+        }
+      }
+    },
+    "The person who invited you just has to tap Let in. The family's items appear here right after.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "초대한 가족이 「들이기」만 누르면 돼요. 그러면 가족 항목이 바로 여기 나타나요."
+          }
+        }
+      }
+    },
     "Their email": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "그분 이메일"
-          }
-        }
-      }
-    },
-    "Their vaults filled in for them": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "그분들 금고 대신 채우기"
           }
         }
       }

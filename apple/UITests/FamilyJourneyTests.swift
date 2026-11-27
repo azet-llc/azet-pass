@@ -2,7 +2,7 @@ import XCTest
 
 /// The four-people-in-a-day journey on a real server, in Korean, saving a screenshot at every step:
 /// organizer signs in → makes the family → invites 엄마 with her own vault → fills it (preset + notebook scan) →
-/// parent mode → 엄마 opens the link and signs up → 6-digit code → organizer lets her in → 엄마 sees her vault.
+/// parent mode → 엄마 opens the link and signs up → organizer taps Let in → organizer lets her in → 엄마 sees her vault.
 /// Input: /private/tmp/claude-501/l649-ui.json {orgEmail, orgPassword, momEmail, momPassword, out}. The notebook
 /// photo must be in the simulator's library (xcrun simctl addmedia).
 final class FamilyJourneyTests: XCTestCase {
@@ -180,19 +180,17 @@ final class FamilyJourneyTests: XCTestCase {
         tap(app.buttons["계정 만들기"])
         dismissSavePassword()
         wait(app.staticTexts["들어왔어요. 마지막 한 단계"], 90)
-        shot("mom-five-words")
+        shot("mom-joined")
         tap(app.buttons["완료"])
         signOut()
 
-        // 6 organizer compares the words and lets her in
+        // 6 organizer lets her in with one tap beside her name
         signIn(org, orgPw)
         tap(app.tabBars.buttons["가족"])
-        tap(app.buttons.matching(NSPredicate(format: "label CONTAINS '확인 기다림'")).firstMatch, 40)
-        tap(app.buttons["6자리 번호 맞춰 보기"])
-        wait(app.buttons["같은 번호예요, 들이기"])
-        shot("organizer-five-words")
-        tap(app.buttons["같은 번호예요, 들이기"])
-        app.navigationBars.buttons.element(boundBy: 0).tap()
+        let letIn = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'letin.'")).firstMatch
+        wait(letIn, 40)
+        shot("organizer-let-in")
+        letIn.tap()
         wait(app.staticTexts["가족 세팅"])
         shot("family-checklist-done")
         signOut()

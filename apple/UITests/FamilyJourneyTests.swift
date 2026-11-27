@@ -2,7 +2,7 @@ import XCTest
 
 /// The four-people-in-a-day journey on a real server, in Korean, saving a screenshot at every step:
 /// organizer signs in → makes the family → invites 엄마 with her own vault → fills it (preset + notebook scan) →
-/// parent mode → 엄마 opens the link and signs up → five words → organizer lets her in → 엄마 sees her vault.
+/// parent mode → 엄마 opens the link and signs up → 6-digit code → organizer lets her in → 엄마 sees her vault.
 /// Input: /private/tmp/claude-501/l649-ui.json {orgEmail, orgPassword, momEmail, momPassword, out}. The notebook
 /// photo must be in the simulator's library (xcrun simctl addmedia).
 final class FamilyJourneyTests: XCTestCase {
@@ -188,10 +188,10 @@ final class FamilyJourneyTests: XCTestCase {
         signIn(org, orgPw)
         tap(app.tabBars.buttons["가족"])
         tap(app.buttons.matching(NSPredicate(format: "label CONTAINS '확인 기다림'")).firstMatch, 40)
-        tap(app.buttons["다섯 단어 맞춰 보기"])
-        wait(app.buttons["같은 단어예요, 들이기"])
+        tap(app.buttons["6자리 번호 맞춰 보기"])
+        wait(app.buttons["같은 번호예요, 들이기"])
         shot("organizer-five-words")
-        tap(app.buttons["같은 단어예요, 들이기"])
+        tap(app.buttons["같은 번호예요, 들이기"])
         app.navigationBars.buttons.element(boundBy: 0).tap()
         wait(app.staticTexts["가족 세팅"])
         shot("family-checklist-done")

@@ -1,5 +1,6 @@
 import BitwardenSdk
 import SwiftUI
+import CryptoKit
 
 struct FamilyView: View {
     @Environment(Session.self) private var session
@@ -62,7 +63,7 @@ struct WaitingForConfirm: View {
             Section {
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Almost in \(family.name)").font(.title2.bold())
-                    Text("Read these words to the person who invited you. When they see the same words, they let you in and the family's items appear here.")
+                    Text("Read this 6-digit code to the person who invited you. When they see the same code, they let you in and the family's items appear here.")
                     FingerprintWords(phrase: session.myFingerprint())
                 }.padding(.vertical, 6)
             }
@@ -75,17 +76,20 @@ struct WaitingForConfirm: View {
 struct FingerprintWords: View {
     let phrase: String
     var body: some View {
-        let words = phrase.split(separator: "-").map(String.init)
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3), spacing: 8) {
-            ForEach(Array(words.enumerated()), id: \.offset) { i, w in
-                VStack(spacing: 2) {
-                    Text("\(i + 1)").font(.caption2).foregroundStyle(.secondary)
-                    Text(w).font(.headline.monospaced()).lineLimit(1).minimumScaleFactor(0.6)
-                }
-                .padding(.vertical, 8).frame(maxWidth: .infinity).background(Theme.warm.opacity(0.18), in: RoundedRectangle(cornerRadius: 10))
-            }
-        }
-        .accessibilityElement(children: .combine)
+        let code = FingerprintWords.code(phrase)
+        Text(code.prefix(3) + " " + code.suffix(3))
+            .font(.system(size: 40, weight: .bold, design: .monospaced)).kerning(4)
+            .padding(.vertical, 14).frame(maxWidth: .infinity)
+            .background(Theme.warm.opacity(0.18), in: RoundedRectangle(cornerRadius: 12))
+            .accessibilityLabel(code.map(String.init).joined(separator: " "))
+    }
+
+    /// 6 digits both phones derive from the same SDK fingerprint phrase, so they match whenever the words would.
+    /// shortcut: 6 digits are ~20 bits (the words are ~64); a server forging keys could match it with ~1M key pairs — upgrade to 8+ digits if that threat matters.
+    static func code(_ phrase: String) -> String {
+        guard !phrase.isEmpty else { return "------" }
+        let h = SHA256.hash(data: Data(phrase.utf8)).prefix(4).reduce(UInt32(0)) { $0 << 8 | UInt32($1) }
+        return String(format: "%06u", h % 1_000_000)
     }
 }
 
@@ -188,7 +192,7 @@ struct SetupChecklist: View {
             (String(localized: "Everyone invited (\(others.count)/4)"), others.count >= 1),
             (String(localized: "Their vaults filled in for them"), session.vaults.contains { v in v.organizationId == family.id && session.items.contains { $0.collectionIds.contains(v.id ?? "") } }),
             (String(localized: "Everyone opened the link"), !others.isEmpty && others.allSatisfy { $0.status >= 1 }),
-            (String(localized: "Everyone let in after the five words"), !others.isEmpty && others.allSatisfy { $0.status == 2 }),
+            (String(localized: "Everyone let in after the code check"), !others.isEmpty && others.allSatisfy { $0.status == 2 }),
         ]
         let done = steps.filter(\.1).count
         VStack(alignment: .leading, spacing: 10) {
@@ -212,7 +216,7 @@ struct SetupChecklist: View {
         if !steps[1].1 { return String(localized: "Next: tap Invite someone. You can add a parent's logins for them before they even install the app.") }
         if !steps[2].1 { return String(localized: "Next: open a person's vault and add their logins, or scan their notebook page.") }
         if !steps[3].1 { return String(localized: "Next: send each person their link (KakaoTalk or text). They tap it and make their password.") }
-        return String(localized: "Next: call them and compare the five words, then tap Let in.")
+        return String(localized: "Next: call them and compare the 6-digit code, then tap Let in.")
     }
 }
 
@@ -306,14 +310,14 @@ struct ConfirmMemberView: View {
             List {
                 Section {
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Call \(member.name) and ask them to read their five words.").font(.headline)
+                        Text("Call \(member.name) and ask them to read their 6-digit code.").font(.headline)
                         FingerprintWords(phrase: session.fingerprint(userId: member.userId ?? "", publicKey: member.publicKey ?? ""))
-                        Text("Same words? Let them in. Different words? Someone else may have the link: tap Not the same and send a new invite.")
+                        Text("Same code? Let them in. Different code? Someone else may have the link: tap Not the same and send a new invite.")
                             .font(.subheadline).foregroundStyle(.secondary)
                     }.padding(.vertical, 6)
                 }
                 Section {
-                    Button { Task { await confirm() } } label: { HStack { Label("Same words, let them in", systemImage: "checkmark.circle.fill"); if busy { Spacer(); ProgressView() } } }
+                    Button { Task { await confirm() } } label: { HStack { Label("Same code, let them in", systemImage: "checkmark.circle.fill"); if busy { Spacer(); ProgressView() } } }
                     Button(role: .destructive) { Task { try? await session.remove(member, from: family); dismiss() } } label: { Label("Not the same", systemImage: "xmark.circle") }
                 }
             }.azetList()
@@ -351,7 +355,7 @@ struct MemberView: View {
                         if let link { ShareLink(item: link) { Label("Send the link", systemImage: "square.and.arrow.up") } }
                     } footer: { Text("They haven't opened their link yet. A new link stops the old one from working.") }
                 }
-                if member.status == 1 { Section { Button { confirming = true } label: { Label("Compare the five words", systemImage: "checkmark.shield") } } }
+                if member.status == 1 { Section { Button { confirming = true } label: { Label("Compare the 6-digit code", systemImage: "checkmark.shield") } } }
                 Section("Access") {
                     Picker("Role", selection: Binding(get: { member.role }, set: { r in member.role = r; Task { try? await session.updateMember(member, in: family, role: r, vaults: member.vaults); await onChange() } })) {
                         Text("Member").tag(2); Text("Family organizer").tag(1); Text("Guest").tag(5)
@@ -544,7 +548,7 @@ struct JoinFamilyView: View {
                         Section {
                             VStack(alignment: .leading, spacing: 12) {
                                 Text("You're in. One last step").font(.title2.bold())
-                                Text("Read these five words to \(invite.invitedBy ?? String(localized: "the person who invited you")). When their screen shows the same words, they let you in.")
+                                Text("Read this 6-digit code to \(invite.invitedBy ?? String(localized: "the person who invited you")). When their screen shows the same code, they let you in.")
                                 FingerprintWords(phrase: session.myFingerprint())
                             }.padding(.vertical, 6)
                         }

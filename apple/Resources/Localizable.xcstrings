@@ -573,12 +573,12 @@
         }
       }
     },
-    "Call %@ and ask them to read their five words.": {
+    "Call %@ and ask them to read their 6-digit code.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ 님께 전화해서 화면의 다섯 단어를 읽어 달라고 하세요."
+            "value": "%@ 님께 전화해서 화면의 6자리 번호를 읽어 달라고 하세요."
           }
         }
       }
@@ -773,12 +773,12 @@
         }
       }
     },
-    "Compare the five words": {
+    "Compare the 6-digit code": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "다섯 단어 맞춰 보기"
+            "value": "6자리 번호 맞춰 보기"
           }
         }
       }
@@ -1223,12 +1223,12 @@
         }
       }
     },
-    "Everyone let in after the five words": {
+    "Everyone let in after the code check": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "다섯 단어 확인 후 모두 입장"
+            "value": "번호 확인 후 모두 입장"
           }
         }
       }
@@ -2403,12 +2403,12 @@
         }
       }
     },
-    "Next: call them and compare the five words, then tap Let in.": {
+    "Next: call them and compare the 6-digit code, then tap Let in.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "다음: 전화해서 다섯 단어를 맞춰 본 뒤 「들이기」를 누르세요."
+            "value": "다음: 전화해서 6자리 번호를 맞춰 본 뒤 「들이기」를 누르세요."
           }
         }
       }
@@ -2488,7 +2488,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "다른 단어예요"
+            "value": "다른 번호예요"
           }
         }
       }
@@ -3003,22 +3003,22 @@
         }
       }
     },
-    "Read these five words to %@. When their screen shows the same words, they let you in.": {
+    "Read this 6-digit code to %@. When their screen shows the same code, they let you in.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ 님께 이 다섯 단어를 읽어 주세요. 같은 단어가 보이면 들여보내 줘요."
+            "value": "%@ 님께 이 6자리 번호를 읽어 주세요. 같은 번호가 보이면 들여보내 줘요."
           }
         }
       }
     },
-    "Read these words to the person who invited you. When they see the same words, they let you in and the family's items appear here.": {
+    "Read this 6-digit code to the person who invited you. When they see the same code, they let you in and the family's items appear here.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "초대한 가족에게 이 단어를 읽어 주세요. 같은 단어가 보이면 들여보내 주고, 가족 항목이 여기 나타나요."
+            "value": "초대한 가족에게 이 6자리 번호를 읽어 주세요. 같은 번호가 보이면 들여보내 주고, 가족 항목이 여기 나타나요."
           }
         }
       }
@@ -3193,32 +3193,32 @@
         }
       }
     },
+    "Same code, let them in": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "같은 번호예요, 들이기"
+          }
+        }
+      }
+    },
+    "Same code? Let them in. Different code? Someone else may have the link: tap Not the same and send a new invite.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "같은 번호면 들여보내세요. 다르면 다른 사람이 링크를 가졌을 수 있어요. 「다른 번호예요」를 누르고 새로 초대하세요."
+          }
+        }
+      }
+    },
     "Same password on %lld sites": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "%lld개 사이트에서 같은 비밀번호"
-          }
-        }
-      }
-    },
-    "Same words, let them in": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "같은 단어예요, 들이기"
-          }
-        }
-      }
-    },
-    "Same words? Let them in. Different words? Someone else may have the link: tap Not the same and send a new invite.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "같은 단어면 들여보내세요. 다르면 다른 사람이 링크를 가졌을 수 있어요. 「다른 단어예요」를 누르고 새로 초대하세요."
           }
         }
       }
@@ -3443,12 +3443,12 @@
         }
       }
     },
-    "Set up a parent's phone from yours, then compare five words": {
+    "Set up a parent's phone from yours, then compare a 6-digit code": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "부모님 휴대폰을 내 폰에서 세팅하고, 다섯 단어로 확인"
+            "value": "부모님 휴대폰을 내 폰에서 세팅하고, 6자리 번호로 확인"
           }
         }
       }

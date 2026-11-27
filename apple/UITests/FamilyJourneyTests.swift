@@ -62,6 +62,7 @@ final class FamilyJourneyTests: XCTestCase {
     func signIn(_ email: String, _ password: String) {
         tap(app.buttons["로그인"].firstMatch)
         type(app.textFields["이메일"], email)
+        tap(app.buttons["다음"])
         type(app.secureTextFields["계정 비밀번호"], password)
         app.buttons.matching(NSPredicate(format: "label == '로그인'")).element(boundBy: app.buttons.matching(NSPredicate(format: "label == '로그인'")).count - 1).tap()
         wait(app.tabBars.buttons["홈"], 60)
@@ -110,6 +111,7 @@ final class FamilyJourneyTests: XCTestCase {
         // 2 invite 엄마 with her own vault
         tap(app.buttons["가족 초대하기"])
         type(app.textFields["이름 (예: 엄마)"], "엄마")
+        tap(app.buttons["다음"])
         type(app.textFields["그분 이메일"], mom)
         shot("invite-form")
         tap(app.buttons["초대 링크 만들기"])
@@ -176,6 +178,7 @@ final class FamilyJourneyTests: XCTestCase {
         wait(app.secureTextFields["계정 비밀번호"], 40)
         shot("mom-invite-signup")
         type(app.secureTextFields["계정 비밀번호"], momPw)
+        tap(app.buttons["다음"])
         type(app.secureTextFields["한 번 더 입력"], momPw)
         tap(app.buttons["계정 만들기"])
         dismissSavePassword()

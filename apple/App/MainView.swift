@@ -84,7 +84,7 @@ struct HomeView: View {
                     if !favorites.isEmpty { HomeSection(title: String(localized: "Favorites"), symbol: "star.fill", color: .orange, items: favorites, open: $open) }
                     HomeSection(title: String(localized: "Recently modified"), symbol: "clock.arrow.circlepath", color: .purple, items: recent, open: $open)
                     if recent.isEmpty {
-                        Button { showNew = true } label: { Label("Add your first item", systemImage: "plus") }.buttonStyle(.borderedProminent)
+                        Button { showNew = true } label: { Label("Add your first item", systemImage: "plus") }.buttonStyle(.pill)
                     }
                 }
                 .padding()

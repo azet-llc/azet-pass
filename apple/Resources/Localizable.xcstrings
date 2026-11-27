@@ -72,6 +72,16 @@
         }
       }
     },
+    "%@'s email": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 님 이메일"
+          }
+        }
+      }
+    },
     "%lld": {
       "localizations": {
         "ko": {
@@ -148,16 +158,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "6자리 코드"
-          }
-        }
-      }
-    },
-    "6-digit code from your authenticator app": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "인증 앱에 나온 6자리 코드"
           }
         }
       }
@@ -693,12 +693,12 @@
         }
       }
     },
-    "Check your mail on this iPhone and tap the link. It opens AZET Pass to finish.": {
+    "Check your mail on this iPhone": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 iPhone에서 메일을 열고 링크를 누르세요. AZET Pass가 열리며 가입이 끝나요."
+            "value": "이 아이폰에서 메일을 확인하세요"
           }
         }
       }
@@ -759,6 +759,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "닫기"
+          }
+        }
+      }
+    },
+    "Code from your authenticator app": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "인증 앱에 뜬 번호"
           }
         }
       }
@@ -1643,16 +1653,6 @@
         }
       }
     },
-    "Guests see one vault you choose, like the babysitter with the Wi-Fi and alarm code.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "게스트는 고른 금고 하나만 봐요. 와이파이·현관 비밀번호를 아이 돌보미에게 줄 때처럼요."
-          }
-        }
-      }
-    },
     "Hello, %@": {
       "localizations": {
         "ko": {
@@ -1679,16 +1679,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "숨기기"
-          }
-        }
-      }
-    },
-    "Hint (optional, never the password)": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "힌트 (선택, 비밀번호 자체는 적지 마세요)"
           }
         }
       }
@@ -1783,6 +1773,16 @@
         }
       }
     },
+    "If you ever forget it, a family organizer can help you back in.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "잊어버려도 가족 관리자가 다시 들어오게 도와줄 수 있어요."
+          }
+        }
+      }
+    },
     "Immediately": {
       "localizations": {
         "ko": {
@@ -1843,16 +1843,6 @@
         }
       }
     },
-    "Invite": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "초대"
-          }
-        }
-      }
-    },
     "Invite ready": {
       "localizations": {
         "ko": {
@@ -1883,6 +1873,16 @@
         }
       }
     },
+    "It never leaves this phone. Only a one-way proof of it is sent.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 폰 밖으로 나가지 않아요. 확인용 값만 보내요."
+          }
+        }
+      }
+    },
     "It stops working %@%@.": {
       "localizations": {
         "ko": {
@@ -1904,16 +1904,6 @@
       }
     },
     "Join the family": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "가족에 들어가기"
-          }
-        }
-      }
-    },
-    "Join your family": {
       "localizations": {
         "ko": {
           "stringUnit": {
@@ -1949,16 +1939,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "성"
-          }
-        }
-      }
-    },
-    "Later": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "나중에"
           }
         }
       }
@@ -2083,12 +2063,12 @@
         }
       }
     },
-    "Locked on your phone first: the server only ever sees scrambled data": {
+    "Locked on your phone. The server sees only scrambled data": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "휴대폰에서 먼저 잠가요: 서버는 알아볼 수 없는 데이터만 받아요"
+            "value": "내 폰에서 먼저 잠가요. 서버는 암호문만 봐요"
           }
         }
       }
@@ -2183,6 +2163,16 @@
         }
       }
     },
+    "Make your account password": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "계정 비밀번호를 만들어 주세요"
+          }
+        }
+      }
+    },
     "Make your family": {
       "localizations": {
         "ko": {
@@ -2239,16 +2229,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "회원 이름"
-          }
-        }
-      }
-    },
-    "Members get a private vault and the Shared vault.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "구성원은 개인 금고와 가족 공유 금고를 써요."
           }
         }
       }
@@ -2393,6 +2373,16 @@
         }
       }
     },
+    "Next": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음"
+          }
+        }
+      }
+    },
     "Next: send each person their link (KakaoTalk or text). They tap it and make their password.": {
       "localizations": {
         "ko": {
@@ -2463,6 +2453,16 @@
         }
       }
     },
+    "Not the same yet": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아직 같지 않아요"
+          }
+        }
+      }
+    },
     "Notes": {
       "localizations": {
         "ko": {
@@ -2509,6 +2509,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "확인"
+          }
+        }
+      }
+    },
+    "One photo of the notebook fills in the logins": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "수첩 사진 한 장이면 로그인이 채워져요"
           }
         }
       }
@@ -2573,12 +2583,12 @@
         }
       }
     },
-    "Open the link your family sent you (KakaoTalk, a text message). It opens AZET Pass and fills in everything for you.": {
+    "Open the link your family sent you": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "가족이 보낸 링크(카카오톡·문자)를 여세요. AZET Pass가 열리면서 필요한 것을 다 채워 줘요."
+            "value": "가족이 보낸 링크를 열어 주세요"
           }
         }
       }
@@ -2593,32 +2603,12 @@
         }
       }
     },
-    "Or paste the link here": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "또는 링크를 여기에 붙여 넣기"
-          }
-        }
-      }
-    },
     "Organizer": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
             "value": "관리자"
-          }
-        }
-      }
-    },
-    "Organizers can invite people and help anyone back in if they forget their password.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "관리자는 가족을 초대하고, 비밀번호를 잊은 가족이 다시 들어오도록 도울 수 있어요."
           }
         }
       }
@@ -2779,6 +2769,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "비밀번호: %@"
+          }
+        }
+      }
+    },
+    "Paste the link": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "링크 붙여넣기"
           }
         }
       }
@@ -3333,12 +3333,12 @@
         }
       }
     },
-    "Send this link to %@. When they open it on their phone, AZET Pass installs, fills in their email and asks them to make a password.": {
+    "Send this link to %@. They open it, make a password, and they're in once you tap Let in.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ 님께 이 링크를 보내세요. 휴대폰에서 열면 AZET Pass가 설치되고, 이메일이 채워진 채 비밀번호만 정하면 돼요."
+            "value": "%@ 님께 이 링크를 보내세요. 링크를 열고 비밀번호를 만들면, 내가 「들이기」를 누르는 순간 들어와요."
           }
         }
       }
@@ -3373,12 +3373,12 @@
         }
       }
     },
-    "Set up a parent's phone from yours, before they even install the app": {
+    "Set up a parent's phone from yours": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "부모님이 앱을 깔기 전에 내 폰에서 미리 세팅"
+            "value": "부모님 폰을 내 폰에서 미리 세팅"
           }
         }
       }
@@ -3713,12 +3713,22 @@
         }
       }
     },
-    "Take a photo of the notebook, the logins fill themselves in": {
+    "Tap it in KakaoTalk or Messages and AZET Pass fills in everything. Or paste it here.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "메모장을 찍으면 로그인이 저절로 채워져요"
+            "value": "카카오톡이나 문자에서 누르면 AZET Pass가 다 채워요. 여기에 붙여 넣어도 돼요."
+          }
+        }
+      }
+    },
+    "Tap the link in it. AZET Pass opens and you finish there.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메일 속 링크를 누르면 AZET Pass가 열리고 거기서 마무리해요."
           }
         }
       }
@@ -3778,7 +3788,17 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "온 가족의 비밀번호 수첩."
+            "value": "온 가족의 비밀번호 수첩"
+          }
+        }
+      }
+    },
+    "The one password you remember. Write it on paper and keep it at home.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "외워 둘 비밀번호 하나예요. 종이에 적어 집에 두세요."
           }
         }
       }
@@ -3869,26 +3889,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "이 초대는 %1$@ 님 것이에요. 지금 %2$@(으)로 로그인돼 있어요. 로그아웃한 뒤 열어 주세요."
-          }
-        }
-      }
-    },
-    "This is the address your family invited.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "가족이 초대한 주소예요."
-          }
-        }
-      }
-    },
-    "This is the one password you remember. Write it on paper and keep it at home. If you forget it, a family organizer can help you back in.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "이제 외울 비밀번호는 이것 하나예요. 종이에 적어 집에 두세요. 잊어도 가족 관리자가 다시 들어오게 도와줄 수 있어요."
           }
         }
       }
@@ -4073,6 +4073,16 @@
         }
       }
     },
+    "Type it once more": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "한 번 더 입력해 주세요"
+          }
+        }
+      }
+    },
     "URL": {
       "localizations": {
         "ko": {
@@ -4133,22 +4143,22 @@
         }
       }
     },
-    "Up to 5 people share one family, each with a private vault": {
+    "Up to 5 people, each with a private vault": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "한 가족 5명까지, 각자 개인 금고도 따로"
+            "value": "다섯 명까지, 각자 개인 금고도 따로"
           }
         }
       }
     },
-    "Up to 5 people, each with their own private vault, plus a Shared vault for the Wi-Fi, Netflix and everything the family uses together. As the family organizer you can help anyone who forgets their password.": {
+    "Up to 5 people, each with a private vault, plus a Shared vault for the Wi-Fi and Netflix.": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "5명까지, 각자 개인 금고가 있고 와이파이·넷플릭스처럼 함께 쓰는 것은 가족 공유 금고에 둬요. 가족 관리자는 비밀번호를 잊은 가족을 도와줄 수 있어요."
+            "value": "다섯 명까지 각자 개인 금고가 있고, 와이파이·넷플릭스는 공유 금고에 넣어요."
           }
         }
       }
@@ -4323,6 +4333,16 @@
         }
       }
     },
+    "We make a link for this address. You send it yourself, by KakaoTalk or text.": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 주소로 링크를 만들어요. 카카오톡이나 문자로 직접 보내 주세요."
+          }
+        }
+      }
+    },
     "Weak": {
       "localizations": {
         "ko": {
@@ -4363,6 +4383,26 @@
         }
       }
     },
+    "What should your family call you?": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가족이 뭐라고 부르면 될까요?"
+          }
+        }
+      }
+    },
+    "What's your email?": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이메일을 알려 주세요"
+          }
+        }
+      }
+    },
     "When someone turns on Travel Mode, only travel-safe vaults stay on their phone.": {
       "localizations": {
         "ko": {
@@ -4389,6 +4429,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "켜 두는 동안 여행용으로 표시한 항목과 금고만 기기에 남아요. 끄면 나머지가 모두 돌아와요."
+          }
+        }
+      }
+    },
+    "Who are you inviting?": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "누구를 초대할까요?"
           }
         }
       }
@@ -4453,16 +4503,6 @@
         }
       }
     },
-    "You and they can both see it. Add their bank, government and shopping logins before they join, then they only have to open the link.": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "나와 그분 둘 다 봐요. 들어오기 전에 은행·정부·쇼핑 로그인을 넣어 두면 그분은 링크만 열면 돼요."
-          }
-        }
-      }
-    },
     "You can now tear out the page or keep the notebook somewhere safe. Logins fill themselves in from now on.": {
       "localizations": {
         "ko": {
@@ -4483,12 +4523,12 @@
         }
       }
     },
-    "Your account password never leaves this phone. Only a one-way proof of it is sent.": {
+    "Your account password": {
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "계정 비밀번호는 이 휴대폰 밖으로 나가지 않아요. 되돌릴 수 없는 확인 값만 보내요."
+            "value": "계정 비밀번호"
           }
         }
       }
@@ -4549,16 +4589,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld일 뒤"
-          }
-        }
-      }
-    },
-    "the person who invited you": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "초대한 가족"
           }
         }
       }

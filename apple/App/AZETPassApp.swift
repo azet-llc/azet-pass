@@ -48,14 +48,15 @@ enum Theme {
     /// AZET blue #2f6fe8, the family accent (azet-desktop src/shared/design/azet-tokens.ts); warm amber for family moments.
     static let brand = Color(red: 47 / 255, green: 111 / 255, blue: 232 / 255)
     static let warm = Color(red: 0.96, green: 0.64, blue: 0.15)
-    static let card = Color(.secondarySystemGroupedBackground)
-    /// Grouped page #f4f4f5 / #0d0d0d: the AZET app's neutral grey instead of iOS's blue-grey.
+    /// Pickle's flat surfaces (azet-ui-spec 1.1): page #F7F7F7 / #101114, cards #FFFFFF / #1B1D22.
     #if os(iOS)
-    static let page = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? rgb(0x0d0d0d) : rgb(0xf4f4f5) })
+    static let card = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? rgb(0x1b1d22) : rgb(0xffffff) })
+    static let page = Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? rgb(0x101114) : rgb(0xf7f7f7) })
     private static func rgb(_ v: Int) -> UIColor {
         UIColor(red: CGFloat((v >> 16) & 0xff) / 255, green: CGFloat((v >> 8) & 0xff) / 255, blue: CGFloat(v & 0xff) / 255, alpha: 1)
     }
     #else
+    static let card = Color(.controlBackgroundColor)
     static let page = Color(.windowBackgroundColor)
     #endif
 
@@ -97,7 +98,7 @@ struct Avatar: View {
 
 extension View {
     func cardStyle() -> some View {
-        padding().background(Theme.card, in: RoundedRectangle(cornerRadius: 14))
+        padding().background(Theme.card, in: RoundedRectangle(cornerRadius: 20))
     }
 
     /// Shows a session error as an alert.

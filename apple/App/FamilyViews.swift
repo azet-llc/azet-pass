@@ -31,21 +31,12 @@ struct CreateFamilyView: View {
     @State private var busy = false
     @State private var error: String?
     var body: some View {
-        Form {
-            Section {
-                VStack(alignment: .leading, spacing: 10) {
-                    Image(systemName: "person.3.fill").font(.largeTitle).foregroundStyle(Theme.brand)
-                    Text("Make your family").font(.title2.bold())
-                    Text("Up to 5 people, each with their own private vault, plus a Shared vault for the Wi-Fi, Netflix and everything the family uses together. As the family organizer you can help anyone who forgets their password.")
-                        .foregroundStyle(.secondary)
-                }.padding(.vertical, 8)
-            }
-            Section {
-                TextField("Family name (e.g. the Kims)", text: $name)
-                Button { Task { await create() } } label: { HStack { Text("Make the family"); if busy { Spacer(); ProgressView() } } }
-                    .disabled(name.isEmpty || busy)
-            } footer: { Text("Got an invite instead? Open the link your family sent you.") }
-        }.azetList()
+        StepScreen(title: String(localized: "Make your family"),
+                   subtitle: String(localized: "Up to 5 people, each with a private vault, plus a Shared vault for the Wi-Fi and Netflix."),
+                   cta: String(localized: "Make the family"), busy: busy, enabled: !name.isEmpty) { Task { await create() } } content: {
+            TextField("Family name (e.g. the Kims)", text: $name).capsuleField()
+            Text("Got an invite instead? Open the link your family sent you.").font(.system(size: 14)).foregroundStyle(Pk.secondaryText).padding(.horizontal, 8)
+        }
         .errorAlert($error)
     }
     private func create() async {
@@ -87,7 +78,7 @@ struct FamilyHome: View {
                     ForEach(members.filter { $0.status == 1 }) { m in
                         HStack {
                             MemberRow(member: m)
-                            Button("Let in") { Task { await letIn(m) } }.buttonStyle(.borderedProminent).accessibilityIdentifier("letin.\(m.name)")
+                            Button("Let in") { Task { await letIn(m) } }.buttonStyle(.pillSmall).accessibilityIdentifier("letin.\(m.name)")
                         }
                     }
                 }
@@ -221,47 +212,50 @@ struct InviteView: View {
     @State private var busy = false
     @State private var error: String?
 
+    @State private var step = 0
+
     var body: some View {
         NavigationStack {
-            Form {
+            ZStack {
                 if let link {
-                    Section {
-                        VStack(alignment: .leading, spacing: 10) {
-                            Label("Invite ready", systemImage: "checkmark.seal.fill").font(.headline).foregroundStyle(Theme.brand)
-                            Text("Send this link to \(name). When they open it on their phone, AZET Pass installs, fills in their email and asks them to make a password.")
-                        }
+                    StepScreen(title: String(localized: "Invite ready"),
+                               subtitle: String(localized: "Send this link to \(name). They open it, make a password, and they're in once you tap Let in."),
+                               cta: String(localized: "Done")) { dismiss() } content: {
                         ShareLink(item: link, message: Text(String(localized: "\(session.account?.name ?? "") invited you to the \(family.name) family on AZET Pass. Open this link on your phone:"))) {
                             Label("Send the link", systemImage: "square.and.arrow.up")
-                        }
+                        }.buttonStyle(.pillSecondary)
                         Button { copyToClipboard(link.absoluteString) } label: { Label("Copy link", systemImage: "doc.on.doc") }
-                            .accessibilityValue(link.absoluteString)
+                            .buttonStyle(.pillSecondary).accessibilityValue(link.absoluteString)
+                        if ownVault, role != 5 {
+                            Text("A vault called \"\(name)\" is ready. Add their logins now, so everything is there the moment they join.")
+                                .font(.system(size: 14)).foregroundStyle(Pk.secondaryText).padding(.horizontal, 8).padding(.top, 6)
+                        }
                     }
-                    if ownVault {
-                        Section { Text("A vault called \"\(name)\" is ready. Add their logins now, so everything is there the moment they join.").foregroundStyle(.secondary) }
+                } else if step == 0 {
+                    StepScreen(title: String(localized: "Who are you inviting?"), cta: String(localized: "Next"), enabled: !name.isEmpty) { step = 1 } content: {
+                        TextField("Name (e.g. Mom)", text: $name).capsuleField()
                     }
                 } else {
-                    Section {
-                        TextField("Name (e.g. Mom)", text: $name)
-                        TextField("Their email", text: $email).keyboardType(.emailAddress).textInputAutocapitalization(.never).autocorrectionDisabled()
-                        Picker("Role", selection: $role) {
-                            Text("Member").tag(2); Text("Family organizer").tag(1); Text("Guest (one vault only)").tag(5)
-                        }
-                    } footer: {
-                        Text(role == 1 ? "Organizers can invite people and help anyone back in if they forget their password." : role == 5 ? "Guests see one vault you choose, like the babysitter with the Wi-Fi and alarm code." : "Members get a private vault and the Shared vault.")
-                    }
-                    if role != 5 {
-                        Section {
-                            Toggle("Make a vault to fill in for them", isOn: $ownVault)
-                        } footer: { Text("You and they can both see it. Add their bank, government and shopping logins before they join, then they only have to open the link.") }
-                    }
-                    Section {
-                        Button { Task { await make() } } label: { HStack { Text("Create invite link"); if busy { Spacer(); ProgressView() } } }
-                            .disabled(name.isEmpty || !email.contains("@") || busy)
+                    StepScreen(title: String(localized: "\(name)'s email"),
+                               subtitle: String(localized: "We make a link for this address. You send it yourself, by KakaoTalk or text."),
+                               cta: String(localized: "Create invite link"), busy: busy, enabled: email.contains("@")) { Task { await make() } } content: {
+                        TextField("Their email", text: $email).keyboardType(.emailAddress).textInputAutocapitalization(.never).autocorrectionDisabled().capsuleField()
+                        Menu {
+                            Picker("Role", selection: $role) {
+                                Text("Member").tag(2); Text("Family organizer").tag(1); Text("Guest (one vault only)").tag(5)
+                            }
+                            if role != 5 { Toggle("Make a vault to fill in for them", isOn: $ownVault) }
+                        } label: {
+                            Label(role == 1 ? String(localized: "Family organizer") : role == 5 ? String(localized: "Guest (one vault only)") : String(localized: "Member"),
+                                  systemImage: "slider.horizontal.3")
+                        }.buttonStyle(.pillSmall).padding(.top, 4)
                     }
                 }
-            }.azetList()
-            .navigationTitle("Invite")
-            .toolbar { ToolbarItem(placement: .confirmationAction) { Button(link == nil ? "Cancel" : "Done") { dismiss() } } }
+            }
+            .animation(.default, value: step)
+            .animation(.default, value: link)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .cancellationAction) { if link == nil { Button("Cancel") { dismiss() } } } }
             .errorAlert($error)
         }
     }

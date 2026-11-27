@@ -40,33 +40,39 @@ extension Session.Invite: Identifiable { var id: String { memberId } }
 struct WelcomeView: View {
     @Binding var mailToken: (token: String, email: String)?
     @State private var route: Route?
+    @State private var line = 0
     enum Route: Hashable, Identifiable { case signIn, signUp, joinHelp; var id: Self { self } }
+    private let lines = [String(localized: "Up to 5 people, each with a private vault"),
+                         String(localized: "One photo of the notebook fills in the logins"),
+                         String(localized: "Set up a parent's phone from yours"),
+                         String(localized: "Locked on your phone. The server sees only scrambled data")]
+    private let tick = Timer.publish(every: 2.6, on: .main, in: .common).autoconnect()
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 Spacer()
-                Image("Mark").resizable().scaledToFit().frame(width: 76, height: 76)
-                Text("AZET Pass").font(.largeTitle.bold()).padding(.top, 12)
-                Text("The notebook of passwords, for the whole family.").font(.title3).multilineTextAlignment(.center)
-                    .foregroundStyle(.secondary).padding(.top, 6).padding(.horizontal, 32)
-                VStack(alignment: .leading, spacing: 14) {
-                    Feature(symbol: "person.3.fill", text: String(localized: "Up to 5 people share one family, each with a private vault"))
-                    Feature(symbol: "camera.viewfinder", text: String(localized: "Take a photo of the notebook, the logins fill themselves in"))
-                    Feature(symbol: "hand.raised.fill", text: String(localized: "Set up a parent's phone from yours, before they even install the app"))
-                    Feature(symbol: "lock.shield.fill", text: String(localized: "Locked on your phone first: the server only ever sees scrambled data"))
+                Image("Mark").resizable().scaledToFit().frame(width: 96, height: 96).modifier(Materialize(delay: 0.1))
+                // [3.1] headline 22 / line-height 30.8, a second line that swaps every 2.6 s
+                Text("The notebook of passwords, for the whole family.").font(.system(size: 22, weight: .medium)).tracking(-0.22)
+                    .multilineTextAlignment(.center).padding(.top, 28).padding(.horizontal, 28).modifier(Materialize())
+                ZStack {
+                    Text(lines[line]).font(.system(size: 17)).foregroundStyle(Pk.secondaryText).multilineTextAlignment(.center)
+                        .id(line).transition(.asymmetric(insertion: .opacity.combined(with: .offset(y: 8)).combined(with: .blur(3)),
+                                                         removal: .opacity.combined(with: .offset(y: -8))))
                 }
-                .padding(24)
+                .frame(height: 48).padding(.horizontal, 28).padding(.top, 8).modifier(Materialize(delay: 0.42))
                 Spacer()
-                VStack(spacing: 12) {
-                    NavigationLink(value: Route.signUp) { Text("Create a family account").frame(maxWidth: .infinity) }
-                        .buttonStyle(.borderedProminent).controlSize(.large)
-                    NavigationLink(value: Route.signIn) { Text("Sign in").frame(maxWidth: .infinity) }
-                        .buttonStyle(.bordered).controlSize(.large)
-                    NavigationLink(value: Route.joinHelp) { Text("I got an invite from my family") }.padding(.top, 4)
+                VStack(spacing: 8) {
+                    NavigationLink(value: Route.signUp) { Text("Create a family account") }.buttonStyle(.pill)
+                    NavigationLink(value: Route.signIn) { Text("Sign in") }.buttonStyle(.pillSecondary)
+                    NavigationLink(value: Route.joinHelp) { Text("I got an invite from my family").font(.system(size: 15, weight: .medium)) }
+                        .foregroundStyle(Pk.ink).padding(.top, 10)
                 }
-                .padding(.horizontal, 24).padding(.bottom, 24)
+                .padding(.horizontal, 24).padding(.bottom, 24).modifier(Materialize(delay: 0.5))
             }
+            .background(Pk.screen)
+            .onReceive(tick) { _ in withAnimation(.timingCurve(0.33, 1, 0.68, 1, duration: 0.4)) { line = (line + 1) % lines.count } }
             .navigationDestination(for: Route.self) { r in
                 switch r {
                 case .signIn: SignInView()
@@ -82,130 +88,135 @@ struct WelcomeView: View {
     }
 }
 
-struct Feature: View {
-    let symbol: String
-    let text: String
-    var body: some View {
-        HStack(alignment: .top, spacing: 14) {
-            Image(systemName: symbol).font(.title3).foregroundStyle(Theme.brand).frame(width: 30)
-            Text(text).font(.body)
-        }
-    }
-}
-
 struct JoinHelpView: View {
     @Environment(Prefs.self) private var prefs
     @State private var link = ""
     var body: some View {
-        Form {
-            Section {
-                Text("Open the link your family sent you (KakaoTalk, a text message). It opens AZET Pass and fills in everything for you.")
-                TextField("Or paste the link here", text: $link).textInputAutocapitalization(.never).autocorrectionDisabled()
-                Button("Open invite") { prefs.pendingURL = URL(string: link.trimmingCharacters(in: .whitespacesAndNewlines)) }
-                    .disabled(URL(string: link).flatMap(Session.parseInvite) == nil)
-            }
-        }.azetList()
-        .navigationTitle("Family invite")
+        StepScreen(title: String(localized: "Open the link your family sent you"),
+                   subtitle: String(localized: "Tap it in KakaoTalk or Messages and AZET Pass fills in everything. Or paste it here."),
+                   cta: String(localized: "Open invite"), enabled: URL(string: link).flatMap(Session.parseInvite) != nil) {
+            prefs.pendingURL = URL(string: link.trimmingCharacters(in: .whitespacesAndNewlines))
+        } content: {
+            TextField("Paste the link", text: $link).textInputAutocapitalization(.never).autocorrectionDisabled().capsuleField()
+        }
     }
 }
 
 // MARK: sign in
 
+/// [3.1] email, then password, then (only if needed) the authenticator code — one per screen.
 struct SignInView: View {
     @Environment(Session.self) private var session
+    @State private var step = 0
     @State private var email = ""
     @State private var password = ""
     @State private var code = ""
-    @State private var needCode = false
     @State private var busy = false
     @State private var error: String?
+    @FocusState private var focused: Bool
 
     var body: some View {
-        Form {
-            Section {
-                TextField("Email", text: $email).keyboardType(.emailAddress).textContentType(.username)
-                    .textInputAutocapitalization(.never).autocorrectionDisabled()
-                SecureField("Account password", text: $password).textContentType(.password)
-                if needCode {
-                    TextField("6-digit code from your authenticator app", text: $code).keyboardType(.numberPad).textContentType(.oneTimeCode)
+        ZStack {
+            switch step {
+            case 0:
+                StepScreen(title: String(localized: "What's your email?"), cta: String(localized: "Next"), enabled: email.contains("@")) { step = 1 } content: {
+                    TextField("Email", text: $email).keyboardType(.emailAddress).textContentType(.username)
+                        .textInputAutocapitalization(.never).autocorrectionDisabled().capsuleField().focused($focused).onSubmit { if email.contains("@") { step = 1 } }
                 }
-            } footer: { Text("Your account password never leaves this phone. Only a one-way proof of it is sent.") }
-            Section {
-                Button {
-                    Task { await go() }
-                } label: { HStack { Text("Sign in"); if busy { Spacer(); ProgressView() } } }
-                .disabled(email.isEmpty || password.isEmpty || busy)
+            case 1:
+                StepScreen(title: String(localized: "Your account password"),
+                           subtitle: String(localized: "It never leaves this phone. Only a one-way proof of it is sent."),
+                           cta: String(localized: "Sign in"), busy: busy, enabled: !password.isEmpty) { Task { await go() } } content: {
+                    SecureField("Account password", text: $password).textContentType(.password).capsuleField().focused($focused)
+                        .onSubmit { Task { await go() } }
+                }
+            default:
+                StepScreen(title: String(localized: "Code from your authenticator app"), cta: String(localized: "Sign in"), busy: busy, enabled: code.count >= 6) { Task { await go() } } content: {
+                    TextField("6-digit code", text: $code).keyboardType(.numberPad).textContentType(.oneTimeCode).capsuleField().focused($focused)
+                }
             }
-        }.azetList()
-        .navigationTitle("Sign in")
+        }
+        .animation(.default, value: step)
+        .onChange(of: step) { _, _ in focusSoon() }
+        .onAppear { focusSoon() }
+        .navigationBarTitleDisplayMode(.inline)
         .errorAlert($error)
     }
 
+    private func focusSoon() { DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { focused = true } }
+
     private func go() async {
         busy = true; defer { busy = false }
-        do { try await session.signIn(email: email, password: password, code: needCode ? code : nil) }
-        catch is TwoFactorNeeded { needCode = true }
+        do { try await session.signIn(email: email, password: password, code: step == 2 ? code : nil) }
+        catch is TwoFactorNeeded { step = 2 }
         catch { self.error = error.localizedDescription }
     }
 }
 
 // MARK: sign up
 
+/// [3.1] one question per screen. Without a mailed or invite proof: email → we mail a link. With it: name (skipped when the
+/// invite already has one) → password → type it again.
 struct SignUpView: View {
     @Environment(Session.self) private var session
     var mailToken: (token: String, email: String)?
     var invite: Session.Invite?
     var onDone: (() -> Void)?
+    @State private var step = 0
     @State private var email = ""
     @State private var name = ""
     @State private var password = ""
     @State private var again = ""
-    @State private var hint = ""
     @State private var mailSent = false
     @State private var busy = false
     @State private var error: String?
+    @FocusState private var focused: Bool
 
     private var hasProof: Bool { mailToken != nil || invite != nil }
     private var strength: UInt8 { password.isEmpty ? 0 : session.strength(password) }
 
     var body: some View {
-        Form {
-            Section {
-                TextField("Email", text: $email).keyboardType(.emailAddress).textContentType(.username)
-                    .textInputAutocapitalization(.never).autocorrectionDisabled().disabled(hasProof)
-                TextField("Your name", text: $name).textContentType(.name)
-            } footer: {
-                if invite != nil { Text("This is the address your family invited.") }
-            }
-            if hasProof {
-                Section {
-                    SecureField("Account password", text: $password).textContentType(.newPassword)
-                    StrengthBar(score: strength)
-                    SecureField("Type it again", text: $again).textContentType(.newPassword)
-                    TextField("Hint (optional, never the password)", text: $hint)
-                } header: { Text("Account password") } footer: {
-                    Text("This is the one password you remember. Write it on paper and keep it at home. If you forget it, a family organizer can help you back in.")
+        ZStack {
+            if !hasProof {
+                StepScreen(title: mailSent ? String(localized: "Check your mail on this iPhone") : String(localized: "What's your email?"),
+                           subtitle: mailSent ? String(localized: "Tap the link in it. AZET Pass opens and you finish there.") : String(localized: "We mail you a link to make sure the address is yours."),
+                           cta: mailSent ? String(localized: "Send again") : String(localized: "Send me the link"), busy: busy, enabled: email.contains("@")) { Task { await sendMail() } } content: {
+                    TextField("Email", text: $email).keyboardType(.emailAddress).textContentType(.username)
+                        .textInputAutocapitalization(.never).autocorrectionDisabled().capsuleField().focused($focused)
                 }
-                Section {
-                    Button { Task { await create() } } label: { HStack { Text("Create account"); if busy { Spacer(); ProgressView() } } }
-                        .disabled(password.count < 8 || password != again || busy || name.isEmpty)
+            } else if step == 0 {
+                StepScreen(title: String(localized: "What should your family call you?"), cta: String(localized: "Next"), enabled: !name.isEmpty) { step = 1 } content: {
+                    TextField("Your name", text: $name).textContentType(.name).capsuleField().focused($focused)
+                }
+            } else if step == 1 {
+                StepScreen(title: String(localized: "Make your account password"),
+                           subtitle: String(localized: "The one password you remember. Write it on paper and keep it at home."),
+                           cta: String(localized: "Next"), enabled: password.count >= 8) { step = 2 } content: {
+                    SecureField("Account password", text: $password).textContentType(.newPassword).capsuleField().focused($focused)
+                    StrengthBar(score: strength).padding(.horizontal, 8)
                 }
             } else {
-                Section {
-                    Button { Task { await sendMail() } } label: { HStack { Text(mailSent ? "Send again" : "Send me the link"); if busy { Spacer(); ProgressView() } } }
-                        .disabled(!email.contains("@") || busy)
-                } footer: {
-                    Text(mailSent ? "Check your mail on this iPhone and tap the link. It opens AZET Pass to finish." : "We mail you a link to make sure the address is yours.")
+                StepScreen(title: String(localized: "Type it once more"),
+                           subtitle: String(localized: "If you ever forget it, a family organizer can help you back in."),
+                           cta: String(localized: "Create account"), busy: busy, enabled: password == again) { Task { await create() } } content: {
+                    SecureField("Type it again", text: $again).textContentType(.newPassword).capsuleField().focused($focused)
+                    if !again.isEmpty, again != password { Text("Not the same yet").font(.system(size: 14)).foregroundStyle(.red).padding(.horizontal, 8) }
                 }
             }
-        }.azetList()
-        .navigationTitle(invite == nil ? "Create account" : "Join your family")
+        }
+        .animation(.default, value: step)
+        .onChange(of: step) { _, _ in focusSoon() }
+        .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             if let m = mailToken { email = m.email }
             if let i = invite { email = i.email ?? ""; name = i.displayName ?? "" }
+            if hasProof, !name.isEmpty { step = 1 }
+            focusSoon()
         }
         .errorAlert($error)
     }
+
+    private func focusSoon() { DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { focused = true } }
 
     private func sendMail() async {
         busy = true; defer { busy = false }
@@ -215,7 +226,7 @@ struct SignUpView: View {
     private func create() async {
         busy = true; defer { busy = false }
         do {
-            try await session.signUp(email: email, name: name, password: password, hint: hint.isEmpty ? nil : hint, mailToken: mailToken?.token, invite: invite)
+            try await session.signUp(email: email, name: name, password: password, hint: nil, mailToken: mailToken?.token, invite: invite)
             onDone?()
         } catch { self.error = error.localizedDescription }
     }
@@ -252,20 +263,19 @@ struct UnlockView: View {
         VStack(spacing: 20) {
             Spacer()
             Image("Mark").resizable().scaledToFit().frame(width: 64, height: 64)
-            Text(session.account?.name ?? session.account?.email ?? "").font(.title2.bold())
+            Text(session.account?.name ?? session.account?.email ?? "").font(.system(size: 22, weight: .medium))
             Text(session.account?.email ?? "").foregroundStyle(.secondary)
-            SecureField("Account password", text: $password).textContentType(.password)
-                .padding().background(Theme.card, in: RoundedRectangle(cornerRadius: 12)).padding(.horizontal, 24)
+            SecureField("Account password", text: $password).textContentType(.password).capsuleField().padding(.horizontal, 24)
                 .onSubmit { Task { await unlock() } }
-            Button { Task { await unlock() } } label: { HStack { if busy { ProgressView() } else { Text("Unlock") } }.frame(maxWidth: .infinity) }
-                .buttonStyle(.borderedProminent).controlSize(.large).padding(.horizontal, 24).disabled(password.isEmpty || busy)
+            Button { Task { await unlock() } } label: { ZStack { Text("Unlock").opacity(busy ? 0 : 1); if busy { ProgressView().tint(Pk.onInk) } } }
+                .buttonStyle(.pill).padding(.horizontal, 24).disabled(password.isEmpty || busy)
             if session.biometricOn {
                 Button { Task { await bio() } } label: { Label("Unlock with Face ID", systemImage: "faceid") }
             }
             Spacer()
             Button("Use another account") { showSignOut = true }.font(.footnote)
         }
-        .background(Theme.page)
+        .background(Pk.screen)
         .task { if session.biometricOn { await bio() } }
         .confirmationDialog("Sign out of this account on this iPhone?", isPresented: $showSignOut, titleVisibility: .visible) {
             Button("Sign out", role: .destructive) { session.signOut() }
